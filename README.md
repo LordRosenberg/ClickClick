@@ -16,7 +16,7 @@ flowchart TB
   L6["<b>控制台后端</b> · Control API<br/>任务/设备/技能 API · SSE · 嵌入式编排器"]
   L5["<b>Agent 编排层</b> · Orchestrator<br/>Reviewer → Planner → Executor 闭环 · 状态边界 · 资源上限"]
   L4["<b>Agent Harness</b><br/>会话工具循环 · 上下文/记忆管理 · 动作事务 · 护栏纠偏 · Skills"]
-  L3["<b>感知层</b> · Perception<br/>数图包原子采集 · Tree 规范化 · SoM · 观测验收与降级"]
+  L3["<b>感知层</b> · Perception<br/>树图包原子采集 · Tree 规范化 · SoM · 观测验收与降级"]
   L2["<b>设备驱动层</b> · Driver<br/>scrcpy 共享流 · ADB 动作 · Fixture / 远程 RPC"]
   L1[("Android 设备 ×N")]
 
@@ -40,7 +40,7 @@ flowchart TB
 | **Agent 编排层**     | 三角色轮转、任务状态机、机械边界与终态裁决落库                   | [agent/orchestrator.py](agent/orchestrator.py)                                                  |
 | **Agent Harness** | 会话与工具循环、上下文/记忆管理、动作事务、护栏纠偏、Skills 加载      | [agent/session.py](agent/session.py)、[agent/action_observation.py](agent/action_observation.py) |
 | **LLM 网关**        | 统一模型协议与错误分类、按角色路由模型、token/cache 指标归一化     | [shared/llm_gateway.py](shared/llm_gateway.py)                                                  |
-| **感知层**           | 数图包原子采集、Tree 规范化、SoM 渲染、观测验收与降级           | [perception/](perception/)                                                                      |
+| **感知层**           | 树图包原子采集、Tree 规范化、SoM 渲染、观测验收与降级           | [perception/](perception/)                                                                      |
 | **设备驱动层**         | 动作执行、共享视频流、可访问性通道、远程/离线传输                 | [driver/](driver/)                                                                              |
 | **观测与评估**         | 全链路 Trace、SSE 投影、冻结任务回归 Gates             | [control_api/services.py](control_api/services.py)、[evaluation/](evaluation/)                   |
 
@@ -234,9 +234,9 @@ skills/_pending/                               # SkillLearner 产出，待人工
 
 感知层把设备屏幕变成模型可引用的**观测证据包**，实现见 [perception/observation.py](perception/observation.py)、[perception/normalizer.py](perception/normalizer.py)、[perception/som.py](perception/som.py)。
 
-### 设计理念：数图包尽量原子采集
+### 设计理念：树图包尽量原子采集
 
-模型的每个决策同时依赖**结构（a11y Tree）与像素（截图）**。若两者来自不同时刻，「Tree 说有结果、截图还在加载」这类跨源冲突会直接导致误判。因此感知层把一次 Tree + 一次像素视为一个**数图包（ObservationPackage）**，用 `observation_id` 把截图、Tree、几何映射与采集时间绑定成同一份证据：
+模型的每个决策同时依赖**结构（a11y Tree）与像素（截图）**。若两者来自不同时刻，「Tree 说有结果、截图还在加载」这类跨源冲突会直接导致误判。因此感知层把一次 Tree + 一次像素视为一个**树图包（ObservationPackage）**，用 `observation_id` 把截图、Tree、几何映射与采集时间绑定成同一份证据：
 
 1. **同事务采集**：一次完整采集在同一个可取消 deadline 内并行获取多窗口 a11y Tree 与 scrcpy 优先的像素，采集前后校验精确前台身份，保证包内一致。
 2. **不稳定则整包重采，只重采一次**：首采出现明确机械缺失（身份冲突、Tree 不完整、像素不可解码、几何不兼容）时，只等待约 1 秒后**完整重采一次**，不逐字段拼凑、不追逐 Tree 与像素完美同时刻的 fixed point。
