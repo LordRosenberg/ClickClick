@@ -1046,6 +1046,32 @@ def create_app(
 def main() -> None:
     settings = get_settings()
     app = create_app()
+    ssl_certfile = settings.api_ssl_certfile or None
+    ssl_keyfile = settings.api_ssl_keyfile or None
+    if bool(ssl_certfile) != bool(ssl_keyfile):
+        raise SystemExit(
+            "CLICKCLICK_API_SSL_CERTFILE and CLICKCLICK_API_SSL_KEYFILE "
+            "must be set together (or both left empty)."
+        )
+    if ssl_certfile and ssl_keyfile:
+        from control_api.devcert import ensure_dev_cert
+        from control_api.tls_mux import serve_tls_with_http_redirect
+
+        try:
+            ensure_dev_cert(ssl_certfile, ssl_keyfile)
+        except Exception as exc:  # noqa: BLE001
+            raise SystemExit(f"failed to prepare console TLS cert: {exc}") from exc
+        # Single public port: TLS is served, plain http:// gets a 308 to
+        # https:// so typed URLs like `192.168.x.x:8080` just work.
+        serve_tls_with_http_redirect(
+            app,
+            host=settings.api_host,
+            port=settings.api_port,
+            ssl_certfile=ssl_certfile,
+            ssl_keyfile=ssl_keyfile,
+            log_level="info",
+        )
+        return
     uvicorn.run(app, host=settings.api_host, port=settings.api_port, log_level="info")
 
 

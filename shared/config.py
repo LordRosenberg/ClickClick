@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     data_dir: Path = Path("./data")
     api_host: str = "127.0.0.1"
     api_port: int = 8080
+    # Optional TLS for the console. Both must be set to enable HTTPS.
+    # LAN access over plain http:// is NOT a secure context, so browser
+    # WebCodecs (Live mirror decoding) stays unavailable for remote viewers.
+    api_ssl_certfile: str = ""
+    api_ssl_keyfile: str = ""
 
     # Device topology. Empty driver_url(s) means local, in-process ADB.
     driver_url: str = ""

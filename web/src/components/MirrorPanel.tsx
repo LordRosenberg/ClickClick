@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SomOverlay } from "@/components/SomOverlay";
-import { getScrcpyHint } from "@/api/client";
+import { getScrcpyHint, listDevices } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import {
@@ -72,10 +72,27 @@ export function MirrorPanel({
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closedByUsRef = useRef(false);
   const connectGenRef = useRef(0);
-  const deviceSerialRef = useRef(deviceSerial);
-  const deviceKeyRef = useRef(deviceKey);
-  deviceSerialRef.current = deviceSerial;
-  deviceKeyRef.current = deviceKey;
+  // Fallback: tasks recorded without device_serial (older runs, fixture
+  // imports) pass null here. With exactly one connected device there is no
+  // ambiguity — mirror it instead of sitting on "disconnected".
+  const needsFallback = !deviceSerial && !deviceKey;
+  const devicesQuery = useQuery({
+    queryKey: ["devices"],
+    queryFn: listDevices,
+    enabled: needsFallback,
+    refetchInterval: 5_000,
+  });
+  const onlineDevices = (devicesQuery.data ?? []).filter(
+    (d) => d.state === "device"
+  );
+  const fallback = needsFallback && onlineDevices.length === 1 ? onlineDevices[0] : null;
+  const effectiveSerial = deviceSerial ?? fallback?.serial ?? null;
+  const effectiveKey = deviceKey ?? fallback?.key ?? fallback?.serial ?? null;
+
+  const deviceSerialRef = useRef(effectiveSerial);
+  const deviceKeyRef = useRef(effectiveKey);
+  deviceSerialRef.current = effectiveSerial;
+  deviceKeyRef.current = effectiveKey;
 
   const scrcpyHint = useQuery({ queryKey: ["scrcpy"], queryFn: getScrcpyHint });
 
@@ -206,7 +223,7 @@ export function MirrorPanel({
       setConnection("unavailable");
       return;
     }
-    if (!deviceSerial && !deviceKey) {
+    if (!effectiveSerial && !effectiveKey) {
       setConnection("disconnected");
       return;
     }
@@ -233,8 +250,8 @@ export function MirrorPanel({
     teardownPlayer,
     scrcpyHint.isLoading,
     scrcpyHint.data?.available,
-    deviceSerial,
-    deviceKey,
+    effectiveSerial,
+    effectiveKey,
   ]);
 
   // Effect: when the user selects a tick on the timeline, auto-flip to

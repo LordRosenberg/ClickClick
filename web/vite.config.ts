@@ -6,6 +6,11 @@ import react from "@vitejs/plugin-react";
 // run independently during development. Build output goes to web/dist/ and
 // is served by the Control API's StaticFiles mount in production.
 const apiPort = process.env.CLICKCLICK_API_PORT ?? "8080";
+// When the Control API runs with TLS (CLICKCLICK_API_SSL_CERTFILE), plain
+// http:// requests are 308-redirected, which the dev proxy cannot follow —
+// proxy straight to https and accept the self-signed dev cert instead.
+const apiTls = Boolean(process.env.CLICKCLICK_API_SSL_CERTFILE);
+const apiTarget = `${apiTls ? "https" : "http"}://127.0.0.1:${apiPort}`;
 
 export default defineConfig({
   plugins: [react()],
@@ -18,8 +23,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: `http://127.0.0.1:${apiPort}`,
+        target: apiTarget,
         changeOrigin: true,
+        secure: !apiTls,
         ws: true,
       },
     },

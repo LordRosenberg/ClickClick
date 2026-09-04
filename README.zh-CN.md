@@ -160,7 +160,7 @@ sequenceDiagram
 
 | 工具                                                   | Reviewer scope | Reviewer 边界 | Planner | Executor |
 | ---------------------------------------------------- | -------------- | ----------- | ------- | -------- |
-| `observe_screen(current                              | temporal)`     | —           | ✓       | ✓        |
+| `observe_screen(current \| temporal)`     | —           | ✓       | ✓        |
 | `load_skill` / `search_skills`                       | —              | —           | ✓       | ✓        |
 | `search_installed_apps`                              | —              | —           | —       | ✓        |
 | `submit_reviewer_scope` / `submit_reviewer_decision` | ✓              | ✓           | —       | —        |
