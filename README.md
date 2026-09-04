@@ -1,81 +1,87 @@
-# ClickClick
+<div align="center">
 
-证据驱动的面向复杂长程任务的移动端 GUI 智能体：用自然语言驱动手机完成目标，并提供**任务管理 + 观测调试统一 Console**。
+# 📱 ClickClick
 
-核心理念：**语义判断留给模型，协议约束、可靠取证、坐标变换、单次执行与审计留给 Harness**。模型负责理解页面、规划方向、验收结果；Harness 负责把一切变成确定性、可回放、可追责的运行时。对长程任务而言，最大的失效模式不是"看不懂"，而是"记不清自己做过什么、把旧屏幕当新进展"——因此整个架构围绕**合同 + 证据**组织：先定义可检验的成功标准，再让每一步进展都必须引用可追溯的观测证据才能成立（详见下文「证据驱动」）。
+**An evidence-driven mobile GUI agent for complex long-horizon tasks**
 
-![](docs/assets/clickclick_console_demo1.png)
+Drive Android phones with natural language, with a unified Console for task management and observability
 
-License: [Apache-2.0](LICENSE)
+📖 [中文](README.zh-CN.md) &nbsp;|&nbsp; 🚀 [Quick Start](#quick-start) &nbsp;|&nbsp; 🏗️ [Architecture](#architecture-overview) &nbsp;|&nbsp; 📚 [Docs](docs/) &nbsp;|&nbsp; 🧩 [Skill Guide](skills/README.md)
 
-## 架构总览
+[![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-3DDC84?logo=android&logoColor=white)](docs/accessibility-collector-setup.md)
 
-系统自下而上分为七层：**设备驱动层**屏蔽 ADB/scrcpy 差异，**感知层**把屏幕变成可引用的观测证据，**LLM 网关**统一模型协议，**Agent Harness** 提供工具、会话、记忆与护栏，**Agent 编排层**驱动三角色决策闭环，**观测与评估**贯穿全程记录 Trace，**控制台**对人呈现这一切。
+</div>
+
+Core philosophy: **semantic judgment stays with the model; protocol constraints, reliable evidence capture, coordinate transforms, single-shot execution and audit stay with the Harness**. The model understands pages, plans directions, and verifies outcomes; the Harness turns everything into a deterministic, replayable, accountable runtime. For long-horizon tasks the dominant failure mode is not "misreading the screen" but "forgetting what it already did, mistaking a stale screen for new progress" — so the whole architecture is organized around **contracts + evidence**: define verifiable success criteria first, then require every step of progress to cite traceable observational evidence (see [Evidence-Driven](#evidence-driven-from-contract-to-verdict)).
+
+<div align="center">
+  <img src="docs/assets/clickclick_console_demo1.png" alt="ClickClick Console demo" width="880"/>
+</div>
+
+## Architecture Overview
+
+Seven layers, bottom-up: the **Device Driver layer** hides ADB/scrcpy differences; the **Perception layer** turns the screen into citable observational evidence; the **LLM Gateway** unifies model protocols; the **Agent Harness** provides tools, sessions, memory and guardrails; the **Agent Orchestration layer** drives the three-role decision loop; **Observability & Evaluation** records traces throughout; the **Console** presents all of it to humans.
 
 ```mermaid
 flowchart TB
-  L7["<b>控制台层</b> · Web Console<br/>任务管理 · 时间轴回放 · Agent Calls · Live 镜像"]
-  L6["<b>控制台后端</b> · Control API<br/>任务/设备/技能 API · SSE · 嵌入式编排器"]
-  L5["<b>Agent 编排层</b> · Orchestrator<br/>Reviewer → Planner → Executor 闭环 · 状态边界 · 资源上限"]
-  L4["<b>Agent Harness</b><br/>会话工具循环 · 上下文/记忆管理 · 动作事务 · 护栏纠偏 · Skills"]
-  L3["<b>感知层</b> · Perception<br/>树图包原子采集 · Tree 规范化 · SoM · 观测验收与降级"]
-  L2["<b>设备驱动层</b> · Driver<br/>scrcpy 共享流 · ADB 动作 · Fixture / 远程 RPC"]
-  L1[("Android 设备 ×N")]
+  L7["<b>Console</b> · Web UI<br/>Task management · Timeline replay · Agent Calls · Live mirror"]
+  L6["<b>Console backend</b> · Control API<br/>Task/device/skill APIs · SSE · Embedded orchestrator"]
+  L5["<b>Agent Orchestration</b> · Orchestrator<br/>Reviewer → Planner → Executor loop · State boundaries · Budgets"]
+  L4["<b>Agent Harness</b><br/>Session tool loop · Context/memory · Action transactions · Guardrails · Skills"]
+  L3["<b>Perception</b><br/>Near-atomic tree-image capture · Tree normalization · SoM · Acceptance & degradation"]
+  L2["<b>Device Driver</b><br/>Shared scrcpy stream · ADB actions · Fixture / remote RPC"]
+  L1[("Android devices ×N")]
 
-  GW["<b>LLM 网关</b><br/>协议统一 · 模型路由 · token/cache 归一化"]
+  GW["<b>LLM Gateway</b><br/>Unified protocol · Model routing · token/cache normalization"]
   LLM[("LLM Providers")]
-  EVAL["<b>观测与评估</b><br/>全链路 Trace · 冻结回归 Gates"]
+  EVAL["<b>Observability & Evaluation</b><br/>Full-link traces · Frozen replay gates"]
 
   L7 <--> L6 <--> L5 <--> L4 <--> L3 <--> L2 <--> L1
   L4 <--> GW <--> LLM
   L5 -.-> EVAL
 ```
 
+A request flows down the spine: Console submits a task → Control API → the orchestration layer drives the three roles → the Harness organizes sessions and tools → Perception gathers evidence → the Driver operates the device. Model calls branch sideways through the LLM Gateway, and full-link traces feed Observability & Evaluation. Console Live and agent observation reuse the same scrcpy video source from the Driver layer (omitted from the diagram).
 
+| Layer | Responsibility | Code |
+| --- | --- | --- |
+| **Console** | Task creation / multi-device fan-out, replay by real role calls, Live view and skill review | [web/](web/), [control_api/](control_api/) |
+| **Agent Orchestration** | Three-role rotation, task state machine, mechanical boundaries and terminal verdicts | [agent/orchestrator.py](agent/orchestrator.py) |
+| **Agent Harness** | Session & tool loop, context/memory management, action transactions, guardrails, skill loading | [agent/session.py](agent/session.py), [agent/action_observation.py](agent/action_observation.py) |
+| **LLM Gateway** | Unified model protocol and error taxonomy, per-role model routing, token/cache metrics | [shared/llm_gateway.py](shared/llm_gateway.py) |
+| **Perception** | Near-atomic tree-image capture, tree normalization, SoM rendering, observation acceptance & degradation | [perception/](perception/) |
+| **Device Driver** | Action execution, shared video stream, accessibility channel, remote/offline transports | [driver/](driver/) |
+| **Observability & Evaluation** | Full-link traces, SSE projections, frozen-task replay gates | [control_api/services.py](control_api/services.py), [evaluation/](evaluation/) |
 
-一次请求的完整路径沿主链自上而下：Console 下发任务 → Control API → 编排层驱动三角色 → Harness 组织会话与工具 → 感知层取证 → 驱动层操作设备；模型调用经 LLM 网关横向支出，全链路 Trace 汇入观测与评估。Console 的 Live 画面与 Agent 观测复用驱动层同一 scrcpy 视频源（图中从略）。
+### Evidence-Driven: From Contract to Verdict
 
+"Evidence-driven" means: **no semantic conclusion (progress, fact, answer, completion) stands unless it is bound to a Harness-verifiable piece of observational evidence** — natural-language claims carry no weight on their own. The implementation is a three-stage chain:
 
-| 层                 | 职责                                        | 代码位置                                                                                            |
-| ----------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| **控制台层**          | 任务创建/多设备下发、按真实角色调用回放闭环、Live 画面与 Skills 审核 | [web/](web/)、[control_api/](control_api/)                                                       |
-| **Agent 编排层**     | 三角色轮转、任务状态机、机械边界与终态裁决落库                   | [agent/orchestrator.py](agent/orchestrator.py)                                                  |
-| **Agent Harness** | 会话与工具循环、上下文/记忆管理、动作事务、护栏纠偏、Skills 加载      | [agent/session.py](agent/session.py)、[agent/action_observation.py](agent/action_observation.py) |
-| **LLM 网关**        | 统一模型协议与错误分类、按角色路由模型、token/cache 指标归一化     | [shared/llm_gateway.py](shared/llm_gateway.py)                                                  |
-| **感知层**           | 树图包原子采集、Tree 规范化、SoM 渲染、观测验收与降级           | [perception/](perception/)                                                                      |
-| **设备驱动层**         | 动作执行、共享视频流、可访问性通道、远程/离线传输                 | [driver/](driver/)                                                                              |
-| **观测与评估**         | 全链路 Trace、SSE 投影、冻结任务回归 Gates             | [control_api/services.py](control_api/services.py)、[evaluation/](evaluation/)                   |
+1. **Contract first**: at task start the Reviewer decomposes the goal into verifiable conditions (`must_happen` / `final_ui_state` / `answer`) written into an immutable contract — "what evidence is required" is defined before execution begins.
+2. **Evidence during execution**: every capture is issued an `observation_id` binding screenshot, tree, geometry and timestamp into one citable unit; after each dispatch a causal post-observation is captured, and a stale package may only be labeled `pre_action_observation`, never passed off as "current".
+3. **Citation at adjudication**: every progress entry, fact and answer from the Reviewer must carry exact evidence handles (`evidence_handles` + condition refs); the Harness validates reference integrity before persisting, and the Planner can only consume progress that was cited.
 
-
-### 证据驱动：从合同到裁决
-
-"证据驱动"指：**任何语义结论（进展、事实、答案、完成）都必须绑定一份 Harness 可校验的观测证据才能成立**，自然语言声明本身不产生效力。实现上是一条三段链路：
-
-1. **合同先行**：Reviewer 在任务启动时把目标拆成可检验条件（`must_happen` / `final_ui_state` / `answer`）写入不可变合同——先定义"需要什么证据"，再开始执行。
-2. **执行取证**：每次采集颁发 `observation_id`，把截图、Tree、几何与时间绑定为可引用证据；动作 dispatch 后采一份因果 post-observation，旧包只能标注为 `pre_action_observation`，不允许冒充"当前"。
-3. **裁决引用**：Reviewer 的每条进展、事实与答案都必须携带精确证据句柄（`evidence_handles` + 条件 ref），Harness 校验引用合法性后才落库；Planner 只能消费已被引用的进展。
-
-由此，长程任务最常见的三类幻觉——**旧屏幕冒充新证据、相似页面冒充目标进展、记忆声明冒充已验证事实**——从"靠模型自觉"变成"Harness 结构性不允许"；且证据原件全部落盘，任何终态都可人工回放复核。
+As a result, the three most common long-horizon hallucinations — **stale screens posing as fresh evidence, look-alike pages posing as target progress, memory claims posing as verified facts** — become structurally impossible rather than merely discouraged. All evidence artifacts are persisted, so any terminal state can be replayed and audited by a human.
 
 ---
 
-## Agent 编排层：三角色闭环
+## Agent Orchestration: The Three-Role Loop
 
-闭环由 [agent/orchestrator.py](agent/orchestrator.py) 驱动，可恢复真相源为持久化的 `AgentState`。编排层只维护状态机与机械边界（步数、调用次数、失败类型），**不做任何语义判断**——页面含义、任务是否完成、失败后往哪走，全部由模型角色决定。
+The loop is driven by [agent/orchestrator.py](agent/orchestrator.py); the recoverable source of truth is the persisted `AgentState`. The orchestration layer maintains only the state machine and mechanical boundaries (step counts, invocation counts, failure types) and **makes no semantic judgment** — page meaning, task completion, and recovery direction are all decided by model roles.
 
-### 角色职责
+### Role Responsibilities
 
+| Role | Does | Explicitly does NOT |
+| --- | --- | --- |
+| **Reviewer** | Defines the **immutable success contract** at task start (`must_happen` / `final_ui_state` / `answer`); at boundaries, adjudicates `accept / retry / replan / done / blocked` from task-local history, current UI and exact evidence handles; the only role that may write semantic progress, facts and answers | Plan next steps, operate the device, or expand the starting page into a required path |
+| **Planner** | Rolls forward **one** executable semantic subgoal with its success criteria (`execute`), or requests a re-check (`review`), based on the immutable contract, accepted progress and current UI | Verify the Executor, terminate the task, or emit action-level click plans |
+| **Executor** | Executes **one** typed action (`act`) for the current subgoal, or reports a cognitive boundary: evidence seems sufficient (`request_review`) or the direction is infeasible (`request_replan`) | See the full future plan, write global completion conclusions, or treat stale screens as fresh evidence |
 
-| 角色               | 职责                                                                                                                                                                   | 明确不做                          |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| **Reviewer（裁判）** | 任务开始时定义**不可变成功边界**（`must_happen` / `final_ui_state` / `answer`）；在边界时刻基于 task-local 历史、当前 UI 与精确证据句柄裁决 `accept / retry / replan / done / blocked`；是唯一可写入语义进展、事实与答案的角色 | 不规划下一步、不操作设备、不把起始页面扩写成必经路径    |
-| **Planner（规划）**  | 基于不可变边界、已接受进展与当前 UI，滚动生成**下一个**可执行语义子目标及其完成标准（`execute`），或请求复核（`review`）                                                                                             | 不验收 Executor、不终止任务、不输出动作级点击计划 |
-| **Executor（执行）** | 基于当前子目标执行**一个** typed action（`act`），或报告认知边界：证据似已足够（`request_review`）、方向不可行（`request_replan`）                                                                         | 不看完整未来计划、不写全局完成结论、不把旧屏幕当本次证据  |
+**Subgoal splitting principle**: one subgoal = one independently verifiable user-semantic end state. Consecutive steps merge by default; split only when an intermediate state needs independent verification (canonical case: *finding ≠ opening*). Action-level subgoals (e.g. "tap index 5") are forbidden.
 
-
-**子目标切分原则**：一个子目标 = 一个可独立验证的用户语义终态。默认可合并连续步骤；仅当中间态需要独立验证时才拆分（典型如「找到 ≠ 打开」）。禁止动作级子目标（如「点 index 5」）。
-
-### 交互 Loop
+### Interaction Loop
 
 ```mermaid
 sequenceDiagram
@@ -85,41 +91,39 @@ sequenceDiagram
   participant E as Executor
   participant D as Driver/Perception
 
-  O->>R: ① 任务启动：定义 scope（不看 UI）
-  R-->>O: 不可变 task contract
-  loop 每个外层步骤
-    O->>P: ② 合同 + 已接受进展 + 当前观测
-    P-->>O: 一个语义子目标（或请求复核）
-    O->>E: ③ 子目标 + 当前观测 + 本子目标语义动作历史
-    E-->>D: ④ 一个 typed action（Harness 校验后 dispatch 一次）
-    D-->>O: 动作回执 + 因果 post-observation
-    alt 机械边界 / Executor 主动报告
-      O->>R: ⑤ 边界裁决（证据句柄 + task-local 审计）
-      R-->>O: accept→回 ② / retry→回 ④ / done·blocked→终态
-    else 正常推进
-      O->>E: 继续执行当前子目标
+  O->>R: ① Task start: author scope (no UI)
+  R-->>O: Immutable task contract
+  loop Each outer step
+    O->>P: ② Contract + accepted progress + current observation
+    P-->>O: One semantic subgoal (or review request)
+    O->>E: ③ Subgoal + current observation + this subgoal's semantic action timeline
+    E-->>D: ④ One typed action (dispatched once after Harness validation)
+    D-->>O: Action receipt + causal post-observation
+    alt Mechanical boundary / Executor report
+      O->>R: ⑤ Boundary adjudication (evidence handles + task-local audit)
+      R-->>O: accept→back to ② / retry→back to ④ / done·blocked→terminal
+    else Normal progress
+      O->>E: Continue current subgoal
     end
   end
 ```
 
+Key points:
 
-
-要点：
-
-- **Reviewer 先行**：没有 scope 合同就没有执行，成功标准先于动作存在，且全程不可变。
-- **边界即交接**：Executor 到达认知边界（`request_review` / `request_replan`）或机械边界（dispatch 失败、观测缺失）时交 Reviewer；非终态结论再交 Planner 调整方向，Harness 不按文案或计数选择恢复策略。
-- **终态收口**：答案只由 Reviewer 在 `done` 时按证据引用写出，Planner/Executor 不代写。
-- **机械上限**：`max_steps`（默认 50）与角色调用上限（默认 200）是唯一的硬性终止条件，耗尽即显式失败。
+- **Reviewer first**: no scope contract, no execution — success criteria exist before any action and stay immutable.
+- **Boundaries are handoffs**: when the Executor reaches a cognitive boundary (`request_review` / `request_replan`) or a mechanical one (dispatch failure, missing observation), control goes to the Reviewer; non-terminal verdicts route back to the Planner. The Harness never picks recovery strategies from text or counters.
+- **Terminal answers converge at the Reviewer**: answers are written only by the Reviewer at `done`, cited by evidence; Planner/Executor never ghost-write them.
+- **Mechanical ceilings**: `max_steps` (default 50) and the role-invocation cap (default 200) are the only hard stops; exhaustion is an explicit failure.
 
 ---
 
 ## Agent Harness
 
-Harness 是包裹模型的确定性运行时，实现见 [agent/session.py](agent/session.py)（会话）、[agent/action_observation.py](agent/action_observation.py)（动作事务）、[agent/decision_context.py](agent/decision_context.py)（上下文投影）、[agent/task_memory.py](agent/task_memory.py)（记忆）。它只维护跨应用都成立的运行协议和安全不变量，不维护任何 App 的页面状态机。
+The Harness is the deterministic runtime wrapping the model: [agent/session.py](agent/session.py) (sessions), [agent/action_observation.py](agent/action_observation.py) (action transactions), [agent/decision_context.py](agent/decision_context.py) (context projections), [agent/task_memory.py](agent/task_memory.py) (memory). It maintains only cross-app runtime protocols and safety invariants — never per-app page state machines.
 
-### 会话管理（Session Harness）
+### Session Management (Session Harness)
 
-每个角色的一次调用由 `AgentSession` 承载：组装稳定上下文（system policy → 技能正文 → 历史 → 当前观测），以 `tool_choice=required` 驱动有界工具循环（默认每次调用最多 8 个模型轮次），直到模型调用终态工具提交决策。
+Each role invocation is carried by an `AgentSession`: it assembles a stable context (system policy → skill bodies → history → current observation) and drives a bounded tool loop with `tool_choice=required` (default max 8 model rounds per invocation) until the model submits a decision via a terminal tool.
 
 ```mermaid
 sequenceDiagram
@@ -128,332 +132,311 @@ sequenceDiagram
   participant T as Read Tools
   participant O as Orchestrator
   M->>H: observe_screen / load_skill / search_*
-  H->>T: 执行读工具
-  T-->>H: 新观测或知识正文
-  H-->>M: 追加工具结果（保持同一调用）
-  M->>H: submit_* 终态工具
-  H-->>H: 校验 schema / basis / 几何
-  H-->>O: 结构化决策或显式 rejection
+  H->>T: Execute read tool
+  T-->>H: Fresh observation or knowledge body
+  H-->>M: Append tool result (same invocation)
+  M->>H: submit_* terminal tool
+  H-->>H: Validate schema / basis / geometry
+  H-->>O: Structured decision or explicit rejection
 ```
 
+Plain-text responses are not legal results: the Harness nudges once inside the invocation, and a persistent violation is classified `malformed` and handed to the orchestrator's configured retry policy — "hand-written JSON" in content is never parsed.
 
+### Tools & Permissions
 
-纯文本响应不是合法结果：Harness 先在调用内纠偏一次，仍不提交工具则归类 `malformed` 交给编排层按配置重试，绝不解析 content 里的「手写 JSON」。
+Tools come in four categories: `knowledge` (skills), `observation` (screen reads), `device_discovery` (app discovery), `terminal` (final submissions). **Permissions are least-privilege per role** — the judge has no device capability, the planner has no verdict power, the executor has no termination power:
 
-### 工具体系与权限
+| Tool | Reviewer scope | Reviewer boundary | Planner | Executor |
+| --- | :-: | :-: | :-: | :-: |
+| `observe_screen(current \| temporal)` | — | ✓ | ✓ | ✓ |
+| `load_skill` / `search_skills` | — | — | ✓ | ✓ |
+| `search_installed_apps` | — | — | — | ✓ |
+| `submit_reviewer_scope` / `submit_reviewer_decision` | ✓ | ✓ | — | — |
+| `submit_planner_decision` | — | — | ✓ | — |
+| `submit_executor_step` | — | — | — | ✓ |
 
-工具分四类：`knowledge`（技能）、`observation`（读屏）、`device_discovery`（应用发现）、`terminal`（终态提交）。**权限按角色最小化授予**——裁判无设备能力、规划无裁决权、执行无终止权：
+**Device actions are not repeatedly callable model tools** — they are terminal payloads of `submit_executor_step` (`tap / tap_xy / type / swipe / long_press / scroll / drag / key / launch / sleep`). The Harness validates schema, active observation, coordinate space and index, then the action transaction **dispatches at most once**. `sleep` only waits and explicitly records zero capture — it cannot serve as evidence; `observe_screen` is the model's only explicit path to fresh evidence.
 
+### Guardrails & Correction
 
-| 工具                                                   | Reviewer scope | Reviewer 边界 | Planner | Executor |
-| ---------------------------------------------------- | -------------- | ----------- | ------- | -------- |
-| `observe_screen(current                              | temporal)`     | —           | ✓       | ✓        |
-| `load_skill` / `search_skills`                       | —              | —           | ✓       | ✓        |
-| `search_installed_apps`                              | —              | —           | —       | ✓        |
-| `submit_reviewer_scope` / `submit_reviewer_decision` | ✓              | ✓           | —       | —        |
-| `submit_planner_decision`                            | —              | —           | ✓       | —        |
-| `submit_executor_step`                               | —              | —           | —       | ✓        |
+| Invariant | Behavior |
+| --- | --- |
+| **Terminal results are tool calls only** | Every round sends `tool_choice=required`; after one in-call correction, violations fail explicitly as `malformed` |
+| **One active observation** | Exactly one actionable observation per round; `observe_screen(current)` re-captures and replaces the old package wholesale; for temporal only the last frame is an action basis |
+| **Actions bind the basis atomically** | The model never copies opaque basis ids; the Harness binds the current active observation atomically at submission; stale/ambiguous bases suppress dispatch outright |
+| **Auditable coordinate transforms** | Only the basis's own image→device transform plus bounds validation; out-of-bounds suppresses — no snapping to a11y nodes, no clamping to screen edges |
+| **Dispatch at most once** | Receipts separate `dispatch_succeeded` from `effect_outcome` (confirmed / unknown / timeout / suppressed / failed); uncertainty is a legitimate result — never re-fire or fake success |
+| **Recovery stays at the failing layer** | Malformed calls retry within the same role; the first mechanical observation anomaly triggers exactly one bounded full re-capture; grounding rejections may retry once on a fresh observation; semantic direction goes to Reviewer/Planner |
+| **Business policy lives in prompts/skills** | Playback judgment, filter setup, app-specific gestures are all model behavior guided by skill bodies; the Harness hardcodes nothing by package name or page text |
 
+Sensitive data (e.g. password input) is redacted end-to-end across actions, pipelines, tool observations and memory.
 
-**设备动作不是可反复调用的模型工具**，而是 `submit_executor_step` 的终态数据（`tap / tap_xy / type / swipe / long_press / scroll / drag / key / launch / sleep`）。Harness 先校验 schema、active observation、坐标空间与 index，再交给动作事务**最多 dispatch 一次**。`sleep` 只等待、明确记录零采集，不能用于取证；`observe_screen` 是模型获取新证据的唯一显式路径。
+### Context Management
 
-### 护栏与纠偏
+Following mainstream convention, **context management owns "what the model sees this call, and in what order"** — the transient assembly of the context window; what to remember and how to consolidate belongs to memory management (next section). The model never receives an ever-growing raw trajectory; it receives **deterministic projections** trimmed per role (Decision Context, see [agent/decision_context.py](agent/decision_context.py)):
 
+| Projection | Contents | Visible to |
+| --- | --- | --- |
+| Task contract projection | Immutable success criteria with per-condition accepted / active / pending status | Reviewer + Planner |
+| Active subgoal contract | Current subgoal, kind and success criteria | Planner + Executor |
+| Semantic action timeline | Intents / action types / dispatched-or-not / observation-obtained within the current subgoal lineage (no coordinates, no indices) | Executor; also projected to the Planner at recovery boundaries |
+| Runtime budget | Mechanical resources such as remaining steps | Each role sees only what it needs |
 
-| 不变量                       | 行为                                                                                                                   |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **终态只能是工具调用**             | 每轮 `tool_choice=required`；调用内纠偏一次后仍违规即 `malformed` 显式失败                                                              |
-| **唯一 active observation** | 每轮只有一份可执行观测；`observe_screen(current)` 重新采集并整体替换旧包；temporal 只有末帧可作为动作 basis                                           |
-| **动作原子绑定 basis**          | 模型不复制不透明 basis id，Harness 在接收终态时原子绑定当前 active observation；过期/歧义 basis 直接抑制 dispatch                                  |
-| **坐标变换可审计**               | 只做 basis 自带的 image→device 变换与边界校验；越界即抑制，不吸附 a11y 节点、不 clamp 到屏幕边缘                                                    |
-| **动作只 dispatch 一次**       | 回执区分 `dispatch_succeeded` 与 `effect_outcome`（confirmed / unknown / timeout / suppressed / failed）；不确定是合法结果，绝不重发或伪造成功 |
-| **恢复留在故障所属层**             | 畸形调用同角色重试；观测首次机械异常只做一次有界重采；grounding 被拒可换新观测重试一次；语义方向问题交 Reviewer/Planner                                            |
-| **业务策略归 Prompt / Skill**  | 播放判断、筛选设置、App 手势等全由模型依据技能正文处理；Harness 不按包名/文案硬编码任何特例                                                                 |
+Memory lands in the **H (HISTORY)** bucket, separate from the **O (current OBSERVATION)** bucket: a screen change only replaces O, never flushing accepted Facts/Progress.
 
+### Memory Management (TaskMemory)
 
-敏感信息（如密码输入）在 action、pipeline、工具观测与记忆中全程脱敏。
-
-### 上下文管理
-
-按主流约定，**上下文管理负责"每次调用给模型看哪部分、按什么顺序看"**——上下文窗口的瞬时装配；记什么、怎么沉淀则归记忆管理（下一节）。模型不接收无限增长的原始轨迹，而是接收按角色裁剪的**确定性投影**（Decision Context，实现见 [agent/decision_context.py](agent/decision_context.py)）：
-
-
-| 投影               | 内容                                                          | 给谁看                        |
-| ---------------- | ----------------------------------------------------------- | -------------------------- |
-| Task contract 投影 | 不可变成功边界及各条件的 accepted / active / pending 状态                 | Reviewer + Planner         |
-| Active 子目标合同     | 当前子目标、类型与完成标准                                               | Planner + Executor         |
-| 语义动作时间线          | 当前子目标 lineage 内的 intent / 动作类型 / 是否派发 / 是否获得观测（无坐标、无 index） | Executor；恢复边界时也投影给 Planner |
-| 运行时预算            | 剩余步数等机械资源                                                   | 各角色仅见必要容量                  |
-
-
-记忆投进 **H（HISTORY）** 桶，与 **O（当前观测）** 桶分离：换屏只替换 O，不冲掉已验收的 Facts/Progress。
-
-### 记忆管理（TaskMemory）
-
-与上下文管理对应，**记忆管理负责"记什么、怎么沉淀、如何被后续调用检索"**——持久化状态的生命周期。跨步骤的工作记忆挂在 `AgentState.task_memory`，含 `facts`（已验收键值，近似语义记忆）、`progress`（带精确证据绑定的语义进展）、`events`（唯一 append-only 事件流，近似情景记忆，重启后据此恢复）；技能正文则承担跨任务的程序性记忆，经 SkillLearner 异步沉淀（见「Skills 能力」）。
+Complementing context management, **memory management owns "what to remember, how it consolidates, and how later calls retrieve it"** — the lifecycle of persistent state. Cross-step working memory lives at `AgentState.task_memory`: `facts` (semantic memory: Reviewer-accepted key-values), `progress` (semantic progress bound to exact evidence), and `events` (episodic memory: the single append-only event stream from which restarts recover). Skill bodies serve as cross-task procedural memory, consolidated asynchronously by the SkillLearner (see [Skills](#skills)).
 
 ```mermaid
 flowchart LR
-  Exe["Executor 动作与回执"] --> Ev["canonical 事件流<br/>append-only · 可恢复"]
-  R["Reviewer 边界裁决"] -->|accepted_progress<br/>绑定证据句柄| P["progress"]
-  R -->|remembered_facts<br/>每条带 evidence_handles| F["facts"]
+  Exe["Executor actions & receipts"] --> Ev["Canonical event stream<br/>append-only · recoverable"]
+  R["Reviewer boundary verdict"] -->|accepted_progress<br/>bound evidence handles| P["progress"]
+  R -->|remembered_facts<br/>each with evidence_handles| F["facts"]
   R -->|superseded_progress_ids| P
   P & F --> Ev
-  Ev --> Proj["按角色投影<br/>Reviewer 审计 / Planner 进展 / Executor 时间线"]
+  Ev --> Proj["Per-role projections<br/>Reviewer audit / Planner progress / Executor timeline"]
 ```
 
+**Write access converges on the Reviewer**: the Executor only acts and reports boundaries — it never writes memory directly; no progress or fact persists without evidence handles. Memory stores semantics only (intents, conclusions, evidence references) — no device indices or coordinates; the full raw trajectory stays in the Trace for replay and the SkillLearner.
 
+### Skills
 
-**写入权收敛在 Reviewer**：Executor 只做动作与边界报告，不直接写记忆；无证据句柄的进展/事实不落库。记忆只存语义（intent、结论、证据引用），不写设备 index 与坐标；原始完整轨迹留在 Trace，供回放与 SkillLearner 使用。
-
-### Skills 能力
-
-技能是**文件系统里的 Markdown 先验**（非 ADB 宏、非数据库表），指南见 [skills/README.md](skills/README.md)：
+Skills are **Markdown priors in the filesystem** (not ADB macros, not a database table) — see the authoring guide in [skills/README.md](skills/README.md):
 
 ```
-skills/generic/<name>/SKILL.md                 # 通用能力（如权限弹窗）
-skills/apps/<package>/core/SKILL.md            # App 核心知识
-skills/apps/<package>/workflows/<id>/SKILL.md  # App 工作流
-skills/_pending/                               # SkillLearner 产出，待人工批准
+skills/generic/<name>/SKILL.md                 # Generic capabilities (e.g. permission dialogs)
+skills/apps/<package>/core/SKILL.md            # App core knowledge
+skills/apps/<package>/workflows/<id>/SKILL.md  # App workflows
+skills/_pending/                               # SkillLearner output, awaiting approval
 ```
 
-- 规则分 `Constraints / Hints / Fallbacks / Anti-patterns`，可按角色分节投递。
-- **按精确前台 App 加载**：三个闭环角色只接收当前前台 App 的 core + 全部 active workflows，不做全局目录检索，也不按任务文案路由。
-- **SkillLearner**（[agent/skills/learner.py](agent/skills/learner.py)）：任务终态后可选异步总结经验 → `_pending/`，经人工批准并重复验证后才进入热路径；不参与在线闭环。
-- App 启动解析是确定性的：exact package → curated alias → learned alias；未命中时签发一次性短期票据，Executor 据此查询有界安装列表后重提精确包名。
+- Rules are classified as `Constraints / Hints / Fallbacks / Anti-patterns` and can be delivered per role section.
+- **Loaded by exact foreground app**: all three loop roles receive only the current foreground app's core + all active workflows — no global catalog search, no routing by task text.
+- **SkillLearner** ([agent/skills/learner.py](agent/skills/learner.py)): optionally summarizes experience asynchronously after task termination → `_pending/`; enters the hot path only after human approval and repeated verification; never participates in the online loop.
+- App launch resolution is deterministic: exact package → curated alias → learned alias; on a miss the Harness issues a one-time short-lived ticket, and the Executor re-submits an exact package after querying a bounded installed-app list.
 
 ---
 
-## 感知层（Perception）
+## Perception Layer
 
-感知层把设备屏幕变成模型可引用的**观测证据包**，实现见 [perception/observation.py](perception/observation.py)、[perception/normalizer.py](perception/normalizer.py)、[perception/som.py](perception/som.py)。
+The perception layer turns the device screen into **citable observational evidence packages** for the model: [perception/observation.py](perception/observation.py), [perception/normalizer.py](perception/normalizer.py), [perception/som.py](perception/som.py).
 
-### 设计理念：树图包尽量原子采集
+### Design Philosophy: Near-Atomic Tree-Image Package Capture
 
-模型的每个决策同时依赖**结构（a11y Tree）与像素（截图）**。若两者来自不同时刻，「Tree 说有结果、截图还在加载」这类跨源冲突会直接导致误判。因此感知层把一次 Tree + 一次像素视为一个**树图包（ObservationPackage）**，用 `observation_id` 把截图、Tree、几何映射与采集时间绑定成同一份证据：
+Every model decision depends on both **structure (a11y tree) and pixels (screenshot)**. If the two come from different moments, cross-source conflicts like "tree says results loaded, screenshot still blank" directly cause misjudgments. So the perception layer treats one tree + one pixel capture as a single **tree-image package (`ObservationPackage`)**, using `observation_id` to bind screenshot, tree, geometry and timestamp into one unit of evidence:
 
-1. **同事务采集**：一次完整采集在同一个可取消 deadline 内并行获取多窗口 a11y Tree 与 scrcpy 优先的像素，采集前后校验精确前台身份，保证包内一致。
-2. **不稳定则整包重采，只重采一次**：首采出现明确机械缺失（身份冲突、Tree 不完整、像素不可解码、几何不兼容）时，只等待约 1 秒后**完整重采一次**，不逐字段拼凑、不追逐 Tree 与像素完美同时刻的 fixed point。
-3. **按真实能力诚实交付**：最终输出 indexed tree+image / tree-only / image-only / typed unavailable 之一，绝不为了「看起来完整」而伪造缺口。
-4. **不做语义补洞**：不跑 CV/OCR 自动补全，不生成「猜测 index」；页面是否稳定、动作是否有效，全部由模型判断。
+1. **Same-transaction capture**: one full capture fetches the multi-window a11y tree and scrcpy-first pixels in parallel under a single cancellable deadline, verifying the exact foreground identity before and after to keep the package self-consistent.
+2. **If unstable, re-capture the whole package — exactly once**: on a clear mechanical defect (identity conflict, incomplete tree, undecodable pixels, incompatible geometry), wait ~1s and **re-capture once, whole-package** — no per-field patching, no chasing a perfect same-moment fixed point between tree and pixels.
+3. **Honest delivery by real capability**: the output is one of indexed tree+image / tree-only / image-only / typed unavailable — gaps are never faked to "look complete".
+4. **No semantic hole-filling**: no CV/OCR auto-completion, no "guessed indices"; page stability, action effect, and task completion are all judged by the model.
 
 ```mermaid
 flowchart LR
-  Dev["设备"] --> Tree["多窗口 a11y Tree<br/>collector → uiautomator dump"]
-  Dev --> Pixels["全屏像素<br/>scrcpy → adb screencap"]
-  Tree --> Accept{"验收：前台身份 · Tree 归属/完整性<br/>像素可解码 · 几何兼容"}
+  Dev["Device"] --> Tree["Multi-window a11y tree<br/>collector → uiautomator dump"]
+  Dev --> Pixels["Full-screen pixels<br/>scrcpy → adb screencap"]
+  Tree --> Accept{"Acceptance: foreground identity · tree ownership/completeness<br/>pixel decodability · geometry compatibility"}
   Pixels --> Accept
-  Accept -->|机械异常| Resample["等待 ~1s 后整包重采一次"]
+  Accept -->|mechanical defect| Resample["Wait ~1s, re-capture whole package once"]
   Resample --> Accept
-  Accept -->|通过| Package["ObservationPackage<br/>语义树 + SoM + evidence refs"]
-  Accept -->|未通过| Degraded["tree-only / image-only / unavailable<br/>显式降级原因"]
+  Accept -->|pass| Package["ObservationPackage<br/>semantic tree + SoM + evidence refs"]
+  Accept -->|fail| Degraded["tree-only / image-only / unavailable<br/>explicit degradation reason"]
 ```
 
+### Key Implementation
 
-
-### 关键实现方案
-
-- **全屏观测**：观测始终以全屏为边界，避免局部裁剪丢上下文或引入新坐标系；`FrameGeometry` 描述 stream 像素 → 送模图像 → 设备逻辑坐标的可逆变换，模型动作不依赖猜测缩放比例。
-- **双源降级独立**：Tree 走「设备侧 Accessibility Collector → `uiautomator dump`」，像素走「scrcpy 解码帧 → `adb screencap`」，两条链互不因对方失败而降级。
-- **SoM（Set-of-Mark）**：Executor 在 Tree 完整对齐时接收单次渲染的 a11y-only SoM（标记即真实节点，无幻觉框）；Reviewer/Planner 接收干净截图。Tree 不可信时按真实能力降级为 clean image。
-- **焦点与输入证据**：从活动窗口与浮层中独立提取 `focused_element` / `focused_editable`，避免 WebView 容器遮蔽真实输入框；密码字段全程脱敏。
-- **时序证据**：`observe_screen(temporal)` 从当前调用向后采样 2–3 帧有序全屏帧（仅末帧可执行），服务于播放、进度、加载等「变化本身就是证据」的场景。
+- **Full-screen observation**: observations are always full-screen-bounded, avoiding context loss from local crops or extra coordinate systems; `FrameGeometry` describes the reversible transform across stream pixels → model image → device logical coordinates, so actions never depend on guessed scale factors.
+- **Independent dual-source fallback**: trees follow "on-device Accessibility Collector → `uiautomator dump`", pixels follow "scrcpy decoded frame → `adb screencap`" — neither chain degrades because the other failed.
+- **SoM (Set-of-Mark)**: when the tree is complete and aligned, the Executor receives a single-pass a11y-only SoM (marks are real nodes — no hallucinated boxes); Reviewer/Planner receive clean screenshots. When the tree is untrustworthy, delivery degrades honestly to a clean image.
+- **Focus & input evidence**: `focused_element` / `focused_editable` are extracted independently from the active window and overlays, so WebView containers cannot shadow the real EditText; password fields are redacted throughout.
+- **Temporal evidence**: `observe_screen(temporal)` samples 2–3 ordered full-screen frames backwards from the current call (only the last frame is actionable), serving playback, progress, loading and any scenario where "change itself is the evidence".
 
 ---
 
-## 设备驱动层（Driver）
+## Device Driver Layer
 
-[driver/](driver/) 屏蔽设备 I/O 差异：ADB 负责动作执行与采集传输（[driver/android.py](driver/android.py)），scrcpy 提供设备级共享视频会话（[driver/scrcpy_mirror.py](driver/scrcpy_mirror.py)）——编码流一路分发给浏览器 Live，一路由主机解码进有界 FrameRing 供 Agent 观测取帧，各消费端独立租约、互不影响。非 ASCII 文本经 ADBKeyboard 输入法注入；设备初始化（Collector 安装、IME 切换、健康检查）由 [driver/environment.py](driver/environment.py) 完成。
+[driver/](driver/) hides device I/O differences: ADB executes actions and carries captures ([driver/android.py](driver/android.py)); scrcpy provides a per-device shared video session ([driver/scrcpy_mirror.py](driver/scrcpy_mirror.py)) — one encoded stream fans out to browser Live, another is host-decoded into a bounded FrameRing for agent frame reads; consumers hold independent leases and never stop each other. Non-ASCII text is injected via the ADBKeyboard IME; device initialization (Collector install, IME switching, health checks) lives in [driver/environment.py](driver/environment.py).
 
-传输由 [driver/factory.py](driver/factory.py) 统一选择：
+Transports are selected uniformly by [driver/factory.py](driver/factory.py):
 
+| Condition | Transport |
+| --- | --- |
+| `CLICKCLICK_USE_FIXTURE_DRIVER=1` | `FixtureDriver` (offline/testing, no device needed) |
+| `CLICKCLICK_DRIVER_URL` set | `DriverClient` (HTTP RPC to a remote driver process) |
+| Otherwise | In-process `AndroidDriver` (direct local ADB) |
 
-| 条件                                | 传输                                     |
-| --------------------------------- | -------------------------------------- |
-| `CLICKCLICK_USE_FIXTURE_DRIVER=1` | `FixtureDriver`（离线/测试，无需真机）            |
-| `CLICKCLICK_DRIVER_URL` 已设置       | `DriverClient`（HTTP RPC 连远程 driver 进程） |
-| 否则                                | 进程内 `AndroidDriver`（本地直连 ADB）          |
-
-
-多设备由 [driver/pool.py](driver/pool.py) 管理：设备键为 `serial`（本地）或 `driver_id/serial`（远程 hub），每设备一把互斥锁，异设备任务可并发执行。
+Multi-device management lives in [driver/pool.py](driver/pool.py): device keys are `serial` (local) or `driver_id/serial` (remote hub), each device gets one mutex, and tasks on different devices run concurrently.
 
 ---
 
-## LLM 网关
+## LLM Gateway
 
-[shared/llm_gateway.py](shared/llm_gateway.py) 基于 LiteLLM 统一 Chat Completions 协议，自身**无会话状态**（多轮对话由 Session Harness 持有）：
+[shared/llm_gateway.py](shared/llm_gateway.py) unifies the Chat Completions protocol on top of LiteLLM and is itself **sessionless** (multi-turn state is held by the Session Harness):
 
-- **错误分类**：`transient / auth / malformed / budget / config / content_safety`，编排层按类型决定重试或终止，不把超时当业务失败。
-- **指标归一化**：统一 input / output / cache_read / cache_write / reasoning token 口径，供 Console 成本诊断。
-- **模型路由**（[shared/model_router.py](shared/model_router.py)）：Reviewer 与 Planner 共享 decision model，Executor 单独配置，SkillLearner 可再覆盖；支持中转 key 与 ChatGPT Pro/Max 订阅并存。
-- 模型原生 reasoning summary 只进诊断元数据，不作为目标证据、不回灌记忆。
-
----
-
-## 观测与评估
-
-- **Trace 全量持久化**：`llm_rounds[]`、`tool_calls[]`、动作 pipeline、生命周期事件写入 SQLite 并经 SSE 实时推送；Console 的 LLM Input 来自 Session 实际组装的脱敏请求快照，不是另拼的摘要。
-- **回放对齐真实调用**：时间轴按 Reviewer scope → Planner → Executor → Reviewer boundary 的真实调用序列组织，工具循环不伪装成外层步骤；模型名、真实 token 与缓存比例逐调用展示。
-- **评估 Gates**（[evaluation/](evaluation/)）：冻结任务包回放、零设备角色评估、观测降级场景回归等确定性门禁，用于验证改动净收益，不进入生产路径。
-- 运行时业务代码与观测展示严格分离：Console 字段不写入 `AgentState`、Prompt 或角色决策。
-
-## 控制台（Web Console）
-
-React + Vite + TS + Tailwind + shadcn/ui（[web/](web/)），任务详情三栏：
-
-- **左轨 Round Rail**：按真实角色调用顺序浏览闭环。
-- **中栏 Step Inspector**：角色决策、语义树、LLM 输入输出与 Agent Calls（模型、工具状态/耗时、证据、缓存指标）。
-- **右栏 MirrorPanel**：共享 scrcpy 源的 `Live` ↔ 当前步骤的 `Frame`（SoM + 命中点）。
-
-另有设备管理（多选下发、初始化）、Skills 审核页与 Trace 流。
+- **Error taxonomy**: `transient / auth / malformed / budget / config / content_safety` — the orchestration layer retries or terminates by category and never treats a timeout as business failure.
+- **Metrics normalization**: unified input / output / cache_read / cache_write / reasoning token semantics for Console cost diagnostics.
+- **Model routing** ([shared/model_router.py](shared/model_router.py)): Reviewer and Planner share the decision model, the Executor is configured separately, the SkillLearner may override further; relay keys and ChatGPT Pro/Max subscriptions coexist.
+- Native model reasoning summaries go to diagnostic metadata only — never goal evidence, never fed back into memory.
 
 ---
 
-## 部署
+## Observability & Evaluation
 
-### 进程拓扑
+- **Full trace persistence**: `llm_rounds[]`, `tool_calls[]`, action pipelines and lifecycle events are written to SQLite and pushed live over SSE; the Console's LLM Input shows the actual redacted request snapshot assembled by the Session — not a re-synthesized summary.
+- **Replay aligned to real calls**: the timeline follows the true Reviewer scope → Planner → Executor → Reviewer boundary sequence; inner tool loops never masquerade as outer role steps; model names, real tokens and cache ratios are shown per call.
+- **Evaluation gates** ([evaluation/](evaluation/)): frozen-task replay, zero-device role evaluation, observation-degradation regression — deterministic gates that validate net gains of changes, never on the production path.
+- Runtime business logic is strictly separated from presentation: Console fields never enter `AgentState`, prompts, role decisions, or device control.
+
+## Web Console
+
+React + Vite + TS + Tailwind + shadcn/ui ([web/](web/)); task detail is a three-column layout:
+
+- **Left rail — Round Rail**: browse the loop in real role-call order.
+- **Center — Step Inspector**: role decisions, semantic tree, LLM I/O, and Agent Calls (model, tool status/timing, evidence, cache metrics).
+- **Right — MirrorPanel**: shared scrcpy source `Live` ↔ the selected step's `Frame` (SoM + hit points).
+
+Plus device management (multi-select dispatch, initialization), a Skills review page, and the raw Trace stream.
+
+---
+
+## Deployment
+
+### Process Topology
 
 ```
-Console  ──HTTP──▶  Control API（含嵌入式 Agent 编排器）  ──RPC──▶  Driver  ──ADB──▶  Phone
+Console  ──HTTP──▶  Control API (with embedded Agent orchestrator)  ──RPC──▶  Driver  ──ADB──▶  Phone
 ```
 
-详见 [docs/processes.md](docs/processes.md)。MVP 中编排器嵌入 Control API 进程；Driver 可独立部署在连接手机的主机。另有 `clickclick-agent` CLI 供一次性运行。
+See [docs/processes.md](docs/processes.md). In the MVP the orchestrator is embedded in the Control API process; the Driver can be deployed standalone on the host connected to phones. A `clickclick-agent` CLI is available for one-shot runs.
 
-### 快速开始
+### Quick Start
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 
-# Terminal A — fixture driver（无需真机）
+# Terminal A — fixture driver (no device needed)
 export CLICKCLICK_USE_FIXTURE_DRIVER=1
 clickclick-driver
 
-# Terminal B — API + Console（含嵌入式编排器）
+# Terminal B — API + Console (with embedded orchestrator)
 export CLICKCLICK_DRIVER_URL=http://127.0.0.1:8765
 clickclick-api
 ```
 
-打开 [http://127.0.0.1:8080](http://127.0.0.1:8080)。
+Open [http://127.0.0.1:8080](http://127.0.0.1:8080). One-shot run: `clickclick-agent "Open Xiaohongshu, pick a video post and play it."`
 
-### 三种运行模式
+### Three Run Modes
 
-- **离线 fixture**：`CLICKCLICK_USE_FIXTURE_DRIVER=1`，调试闭环逻辑首选。
-- **本地真机**：不设 fixture；`CLICKCLICK_DRIVER_URL` 留空则进程内直连 ADB，或起独立 driver 并设该变量。
-- **远程 driver**：手机 USB/无线 ADB 接到远端主机，该主机跑 `clickclick-driver`；平台侧设 `CLICKCLICK_DRIVER_URL=http://host:8765`。多实验室用 `CLICKCLICK_DRIVER_URLS_JSON` 配置（如 `[{"id":"lab-a","url":"http://10.0.0.1:8765"}]`），设备键为 `lab-a/<adb-serial>`。远端 hub 与平台须使用同版本 vendored `scrcpy-server`。
+- **Offline fixture**: `CLICKCLICK_USE_FIXTURE_DRIVER=1` — the preferred way to debug loop logic.
+- **Local device**: unset fixture; leave `CLICKCLICK_DRIVER_URL` empty for in-process direct ADB, or run a standalone driver and set the variable.
+- **Remote driver**: phones attach to a remote host via USB/wireless ADB; that host runs `clickclick-driver`; the platform sets `CLICKCLICK_DRIVER_URL=http://host:8765`. Multi-lab setups use `CLICKCLICK_DRIVER_URLS_JSON` (e.g. `[{"id":"lab-a","url":"http://10.0.0.1:8765"}]`), with device keys as `lab-a/<adb-serial>`. Remote hubs and the platform must ship the same vendored `scrcpy-server`.
 
-### 真机准备
+### Real Device Setup
 
-1. 开启开发者选项与 USB 调试，`adb devices` 显示已授权设备。
-2. 获取并安装设备组件（Accessibility Collector + [ADBKeyboard](https://github.com/senzhk/ADBKeyBoard)），**二选一或直接一键**：
+1. Enable developer options and USB debugging; `adb devices` shows authorized devices.
+2. Get and install the device components (Accessibility Collector + [ADBKeyboard](https://github.com/senzhk/ADBKeyBoard)) — pick one path or go one-click:
 
-**路径 A — 一键（推荐）**
+**Path A — one-click (recommended)**
 
 ```bash
-./scripts/bootstrap-device.sh            # 单台已授权设备
-./scripts/bootstrap-device.sh <serial>   # 多台时指定序列号
+./scripts/bootstrap-device.sh            # single authorized device
+./scripts/bootstrap-device.sh <serial>   # pick a serial when several
 ```
 
-脚本优先用仓库内 `android/prebuilt/`；若缺失则从 [GitHub Release `collector-v0.2.0`](https://github.com/LordRosenberg/ClickClick/releases/tag/collector-v0.2.0) 下载，再启用无障碍 / IME。
+The script prefers in-repo `android/prebuilt/`; if missing, it downloads from the [GitHub Release `collector-v0.2.0`](https://github.com/LordRosenberg/ClickClick/releases/tag/collector-v0.2.0), then enables accessibility / IME.
 
-**路径 B — 自己编译 Collector**
+**Path B — build the Collector yourself**
 
 ```bash
-# Android Studio 打开 android/accessibility-collector/ 后 assembleDebug
+# Open android/accessibility-collector/ in Android Studio, then assembleDebug
 export CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH=android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk
 ./scripts/bootstrap-device.sh
 ```
 
-**路径 C — 只下载 Release APK 再装**
+**Path C — download release APKs and install**
 
 ```bash
 # Collector
 curl -fL -O https://github.com/LordRosenberg/ClickClick/releases/download/collector-v0.2.0/clickclick-collector-0.2.0-debug.apk
-# ADBKeyboard（Release 副本或上游）
+# ADBKeyboard (release copy or upstream)
 curl -fL -O https://github.com/LordRosenberg/ClickClick/releases/download/collector-v0.2.0/ADBKeyboard.apk
 adb install -r clickclick-collector-0.2.0-debug.apk
 adb install -r ADBKeyboard.apk
-# 然后走 Console / API：POST /api/devices/{serial}/initialize
+# Then via Console / API: POST /api/devices/{serial}/initialize
 ```
 
-Collector 需 **Android 8.0+（API 26）**。部分 OEM 仍要手动开无障碍或「允许受限制的设置」。详见 [android/prebuilt/README.md](android/prebuilt/README.md) 与 [docs/accessibility-collector-setup.md](docs/accessibility-collector-setup.md)。
+The Collector requires **Android 8.0+ (API 26)**. Some OEMs still require manually enabling accessibility or "allow restricted settings". See [android/prebuilt/README.md](android/prebuilt/README.md) and [docs/accessibility-collector-setup.md](docs/accessibility-collector-setup.md).
 
-3. Live / Agent 观测使用仓库内 vendored `scrcpy-server`；异常时自动 ADB fallback。
+3. Live / agent observation uses the in-repo vendored `scrcpy-server`; failures fall back to ADB automatically.
 
-### 端口
+### Ports
 
+| Service | Default port | Override |
+| --- | --- | --- |
+| Control API | `8080` | `CLICKCLICK_API_PORT` |
+| Driver HTTP RPC | `8765` | `clickclick-driver --port` |
+| Vite dev server | `5173` | `web/vite.config.ts` (`/api` proxies to 8080 by default) |
 
-| 服务              | 默认端口   | 覆盖                                      |
-| --------------- | ------ | --------------------------------------- |
-| Control API     | `8080` | `CLICKCLICK_API_PORT`                   |
-| Driver HTTP RPC | `8765` | `clickclick-driver --port`              |
-| Vite dev server | `5173` | `web/vite.config.ts`（`/api` 默认代理到 8080） |
+## API Overview
 
+Main Control API endpoints (FastAPI; full definitions in [control_api/main.py](control_api/main.py)):
 
-## 接口概览
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /api/tasks`, `GET /api/tasks/{id}` | Create (with multi-device fan-out) / query tasks |
+| `GET /api/tasks/{id}/stream` | Live SSE trace |
+| `GET /api/tasks/{id}/timeline` | Role-call timeline & replay data |
+| `GET /api/devices`, `POST /api/devices/{serial}/initialize` | Device list / initialization |
+| `GET/POST /api/skills*` | Skill queries & pending review |
+| `POST /api/tasks/{id}/learn` | Manually trigger the SkillLearner |
+| `GET /api/models` | Redacted model catalog |
+| `GET /api/device/mirror/stream` | Live mirror stream (WebSocket; local or relayed via a remote hub's `/mirror/stream`) |
 
-Control API 主要端点（FastAPI，完整定义见 [control_api/main.py](control_api/main.py)）：
+## Development
 
+### Directory Layout
 
-| 端点                                                         | 用途                                                   |
-| ---------------------------------------------------------- | ---------------------------------------------------- |
-| `POST /api/tasks`、`GET /api/tasks/{id}`                    | 创建（支持多设备下发）/ 查询任务                                    |
-| `GET /api/tasks/{id}/stream`                               | SSE 实时轨迹                                             |
-| `GET /api/tasks/{id}/timeline`                             | 角色调用时间轴与回放数据                                         |
-| `GET /api/devices`、`POST /api/devices/{serial}/initialize` | 设备列表 / 初始化                                           |
-| `GET/POST /api/skills*`                                    | 技能查询与 pending 审核                                     |
-| `POST /api/tasks/{id}/learn`                               | 手动触发 SkillLearner                                    |
-| `GET /api/models`                                          | 脱敏模型目录                                               |
-| `GET /api/device/mirror/stream`                            | Live 镜像流（WebSocket；本地或经远端 hub 的 `/mirror/stream` 中继） |
+| Directory | Role |
+| --- | --- |
+| [agent/](agent/) | Orchestration + Harness: `orchestrator.py` scheduling, `session.py` tool protocol, `decision_context.py` projections, `observation_space.py` observation space/coordinates, `action_observation.py` action transactions, plus memory, skills, prompts, traces |
+| [perception/](perception/) | Perception: observation building, tree normalization/filtering, SoM, input evidence |
+| [driver/](driver/) | Device driver: ADB actions, shared scrcpy stream, Fixture / RPC, device pool |
+| [shared/](shared/) | Cross-process shared: config, SQLite, LLM gateway/routing, protocol & schemas, artifacts |
+| [control_api/](control_api/) | Console backend: FastAPI routes, SSE, observability queries |
+| [web/](web/) | Console frontend (see [web/README.md](web/README.md)) |
+| [skills/](skills/) | Skill bodies (`generic/`, `apps/`, `_pending/`) |
+| [evaluation/](evaluation/) | Frozen replay & role evaluation gates |
+| [tests/](tests/) | pytest; `-m device` for real-device smoke |
+| [docs/](docs/) | Process model, Collector setup, scrcpy & decision contract notes |
+| [scripts/](scripts/) | Capture channel, observation latency and scenario benchmark scripts |
+| [openspec/](openspec/) | OpenSpec specs and change management |
 
-
-## 开发
-
-### 目录结构
-
-
-| 目录                           | 作用                                                                                                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [agent/](agent/)             | 编排层 + Harness：`orchestrator.py` 调度、`session.py` 工具协议、`decision_context.py` 投影、`observation_space.py` 观测空间/坐标、`action_observation.py` 动作事务，及记忆、技能、Prompt、Trace |
-| [perception/](perception/)   | 感知层：观测构建、Tree 规范化/过滤、SoM、输入证据                                                                                                                                 |
-| [driver/](driver/)           | 设备驱动层：ADB 动作、scrcpy 共享流、Fixture / RPC、设备池                                                                                                                     |
-| [shared/](shared/)           | 跨进程共享：配置、SQLite、LLM 网关/路由、协议与 schema、artifacts                                                                                                                |
-| [control_api/](control_api/) | Console 后端：FastAPI 路由、SSE、可观测性查询                                                                                                                              |
-| [web/](web/)                 | Console 前端（详见 [web/README.md](web/README.md)）                                                                                                                 |
-| [skills/](skills/)           | 技能正文（`generic/`、`apps/`、`_pending/`）                                                                                                                          |
-| [evaluation/](evaluation/)   | 冻结回放与角色评估 Gates                                                                                                                                               |
-| [tests/](tests/)             | pytest；`-m device` 为真机冒烟                                                                                                                                      |
-| [docs/](docs/)               | 进程模型、Collector 配置、scrcpy 与决策合同说明                                                                                                                              |
-| [scripts/](scripts/)         | 采集通道、观测延迟与场景 benchmark 脚本                                                                                                                                     |
-| [openspec/](openspec/)       | OpenSpec 规格与变更管理                                                                                                                                              |
-
-
-### 前端开发
+### Frontend Development
 
 ```bash
 cd web
 npm install
-npm run dev      # http://127.0.0.1:5173，/api 代理到 Control API
-npm run build    # 产物到 web/dist/，由 Control API 托管；不存在时后端优雅跳过
+npm run dev      # http://127.0.0.1:5173, /api proxies to Control API
+npm run build    # outputs to web/dist/, served by Control API; gracefully skipped if absent
 ```
 
-### 断点调试
+### Breakpoint Debugging
 
-[.vscode/launch.json](.vscode/launch.json) 已内置配置：`Python: Control API (fixture)`（无需真机调试三角色与编排器）、`Python: Driver (fixture)`、`Python: Agent one-shot`、`Python: Attach (5678)`（配合 debugpy）、`Debug npm dev`（前端 source map）。多进程部署时 API 与 Driver 需分别调试；fixture 模式下 API 可内嵌 driver 单进程调试。
+[.vscode/launch.json](.vscode/launch.json) ships ready-made configs: `Python: Control API (fixture)` (debug the three roles and orchestrator without a device), `Python: Driver (fixture)`, `Python: Agent one-shot`, `Python: Attach (5678)` (with debugpy), `Debug npm dev` (frontend source maps). In multi-process deployments, debug the API and Driver separately; in fixture mode the API can embed the driver for single-process debugging.
 
-### 测试
+### Testing
 
 ```bash
-.venv/bin/python -m pytest -q            # 全量回归
-.venv/bin/python -m pytest -m device     # 真机冒烟
+.venv/bin/python -m pytest -q            # full regression
+.venv/bin/python -m pytest -m device     # real-device smoke
 ```
 
-## 配置
+## Configuration
 
-见 [.env.example](.env.example)（`CLICKCLICK_*`），默认值在 [shared/config.py](shared/config.py) `Settings`。要点：
+See [.env.example](.env.example) (`CLICKCLICK_*`); defaults live in `Settings` in [shared/config.py](shared/config.py). Key points:
 
-- `CLICKCLICK_MODELS_JSON`：`{model_id: {provider, base_url, api_key, max_tokens, reasoning_supported, reasoning}}`，model id 须带 litellm 路由前缀（如 `openai/...`）；ChatGPT 订阅条目用 `chatgpt/...`，登录可用 Console 任务页卡片或 `.venv/bin/python -m shared.chatgpt_login`。
-- `CLICKCLICK_DEFAULT_MODEL` / `CLICKCLICK_MANAGER_MODEL` / `CLICKCLICK_EXECUTOR_MODEL` / `CLICKCLICK_SKILL_LEARNER_MODEL`：默认与按角色覆盖（Manager 项同时供 Reviewer 与 Planner）。
-- 设备侧可配项仅保留部署差异：`CLICKCLICK_IME_AUTO_SETUP`、`CLICKCLICK_IME_APK_PATH`、`CLICKCLICK_ACCESSIBILITY_COLLECTOR_*`、`CLICKCLICK_DEVICE_STAY_AWAKE_WHILE_PLUGGED`。动作事务 deadline、scrcpy ring、降级阈值等由所属模块维护，不通过环境变量形成第二套策略。
-
+- `CLICKCLICK_MODELS_JSON`: `{model_id: {provider, base_url, api_key, max_tokens, reasoning_supported, reasoning}}`; model ids must carry the litellm routing prefix (e.g. `openai/...`); ChatGPT subscription entries use `chatgpt/...` and log in via the Console task-page card or `.venv/bin/python -m shared.chatgpt_login`.
+- `CLICKCLICK_DEFAULT_MODEL` / `CLICKCLICK_MANAGER_MODEL` / `CLICKCLICK_EXECUTOR_MODEL` / `CLICKCLICK_SKILL_LEARNER_MODEL`: defaults and per-role overrides (the Manager entry serves both Reviewer and Planner).
+- Device-side options keep deployment differences only: `CLICKCLICK_IME_AUTO_SETUP`, `CLICKCLICK_IME_APK_PATH`, `CLICKCLICK_ACCESSIBILITY_COLLECTOR_*`, `CLICKCLICK_DEVICE_STAY_AWAKE_WHILE_PLUGGED`. Action-transaction deadlines, scrcpy ring and fallback thresholds are owned by their modules — no second policy layer via environment variables.

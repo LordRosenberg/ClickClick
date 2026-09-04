@@ -20,7 +20,7 @@
 # 私有仓：push develop；若本地 collector APK digest 变了 → 更新 Dev Release
 ./devtools/push-develop.sh
 
-# 公开仓：develop → main（去掉 openspec/devtools）→ push public；
+# 公开仓：develop → main（去掉 openspec/devtools/evaluation）→ push public；
 # 若 APK digest 变了 → 更新公开 Release
 ./devtools/sync-public.sh
 ```
