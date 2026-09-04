@@ -45,8 +45,6 @@ flowchart TB
 | **观测与评估**         | 全链路 Trace、SSE 投影、冻结任务回归 Gates             | [control_api/services.py](control_api/services.py)、[evaluation/](evaluation/)                   |
 
 
-
-
 ### 证据驱动：从合同到裁决
 
 "证据驱动"指：**任何语义结论（进展、事实、答案、完成）都必须绑定一份 Harness 可校验的观测证据才能成立**，自然语言声明本身不产生效力。实现上是一条三段链路：
@@ -58,8 +56,6 @@ flowchart TB
 由此，长程任务最常见的三类幻觉——**旧屏幕冒充新证据、相似页面冒充目标进展、记忆声明冒充已验证事实**——从"靠模型自觉"变成"Harness 结构性不允许"；且证据原件全部落盘，任何终态都可人工回放复核。
 
 ---
-
-
 
 ## Agent 编排层：三角色闭环
 
@@ -114,8 +110,6 @@ sequenceDiagram
 - **机械上限**：`max_steps`（默认 50）与角色调用上限（默认 200）是唯一的硬性终止条件，耗尽即显式失败。
 
 ---
-
-
 
 ## Agent Harness
 
@@ -228,8 +222,6 @@ skills/_pending/                               # SkillLearner 产出，待人工
 
 ---
 
-
-
 ## 感知层（Perception）
 
 感知层把设备屏幕变成模型可引用的**观测证据包**，实现见 [perception/observation.py](perception/observation.py)、[perception/normalizer.py](perception/normalizer.py)、[perception/som.py](perception/som.py)。
@@ -257,8 +249,6 @@ flowchart LR
 
 
 
-
-
 ### 关键实现方案
 
 - **全屏观测**：观测始终以全屏为边界，避免局部裁剪丢上下文或引入新坐标系；`FrameGeometry` 描述 stream 像素 → 送模图像 → 设备逻辑坐标的可逆变换，模型动作不依赖猜测缩放比例。
@@ -268,8 +258,6 @@ flowchart LR
 - **时序证据**：`observe_screen(temporal)` 从当前调用向后采样 2–3 帧有序全屏帧（仅末帧可执行），服务于播放、进度、加载等「变化本身就是证据」的场景。
 
 ---
-
-
 
 ## 设备驱动层（Driver）
 
@@ -289,8 +277,6 @@ flowchart LR
 
 ---
 
-
-
 ## LLM 网关
 
 [shared/llm_gateway.py](shared/llm_gateway.py) 基于 LiteLLM 统一 Chat Completions 协议，自身**无会话状态**（多轮对话由 Session Harness 持有）：
@@ -302,16 +288,12 @@ flowchart LR
 
 ---
 
-
-
 ## 观测与评估
 
 - **Trace 全量持久化**：`llm_rounds[]`、`tool_calls[]`、动作 pipeline、生命周期事件写入 SQLite 并经 SSE 实时推送；Console 的 LLM Input 来自 Session 实际组装的脱敏请求快照，不是另拼的摘要。
 - **回放对齐真实调用**：时间轴按 Reviewer scope → Planner → Executor → Reviewer boundary 的真实调用序列组织，工具循环不伪装成外层步骤；模型名、真实 token 与缓存比例逐调用展示。
 - **评估 Gates**（[evaluation/](evaluation/)）：冻结任务包回放、零设备角色评估、观测降级场景回归等确定性门禁，用于验证改动净收益，不进入生产路径。
 - 运行时业务代码与观测展示严格分离：Console 字段不写入 `AgentState`、Prompt 或角色决策。
-
-
 
 ## 控制台（Web Console）
 
@@ -325,11 +307,7 @@ React + Vite + TS + Tailwind + shadcn/ui（[web/](web/)），任务详情三栏�
 
 ---
 
-
-
 ## 部署
-
-
 
 ### 进程拓扑
 
@@ -355,7 +333,7 @@ export CLICKCLICK_DRIVER_URL=http://127.0.0.1:8765
 clickclick-api
 ```
 
-打开 [http://127.0.0.1:8080](http://127.0.0.1:8080)。一次性运行：`clickclick-agent "打开小红书 app，然后选择一个视频贴并播放。"`
+打开 [http://127.0.0.1:8080](http://127.0.0.1:8080)。
 
 ### 三种运行模式
 
@@ -363,16 +341,43 @@ clickclick-api
 - **本地真机**：不设 fixture；`CLICKCLICK_DRIVER_URL` 留空则进程内直连 ADB，或起独立 driver 并设该变量。
 - **远程 driver**：手机 USB/无线 ADB 接到远端主机，该主机跑 `clickclick-driver`；平台侧设 `CLICKCLICK_DRIVER_URL=http://host:8765`。多实验室用 `CLICKCLICK_DRIVER_URLS_JSON` 配置（如 `[{"id":"lab-a","url":"http://10.0.0.1:8765"}]`），设备键为 `lab-a/<adb-serial>`。远端 hub 与平台须使用同版本 vendored `scrcpy-server`。
 
-
-
 ### 真机准备
 
-1. 开启开发者选项与 USB 调试，`adb devices` 可同时有多台已授权设备；Console 提交任务时多选设备即每机一条独立任务并发执行。
-2. 构建设备侧 [Accessibility Collector](android/accessibility-collector/)，经 `POST /api/devices/{serial}/initialize` 安装并启用（详见 [docs/accessibility-collector-setup.md](docs/accessibility-collector-setup.md)）。
-3. （推荐）安装 [ADBKeyboard](https://github.com/senzhk/ADBKeyBoard)；设备初始化会自动安装/切换并在任务前验证（`CLICKCLICK_IME_AUTO_SETUP`，默认开）。
-4. Live 与 Agent 观测复用仓库内 vendored `scrcpy-server`；流式观测异常时自动走 ADB fallback。
+1. 开启开发者选项与 USB 调试，`adb devices` 显示已授权设备。
+2. 获取并安装设备组件（Accessibility Collector + [ADBKeyboard](https://github.com/senzhk/ADBKeyBoard)），**二选一或直接一键**：
 
+**路径 A — 一键（推荐）**
 
+```bash
+./scripts/bootstrap-device.sh            # 单台已授权设备
+./scripts/bootstrap-device.sh <serial>   # 多台时指定序列号
+```
+
+脚本优先用仓库内 `android/prebuilt/`；若缺失则从 [GitHub Release `collector-v0.2.0`](https://github.com/LordRosenberg/ClickClick/releases/tag/collector-v0.2.0) 下载，再启用无障碍 / IME。
+
+**路径 B — 自己编译 Collector**
+
+```bash
+# Android Studio 打开 android/accessibility-collector/ 后 assembleDebug
+export CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH=android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk
+./scripts/bootstrap-device.sh
+```
+
+**路径 C — 只下载 Release APK 再装**
+
+```bash
+# Collector
+curl -fL -O https://github.com/LordRosenberg/ClickClick/releases/download/collector-v0.2.0/clickclick-collector-0.2.0-debug.apk
+# ADBKeyboard（Release 副本或上游）
+curl -fL -O https://github.com/LordRosenberg/ClickClick/releases/download/collector-v0.2.0/ADBKeyboard.apk
+adb install -r clickclick-collector-0.2.0-debug.apk
+adb install -r ADBKeyboard.apk
+# 然后走 Console / API：POST /api/devices/{serial}/initialize
+```
+
+Collector 需 **Android 8.0+（API 26）**。部分 OEM 仍要手动开无障碍或「允许受限制的设置」。详见 [android/prebuilt/README.md](android/prebuilt/README.md) 与 [docs/accessibility-collector-setup.md](docs/accessibility-collector-setup.md)。
+
+3. Live / Agent 观测使用仓库内 vendored `scrcpy-server`；异常时自动 ADB fallback。
 
 ### 端口
 
@@ -382,8 +387,6 @@ clickclick-api
 | Control API     | `8080` | `CLICKCLICK_API_PORT`                   |
 | Driver HTTP RPC | `8765` | `clickclick-driver --port`              |
 | Vite dev server | `5173` | `web/vite.config.ts`（`/api` 默认代理到 8080） |
-
-
 
 
 ## 接口概览
@@ -403,11 +406,7 @@ Control API 主要端点（FastAPI，完整定义见 [control_api/main.py](contr
 | `GET /api/device/mirror/stream`                            | Live 镜像流（WebSocket；本地或经远端 hub 的 `/mirror/stream` 中继） |
 
 
-
-
 ## 开发
-
-
 
 ### 目录结构
 
@@ -428,8 +427,6 @@ Control API 主要端点（FastAPI，完整定义见 [control_api/main.py](contr
 | [openspec/](openspec/)       | OpenSpec 规格与变更管理                                                                                                                                              |
 
 
-
-
 ### 前端开发
 
 ```bash
@@ -438,8 +435,6 @@ npm install
 npm run dev      # http://127.0.0.1:5173，/api 代理到 Control API
 npm run build    # 产物到 web/dist/，由 Control API 托管；不存在时后端优雅跳过
 ```
-
-
 
 ### 断点调试
 
@@ -451,8 +446,6 @@ npm run build    # 产物到 web/dist/，由 Control API 托管；不存在时�
 .venv/bin/python -m pytest -q            # 全量回归
 .venv/bin/python -m pytest -m device     # 真机冒烟
 ```
-
-
 
 ## 配置
 

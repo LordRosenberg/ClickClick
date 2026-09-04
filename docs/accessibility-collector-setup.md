@@ -6,6 +6,16 @@ scrcpy/ADB screenshots; this is not a general device Portal.
 
 ## Prerequisites
 
+Fast path (recommended):
+
+```bash
+./scripts/bootstrap-device.sh            # or pass an adb serial
+```
+
+This installs the collector from `android/prebuilt/` (or downloads [Release `collector-v0.2.0`](https://github.com/LordRosenberg/ClickClick/releases/tag/collector-v0.2.0) when missing; Android **8.0+ / API 26**), downloads [ADBKeyboard](https://github.com/senzhk/ADBKeyBoard), and runs the same provisioning as `POST /api/devices/{serial}/initialize`.
+
+Manual path:
+
 1. Enable **Developer options** and **USB debugging** on the phone
 2. Connect via USB or `adb connect <ip:port>`
 3. Confirm: `adb devices` shows one or more authorized devices (`device` state)
@@ -19,7 +29,8 @@ in `shared/config.py`); no extra switch is needed after initialization.
 ## Environment
 
 ```bash
-export CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH=android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk
+export CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH=android/prebuilt/clickclick-collector-0.2.0-debug.apk
+export CLICKCLICK_IME_APK_PATH=data/device-apks/ADBKeyboard.apk
 export CLICKCLICK_DRIVER_URL=http://127.0.0.1:8765
 ```
 
