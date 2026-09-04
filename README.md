@@ -6,6 +6,8 @@
 
 ![](docs/assets/clickclick_console_demo1.png)
 
+License: [Apache-2.0](LICENSE)
+
 ## 架构总览
 
 系统自下而上分为七层：**设备驱动层**屏蔽 ADB/scrcpy 差异，**感知层**把屏幕变成可引用的观测证据，**LLM 网关**统一模型协议，**Agent Harness** 提供工具、会话、记忆与护栏，**Agent 编排层**驱动三角色决策闭环，**观测与评估**贯穿全程记录 Trace，**控制台**对人呈现这一切。

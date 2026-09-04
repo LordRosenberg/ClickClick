@@ -6,38 +6,25 @@
 |------|---------|------|
 | `clickclick-collector-0.2.0-debug.apk` | `ai.clickclick.collector` | Android **8.0+**（API 26） |
 
-两条获取路径（任选）：
+### 获取路径
 
-1. **仓库内预编译**（clone 后直接用）  
-   `android/prebuilt/clickclick-collector-0.2.0-debug.apk`
+1. **仓库内预编译**：`android/prebuilt/clickclick-collector-*.apk`
+2. **GitHub Release**（公开 / 私有仓各有一份）  
+   - 公开：https://github.com/LordRosenberg/ClickClick/releases  
+   - 私有：https://github.com/LordRosenberg/ClickClick-Dev/releases  
+3. **自己编译** `android/accessibility-collector/` 后拷贝到本目录
 
-2. **GitHub Release 下载**  
-   - Release：[`collector-v0.2.0`](https://github.com/LordRosenberg/ClickClick/releases/tag/collector-v0.2.0)  
-   - Asset：`clickclick-collector-0.2.0-debug.apk`  
-   - 直链：  
-     `https://github.com/LordRosenberg/ClickClick/releases/download/collector-v0.2.0/clickclick-collector-0.2.0-debug.apk`
+### 维护者：双仓日常发布
 
-3. **自己编译**（改源码后）  
+```bash
+# 私有仓：push develop；若本地 collector APK digest 变了 → 更新 Dev Release
+./devtools/push-develop.sh
 
-```sh
-# Android Studio 打开 android/accessibility-collector/，或 Gradle assembleDebug
-cp android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk \
-  android/prebuilt/clickclick-collector-0.2.0-debug.apk
+# 公开仓：develop → main（去掉 openspec/devtools）→ push public；
+# 若 APK digest 变了 → 更新公开 Release
+./devtools/sync-public.sh
 ```
 
-发新版到公开仓 Release（维护者）：
+强制重传 Release：`./devtools/publish-collector-release.sh both`
 
-```sh
-./devtools/publish-collector-release.sh 0.2.0
-```
-
-## ADBKeyboard（第三方）
-
-不 vendoring。默认从 [senzhk/ADBKeyBoard](https://github.com/senzhk/ADBKeyBoard) 拉取 `ADBKeyboard.apk`。  
-同一 Release 也会附带一份副本，便于国内网络：`ADBKeyboard.apk`。
-
-## 一键安装
-
-```sh
-./scripts/bootstrap-device.sh
-```
+一键装机：`./scripts/bootstrap-device.sh`

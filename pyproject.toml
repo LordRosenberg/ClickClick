@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Local multi-process Computer Use Agent (Android-first MVP)"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
 dependencies = [
   # 1.90+ drops ChatGPT subscription Responses stream output before the
   # Chat Completions bridge can recover text/tool calls (upstream #34094).
