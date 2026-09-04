@@ -1,0 +1,57 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.gradle/
+dist/
+build/
+data/
+*.db
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+.pnpm-store/
+web/dist/
+.specstory/
+skills/_pending/*
+!skills/_pending/.gitkeep
+/mask_debug.png
+/agent/prompts/* copy.md
+/android/accessibility-collector/.kotlin/
+
+# AI editor / agent tooling (local only; not product runtime)
+.agents/
+.claude/
+.codex/
+.cursor/
+.cursorindexingignore
+
+# Keep shared debug launch configs; ignore personal editor prefs
+.vscode/settings.json
+
+# Local experiment dumps
+/artifacts/
+
+# Machine-local commit deny list (serials / usernames); see *.example
+.githooks/local-block-patterns
+
+# Local / private evaluation outputs (never commit; regenerate per machine)
+/evaluation/fixtures/
+/evaluation/results/
+/evaluation/**/artifacts/
+/evaluation/**/rows.json
+
+# OpenSpec device evidence: bulky traces and screenshot packs
+**/evidence/**/artifacts/
+**/evidence/**/rows.json
+**/evidence/**/som/
+**/evidence/**/*.png
+**/evidence/**/*.jpg
+**/evidence/**/*.jpeg
+**/evidence/**/*.webp

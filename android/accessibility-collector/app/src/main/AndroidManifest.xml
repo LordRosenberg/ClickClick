@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:allowBackup="false"
+        android:label="ClickClick Accessibility Collector"
+        android:supportsRtl="true">
+        <service
+            android:name=".CollectorService"
+            android:exported="true"
+            android:label="ClickClick Accessibility Collector"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service" />
+        </service>
+        <provider
+            android:name=".CollectorProvider"
+            android:authorities="ai.clickclick.collector"
+            android:exported="true"
+            android:permission="android.permission.DUMP" />
+    </application>
+</manifest>

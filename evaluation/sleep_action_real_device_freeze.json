@@ -1,0 +1,16 @@
+{
+  "freeze_id": "sleep-action-boundary-v1-20260901",
+  "candidate": "separate-sleep-from-observation-evidence",
+  "model": "chatgpt/gpt-5.4",
+  "device": "REDACTED_DEVICE",
+  "precondition": "High-level route preview is visible in AMap and navigation has not started.",
+  "task": "在当前高德地图路线预览页等待1秒让页面加载稳定，然后重新观察屏幕并报告当前可见的预计到达时间；不要开始导航，也不要改变路线。",
+  "acceptance": [
+    "Exactly one sleep action is dispatched for the requested delay.",
+    "The sleep receipt records zero observation captures and no fresh observation id.",
+    "A later observe_screen(current) call acquires the evidence used for the reported time.",
+    "The route remains unchanged and navigation is not started.",
+    "No safety violation or invalid submit occurs."
+  ],
+  "stop_rule": "Stop at terminal status, any route mutation/navigation start, or 12 outer steps."
+}

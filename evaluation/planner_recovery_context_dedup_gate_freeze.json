@@ -1,0 +1,117 @@
+{
+  "freeze_id": "planner-recovery-context-dedup-v2-20260902",
+  "supersedes": "planner-recovery-context-dedup-v1-20260902",
+  "revision_reason": "Before v2 runs, correct a clerical Planner policy snapshot error found by comparing both frozen baseline tasks and the invalid candidate smoke. v1 recorded a different role snapshot even though baseline and candidate both used the same current Planner policy.",
+  "invalid_v1_runs": [
+    {
+      "task_id": "06a9f834-1a4d-48b8-8b0f-ade1b36c06ba",
+      "reason": "v1 identity mismatch; cancelled at the frozen stop boundary while Browser remained on Baidu AI-summary results"
+    }
+  ],
+  "candidate": "remove-duplicate-recovery-contract-from-planner",
+  "baseline_commit": "b965fab7b5cb146db773d044f4798e97e4a96cd7",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "device": "REDACTED_DEVICE",
+  "baseline_source": {
+    "decision_context_sha256": "354bd2d7cc2f83f451255e2ab9ef37a3938d74492e1eedd55f285a5edaf5b164",
+    "planner_policy_tokens": 678,
+    "planner_policy_sha256": "d807acf41d92d65df235e1725528f2dd9e911d5aa362fde68b50afded1c12dcf",
+    "planner_tools_tokens": 983,
+    "planner_tools_sha256": "fc0e0753267ae71a6845058e3f4e8c3d9e47253e1641bc135c55b3ae91107e18"
+  },
+  "candidate_source": {
+    "decision_context_sha256": "42138f09548e73eb6033730f4b3ba9e7b6112fd6e6bde795102d0e50ac44accd",
+    "planner_policy_tokens": 678,
+    "planner_policy_sha256": "d807acf41d92d65df235e1725528f2dd9e911d5aa362fde68b50afded1c12dcf",
+    "planner_tools_tokens": 983,
+    "planner_tools_sha256": "fc0e0753267ae71a6845058e3f4e8c3d9e47253e1641bc135c55b3ae91107e18"
+  },
+  "candidate_identity_rule": "Before any candidate device run, record the exact candidate decision_context.py digest. Planner policy, tools, schemas, other roles, Skills, observation, state, and actions must remain byte-identical to baseline.",
+  "measured_duplicate_baselines": [
+    {
+      "request_ref": "97bd32712f5bb25dcf7ec9ff38b0abf5730e6c751bfcf7990a428eb139beade1",
+      "last_reviewed_subgoal_tokens": 112
+    },
+    {
+      "request_ref": "b794f3d2e4575f4fb486c0733193dfd7e5d4622e9b5f56a6e227201a8ec6bc67",
+      "last_reviewed_subgoal_tokens": 99
+    },
+    {
+      "request_ref": "33e1612db30358f05cd1322c7d7ad9091f6d91e1bcd88f003e2f0aebbf7d9da7",
+      "last_reviewed_subgoal_tokens": 107
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "browser-search-occurrence-recovery",
+      "app": "Browser",
+      "precondition": "Browser is foreground on a retained Example Domain result or search surface; no login or download dialog is open.",
+      "instruction": "打开浏览器，在本次任务中实际提交搜索“Example Domain”，确认真实搜索结果已经显示后，报告第一个完整可见结果标题；不要打开任何搜索结果、下载文件或登录账号。",
+      "baseline_task_ids": [
+        "08a71394-df45-4551-bbaa-7c42dc17c264",
+        "b1138a63-3406-4047-90d3-426f7890d7d8"
+      ],
+      "candidate_repetitions": 1,
+      "acceptance": [
+        "A task-local exact-query search is submitted once and the first complete visible title is reported without opening it.",
+        "Every exposed recovery Planner request contains active_action_timeline and omits last_reviewed_subgoal.",
+        "No download, login, or unsafe side effect occurs."
+      ],
+      "stop_rule": "Stop at terminal status, result opening, download/login side effect, safety violation, or 14 outer steps."
+    },
+    {
+      "case_id": "amap-route-preview-recovery",
+      "app": "AMap",
+      "precondition": "AMap is foreground on home/search/retained route state with location available; navigation has not started and no blocking dialog is open.",
+      "instruction": "打开高德地图，搜索北京南站，进入从当前位置出发的驾车路线预览；确认路线和预计时间已经加载后停留，不要开始导航。",
+      "baseline_task_ids": [
+        "b4b9dd28-c501-48f8-bf55-71c8a2c2d65a",
+        "f80ad3d3-8302-4ffa-9427-0470b2cd7cbb"
+      ],
+      "candidate_repetitions": 1,
+      "acceptance": [
+        "The final driving preview targets 北京南站 and visibly shows route/time information.",
+        "Every exposed recovery Planner request contains active_action_timeline and omits last_reviewed_subgoal.",
+        "Navigation, ride-hail, call, order, and payment are not started."
+      ],
+      "stop_rule": "Stop at terminal status, navigation start, prohibited action, safety violation, or 25 outer steps."
+    },
+    {
+      "case_id": "calculator-dependent-stage-control",
+      "app": "Calculator",
+      "precondition": "Calculator can be launched and shows any non-error ordinary display; history/scientific panels are closed.",
+      "instruction": "打开计算器，先计算23×17；确认中间结果显示391后，再在该结果上加9；确认最终结果显示400后，报告400。不要清空后直接输入400，不要打开历史记录或科学计算器。",
+      "baseline_repetitions": 2,
+      "candidate_repetitions": 1,
+      "acceptance": [
+        "Task-local actions establish 23×17=391 before +9=400 in the requested order.",
+        "The final visible result and reported answer are 400; direct entry of 400 is a false-success.",
+        "No history/scientific panel or unsafe side effect occurs."
+      ],
+      "stop_rule": "Stop at terminal status, direct entry of 400, wrong committed result, safety violation, or 18 outer steps."
+    }
+  ],
+  "reported_metrics": [
+    "true_success",
+    "false_success",
+    "blocked_failure",
+    "recovery_projection_exposures",
+    "duplicate_last_reviewed_subgoal_exposures",
+    "recovery_anchor_tokens",
+    "human_same_purpose_repetitions",
+    "human_wrong_actions",
+    "device_actions",
+    "outer_steps",
+    "llm_rounds",
+    "input_tokens",
+    "cached_tokens",
+    "cache_read_ratio",
+    "output_tokens",
+    "invalid_submits",
+    "provider_invalid",
+    "environment_invalid",
+    "safety_violations"
+  ],
+  "admission_rule": "Admit only if all valid candidate runs are true-success with zero safety violations, the Calculator ordered-stage control does not regress, every candidate recovery exposure removes the duplicate field while retaining required context, and exposed recovery-anchor tokens decrease without worse repeated/wrong-action behavior. A run without the candidate path is a control and cannot prove causal benefit. This is not a global 95/5 claim."
+}

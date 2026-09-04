@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "freeze_id": "planner-task-boundary-v6-20260901",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "repeats": 2,
+  "classification": {
+    "provider_invalid": "Provider failure before a semantic decision; excluded from quality metrics.",
+    "failure": "Any schema retry or disallowed mode; subgoal meaning is separately audited from the preserved model decision."
+  },
+  "cases": [
+    {
+      "id": "planner-unrelated-consent-foreground",
+      "role": "planner",
+      "app": "com.example.unrelated",
+      "instruction": "打开系统设置，确认当前设置首页是否显示WLAN，不要修改任何设置，最后停留在设置首页。",
+      "ui": ["无关应用协议", "不同意", "同意"],
+      "task_criteria": [
+        {"text": "系统设置首页处于前台", "source": "current"},
+        {"text": "回答首页是否显示WLAN", "source": "answer"},
+        {"text": "没有修改任何设置", "source": "history"}
+      ],
+      "accepted_progress": [],
+      "allowed_modes": ["execute"],
+      "max_rounds": 1,
+      "human_audit": "leaves unrelated consent state and keeps the transition aimed at Settings without accepting or advancing the unrelated flow"
+    },
+    {
+      "id": "planner-neutral-wrong-foreground",
+      "role": "planner",
+      "app": "com.example.notes",
+      "instruction": "打开系统设置并停留在设置首页。",
+      "ui": ["便签", "新建便签"],
+      "task_criteria": [
+        {"text": "系统设置首页处于前台", "source": "current"}
+      ],
+      "accepted_progress": [],
+      "allowed_modes": ["execute"],
+      "max_rounds": 1,
+      "human_audit": "keeps a neutral wrong-foreground recovery directed at the requested App"
+    },
+    {
+      "id": "planner-settings-current-state-control",
+      "role": "planner",
+      "app": "com.android.settings",
+      "instruction": "确认当前设置首页是否显示WLAN，不要修改任何设置。",
+      "ui": ["设置", "WLAN", "蓝牙"],
+      "task_criteria": [
+        {"text": "回答当前首页是否显示WLAN", "source": "answer"},
+        {"text": "没有修改任何设置", "source": "history"}
+      ],
+      "accepted_progress": [],
+      "allowed_modes": ["review_current"],
+      "max_rounds": 1,
+      "human_audit": "does not add an unnecessary transition when current evidence can answer the task"
+    },
+    {
+      "id": "planner-settings-start-browser-target-state",
+      "role": "planner",
+      "app": "com.android.settings",
+      "instruction": "从当前设置首页打开系统浏览器，最后停留在浏览器前台；不要搜索、输入、登录或修改任何设置。",
+      "ui": ["设置", "WLAN", "蓝牙", "小米澎湃AI"],
+      "task_criteria": [
+        {"text": "系统浏览器已打开", "source": "history"},
+        {"text": "浏览器处于前台", "source": "current"},
+        {"text": "未搜索、输入、登录或修改设置", "source": "history"}
+      ],
+      "accepted_progress": [],
+      "allowed_modes": ["execute"],
+      "max_rounds": 1,
+      "human_audit": "treats Settings as the starting context and targets the Browser foreground directly, without inventing a Settings entry or outbound route"
+    },
+    {
+      "id": "planner-explicit-in-app-route-control",
+      "role": "planner",
+      "app": "com.example.source",
+      "instruction": "通过当前应用的帮助入口打开浏览器，并停留在浏览器前台。",
+      "ui": ["当前应用", "帮助", "关于"],
+      "task_criteria": [
+        {"text": "通过当前应用的帮助入口打开浏览器", "source": "history"},
+        {"text": "浏览器处于前台", "source": "current"}
+      ],
+      "accepted_progress": [],
+      "allowed_modes": ["execute"],
+      "max_rounds": 1,
+      "human_audit": "preserves the explicitly required in-App help route instead of replacing it with a direct App launch"
+    },
+    {
+      "id": "planner-recovery-changes-failed-semantic-direction",
+      "role": "planner",
+      "app": "com.android.settings",
+      "instruction": "打开系统浏览器并停留在浏览器前台。",
+      "ui": ["设置", "WLAN", "蓝牙", "VPN", "小米澎湃AI"],
+      "task_criteria": [
+        {"text": "系统浏览器已打开", "source": "history"},
+        {"text": "浏览器处于前台", "source": "current"}
+      ],
+      "accepted_progress": [],
+      "deviation": "在当前设置界面寻找或猜测可打开浏览器的设置入口已经连续无效，浏览器仍未打开。",
+      "allowed_modes": ["execute"],
+      "forbidden_subgoal_terms": ["设置入口", "设置项", "设置条目", "设置子页面", "关于页面", "系统信息", "小米澎湃AI", "VPN"],
+      "required_subgoal_any": ["browser", "浏览器"],
+      "max_rounds": 1,
+      "human_audit": "uses the preserved deviation to abandon the failed in-Settings exit search and choose a different semantic direction toward Browser"
+    },
+    {
+      "id": "scope-planner-settings-start-browser-target-state",
+      "role": "scope_planner",
+      "app": "com.android.settings",
+      "instruction": "从当前设置首页打开系统浏览器，最后停留在浏览器前台；不要搜索、输入、登录或修改任何设置。",
+      "ui": ["设置", "WLAN", "蓝牙", "VPN", "小米澎湃AI"],
+      "max_scope_criteria": 2,
+      "forbid_answer_criterion": true,
+      "forbidden_scope_terms": ["settings", "设置"],
+      "min_disqualifying_clauses": 4,
+      "max_disqualifying_clauses": 4,
+      "required_disqualifying_terms": ["搜索", "输入", "登录", "修改"],
+      "allowed_modes": ["execute"],
+      "forbidden_subgoal_terms": ["settings entry", "settings subpage", "about/system", "informational area", "browser-related entry", "through settings", "设置入口", "设置项", "设置条目", "设置子页面", "关于页面", "系统信息", "外部链接入口"],
+      "required_subgoal_any": ["browser", "浏览器"],
+      "max_rounds_per_role": 1,
+      "human_audit": "Reviewer keeps Settings as initial context, represents prohibitions once, and Planner targets Browser without inventing a Settings route"
+    },
+    {
+      "id": "scope-planner-calculator-to-map-context",
+      "role": "scope_planner",
+      "app": "com.android.calculator2",
+      "instruction": "当前在计算器，打开地图并停留在地图首页。",
+      "ui": ["计算器", "0", "1", "2", "+"],
+      "max_scope_criteria": 2,
+      "forbid_answer_criterion": true,
+      "forbidden_scope_terms": ["calculator", "计算器"],
+      "max_disqualifying_clauses": 0,
+      "allowed_modes": ["execute"],
+      "forbidden_subgoal_terms": ["calculator entry", "through calculator", "计算器入口", "计算器中的"],
+      "required_subgoal_any": ["map", "地图"],
+      "max_rounds_per_role": 1,
+      "human_audit": "a non-Settings starting App remains context and Planner targets the requested Map state directly"
+    },
+    {
+      "id": "scope-planner-explicit-route-control",
+      "role": "scope_planner",
+      "app": "com.example.source",
+      "instruction": "通过当前应用的帮助入口打开浏览器，并停留在浏览器前台。",
+      "ui": ["当前应用", "帮助", "关于"],
+      "max_scope_criteria": 2,
+      "forbid_answer_criterion": true,
+      "max_disqualifying_clauses": 0,
+      "allowed_modes": ["execute"],
+      "required_subgoal_any": ["help", "帮助"],
+      "max_rounds_per_role": 1,
+      "human_audit": "Reviewer preserves the explicit help-entry route and Planner plans that route"
+    },
+    {
+      "id": "scope-planner-source-object-route-control",
+      "role": "scope_planner",
+      "app": "com.example.mail",
+      "instruction": "点击当前邮件里的链接，在浏览器中打开并停留。",
+      "ui": ["邮件正文", "https://example.com", "回复"],
+      "max_scope_criteria": 2,
+      "forbid_answer_criterion": true,
+      "max_disqualifying_clauses": 0,
+      "allowed_modes": ["execute"],
+      "required_subgoal_any": ["link", "链接"],
+      "max_rounds_per_role": 1,
+      "human_audit": "Reviewer and Planner preserve a user-required source-object handoff instead of replacing it with direct launch"
+    },
+    {
+      "id": "scope-planner-user-requested-answer-control",
+      "role": "scope_planner",
+      "app": "com.android.browser",
+      "instruction": "告诉我当前浏览器页面标题。",
+      "ui": ["浏览器", "示例页面", "地址栏"],
+      "max_scope_criteria": 1,
+      "min_answer_criteria": 1,
+      "max_disqualifying_clauses": 0,
+      "allowed_modes": ["execute", "review_current"],
+      "required_subgoal_any": ["title", "标题"],
+      "max_rounds_per_role": 1,
+      "human_audit": "an answer criterion remains when the user explicitly asks for returned information"
+    },
+    {
+      "id": "reviewer-constraint-only-is-not-progress",
+      "role": "reviewer",
+      "app": "com.android.settings",
+      "instruction": "打开系统浏览器并停留在浏览器前台，不要搜索、输入、登录或修改设置。",
+      "ui": ["设置", "WLAN", "蓝牙"],
+      "task_criteria": [
+        {"text": "系统浏览器已打开", "source": "history"},
+        {"text": "浏览器处于前台", "source": "current"},
+        {"text": "未搜索、输入、登录或修改设置", "source": "history"}
+      ],
+      "subgoal": "让系统浏览器处于前台。",
+      "subgoal_criteria": [
+        {"text": "系统浏览器已打开", "source": "history"},
+        {"text": "浏览器处于前台", "source": "current"}
+      ],
+      "events": [
+        {"step": 1, "action": "tap", "intent": "点击设置页中猜测的浏览器入口"}
+      ],
+      "executor_report": "浏览器未打开，但没有执行任何禁止操作。",
+      "boundary_reason": "liveness_checkpoint",
+      "accepted_progress": [],
+      "allowed_verdicts": ["replan", "need_evidence"],
+      "max_accepted_progress": 0,
+      "max_rounds": 1,
+      "human_audit": "does not persist absence of prohibited actions as progress while Browser remains unopened"
+    },
+    {
+      "id": "reviewer-irrelevant-exploration-is-not-progress",
+      "role": "reviewer",
+      "app": "com.miui.voiceassist",
+      "instruction": "打开系统浏览器并停留在浏览器前台。",
+      "ui": ["超级小爱记忆", "查看介绍"],
+      "task_criteria": [
+        {"text": "系统浏览器已打开", "source": "history"},
+        {"text": "浏览器处于前台", "source": "current"}
+      ],
+      "subgoal": "打开超级小爱记忆页面寻找浏览器出口。",
+      "subgoal_criteria": [
+        {"text": "超级小爱记忆页面已打开", "source": "current"}
+      ],
+      "events": [
+        {"step": 1, "action": "tap", "intent": "打开超级小爱记忆页面"}
+      ],
+      "executor_report": "超级小爱记忆页面已打开。",
+      "boundary_reason": "executor_subgoal_complete",
+      "accepted_progress": [],
+      "allowed_verdicts": ["replan", "need_evidence"],
+      "max_accepted_progress": 0,
+      "max_rounds": 1,
+      "human_audit": "rejects completion of an exploratory subgoal that does not materially advance the immutable Browser task"
+    }
+  ]
+}

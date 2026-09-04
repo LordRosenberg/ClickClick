@@ -1,0 +1,60 @@
+{
+  "freeze_id": "sleep-vs-observation-v1-20260901",
+  "candidate": "separate-sleep-from-observation-evidence",
+  "model": "chatgpt/gpt-5.4",
+  "device": "REDACTED_DEVICE",
+  "human_audit": {
+    "true_success": 2,
+    "false_success": 1,
+    "blocked_failure": 0,
+    "provider_invalid": 0,
+    "environment_invalid": 0,
+    "safety_violations": 0
+  },
+  "cases": [
+    {
+      "case_id": "settings-static-read",
+      "task_id": "bd6cdf0b-d828-40a3-bbdf-d321df8b48d9",
+      "classification": "false_success",
+      "audit": "The answer used the account-card username instead of the first eligible settings item. This is the separately deferred layout/Skill cognition issue, not delay/evidence behavior.",
+      "outer_steps": 1,
+      "device_actions": 0,
+      "llm_rounds": 3,
+      "input_tokens": 12385,
+      "cached_tokens": 6784,
+      "cache_read_ratio": 0.5478,
+      "output_tokens": 271,
+      "invalid_submits": 0
+    },
+    {
+      "case_id": "bilibili-video-playing",
+      "task_id": "70acaa6c-4ea8-4cd0-ab48-a9f9c665de8a",
+      "classification": "true_success",
+      "audit": "Opened the first complete visible home video and stayed on playback. Reviewer acquired one two-frame temporal observation before accepting playback.",
+      "outer_steps": 6,
+      "device_actions": 4,
+      "observe_screen_temporal_calls": 1,
+      "llm_rounds": 9,
+      "input_tokens": 53885,
+      "cached_tokens": 12672,
+      "cache_read_ratio": 0.2352,
+      "output_tokens": 795,
+      "invalid_submits": 0
+    },
+    {
+      "case_id": "amap-route-preview",
+      "task_id": "8735c09f-0fd2-40ea-bb21-789550f71e38",
+      "classification": "true_success",
+      "audit": "The final route preview showed the requested destination, 7 km / 19 minutes and an arrival estimate, with navigation not started. Four repeated destination-field taps and the high task cost remain an independent strategy/liveness regression.",
+      "outer_steps": 20,
+      "device_actions": 16,
+      "llm_rounds": 28,
+      "input_tokens": 207198,
+      "cached_tokens": 87040,
+      "cache_read_ratio": 0.4201,
+      "output_tokens": 2638,
+      "invalid_submits": 0
+    }
+  ],
+  "conclusion": "Dynamic observation behavior worked in Bilibili and the loaded AMap result was correct, but this small multi-App smoke is not a 95/5 claim. The Settings failure and AMap repetition remain open independent issues."
+}

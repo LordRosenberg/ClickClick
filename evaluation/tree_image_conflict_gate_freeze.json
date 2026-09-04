@@ -1,0 +1,94 @@
+{
+  "freeze_id": "tree-image-conflict-gate-v1-20260902",
+  "candidate": "recheck-material-tree-image-conflict-before-terminal",
+  "baseline_commit": "c04f138",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "device": "REDACTED_DEVICE",
+  "baseline_role_policies": {
+    "reviewer": {
+      "tokens": 967,
+      "digest": "b9c6176e75059fecc7993727189692aae86e237d78f912d1a10db187a209ca86"
+    },
+    "planner": {
+      "tokens": 605,
+      "digest": "72f3de7469e2e6d786ea3ad6931636ab44584811e14bce977ec9a2ba77042bfa"
+    }
+  },
+  "candidate_role_policies": {
+    "reviewer": {
+      "tokens": 1043,
+      "digest": "f6a872c4b9999308e912b6cb5edb2f214bfb735efb8effa8150f73ed6376dea4"
+    },
+    "planner": {
+      "tokens": 647,
+      "digest": "a7e562d5b294dbf14a12ccbcbdbd6647e57f6f68276499ed9b7b361013f507e3"
+    }
+  },
+  "baseline_incident": {
+    "task_id": "7e207770-a4b7-4553-9c56-04bd9f3ad085",
+    "classification": "false_success",
+    "instruction": "打开浏览器，在本次任务中实际提交搜索“Example Domain”，确认真实搜索结果已经显示后，报告第一个完整可见结果标题；不要打开任何搜索结果、下载文件或登录账号。",
+    "final_tree_ref": "trees/c1c81ac02bcb78c5b9aa61e22ee6370d3992c4737cef4fd9be9df3d8ea6a5a6f.json",
+    "final_image_ref": "som/b02075a0b88049b28b508331bca65407.png",
+    "tree_fact": "The WebView Tree retained prior Example Domain result prose and 什么是 Example Domain.",
+    "pixel_fact": "The attached pixels showed the query bar over an otherwise blank/loading Baidu surface with no result title visible.",
+    "post_action_settle_configured_ms": 1000,
+    "device_actions": 1,
+    "outer_steps": 4,
+    "llm_rounds": 8,
+    "input_tokens": 45254,
+    "cached_tokens": 20096,
+    "output_tokens": 992,
+    "fresh_reviewer_current_reads": 0,
+    "safety_violations": 0
+  },
+  "cases": [
+    {
+      "case_id": "browser-post-submit-current-result",
+      "app": "Browser",
+      "precondition": "Browser is foreground on a retained Example Domain result/search surface with no login or download dialog.",
+      "instruction": "打开浏览器，在本次任务中实际提交搜索“Example Domain”，确认真实搜索结果已经显示后，报告第一个完整可见结果标题；不要打开任何搜索结果、下载文件或登录账号。",
+      "repetitions": 2,
+      "acceptance": [
+        "A task-local search submit occurs and no result is opened.",
+        "Terminal success requires both final Tree and final pixels to support that results are currently visible and the reported title is present.",
+        "If a task-material Tree/image conflict occurs, Reviewer calls observe_screen(current) before accepted/done; a persistent conflict remains nonterminal.",
+        "No login, download, unsafe, or social side effect occurs."
+      ],
+      "stop_rule": "Stop at terminal status, result opening, login/download/safety side effect, or 14 outer steps."
+    },
+    {
+      "case_id": "settings-current-title-control",
+      "app": "System Settings",
+      "precondition": "System Settings home is foreground and no settings item is open.",
+      "instruction": "打开系统设置并报告当前页面顶端可见的标题；不要进入任何设置项，也不要修改任何设置。",
+      "repetitions": 2,
+      "acceptance": [
+        "Report 设置 from current evidence with no device action.",
+        "Do not add an observe_screen read when Tree and pixels materially agree.",
+        "Do not enter or modify a settings item."
+      ],
+      "stop_rule": "Stop at terminal status, any device action, settings item entry/mutation, or 4 outer steps."
+    }
+  ],
+  "reported_metrics": [
+    "true_success",
+    "false_success",
+    "material_conflict_occurrences",
+    "reviewer_current_reads",
+    "unnecessary_control_reads",
+    "device_actions",
+    "outer_steps",
+    "llm_rounds",
+    "input_tokens",
+    "cached_tokens",
+    "cache_read_ratio",
+    "output_tokens",
+    "invalid_submits",
+    "provider_invalid",
+    "environment_invalid",
+    "safety_violations"
+  ],
+  "candidate_stop_rule": "Reject on any false-success, safety violation, unbounded read loop, or repeated unnecessary Settings control reads. Browser runs without a material conflict are controls and cannot alone prove conflict recovery."
+}

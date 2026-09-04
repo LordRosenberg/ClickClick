@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "freeze_id": "reviewer-current-state-reconciliation-v1-20260901",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "repeats": 2,
+  "stop_rules": [
+    "stop on any hard-negative done",
+    "stop on any positive non-done",
+    "stop on invalid submission or more than one round"
+  ],
+  "cases": [
+    {
+      "id": "reviewer-calculator-active-expression-old-result",
+      "role": "reviewer",
+      "review_packet_ref": "data/artifacts/llm/63ae3fafce59feaa8dd634ed713bca126e579a86dd5166f24620088288171acb.json",
+      "image_ref": "data/artifacts/model-images/b524a95bf76b4b3a87e537b87b348a37.bin",
+      "packet_digest": "9afde6427499facbbda601ab668ebf684f500e040945c4e6f29afdde3d4747ae",
+      "observation_id": "obs_e2f9e31262e2484786745a0a64a2ce7c",
+      "instruction": "在当前计算器中清空现有输入，按顺序输入37×42并计算，最后停留在结果1554页面。",
+      "ui": ["计算器", "历史记录 37×42=1554", "=1554", "等于"],
+      "focused_editable": "37×42",
+      "task_criteria": [
+        {"text": "本任务中先清空现有输入", "source": "history"},
+        {"text": "清空后按顺序输入37×42并计算", "source": "history"},
+        {"text": "最终活动结果1554可见", "source": "current"}
+      ],
+      "accepted_progress": ["已清空旧输入", "已按顺序输入未求值表达式37×42"],
+      "subgoal": "对已输入的37×42执行求值并停留在1554结果页",
+      "subgoal_criteria": [
+        {"text": "活动计算结果1554可见", "source": "current"},
+        {"text": "本任务中已对37×42执行求值", "source": "history"}
+      ],
+      "events": [
+        {"step": 0, "intent": "输入3", "action": "tap"},
+        {"step": 1, "intent": "输入7", "action": "tap"},
+        {"step": 2, "intent": "输入乘号", "action": "tap"},
+        {"step": 3, "intent": "输入4", "action": "tap"},
+        {"step": 4, "intent": "输入2", "action": "tap"},
+        {"step": 5, "intent": "当前已完成", "action": "complete", "dispatch": "not_dispatched"}
+      ],
+      "executor_report": "旧记录中能看到1554，因此声称已经求值",
+      "allowed_verdicts": ["replan", "need_evidence"],
+      "max_rounds": 1,
+      "human_audit": "focused active expression remains unevaluated and no dispatched evaluation exists; visible old result must not become task completion"
+    },
+    {
+      "id": "reviewer-calculator-dispatched-evaluation",
+      "role": "reviewer",
+      "instruction": "在当前计算器中输入37×42并计算。",
+      "ui": ["计算器", "37×42=1554", "=1554", "等于"],
+      "focused_editable": "37×42",
+      "task_criteria": [
+        {"text": "本任务中按顺序输入37×42并求值", "source": "history"},
+        {"text": "结果1554可见", "source": "current"}
+      ],
+      "subgoal": "求值37×42",
+      "subgoal_criteria": [
+        {"text": "结果1554可见", "source": "current"},
+        {"text": "本任务中执行了求值", "source": "history"}
+      ],
+      "events": [
+        {"step": 0, "intent": "输入37×42", "action": "type", "text": "37×42"},
+        {"step": 1, "intent": "点击等于求值", "action": "tap"}
+      ],
+      "executor_report": "已经点击等于且结果1554可见",
+      "allowed_verdicts": ["done"],
+      "min_accepted_progress": 1,
+      "max_rounds": 1,
+      "human_audit": "matching current result plus dispatched task-local evaluation permits completion"
+    },
+    {
+      "id": "reviewer-settings-current-only-control",
+      "role": "reviewer",
+      "instruction": "说明当前设置首页第一个可见设置项。",
+      "ui": ["系统设置", "WLAN", "蓝牙"],
+      "task_criteria": [{"text": "回答当前首页第一个可见设置项", "source": "answer"}],
+      "subgoal": "读取当前设置首页",
+      "subgoal_criteria": [{"text": "首个可见项可识别", "source": "current"}],
+      "events": [],
+      "executor_report": "首个可见设置项为WLAN",
+      "allowed_verdicts": ["done"],
+      "min_accepted_progress": 1,
+      "max_rounds": 1,
+      "human_audit": "pure current-state reading remains completable without a task-local action"
+    }
+  ]
+}

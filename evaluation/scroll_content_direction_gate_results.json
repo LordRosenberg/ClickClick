@@ -1,0 +1,104 @@
+{
+  "change": "define-scroll-as-content-navigation",
+  "date": "2026-09-02",
+  "device": "REDACTED_DEVICE",
+  "models": {
+    "planner_reviewer": "chatgpt/gpt-5.4",
+    "executor": "chatgpt/gpt-5.4"
+  },
+  "status": "not_admitted",
+  "controls": [
+    {
+      "name": "browser_accident_first_repeat",
+      "task_id": "3692e3d1-8f4a-4521-981f-23d7f8b9a43b",
+      "outcome": "inconclusive_cancelled",
+      "steps": 18,
+      "rounds": 35,
+      "tokens": {"input": 221141, "cached": 110848, "output": 3410},
+      "evidence": "No scroll action occurred; repeated target confusion and back recovery made the frozen primitive gate non-empty condition unsatisfied.",
+      "safety_violations": 0
+    },
+    {
+      "name": "settings_vertical",
+      "task_id": "9a1553e8-8e5c-449a-96ce-383cb4c56158",
+      "outcome": "true_success",
+      "steps": 4,
+      "rounds": 10,
+      "tokens": {"input": 53387, "cached": 32000, "output": 1173},
+      "action": {"type": "scroll", "direction": "down", "from": [600, 1575], "to": [600, 1095]},
+      "before_observation_id": "obs_e3a0cb1a0c3849b5b1e0d8d659a63700",
+      "after_observation_id": "obs_228c46cdc51f40daba6c9e3444f1c95b",
+      "evidence": "The Settings list moved to a lower region; the new top fully visible item was Bluetooth. Capture was scrcpy tree+image.",
+      "safety_violations": 0
+    },
+    {
+      "name": "bilibili_narrow_strip_invalid_control",
+      "task_id": "76823f53-1ab6-4d58-982c-20531711828a",
+      "outcome": "invalid_control_cancelled",
+      "steps": 11,
+      "rounds": 26,
+      "tokens": {"input": 197388, "cached": 77568, "output": 2566},
+      "evidence": "Coordinate-free scroll gestures land at screen center and cannot target a narrow top channel strip. The run is excluded from candidate pass/fail and motivated the frozen full-screen pager replacement.",
+      "safety_violations": 0
+    },
+    {
+      "name": "launcher_horizontal_pager",
+      "task_id": "ad0ba173-19af-4cb4-909b-db30119bd971",
+      "outcome": "true_success_with_efficiency_regression",
+      "steps": 16,
+      "rounds": 25,
+      "tokens": {"input": 166241, "cached": 78720, "output": 2504},
+      "actions": [
+        {"type": "scroll", "direction": "right", "from": [840, 1335], "to": [360, 1335]},
+        {"type": "scroll", "direction": "left", "from": [360, 1335], "to": [840, 1335]}
+      ],
+      "observation_ids": [
+        "obs_579b340ed7f54183889a1f884d493315",
+        "obs_f99564e0c2e34f0aba90873160a69ede",
+        "obs_5678afb0e07843d081940798b2f01229",
+        "obs_04555d68236d4f77a81ac664abcbb1a1"
+      ],
+      "evidence": "Right revealed Doubao and Play Store; left restored Mi Home and Themes. Executor repeated equivalent remember actions twelve times across two boundaries.",
+      "safety_violations": 0
+    },
+    {
+      "name": "xiaohongshu_loaded_video_workflow",
+      "task_id": "261e6f6b-bc57-499b-938b-6f6ae046cf6d",
+      "outcome": "true_success",
+      "steps": 6,
+      "rounds": 15,
+      "tokens": {"input": 100886, "cached": 49280, "output": 1817},
+      "active_skill": "xiaohongshu-video-playback",
+      "action": {"type": "scroll", "direction": "down", "from": [600, 1575], "to": [600, 1095]},
+      "before_observation_id": "obs_46dd4679af594560b251dbb051781637",
+      "after_observation_id": "obs_49e12cfbf1284dcd9f64e57f4ba4b68d",
+      "evidence": "Ordered temporal evidence established playback; physical 'swipe up' wording selected scroll(down), switched to the next video, and exposed author Chexun Fengyun.",
+      "safety_violations": 0
+    },
+    {
+      "name": "browser_accident_second_repeat",
+      "task_id": "1d0a4021-e02e-4a0b-8772-01d3c1897d11",
+      "outcome": "blocked_failure_cancelled",
+      "steps": 23,
+      "rounds": 43,
+      "tokens": {"input": 280424, "cached": 138368, "output": 4118},
+      "actions": [
+        {"type": "scroll", "direction": "down", "from": [600, 1575], "to": [600, 1095]},
+        {"type": "scroll", "direction": "down", "from": [600, 1575], "to": [600, 1095]},
+        {"type": "scroll", "direction": "down", "from": [600, 1575], "to": [600, 1095]}
+      ],
+      "observation_ids": [
+        "obs_f02fdd4a7d4c44e7ac166027374e920e",
+        "obs_47dd55ca8c3f4e1eaf86577f0776000d",
+        "obs_1b153294870e41bb9eef060ef4002868",
+        "obs_37549141fc6a407f8a8d3772397f6b0a"
+      ],
+      "evidence": "Every scroll(down) used the corrected finger-up mapping and advanced accepted observations, so the reversed no-op loop did not recur. The task still failed because search controls, history suggestions, AI summary, organic result, and destination-page identities were confused, eventually navigating to Xiaomi App Store.",
+      "safety_violations": 0
+    }
+  ],
+  "admission": {
+    "accepted": false,
+    "reason": "The directional primitive improved in three real surfaces, but the frozen Browser accident task did not reach true success. Keep the change active while the independent target/state-understanding root cause is addressed and retested."
+  }
+}

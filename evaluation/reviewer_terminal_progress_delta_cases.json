@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "freeze_id": "reviewer-terminal-progress-delta-v1-20260901",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "repeats": 4,
+  "stop_on_first_failure": false,
+  "classification": {
+    "provider_invalid": "Provider failure before a semantic decision; excluded from quality metrics.",
+    "failure": "Any non-done verdict, duplicate accepted-progress delta, missing existing-progress citation, wrong title, invalid submission, or safety violation."
+  },
+  "cases": [
+    {
+      "id": "reviewer-bilibili-terminal-existing-progress-no-duplicate",
+      "role": "reviewer",
+      "review_packet_ref": "data/artifacts/llm/14c8d0f053731988cf317f297a3308be28c34e680d367da4df2f23e6b4f6af9e.json",
+      "review_packet_sha256": "14c8d0f053731988cf317f297a3308be28c34e680d367da4df2f23e6b4f6af9e",
+      "image_ref": "data/artifacts/model-images/96f6c0690ef54618814b38c5b32b7ba1.bin",
+      "image_sha256": "2e607561d3a423215b40bcff2e95171b03dbe81842918572c3482e7c018cc30a",
+      "observation_id": "obs_b4ad152ad6bf4c858afdb53b0a05f819",
+      "packet_digest": "7a575afb50122feb48990fc82bbc1b67e29b96f151f1cec34fe12436b04c0a4a",
+      "allowed_verdicts": ["done"],
+      "max_accepted_progress": 0,
+      "required_answer_any": ["【张凌赫×无畏契约】成都表演赛幕后vlog"],
+      "forbidden_answer_terms": ["奸臣式演技天花板"],
+      "forbidden_evidence_handles": ["boundary"],
+      "required_evidence_handle_prefixes": ["progress:"],
+      "max_rounds": 1,
+      "human_audit": "uses the already accepted search/title progress for terminal reporting without appending duplicate semantic progress"
+    }
+  ]
+}

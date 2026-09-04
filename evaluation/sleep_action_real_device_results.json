@@ -1,0 +1,90 @@
+{
+  "freeze_id": "sleep-action-boundary-v1-20260901",
+  "candidate": "separate-sleep-from-observation-evidence",
+  "model": "chatgpt/gpt-5.4",
+  "device": "REDACTED_DEVICE",
+  "root_cause": "A carried pre-sleep observation was labeled current while the action audit simultaneously said post_dispatch_observation=missing. The larger current tree/image signal caused Reviewer to treat old evidence as a post-delay read.",
+  "repair": "Sleep performs zero observation captures. At a missing-post-observation boundary the carried packet is labeled pre_action_observation and does not expose the citeable current handle. A Reviewer observe_screen call supplies current on the next round.",
+  "runs": [
+    {
+      "task_id": "d666eaf2-3eb9-4c6e-aefc-8e90033e2365",
+      "revision": "delay_only_before_prompt_repair",
+      "classification": "false_success",
+      "audit": "Sleep correctly captured zero observations, but no observe_screen call occurred and old evidence was reported as re-observed.",
+      "outer_steps": 3,
+      "device_actions": 1,
+      "llm_rounds": 7,
+      "input_tokens": 61358,
+      "cached_tokens": 18560,
+      "output_tokens": 908
+    },
+    {
+      "task_id": "7850b5c1-6b77-4369-93a7-9fb42fb27c72",
+      "revision": "prompt_only",
+      "classification": "false_success",
+      "audit": "The explicit prompt rule was present, but the old observation was still labeled current; Reviewer again skipped observe_screen.",
+      "outer_steps": 2,
+      "device_actions": 1,
+      "llm_rounds": 4,
+      "input_tokens": 31755,
+      "cached_tokens": 2432,
+      "output_tokens": 516
+    },
+    {
+      "task_id": "4cf43844-d3ad-4d72-9b46-297001b47c3d",
+      "revision": "causal_evidence_binding",
+      "classification": "environment_invalid",
+      "audit": "The frozen AMap route-preview precondition was absent after restart. The run was cancelled after the agent found AMap home and could not safely reconstruct the route without changing it.",
+      "outer_steps": 6,
+      "device_actions": 1,
+      "llm_rounds": 23,
+      "input_tokens": 164139,
+      "cached_tokens": 61440,
+      "output_tokens": 2224
+    },
+    {
+      "task_id": "318a6920-1d17-4e87-8508-d567389c6ab4",
+      "revision": "causal_evidence_binding",
+      "classification": "true_success",
+      "app": "System Settings",
+      "audit": "After sleep, Reviewer called observe_screen(current), then reported the visible title Settings without entering or modifying an item.",
+      "sleep_actions": 1,
+      "sleep_observation_captures": 0,
+      "observe_screen_current_calls": 1,
+      "outer_steps": 4,
+      "device_actions": 2,
+      "llm_rounds": 9,
+      "input_tokens": 50277,
+      "cached_tokens": 20992,
+      "cache_read_ratio": 0.4175,
+      "output_tokens": 768,
+      "invalid_submits": 0
+    },
+    {
+      "task_id": "40829a4f-1978-405d-aa37-37da0fd7dde6",
+      "revision": "causal_evidence_binding_repeat",
+      "classification": "true_success",
+      "app": "System Settings",
+      "audit": "Repeated from an already valid Settings-home precondition. Reviewer again called observe_screen(current) after sleep before done.",
+      "sleep_actions": 1,
+      "sleep_observation_captures": 0,
+      "observe_screen_current_calls": 1,
+      "outer_steps": 2,
+      "device_actions": 1,
+      "llm_rounds": 5,
+      "input_tokens": 23208,
+      "cached_tokens": 12672,
+      "cache_read_ratio": 0.5460,
+      "output_tokens": 476,
+      "invalid_submits": 0
+    }
+  ],
+  "pre_freeze_repeat_result": {
+    "valid_repetitions": 2,
+    "true_success": 2,
+    "false_success": 0,
+    "safety_violations": 0,
+    "sleep_used_as_evidence": 0,
+    "conclusion": "The causal labeling repair succeeded twice on valid low-risk device runs, but these runs preceded the exact Settings freeze and are supporting evidence only. The formal gate is recorded in sleep_action_settings_real_device_results.json."
+  }
+}

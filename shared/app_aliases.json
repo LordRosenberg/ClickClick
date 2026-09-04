@@ -1,0 +1,371 @@
+{
+  "com.android.settings": {
+    "aliases": ["设置", "系统设置", "Settings", "settings"]
+  },
+  "com.miui.calculator": {
+    "aliases": ["计算器", "Calculator", "calculator"]
+  },
+  "com.android.browser": {
+    "aliases": ["浏览器", "系统浏览器", "Browser", "browser"]
+  },
+  "com.xingin.xhs": {
+    "aliases": ["小红书", "红书", "xhs", "XHS", "xiaohongshu"]
+  },
+  "com.tencent.mm": {
+    "aliases": ["微信", "WeChat", "wechat", "weixin", "Weixin"]
+  },
+  "com.ss.android.ugc.aweme": {
+    "aliases": ["抖音", "douyin", "Douyin", "tiktok国内"]
+  },
+  "tv.danmaku.bili": {
+    "aliases": ["哔哩哔哩", "B站", "b站", "bilibili", "Bilibili", "bili", "哔哩"]
+  },
+  "com.zhihu.android": {
+    "aliases": ["知乎", "zhihu", "Zhihu"]
+  },
+  "com.taobao.taobao": {
+    "aliases": ["淘宝", "taobao", "Taobao", "淘宝网"]
+  },
+  "com.jingdong.app.mall": {
+    "aliases": ["京东", "jd", "JD", "jingdong"]
+  },
+  "com.netease.cloudmusic": {
+    "aliases": ["网易云音乐", "网易云", "cloudmusic", "网易云音乐"]
+  },
+  "com.tencent.mobileqq": {
+    "aliases": ["QQ", "qq", "QQ手机版"]
+  },
+  "com.eg.android.AlipayGphone": {
+    "aliases": ["支付宝", "alipay", "Alipay", "AliPay"]
+  },
+  "com.sina.weibo": {
+    "aliases": ["微博", "weibo", "Weibo", "新浪微博"]
+  },
+  "com.tencent.wework": {
+    "aliases": ["企业微信", "企微", "wework", "WeCom"]
+  },
+  "com.ss.android.ugc.aweme.lite": {
+    "aliases": ["抖音极速版", "抖极"]
+  },
+  "com.ss.android.article.news": {
+    "aliases": ["今日头条", "头条", "toutiao"]
+  },
+  "com.ss.android.article.lite": {
+    "aliases": ["今日头条极速版", "头条极速版"]
+  },
+  "com.smile.gifmaker": {
+    "aliases": ["快手", "kuaishou", "Kuaishou", "KS"]
+  },
+  "com.kuaishou.nebula": {
+    "aliases": ["快手极速版", "快极"]
+  },
+  "com.baidu.searchbox": {
+    "aliases": ["百度", "百度APP", "baidu", "Baidu"]
+  },
+  "com.baidu.BaiduMap": {
+    "aliases": ["百度地图", "Baidu Map"]
+  },
+  "com.autonavi.minimap": {
+    "aliases": ["高德地图", "高德", "amap", "Amap", "Gaode"]
+  },
+  "com.tencent.map": {
+    "aliases": ["腾讯地图"]
+  },
+  "com.sdu.didi.psnger": {
+    "aliases": ["滴滴出行", "滴滴", "didi", "DiDi"]
+  },
+  "me.ele": {
+    "aliases": ["饿了么", "eleme", "Eleme", "饿了吗"]
+  },
+  "com.sankuai.meituan": {
+    "aliases": ["美团", "meituan", "Meituan"]
+  },
+  "com.sankuai.meituan.takeoutnew": {
+    "aliases": ["美团外卖", "外卖"]
+  },
+  "ctrip.android.view": {
+    "aliases": ["携程", "携程旅行", "ctrip", "Ctrip"]
+  },
+  "com.Qunar": {
+    "aliases": ["去哪儿", "去哪儿旅行", "qunar", "Qunar"]
+  },
+  "com.taobao.trip": {
+    "aliases": ["飞猪", "飞猪旅行", "fliggy"]
+  },
+  "com.dianping.v1": {
+    "aliases": ["大众点评", "点评", "dianping"]
+  },
+  "com.achievo.vipshop": {
+    "aliases": ["唯品会", "vipshop"]
+  },
+  "com.xunmeng.pinduoduo": {
+    "aliases": ["拼多多", "pdd", "PDD", "pinduoduo"]
+  },
+  "com.tmall.wireless": {
+    "aliases": ["天猫", "tmall", "Tmall"]
+  },
+  "com.alibaba.android.rimet": {
+    "aliases": ["钉钉", "dingtalk", "DingTalk"]
+  },
+  "com.larksuite.suite": {
+    "aliases": ["飞书", "feishu", "Feishu", "Lark"]
+  },
+  "com.tencent.qqmusic": {
+    "aliases": ["QQ音乐", "qq音乐"]
+  },
+  "com.kugou.android": {
+    "aliases": ["酷狗音乐", "酷狗", "kugou"]
+  },
+  "cn.kuwo.player": {
+    "aliases": ["酷我音乐", "酷我"]
+  },
+  "com.tencent.qqlive": {
+    "aliases": ["腾讯视频", "腾讯视频APP"]
+  },
+  "com.youku.phone": {
+    "aliases": ["优酷", "优酷视频", "youku", "Youku"]
+  },
+  "com.qiyi.video": {
+    "aliases": ["爱奇艺", "iqiyi", "iQIYI"]
+  },
+  "com.hunantv.imgo.activity": {
+    "aliases": ["芒果TV", "芒果tv", "芒果"]
+  },
+  "com.cmcc.cmvideo": {
+    "aliases": ["咪咕视频", "咪咕"]
+  },
+  "com.netease.newsreader.activity": {
+    "aliases": ["网易新闻"]
+  },
+  "com.sohu.newsclient": {
+    "aliases": ["搜狐新闻"]
+  },
+  "com.tencent.news": {
+    "aliases": ["腾讯新闻"]
+  },
+  "com.tencent.androidqqmail": {
+    "aliases": ["QQ邮箱"]
+  },
+  "com.netease.mail": {
+    "aliases": ["网易邮箱", "网易邮箱大师"]
+  },
+  "com.android.email": {
+    "aliases": ["电子邮件"]
+  },
+  "com.tencent.weread": {
+    "aliases": ["微信读书"]
+  },
+  "com.chaozh.iReader.dj": {
+    "aliases": ["当当云阅读"]
+  },
+  "com.duokan.phone.remotecontroller": {
+    "aliases": ["万能遥控"]
+  },
+  "com.duokan.reader": {
+    "aliases": ["多看阅读", "多看"]
+  },
+  "com.dragon.read": {
+    "aliases": ["番茄小说", "番茄免费小说"]
+  },
+  "com.yuewen.cooperate.reader.free": {
+    "aliases": ["七猫免费小说", "七猫"]
+  },
+  "com.qq.ac.android": {
+    "aliases": ["腾讯动漫"]
+  },
+  "com.bilibili.app.billions": {
+    "aliases": ["哔哩哔哩漫画", "B漫"]
+  },
+  "com.tencent.tmgp.sgame": {
+    "aliases": ["王者荣耀", "王者"]
+  },
+  "com.tencent.tmgp.pubgmhd": {
+    "aliases": ["和平精英", "吃鸡"]
+  },
+  "com.miHoYo.Yuanshen": {
+    "aliases": ["原神", "Genshin", "genshin"]
+  },
+  "com.miHoYo.hkrpg": {
+    "aliases": ["崩坏星穹铁道", "星穹铁道", "崩铁"]
+  },
+  "com.netease.nshm": {
+    "aliases": ["逆水寒", "逆水寒手游"]
+  },
+  "com.tencent.jkchess": {
+    "aliases": ["金铲铲之战", "金铲铲"]
+  },
+  "com.netease.onmyoji": {
+    "aliases": ["阴阳师"]
+  },
+  "com.happyelements.AndroidAnimal": {
+    "aliases": ["开心消消乐"]
+  },
+  "com.tencent.android.qqdownloader": {
+    "aliases": ["应用宝"]
+  },
+  "com.huawei.appmarket": {
+    "aliases": ["华为应用市场"]
+  },
+  "com.xiaomi.market": {
+    "aliases": ["小米应用商店", "小米商店"]
+  },
+  "com.oppo.market": {
+    "aliases": ["OPPO软件商店", "OPPO商店"]
+  },
+  "com.bbk.appstore": {
+    "aliases": ["vivo应用商店", "vivo商店"]
+  },
+  "com.coolapk.market": {
+    "aliases": ["酷安", "coolapk"]
+  },
+  "com.android.vending": {
+    "aliases": ["Play商店", "Google Play", "谷歌商店"]
+  },
+  "com.taobao.idlefish": {
+    "aliases": ["闲鱼", "xy", "闲鱼二手"]
+  },
+  "com.wuba": {
+    "aliases": ["58同城", "58"]
+  },
+  "com.ganji.android": {
+    "aliases": ["赶集网", "赶集"]
+  },
+  "com.anjuke.android.app": {
+    "aliases": ["安居客"]
+  },
+  "com.lianjia.beike": {
+    "aliases": ["贝壳找房", "贝壳"]
+  },
+  "com.homelink.android": {
+    "aliases": ["链家"]
+  },
+  "com.mobile.cobo.broker": {
+    "aliases": ["天天基金"]
+  },
+  "com.eastmoney.android.berlin": {
+    "aliases": ["东方财富"]
+  },
+  "com.hexin.plat.android": {
+    "aliases": ["同花顺"]
+  },
+  "com.xueqiu.android": {
+    "aliases": ["雪球"]
+  },
+  "com.yitong.mbank.psbc": {
+    "aliases": ["邮储银行"]
+  },
+  "com.icbc": {
+    "aliases": ["工商银行", "工行"]
+  },
+  "com.chinamworld.main": {
+    "aliases": ["建设银行", "建行"]
+  },
+  "com.android.bankabc": {
+    "aliases": ["农业银行", "农行"]
+  },
+  "com.chinamworld.bocmbci": {
+    "aliases": ["中国银行", "中行"]
+  },
+  "cmb.pb": {
+    "aliases": ["招商银行", "招行"]
+  },
+  "com.unionpay": {
+    "aliases": ["云闪付"]
+  },
+  "com.MobileTicket": {
+    "aliases": ["铁路12306", "12306"]
+  },
+  "com.yipiao": {
+    "aliases": ["智行火车票", "智行"]
+  },
+  "com.tencent.qqpimsecure": {
+    "aliases": ["腾讯手机管家"]
+  },
+  "com.qihoo.security": {
+    "aliases": ["360手机卫士", "360卫士"]
+  },
+  "com.cleanmaster.mguard_cn": {
+    "aliases": ["猎豹清理大师"]
+  },
+  "com.UCMobile": {
+    "aliases": ["UC浏览器", "UC"]
+  },
+  "com.tencent.mtt": {
+    "aliases": ["QQ浏览器"]
+  },
+  "com.baidu.browser.apps": {
+    "aliases": ["百度浏览器"]
+  },
+  "com.android.chrome": {
+    "aliases": ["Chrome", "谷歌浏览器", "chrome"]
+  },
+  "com.microsoft.emmx": {
+    "aliases": ["Edge", "微软Edge"]
+  },
+  "com.zhihu.android.instant": {
+    "aliases": ["知乎极速版"]
+  },
+  "com.ss.android.ugc.live": {
+    "aliases": ["抖音火山版", "火山小视频"]
+  },
+  "com.ss.android.ugc.livelite": {
+    "aliases": ["抖音商城"]
+  },
+  "com.xingin.xhsstore": {
+    "aliases": ["小红书商家版"]
+  },
+  "com.alibaba.wireless": {
+    "aliases": ["阿里巴巴", "1688"]
+  },
+  "com.taobao.litetao": {
+    "aliases": ["淘宝特价版", "特价版"]
+  },
+  "com.jd.jdlite": {
+    "aliases": ["京东极速版"]
+  },
+  "com.baidu.netdisk": {
+    "aliases": ["百度网盘", "网盘"]
+  },
+  "com.tencent.weiyun": {
+    "aliases": ["微云"]
+  },
+  "com.quark.browser": {
+    "aliases": ["夸克", "夸克浏览器"]
+  },
+  "com.aliyun.tongyi": {
+    "aliases": ["通义", "通义千问"]
+  },
+  "com.tencent.hunyuan.app.chat": {
+    "aliases": ["腾讯元宝"]
+  },
+  "com.openai.chatgpt": {
+    "aliases": ["ChatGPT", "chatgpt"]
+  },
+  "com.deepseek.chat": {
+    "aliases": ["DeepSeek", "deepseek"]
+  },
+  "com.tencent.edu": {
+    "aliases": ["腾讯课堂"]
+  },
+  "com.ximalaya.ting.android": {
+    "aliases": ["喜马拉雅", "小雅"]
+  },
+  "com.shinyv.cnr": {
+    "aliases": ["云听"]
+  },
+  "com.tencent.now": {
+    "aliases": ["腾讯NOW直播"]
+  },
+  "com.hupu.games": {
+    "aliases": ["虎扑"]
+  },
+  "com.douban.frodo": {
+    "aliases": ["豆瓣"]
+  },
+  "com.tencent.gamehelper.smoba": {
+    "aliases": ["王者营地"]
+  },
+  "com.netease.uuremote": {
+    "aliases": ["网易UU远程"]
+  }
+}

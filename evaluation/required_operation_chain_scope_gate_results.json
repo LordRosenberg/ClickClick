@@ -1,0 +1,132 @@
+{
+  "freeze_id": "required-operation-chain-scope-v1-20260902",
+  "candidate_identity": {
+    "raw_scope_policy_sha256": "44681180c7ef4245093ce525d60627b1662e4739d3659b26574128b5f56b772d",
+    "raw_scope_policy_tokens": 567,
+    "runtime_wire_policy_sha256": "1d73ffef4f3186baac2f15ed183c61a4a22988ca94d20a85bed5bab1f9c9f623",
+    "runtime_wire_policy_tokens": 595,
+    "scope_tool_schema_sha256": "622381ecf5a55c263414665677c049b9c06aab657a029c181d7385547e16957a",
+    "scope_tool_schema_tokens": 417
+  },
+  "rejected_iterations": [
+    {
+      "task_id": "a65065b9-80a3-4470-9bd4-3622844a10dc",
+      "classification": "false_success",
+      "device_actions": 0,
+      "reason": "The broad route/setup exception still omitted the required in-task search."
+    },
+    {
+      "task_id": "9400dced-8acd-4af8-8c25-42c4df9fb6a1",
+      "classification": "false_success",
+      "device_actions": 0,
+      "reason": "A counterfactual rule remained too abstract and still omitted the required search."
+    }
+  ],
+  "admitted_runs": [
+    {
+      "case_id": "amap-search-route-repeat-1",
+      "task_id": "247ec1e6-b885-4718-9f7e-6d8fca73bbc9",
+      "classification": "true_success",
+      "scope_sources": ["current", "current", "history"],
+      "outer_steps": 4,
+      "device_actions": 2,
+      "wrong_or_repeated_actions": 0,
+      "llm_rounds": 10,
+      "input_tokens": 67813,
+      "cached_tokens": 24960,
+      "cache_read_ratio": 0.3681,
+      "output_tokens": 1144,
+      "invalid_submits": 0,
+      "audit": "Tapped the destination field, selected 北京南站, returned to the driving preview, and never started navigation."
+    },
+    {
+      "case_id": "amap-search-route-repeat-2",
+      "task_id": "0bbbdd79-65e3-4cd3-bf3a-b758b0be3ee0",
+      "classification": "true_success",
+      "scope_sources": ["history", "history", "current", "current"],
+      "outer_steps": 5,
+      "device_actions": 2,
+      "wrong_or_repeated_actions": 0,
+      "llm_rounds": 9,
+      "input_tokens": 65167,
+      "cached_tokens": 25472,
+      "cache_read_ratio": 0.3909,
+      "output_tokens": 1187,
+      "invalid_submits": 0,
+      "audit": "Repeated the task-local destination search and entered the loaded driving preview without starting navigation."
+    },
+    {
+      "case_id": "browser-direct-search",
+      "task_id": "66f3f5f6-4b42-4a65-b4ca-2f88f4cc984d",
+      "classification": "true_success",
+      "scope_sources": ["history", "current", "answer"],
+      "outer_steps": 5,
+      "device_actions": 2,
+      "wrong_or_repeated_actions": 0,
+      "llm_rounds": 9,
+      "input_tokens": 54340,
+      "cached_tokens": 23552,
+      "cache_read_ratio": 0.4334,
+      "output_tokens": 983,
+      "invalid_submits": 0,
+      "audit": "Submitted the existing exact query, reported the first complete visible title, and opened no result."
+    },
+    {
+      "case_id": "settings-read-control",
+      "task_id": "ce0ae10e-9df1-4fea-a284-a123f5b6f8b1",
+      "classification": "true_success",
+      "scope_sources": ["current", "current", "answer"],
+      "outer_steps": 3,
+      "device_actions": 1,
+      "wrong_or_repeated_actions": 0,
+      "llm_rounds": 5,
+      "input_tokens": 24746,
+      "cached_tokens": 11264,
+      "cache_read_ratio": 0.4552,
+      "output_tokens": 498,
+      "invalid_submits": 0,
+      "audit": "Launched Settings, reported 我的设备, and opened or changed no setting."
+    },
+    {
+      "case_id": "bilibili-stay-control",
+      "task_id": "3fc0994a-4ec4-4adb-9251-c51a9892f019",
+      "classification": "true_success",
+      "scope_sources": ["current"],
+      "outer_steps": 1,
+      "device_actions": 0,
+      "wrong_or_repeated_actions": 0,
+      "llm_rounds": 3,
+      "input_tokens": 15997,
+      "cached_tokens": 6784,
+      "cache_read_ratio": 0.4241,
+      "output_tokens": 242,
+      "invalid_submits": 0,
+      "audit": "Accepted the already-foreground Bilibili page without replay or any social interaction."
+    }
+  ],
+  "aggregate": {
+    "valid_runs": 5,
+    "true_success": 5,
+    "false_success": 0,
+    "blocked_failure": 0,
+    "provider_invalid": 0,
+    "environment_invalid": 0,
+    "safety_violations": 0,
+    "outer_steps": 18,
+    "device_actions": 7,
+    "wrong_or_repeated_actions": 0,
+    "llm_rounds": 36,
+    "input_tokens": 228063,
+    "cached_tokens": 92032,
+    "cache_read_ratio": 0.4035,
+    "output_tokens": 4054,
+    "invalid_submits": 0
+  },
+  "scope_source_note": "Per-run scope_sources records the actual model-authored shape. The frozen required_scope_sources fields are minimum required source sets, not exact arrays.",
+  "decision": "admit",
+  "limitations": [
+    "The sample is an admission gate, not evidence that the project has reached the final 95/5 target.",
+    "The rule still relies on GPT-5.4 semantic scope authoring and needs broader holdout coverage.",
+    "The candidate changes no dynamic temporal-evidence policy or Executor action-window calibration."
+  ]
+}

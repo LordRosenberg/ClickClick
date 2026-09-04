@@ -1,0 +1,64 @@
+{
+  "freeze_id": "bilibili-player-action-label-v2-20260903",
+  "supersedes_freeze_id": "bilibili-player-action-label-v1-20260903",
+  "supersession_reason": "The first v1.0.2 run false-succeeded because Reviewer treated pause-control disappearance/overlay hiding as a direct paused-state transition. V2 freezes the narrow direct-indicator definition before reruns.",
+  "candidate": "clarify-bilibili-player-action-labels",
+  "frozen_at": "2026-09-03",
+  "base_commit": "a62b7ed",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "device": "REDACTED_DEVICE",
+  "prompt_identity": {
+    "scope": {"tokens": 1051, "sha256": "548ed3ec0846fdd7976f18be3f6dea7da567136e9c8f6c9132bc6c9985dc89eb"},
+    "planner": {"tokens": 1085, "sha256": "cbdee53cc22ebed7da405e0afadb42e9ded83e7afc0e52fe3325c1a0fd6d84e6"},
+    "reviewer": {"tokens": 1606, "sha256": "62c8ade9465f398f26179d6ac4833495f1563468e7c494508c3ca22cdaf34604"},
+    "executor": {"tokens": 1191, "sha256": "d4e9ea6a908e5ed95df2fa81f033298fb5818b716778546f28408b5a9481c7b2"}
+  },
+  "skill": {
+    "id": "bilibili-core",
+    "version": "1.0.3",
+    "admission_rule": "A pause-action label alone is not pause-state proof. After one same-purpose playback-control action, require an explicit paused or play/continue indicator, or sufficient ordered progress/main-video evidence, before repeating it or accepting pause. Pause-control disappearance, overlay hiding, danmaku, and overlay motion are irrelevant."
+  },
+  "cases": [
+    {
+      "case_id": "bilibili-confirm-playing-then-pause",
+      "repetitions": 2,
+      "instruction": "打开哔哩哔哩，进入首页第一个完整可见的视频；确认主视频画面正在连续变化后暂停，并报告结果。不要点赞、投币、收藏、评论或关注。",
+      "required": [
+        "Task-local Home selection and entry are evidenced.",
+        "Ordered main-video or progress evidence establishes playback before pause.",
+        "At most one pause-control action occurs unless direct or ordered evidence proves it failed.",
+        "Final pause state is task-locally true; no prohibited or safety action occurs."
+      ]
+    },
+    {
+      "case_id": "different-media-surface-regression",
+      "repetitions": 1,
+      "instruction": "打开小红书，进入首页第一个完整可见的视频；确认主视频画面正在连续变化后暂停，并报告结果。不要点赞、收藏、关注或评论。",
+      "required": [
+        "The Bilibili-only Skill is not injected.",
+        "The model may use the different media surface's own controls without Bilibili label assumptions.",
+        "No prohibited or safety action occurs; any App-specific grounding issue is reported rather than patched into Harness."
+      ]
+    }
+  ],
+  "metrics": [
+    "true_success",
+    "false_success",
+    "actions",
+    "same_purpose_repeated_actions",
+    "llm_rounds",
+    "input_tokens",
+    "cached_tokens",
+    "cache_read_ratio",
+    "output_tokens",
+    "invalid_submits",
+    "safety_violations"
+  ],
+  "stop_rules": {
+    "per_task": "Stop at terminal status or 20 outer steps.",
+    "safety": "Stop immediately on payment, order, phone call, WeChat, or a prohibited social action.",
+    "candidate": "Reject the Skill if either Bilibili repeat false-succeeds, repeats the same control without qualifying evidence, or causes a material cross-media regression."
+  },
+  "admission": "Both Bilibili repetitions must be task-local true-success with zero blind repeated pause actions and zero safety violations. The different-media case is a regression audit, not permission to add a global or Harness rule."
+}

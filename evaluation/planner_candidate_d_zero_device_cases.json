@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "freeze_id": "split-planner-reset-before-construction-v1-20260901-zero-device",
+  "candidate_planner_policy_sha256": "1d78a3bd084d1e66642e18515faec909d944e12df6a0903352d47efffca47940",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "repeats": 2,
+  "execution": "synthetic tree-only ObservationPackage; Planner only; no Executor, dispatcher, or device",
+  "stop_rules": [
+    "invalid Planner submission",
+    "Planner device-action tool call",
+    "positive reset case bundles dependent construction",
+    "negative case splits incidental focus, navigation, one tap, or one character",
+    "provider failure before a valid Planner decision"
+  ],
+  "cases": [
+    {
+      "id": "planner-required-reset-before-ordered-construction",
+      "role": "planner",
+      "instruction": "在当前计算器中先清空已有算式，再按顺序输入37×42并计算，最后停留在结果1554页面。",
+      "ui": ["计算器", "当前算式 91+5", "清除", "数字键", "乘号", "等号"],
+      "task_criteria": [
+        {"text": "本任务先清空已有算式", "source": "history"},
+        {"text": "清空后按顺序输入37×42并执行计算", "source": "history"},
+        {"text": "最终结果1554可见", "source": "current"}
+      ],
+      "allowed_modes": ["execute"],
+      "human_audit": "current subgoal is reset/clear only; full construction and commit remain unresolved"
+    },
+    {
+      "id": "planner-incidental-search-replacement-not-clear-only",
+      "role": "planner",
+      "instruction": "在当前浏览器搜索框搜索OpenAI并停留在结果页。",
+      "ui": ["浏览器", "搜索框 当前文本 codex", "搜索", "历史建议"],
+      "task_criteria": [
+        {"text": "本任务提交一次OpenAI搜索", "source": "history"},
+        {"text": "OpenAI搜索结果页可见", "source": "current"}
+      ],
+      "allowed_modes": ["execute"],
+      "human_audit": "does not create a clear-only or focus-only subgoal; exact query construction may be separate from submit"
+    },
+    {
+      "id": "planner-incidental-navigation-not-focus-only",
+      "role": "planner",
+      "instruction": "在当前浏览器打开example.com并停留在页面。",
+      "ui": ["浏览器首页", "地址栏", "书签", "新标签页"],
+      "task_criteria": [
+        {"text": "example.com页面可见", "source": "current"}
+      ],
+      "allowed_modes": ["execute"],
+      "human_audit": "does not create a focus-address-bar-only or launch-browser-only micro-subgoal"
+    },
+    {
+      "id": "planner-inseparable-reset-effect-stays-one-transition",
+      "role": "planner",
+      "instruction": "关闭当前已开启的飞行模式，最后保持关闭。",
+      "ui": ["系统设置", "飞行模式 已开启", "飞行模式开关"],
+      "task_criteria": [
+        {"text": "飞行模式当前关闭", "source": "current"}
+      ],
+      "allowed_modes": ["execute"],
+      "human_audit": "turning off is the requested effect itself; no separate reset/precondition subgoal"
+    },
+    {
+      "id": "planner-already-reset-construction-not-character-plan",
+      "role": "planner",
+      "instruction": "在已清空的计算器中完整输入37×42但不要按等号。",
+      "ui": ["计算器", "当前算式 0", "数字键", "乘号", "等号"],
+      "task_criteria": [
+        {"text": "按顺序输入完整表达式37×42", "source": "history"},
+        {"text": "当前完整表达式37×42可见且未计算", "source": "current"}
+      ],
+      "allowed_modes": ["execute"],
+      "human_audit": "one complete construction subgoal; not one character, one tap, or redundant clear"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "freeze_id": "deferred-temporal-static-blocker-v1-20260902",
+  "candidate": "defer-temporal-evidence-until-static-blockers-clear",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "device": "REDACTED_DEVICE",
+  "baseline_identity": {
+    "commit": "17e3c45688ec177940af73340d58eb207a7ffe48",
+    "reviewer_policy_sha256": "f6a872c4b9999308e912b6cb5edb2f214bfb735efb8effa8150f73ed6376dea4",
+    "reviewer_policy_tokens": 1043,
+    "reviewer_tool_schema_sha256": "3d79c121172012795132963fb539729b3e0eb24d00570e1db0d1bc94d0b38b54",
+    "reviewer_tool_schema_tokens": 546
+  },
+  "candidate_identity": {
+    "reviewer_policy_sha256": "d449082583c0d27482779791accf075da78b920850156fad8a4998a3db4569ca",
+    "reviewer_policy_tokens": 1149,
+    "reviewer_tool_schema_sha256": "3d79c121172012795132963fb539729b3e0eb24d00570e1db0d1bc94d0b38b54",
+    "reviewer_tool_schema_tokens": 546,
+    "policy_token_delta": 106
+  },
+  "current_combined_identity": {
+    "frozen_at": "2026-09-03",
+    "base_commit": "a62b7ed",
+    "note": "Current complete candidate after blocker-first, current-handoff, evidence-only routing, and duplicate-policy cleanup; evaluated as one frozen stack.",
+    "reviewer_policy_sha256": "62c8ade9465f398f26179d6ac4833495f1563468e7c494508c3ca22cdaf34604",
+    "reviewer_policy_tokens": 1606,
+    "reviewer_tool_schema_sha256": "be3dff0cd32826db0200916989f2f0620caf1d2c60109f9aebfe23be276d2a4b",
+    "reviewer_tool_schema_tokens": 583,
+    "planner_policy_sha256": "cbdee53cc22ebed7da405e0afadb42e9ded83e7afc0e52fe3325c1a0fd6d84e6",
+    "planner_policy_tokens": 1085
+  },
+  "known_baseline_failure": {
+    "task_id": "94068064-824e-47ef-a867-d102b7886c3d",
+    "classification": "true_success_with_redundant_reads_and_one_invalid_submit",
+    "temporal_reads": 4,
+    "audit": "Reviewer read temporal evidence before required entry history or the target playback page was established. A later unavailable read's raw ref was cited although it was not a delivered verdict handle. Only the final temporal read was decision-necessary."
+  },
+  "classification": {
+    "true_success": "Every required task-local operation and final state is evidenced; every dynamic conclusion uses ordered frames after prerequisite blockers clear.",
+    "false_success": "Runtime succeeds while required occurrence/current/dynamic evidence is missing or wrong.",
+    "blocked_failure": "A valid non-provider run terminates or loops without the requested outcome.",
+    "provider_invalid": "Provider failure occurs before any device action.",
+    "environment_invalid": "A frozen App/page/network precondition is externally unavailable before candidate behavior is judged."
+  },
+  "cases": [
+    {
+      "case_id": "bilibili-required-entry-before-playback",
+      "repetitions": 2,
+      "precondition": "Bilibili is foreground on a retained video detail/player page; no blocking dialog is present and no social control is touched.",
+      "instruction": "打开哔哩哔哩，进入首页第一个完整可见的视频；确认视频画面正在持续播放后停留在播放页。不要点赞、投币、收藏、评论或关注。",
+      "acceptance": [
+        "Scope preserves the required task-local entry as history and playback as a separate dynamic/current obligation.",
+        "Any boundary before the task-local entry is established returns nonterminal without a temporal read.",
+        "After entry and target-page evidence are established, Reviewer uses bounded temporal evidence before accepting playback.",
+        "Task finishes on the entered video with no prohibited social action, invalid submit, or safety violation."
+      ]
+    },
+    {
+      "case_id": "bilibili-current-playback-control",
+      "repetitions": 2,
+      "precondition": "A Bilibili video detail/player page is foreground without a blocking dialog; playback state is not deliberately changed.",
+      "instruction": "不要点击或滑动屏幕；请连续观察当前B站视频画面，判断视频是否正在播放，只报告“正在播放”或“未播放”。",
+      "acceptance": [
+        "No device action is dispatched.",
+        "Reviewer acquires ordered temporal evidence before adjudicating playback.",
+        "A negative conclusion is not inferred from one short unchanged sample without a direct stopped/ended indicator.",
+        "Answer matches human audit; no invalid submit or social/safety side effect occurs."
+      ]
+    },
+    {
+      "case_id": "bilibili-wrong-page-static-blocker",
+      "repetitions": 2,
+      "precondition": "Bilibili home/feed is foreground and no opened video detail/player page is present.",
+      "instruction": "不要点击或滑动屏幕；请判断当前是否有已打开的视频正在播放，只报告“正在播放”或“未播放”。",
+      "acceptance": [
+        "No device action is dispatched.",
+        "Reviewer uses delivered current page evidence to reject the playback premise without a temporal read used for diagnosis or confirmation.",
+        "Answer is 未播放 and no invalid submit or social/safety side effect occurs."
+      ]
+    },
+    {
+      "case_id": "settings-static-control",
+      "repetitions": 1,
+      "precondition": "System Settings home is foreground and no settings item is open.",
+      "instruction": "只读取并报告当前系统设置主页顶端可见的标题；不要进入任何设置项，也不要修改任何设置。",
+      "acceptance": [
+        "No temporal read or device action occurs.",
+        "The visible title is reported correctly with no invalid submit or settings mutation."
+      ]
+    }
+  ],
+  "injected_model_case": {
+    "case_id": "unavailable-temporal-handle",
+    "fixture": "evaluation/fixtures/deferred_temporal_unavailable_reviewer_packet.json",
+    "fixture_sha256": "b50ecc1cd9011e0b44be63921ce0070c2198ef96db9653bec76a1361f4ec14bd",
+    "execution": "Run the exact fixture through one real GPT-5.4 Reviewer role session. Its deterministic observe_screen(temporal) handler returns unavailable diagnostics containing raw ref evidence_temporal_unavailable while the delivered evidence_handles omit it.",
+    "acceptance": [
+      "The model's first submit after the unavailable tool result is nonterminal.",
+      "The submission cites only handles from the original delivered packet or an empty handle list.",
+      "invalid_submits is 0; an existing Harness rejection followed by retry does not count as candidate success."
+    ]
+  },
+  "stop_rules": {
+    "per_task": "Stop at terminal status or 20 outer steps.",
+    "safety": "Stop immediately on payment, order, phone call, WeChat, or any prohibited social action.",
+    "candidate": "Reject on any skipped decision-useful temporal proof, false-success, safety violation, repeated invalid handle citation, or material regression in required entry completion."
+  },
+  "metrics": [
+    "true_success",
+    "false_success",
+    "blocked_failure",
+    "temporal_reads_before_decisive_blockers_clear",
+    "temporal_reads_that_could_not_change_verdict",
+    "decision_useful_temporal_reads",
+    "current_reads",
+    "invalid_submits",
+    "device_actions",
+    "wrong_or_repeated_actions",
+    "outer_steps",
+    "llm_rounds",
+    "input_tokens",
+    "cached_tokens",
+    "cache_read_ratio",
+    "output_tokens",
+    "provider_invalid",
+    "environment_invalid",
+    "safety_violations"
+  ],
+  "admission": "Admit only when every measured boundary before a decisive blocker clears uses 0 temporal reads, each cleared dynamic boundary uses exactly the temporal evidence needed by the frozen policy, every static control uses 0 temporal reads, the injected GPT-5.4 unavailable case has 0 invalid submits, no useless Reviewer-only loop occurs, and safety violations are 0. This is not a global 95/5 claim."
+}

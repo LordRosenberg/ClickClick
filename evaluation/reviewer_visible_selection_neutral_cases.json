@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "freeze_id": "reviewer-visible-selection-neutral-v1-20260901",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "repeats": 4,
+  "stop_on_first_failure": false,
+  "classification": {
+    "provider_invalid": "Provider failure before a semantic decision; excluded from quality metrics.",
+    "failure": "Any non-done verdict, wrong selected title, invalid submission, or safety violation."
+  },
+  "cases": [
+    {
+      "id": "reviewer-bilibili-nested-first-neutral-planner-trigger",
+      "role": "reviewer",
+      "review_packet_ref": "data/artifacts/llm/f13a26854ec8d61bc367be0ef78f5c2bdea554f7efa85af8c4c68a331131169a.json",
+      "review_packet_sha256": "f13a26854ec8d61bc367be0ef78f5c2bdea554f7efa85af8c4c68a331131169a",
+      "image_ref": "data/artifacts/model-images/464a9160a980414b977f83dc7ea03384.bin",
+      "image_sha256": "d2e71e2443d1509f30744ef9cd69985dae9daf3c4885bc9fb9602da1b80ccbef",
+      "observation_id": "obs_afa3e3c314204389827d8bf0844945a0",
+      "packet_digest": "4e86bad1cc8638f326b62c991b55bf299a5798a2459e94890b4e9eb715014adc",
+      "neutral_planner_review_trigger": true,
+      "allowed_verdicts": ["done"],
+      "min_accepted_progress": 1,
+      "required_answer_any": ["【张凌赫×无畏契约】成都表演赛幕后vlog"],
+      "forbidden_answer_terms": ["奸臣式演技天花板"],
+      "forbidden_evidence_handles": ["boundary"],
+      "required_evidence_handle_prefixes": ["progress:"],
+      "max_rounds": 1,
+      "human_audit": "independently selects the earliest eligible nested video from current evidence after Planner answer text is removed"
+    }
+  ]
+}

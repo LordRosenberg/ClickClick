@@ -1,0 +1,83 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Control API (fixture)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "control_api.main",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "CLICKCLICK_USE_FIXTURE_DRIVER": "1"
+      }
+    },
+    {
+      "name": "Python: Control API (real device)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "control_api.main",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "CLICKCLICK_DRIVER_URL": ""
+      }
+    },
+    {
+      "name": "Python: Driver (fixture)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "driver.main",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "CLICKCLICK_USE_FIXTURE_DRIVER": "1"
+      },
+      "args": ["--port", "8765"]
+    },
+    {
+      "name": "Python: Agent one-shot",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "agent.main",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "CLICKCLICK_USE_FIXTURE_DRIVER": "1"
+      },
+      "args": ["打开小红书 app，然后选择一个视频贴并播放。"]
+    },
+    {
+      "name": "Python: Attach (5678)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": { "host": "127.0.0.1", "port": 5678 },
+      "pathMappings": [
+        { "localRoot": "${workspaceFolder}", "remoteRoot": "${workspaceFolder}" }
+      ],
+      "justMyCode": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug npm dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/web",
+      "console": "integratedTerminal",
+      "env": {},
+      "sourceMaps": true,
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
+    }
+  ]
+}

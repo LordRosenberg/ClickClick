@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clickclick"
+version = "0.1.0"
+description = "Local multi-process Computer Use Agent (Android-first MVP)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  # 1.90+ drops ChatGPT subscription Responses stream output before the
+  # Chat Completions bridge can recover text/tool calls (upstream #34094).
+  "litellm>=1.89.5,<1.90.0",
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.32.0",
+  "pydantic>=2.9.0",
+  "pydantic-settings>=2.6.0",
+  "httpx>=0.27.0",
+  "websockets>=12.0",
+  "pillow>=10.4.0",
+  "aiofiles>=24.1.0",
+  "pyyaml>=6.0",
+  "tiktoken>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "pytest-asyncio>=0.24.0",
+]
+decode = [
+  "av==14.0.1",
+]
+
+[project.scripts]
+clickclick-driver = "driver.main:main"
+clickclick-agent = "agent.main:main"
+clickclick-api = "control_api.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["shared*", "driver*", "agent*", "control_api*", "perception*"]
+
+[tool.setuptools.package-data]
+driver = ["vendor/*.jar", "vendor/README.md"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+  "device: requires a connected Android device and Portal",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

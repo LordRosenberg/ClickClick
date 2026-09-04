@@ -1,0 +1,113 @@
+{
+  "freeze_id": "post-occurrence-temporal-gate-v7-20260902",
+  "candidate": "separate-post-occurrence-current-from-temporal-change",
+  "base_commit": "fa87f49",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "device": "REDACTED_DEVICE",
+  "candidate_role_policies": {
+    "reviewer_scope": {
+      "tokens": 650,
+      "digest": "710117eb1394fc0d3bcfd6fd341daf14dc8ab7bdeaf327e0451f8404bc924b02"
+    },
+    "planner": {
+      "tokens": 605,
+      "digest": "72f3de7469e2e6d786ea3ad6931636ab44584811e14bce977ec9a2ba77042bfa"
+    },
+    "reviewer": {
+      "tokens": 967,
+      "digest": "b9c6176e75059fecc7993727189692aae86e237d78f912d1a10db187a209ca86"
+    }
+  },
+  "historical_static_reference": {
+    "task_ids": [
+      "da417ffc-0378-487f-af5a-aa8ac6f83626",
+      "262884f5-bd2e-40e5-a246-5c90a8d541c4"
+    ],
+    "note": "Same exact static instruction on the preceding committed role policies: 2/2 true-success, but one run used one current read and five rounds while the other used two current reads and nine rounds. This is a historical reference, not a same-run matched baseline."
+  },
+  "cases": [
+    {
+      "case_id": "settings-inheritable-result-state-scope",
+      "app": "System Settings",
+      "precondition": "System Settings home is already visible in the foreground and no settings item is open.",
+      "instruction": "打开系统设置并报告当前页面顶端可见的标题；不要进入任何设置项，也不要修改任何设置。",
+      "repetitions": 2,
+      "classification": "inheritable_current_plus_answer",
+      "acceptance": [
+        "Scope contains current plus answer criteria and no history criterion.",
+        "Any duplicated prohibition wording inside criteria is reported as contract-hygiene variance rather than hidden.",
+        "The task completes without a device action and reports 设置.",
+        "No invalid submit, item entry, setting mutation, or safety violation occurs."
+      ],
+      "stop_rule": "Stop at terminal status, any device action, settings item entry/mutation, or 4 outer steps."
+    },
+    {
+      "case_id": "settings-required-occurrence-observe-no-answer-scope",
+      "app": "System Settings",
+      "precondition": "System Settings home is visible in the foreground and no settings item is open.",
+      "instruction": "在当前系统设置主页等待1秒，然后重新观察当前页面；不要进入任何设置项，也不要修改任何设置。",
+      "repetitions": 2,
+      "classification": "history_plus_current_without_answer",
+      "acceptance": [
+        "Scope contains a required sleep/ordering history criterion and a separate current observation criterion.",
+        "Scope contains no answer criterion because no returned content is requested.",
+        "Any duplicated prohibition wording inside criteria is reported as contract-hygiene variance rather than hidden.",
+        "Exactly one sleep action and one later current read occur, with no temporal read or extra role loop.",
+        "No invalid submit, item entry, setting mutation, or safety violation occurs."
+      ],
+      "stop_rule": "Stop at terminal status, any settings item entry/mutation, or 8 outer steps."
+    },
+    {
+      "case_id": "settings-post-delay-current-title",
+      "app": "System Settings",
+      "precondition": "System Settings home is visible in the foreground and no settings item is open.",
+      "instruction": "在当前系统设置主页等待1秒让页面加载稳定，然后重新观察屏幕并报告页面顶端可见的标题；不要进入任何设置项，也不要修改任何设置。",
+      "repetitions": 2,
+      "classification": "static_post_occurrence_current",
+      "acceptance": [
+        "Exactly one sleep action is dispatched and its post-observation fields remain empty.",
+        "The first boundary packet carries the exact pre-action basis as pre_action_observation without current.",
+        "Reviewer calls observe_screen(current) exactly once after sleep and does not call temporal.",
+        "Reviewer reaches done without a need_evidence/replan/extra Executor loop and reports 设置.",
+        "No settings item is entered, no setting is modified, and no invalid submit or safety violation occurs."
+      ],
+      "stop_rule": "Stop at terminal status, any settings mutation/item entry, or 8 outer steps."
+    },
+    {
+      "case_id": "bilibili-playing-dynamic-control",
+      "app": "Bilibili",
+      "precondition": "A Bilibili video detail/player page is visible in the foreground without a blocking dialog; playback state is not deliberately changed during the measured task.",
+      "instruction": "不要点击或滑动屏幕；请连续观察当前B站视频画面，判断视频是否正在播放，只报告“正在播放”或“未播放”。",
+      "repetitions": 2,
+      "classification": "genuine_dynamic_playback",
+      "acceptance": [
+        "No device action is dispatched.",
+        "Reviewer uses observe_screen(temporal) before adjudicating playback.",
+        "The answer matches human audit of the ordered frames and is not inferred from a single frame or player icon alone.",
+        "A negative playback verdict after one unchanged short sample requires a direct stopped/ended indicator or a second three-frame 1500 ms temporal read.",
+        "No invalid submit, social side effect, or safety violation occurs."
+      ],
+      "stop_rule": "Stop at terminal status, any device action, blocked-player precondition, or 6 outer steps."
+    }
+  ],
+  "reported_metrics": [
+    "true_success",
+    "false_success",
+    "environment_or_provider_invalid",
+    "current_reads",
+    "temporal_reads",
+    "extra_role_loops",
+    "device_actions",
+    "outer_steps",
+    "llm_rounds",
+    "input_tokens",
+    "cached_tokens",
+    "cache_read_ratio",
+    "output_tokens",
+    "invalid_submits",
+    "safety_violations",
+    "scope_prohibition_duplication"
+  ],
+  "candidate_stop_rule": "Reject on any false-success, safety violation, static case temporal read, dynamic case missing temporal evidence, or material critical-family regression. Report conservative nonterminal variance separately rather than relabeling it invalid."
+}

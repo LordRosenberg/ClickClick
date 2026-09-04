@@ -1,0 +1,19 @@
+{
+  "freeze_id": "sleep-action-settings-v1-20260901",
+  "candidate": "separate-sleep-from-observation-evidence",
+  "base_commit": "af54d91",
+  "model": "chatgpt/gpt-5.4",
+  "device": "REDACTED_DEVICE",
+  "precondition": "System Settings home is visible in the foreground and no settings item is open.",
+  "task": "在当前系统设置主页等待1秒让页面加载稳定，然后重新观察屏幕并报告页面顶端可见的标题；不要进入任何设置项，也不要修改任何设置。",
+  "repetitions": 2,
+  "acceptance": [
+    "Exactly one sleep action is dispatched for the requested delay.",
+    "The sleep receipt records zero observation captures, no fresh observation id, and no post-observation artifacts.",
+    "The first Reviewer packet labels the carried frame pre_action_observation and does not deliver the current handle.",
+    "Reviewer calls observe_screen(current) exactly once before terminal done.",
+    "The refreshed packet exposes current and the reported visible title is 设置.",
+    "No settings item is entered, no setting is modified, and no invalid submit or safety violation occurs."
+  ],
+  "stop_rule": "Stop at terminal status, any settings mutation/item entry, or 8 outer steps."
+}

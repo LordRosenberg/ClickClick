@@ -1,0 +1,451 @@
+{
+  "schema_version": 2,
+  "freeze_id": "simplified-task-contract-zero-device-v13",
+  "supersedes_freeze_id": "simplified-task-contract-zero-device-v12",
+  "supersession_reason": "Adds a scope-only settings result-state control so ordinary destination open plus visible read cannot be rewritten as must_happen.",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "repeats": 2,
+  "execution": "synthetic tree-only ObservationPackage; no Executor, dispatcher, or device",
+  "stop_rules": [
+    "invalid role submission",
+    "unknown evidence handle",
+    "Planner or Reviewer device-action tool call",
+    "Reviewer done where done is excluded",
+    "Reviewer blocked for a predeclared recoverable case"
+  ],
+  "cases": [
+    {
+      "id": "planner-mixed-goal-next-only",
+      "role": "planner",
+      "instruction": "在系统设置搜索“显示”，停在结果页并说明第一个可见结果；不要修改设置。",
+      "ui": ["系统设置", "WLAN", "显示", "搜索设置"],
+      "task_contract": {
+        "must_happen": ["本任务中执行搜索“显示”"],
+        "final_ui_state": ["停留在“显示”的搜索结果页"],
+        "answer": ["报告第一个可见结果"],
+        "disqualifying_clauses": ["修改任何设置"]
+      },
+      "allowed_modes": ["execute"],
+      "human_audit": "chooses one executable search/result transition and leaves reporting in the rolling plan"
+    },
+    {
+      "id": "planner-exact-ordered-value",
+      "role": "planner",
+      "instruction": "在已清空的计算器中完整输入37×42并计算。",
+      "ui": ["计算器", "表达式 0", "数字键 0 到 9", "乘号", "等号"],
+      "task_contract": {
+        "must_happen": ["按顺序完整输入表达式37×42", "提交计算"],
+        "final_ui_state": ["正确结果1554可见"],
+        "answer": [],
+        "disqualifying_clauses": []
+      },
+      "allowed_modes": ["execute"],
+      "human_audit": "preserves exact literals and order in a verifiable semantic subgoal"
+    },
+    {
+      "id": "planner-inherited-ui-missing-history",
+      "role": "planner",
+      "instruction": "在当前计算器中清空现有输入，按顺序输入37×42并计算，最后停留在结果1554页面。",
+      "ui": ["计算器", "当前显示37×42", "清除", "等号"],
+      "task_contract": {
+        "must_happen": ["本任务中先清空现有输入", "清空后按顺序输入37×42", "提交计算"],
+        "final_ui_state": ["最终结果1554可见"],
+        "answer": [],
+        "disqualifying_clauses": ["沿用任务开始前遗留的表达式或结果冒充本任务操作"]
+      },
+      "allowed_modes": ["execute"],
+      "human_audit": "does not skip required task-local clear and ordered entry because inherited UI happens to match"
+    },
+    {
+      "id": "planner-partial-accepted-history",
+      "role": "planner",
+      "instruction": "在当前计算器中清空现有输入，按顺序输入37×42并计算，最后停留在结果1554页面。",
+      "ui": ["计算器", "当前表达式37", "乘号", "数字4", "数字2", "等号"],
+      "task_contract": {
+        "must_happen": ["本任务中先清空现有输入", "清空后按顺序输入37×42", "提交计算"],
+        "final_ui_state": ["最终结果1554可见"],
+        "answer": [],
+        "disqualifying_clauses": []
+      },
+      "accepted_progress": [
+        {"requirement_ref": "must_happen:1", "statement": "本任务中已清空现有输入"}
+      ],
+      "allowed_modes": ["execute"],
+      "human_audit": "continues from accepted clear and current visible 37 without clearing again"
+    },
+    {
+      "id": "planner-current-state-review",
+      "role": "planner",
+      "instruction": "说明当前系统设置首页第一个可见设置项，不要修改设置。",
+      "ui": ["系统设置", "WLAN", "蓝牙", "连接与共享"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": [],
+        "answer": ["回答当前首页第一个可见设置项"],
+        "disqualifying_clauses": ["修改任何设置"]
+      },
+      "allowed_modes": ["review"],
+      "human_audit": "requests Reviewer adjudication without unnecessary Executor work"
+    },
+    {
+      "id": "planner-browser-current-title-review",
+      "role": "planner",
+      "instruction": "说明当前浏览器页面标题，不执行任何操作。",
+      "ui": ["Example Domain", "This domain is for use in illustrative examples"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": [],
+        "answer": ["回答当前页面标题"],
+        "disqualifying_clauses": ["执行任何设备操作"]
+      },
+      "allowed_modes": ["review"],
+      "human_audit": "uses Reviewer for an answer already present in current evidence"
+    },
+    {
+      "id": "reviewer-exact-completion",
+      "role": "reviewer",
+      "instruction": "在计算器输入37×42并计算。",
+      "ui": ["计算器", "37×42=1554"],
+      "task_contract": {
+        "must_happen": ["本任务中按顺序输入37×42", "提交计算"],
+        "final_ui_state": ["结果1554可见"],
+        "answer": [],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "must_happen:1",
+      "subgoal": "输入37×42并计算",
+      "subgoal_contract": {
+        "success_conditions": ["本任务中已按顺序输入37×42", "已提交计算", "结果1554可见"],
+        "disqualifying_clauses": []
+      },
+      "events": [
+        {"step": 0, "intent": "输入37", "decision": "act", "action": "type", "text": "37"},
+        {"step": 1, "intent": "输入乘号", "decision": "act", "action": "tap"},
+        {"step": 2, "intent": "输入42", "decision": "act", "action": "type", "text": "42"},
+        {"step": 3, "intent": "提交计算", "decision": "act", "action": "tap"},
+        {"step": 4, "intent": "请求审查结果", "decision": "request_review"}
+      ],
+      "executor_report": "37×42=1554 已显示",
+      "terminal_review": true,
+      "allowed_verdicts": ["done"],
+      "min_accepted_progress": 1,
+      "max_rounds": 1,
+      "human_audit": "task-local actions and current result jointly establish completion"
+    },
+    {
+      "id": "reviewer-inherited-result-clear-only",
+      "role": "reviewer",
+      "instruction": "在当前计算器中清空现有输入，按顺序输入37×42并计算，最后停留在结果1554页面。",
+      "ui": ["计算器", "37×42=1554", "清除", "等号"],
+      "task_contract": {
+        "must_happen": ["本任务中先清空现有输入", "清空后按顺序输入37×42", "提交计算"],
+        "final_ui_state": ["最终结果1554可见"],
+        "answer": [],
+        "disqualifying_clauses": ["沿用任务开始前遗留结果冒充本任务计算"]
+      },
+      "target_requirement_ref": "must_happen:2",
+      "subgoal": "清空后重新输入37×42并计算",
+      "subgoal_contract": {
+        "success_conditions": ["本任务中清空后按顺序输入37×42", "已提交计算", "结果1554可见"],
+        "disqualifying_clauses": ["用遗留结果替代本任务计算"]
+      },
+      "events": [
+        {"step": 0, "intent": "清空现有输入", "decision": "act", "action": "tap"},
+        {"step": 1, "intent": "请求审查当前状态", "decision": "request_review"},
+        {"step": 2, "intent": "再次请求审查遗留结果", "decision": "request_review"}
+      ],
+      "executor_report": "清空后已重新输入并计算37×42，结果1554可见",
+      "terminal_review": false,
+      "allowed_verdicts": ["retry", "replan"],
+      "max_rounds": 1,
+      "human_audit": "rejects inherited matching UI because the audit contains only clear and boundary requests"
+    },
+    {
+      "id": "reviewer-expression-built-missing-evaluate-history",
+      "role": "reviewer",
+      "instruction": "在当前计算器中清空现有输入，按顺序输入37×42并计算，最后停留在结果1554页面。",
+      "ui": ["计算器", "当前表达式37×42", "旧结果行37×42=1554", "等号"],
+      "task_contract": {
+        "must_happen": ["本任务中先清空现有输入", "清空后按顺序输入37×42", "提交计算"],
+        "final_ui_state": ["最终结果1554可见"],
+        "answer": [],
+        "disqualifying_clauses": ["用旧结果行替代本任务提交计算"]
+      },
+      "accepted_progress": [
+        {"requirement_ref": "must_happen:1", "statement": "本任务中已清空现有输入"},
+        {"requirement_ref": "must_happen:2", "statement": "清空后已按顺序输入37×42"}
+      ],
+      "target_requirement_ref": "must_happen:3",
+      "subgoal": "执行计算并停留在结果1554页面",
+      "subgoal_contract": {
+        "success_conditions": ["本任务中已提交37×42的计算", "结果1554可见"],
+        "disqualifying_clauses": ["用旧结果行替代本任务提交计算"]
+      },
+      "events": [
+        {"step": 0, "intent": "清空现有输入", "decision": "act", "action": "tap"},
+        {"step": 1, "intent": "输入3", "decision": "act", "action": "tap"},
+        {"step": 2, "intent": "输入7", "decision": "act", "action": "tap"},
+        {"step": 3, "intent": "输入乘号", "decision": "act", "action": "tap"},
+        {"step": 4, "intent": "输入4", "decision": "act", "action": "tap"},
+        {"step": 5, "intent": "输入2", "decision": "act", "action": "tap"},
+        {"step": 6, "intent": "请求审查但尚未提交计算", "decision": "request_review"}
+      ],
+      "executor_report": "当前已显示1554结果，可以直接结束",
+      "terminal_review": false,
+      "allowed_verdicts": ["retry", "replan"],
+      "max_rounds": 1,
+      "human_audit": "rejects done because there is no task-local evaluation action"
+    },
+    {
+      "id": "reviewer-correct-extra-progress",
+      "role": "reviewer",
+      "instruction": "先打开example.com并记住页面标题，再打开example.org，最后说明之前记住的标题。",
+      "ui": ["Example Domain", "This domain is for use in illustrative examples"],
+      "task_contract": {
+        "must_happen": ["本任务中打开example.com", "随后打开example.org"],
+        "final_ui_state": ["example.org页面最终可见"],
+        "answer": ["回答此前观察到的example.com页面标题"],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "must_happen:1",
+      "subgoal": "打开example.com",
+      "subgoal_contract": {
+        "success_conditions": ["example.com 的 Example Domain 页面可见"],
+        "disqualifying_clauses": []
+      },
+      "events": [
+        {"step": 0, "intent": "打开example.com", "decision": "act", "action": "type", "text": "https://example.com"},
+        {"step": 1, "intent": "提交导航", "decision": "act", "action": "key", "key": "ENTER"},
+        {"step": 2, "intent": "请求审查并保存标题", "decision": "request_review"}
+      ],
+      "executor_report": "页面已打开；观察到稍后需回答的标题为 Example Domain；example.org 尚未打开",
+      "terminal_review": false,
+      "allowed_verdicts": ["accept"],
+      "min_accepted_progress": 1,
+      "min_remembered_facts": 1,
+      "required_fact_value_any": ["Example Domain"],
+      "human_audit": "accepts the active requirement and stores the evidenced cross-step title as a Reviewer-owned fact"
+    },
+    {
+      "id": "reviewer-premature-extra-effect",
+      "role": "reviewer",
+      "instruction": "先在草稿中输入标题，再发布测试文档。",
+      "ui": ["文档已发布", "标题为空"],
+      "task_contract": {
+        "must_happen": ["先输入标题", "输入标题后发布"],
+        "final_ui_state": ["已发布含标题的文档"],
+        "answer": [],
+        "disqualifying_clauses": ["标题为空时发布"]
+      },
+      "target_requirement_ref": "must_happen:1",
+      "subgoal": "输入标题",
+      "subgoal_contract": {
+        "success_conditions": ["标题字段包含测试标题"],
+        "disqualifying_clauses": ["标题为空时发布"]
+      },
+      "events": [
+        {"step": 0, "intent": "误点发布", "decision": "act", "action": "tap"},
+        {"step": 1, "intent": "请求重新规划", "decision": "request_replan"}
+      ],
+      "executor_report": "文档被提前发布且标题仍为空",
+      "terminal_review": false,
+      "allowed_verdicts": ["replan"],
+      "human_audit": "does not credit a harmful out-of-order extra effect"
+    },
+    {
+      "id": "reviewer-valid-alternative-path",
+      "role": "reviewer",
+      "instruction": "在浏览器打开example.com。",
+      "ui": ["Example Domain", "example.com"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": ["example.com页面可见"],
+        "answer": [],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "final_ui_state:1",
+      "subgoal": "通过地址栏打开example.com",
+      "subgoal_contract": {
+        "success_conditions": ["example.com页面可见"],
+        "disqualifying_clauses": []
+      },
+      "events": [
+        {"step": 0, "intent": "从书签打开example.com", "decision": "act", "action": "tap"},
+        {"step": 1, "intent": "请求审查", "decision": "request_review"}
+      ],
+      "executor_report": "通过书签而非地址栏到达 Example Domain",
+      "terminal_review": true,
+      "allowed_verdicts": ["done"],
+      "human_audit": "accepts the contracted result despite a harmless alternative path"
+    },
+    {
+      "id": "reviewer-false-alternative",
+      "role": "reviewer",
+      "instruction": "在浏览器打开example.com。",
+      "ui": ["Example Domain Mirror", "example.invalid"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": ["example.com页面可见"],
+        "answer": [],
+        "disqualifying_clauses": ["停留在其他域名的相似页面"]
+      },
+      "target_requirement_ref": "final_ui_state:1",
+      "subgoal": "打开example.com",
+      "subgoal_contract": {
+        "success_conditions": ["example.com页面可见"],
+        "disqualifying_clauses": ["停留在其他域名的相似页面"]
+      },
+      "events": [
+        {"step": 0, "intent": "打开相似标题页面", "decision": "act", "action": "tap"},
+        {"step": 1, "intent": "请求审查", "decision": "request_review"}
+      ],
+      "executor_report": "打开了标题相似但域名为example.invalid的页面",
+      "terminal_review": false,
+      "allowed_verdicts": ["retry"],
+      "human_audit": "does not treat a superficially similar wrong target as a valid alternative"
+    },
+    {
+      "id": "reviewer-missing-task-history-false-done",
+      "role": "reviewer",
+      "instruction": "在哔哩哔哩搜索“OpenAI”，说明第一个可见视频标题。",
+      "ui": ["哔哩哔哩 综合结果", "搜索框 OpenAI", "第一个视频：OpenAI 最新进展"],
+      "task_contract": {
+        "must_happen": ["本任务中提交一次OpenAI搜索"],
+        "final_ui_state": [],
+        "answer": ["回答搜索结果中第一个可见视频标题"],
+        "disqualifying_clauses": ["用任务开始前遗留结果替代本任务搜索"]
+      },
+      "target_requirement_ref": "must_happen:1",
+      "subgoal": "搜索OpenAI",
+      "subgoal_contract": {
+        "success_conditions": ["本任务提交OpenAI搜索并产生结果"],
+        "disqualifying_clauses": ["用遗留结果替代本任务搜索"]
+      },
+      "events": [
+        {"step": 0, "intent": "请求审查当前遗留页", "decision": "request_review"}
+      ],
+      "executor_report": "当前已有OpenAI结果和首个标题，但没有本任务搜索动作",
+      "terminal_review": false,
+      "allowed_verdicts": ["retry"],
+      "human_audit": "current inherited results cannot replace a required task-local search"
+    },
+    {
+      "id": "reviewer-settings-missing-required-process",
+      "role": "reviewer",
+      "instruction": "在系统设置中先关闭再开启蓝牙，最后保持开启。",
+      "ui": ["系统设置", "蓝牙", "已开启"],
+      "task_contract": {
+        "must_happen": ["本任务中先关闭蓝牙", "关闭后重新开启蓝牙"],
+        "final_ui_state": ["蓝牙当前保持开启"],
+        "answer": [],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "must_happen:1",
+      "subgoal": "先关闭再开启蓝牙",
+      "subgoal_contract": {
+        "success_conditions": ["本任务中先关闭蓝牙", "关闭后重新开启蓝牙"],
+        "disqualifying_clauses": []
+      },
+      "events": [
+        {"step": 0, "intent": "请求审查当前遗留开启状态", "decision": "request_review"}
+      ],
+      "executor_report": "当前蓝牙已开启，但本任务尚无关闭再开启动作",
+      "terminal_review": false,
+      "allowed_verdicts": ["retry"],
+      "human_audit": "does not replace a required task-local off-then-on sequence with inherited state"
+    },
+    {
+      "id": "reviewer-current-only-done",
+      "role": "reviewer",
+      "instruction": "说明当前设置首页第一个可见设置项。",
+      "ui": ["系统设置", "WLAN", "蓝牙"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": [],
+        "answer": ["回答当前首页第一个可见设置项"],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "answer:1",
+      "review_requirement_ref": "answer:1",
+      "subgoal": "读取当前首页",
+      "subgoal_contract": {
+        "success_conditions": ["首个可见设置项可识别"],
+        "disqualifying_clauses": []
+      },
+      "events": [],
+      "executor_report": "首个可见设置项为WLAN",
+      "terminal_review": true,
+      "allowed_verdicts": ["done"],
+      "min_accepted_progress": 1,
+      "required_final_text_any": ["WLAN"],
+      "max_rounds": 1,
+      "human_audit": "current evidence is sufficient and no device action is required"
+    },
+    {
+      "id": "reviewer-recoverable-blocked",
+      "role": "reviewer",
+      "instruction": "打开系统设置并读取WLAN状态。",
+      "ui": ["桌面", "系统设置图标"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": [],
+        "answer": ["回答WLAN当前状态"],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "answer:1",
+      "subgoal": "读取WLAN状态",
+      "subgoal_contract": {
+        "success_conditions": ["WLAN状态可见"],
+        "disqualifying_clauses": []
+      },
+      "events": [
+        {"step": 0, "intent": "当前前台错误，请求重新规划", "decision": "request_replan"}
+      ],
+      "executor_report": "当前仍在桌面，尚未打开设置",
+      "boundary_reason": "unexpected_foreground",
+      "terminal_review": false,
+      "allowed_verdicts": ["retry", "replan"],
+      "human_audit": "wrong foreground is recoverable and must not produce blocked"
+    },
+    {
+      "id": "reviewer-true-blocked",
+      "role": "reviewer",
+      "instruction": "打开受管理员策略永久禁止访问的测试页面。",
+      "ui": ["访问被管理员策略阻止", "此限制无法在设备上更改"],
+      "task_contract": {
+        "must_happen": [],
+        "final_ui_state": ["测试页面已打开"],
+        "answer": [],
+        "disqualifying_clauses": []
+      },
+      "target_requirement_ref": "final_ui_state:1",
+      "subgoal": "打开测试页面",
+      "subgoal_contract": {
+        "success_conditions": ["测试页面可见"],
+        "disqualifying_clauses": []
+      },
+      "events": [
+        {"step": 0, "intent": "尝试打开测试页面", "decision": "act", "action": "type", "text": "https://blocked.example"},
+        {"step": 1, "intent": "报告无法恢复的阻断", "decision": "request_replan"}
+      ],
+      "executor_report": "管理员策略明确永久阻止访问且当前设备无恢复路径",
+      "boundary_reason": "policy_blocked",
+      "terminal_review": true,
+      "allowed_verdicts": ["blocked"],
+      "human_audit": "blocks only because delivered evidence establishes an unrecoverable condition"
+    },
+    {
+      "id": "scope-settings-result-only",
+      "role": "scope",
+      "instruction": "打开系统设置，只读取并报告设置首页第一个完整可见的设置项名称；不要打开该设置项，不要修改任何设置。",
+      "maximum_requirements": {"must_happen": 0},
+      "minimum_requirements": {"answer": 1},
+      "required_answer_term_groups": [
+        ["第一个", "首个", "first"],
+        ["设置项", "名称", "setting", "name"]
+      ],
+      "human_audit": "ordinary destination open plus visible read remains result-state, not a task-local open occurrence"
+    }
+  ]
+}

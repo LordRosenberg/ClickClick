@@ -1,0 +1,146 @@
+{
+  "freeze_id": "semantic-attempt-replan-gate-v1-20260902",
+  "candidate": "preserve-semantic-attempts-across-replanning",
+  "baseline_commit": "c04f138",
+  "model": "chatgpt/gpt-5.4",
+  "reasoning_effort": "high",
+  "device": "REDACTED_DEVICE",
+  "baseline_role_policies": {
+    "planner": {
+      "tokens": 605,
+      "digest": "72f3de7469e2e6d786ea3ad6931636ab44584811e14bce977ec9a2ba77042bfa"
+    },
+    "reviewer": {
+      "tokens": 967,
+      "digest": "b9c6176e75059fecc7993727189692aae86e237d78f912d1a10db187a209ca86"
+    },
+    "executor": {
+      "tokens": 1280,
+      "digest": "5ab3349deab50ff1ac55b1abcd248b70c187423cdc2764c0bc78af1f4dd71b22"
+    }
+  },
+  "candidate_role_policies": {
+    "planner": {
+      "tokens": 647,
+      "digest": "a7e562d5b294dbf14a12ccbcbdbd6647e57f6f68276499ed9b7b361013f507e3"
+    },
+    "reviewer": {
+      "tokens": 1043,
+      "digest": "f6a872c4b9999308e912b6cb5edb2f214bfb735efb8effa8150f73ed6376dea4"
+    },
+    "executor": {
+      "tokens": 1280,
+      "digest": "5ab3349deab50ff1ac55b1abcd248b70c187423cdc2764c0bc78af1f4dd71b22"
+    }
+  },
+  "evaluation_composition": {
+    "reason": "The separately frozen material Tree/image conflict became a real-device blocker during this gate, so the user-authorized minimal Reviewer fix was admitted before final repetitions resumed.",
+    "final_candidate": "Planner active_action_timeline projection plus the admitted Reviewer cross-source terminal recheck.",
+    "attribution_rule": "End-to-end cost and success describe the combined final candidate. Benefit credited specifically to the Planner projection requires a recorded nonterminal boundary, a non-empty next-Planner active_action_timeline exposure, and human-audited strategy change or absence of the targeted repeated-action family; aggregate cost deltas are not attributed solely to the projection."
+  },
+  "cases": [
+    {
+      "case_id": "browser-search-occurrence-recovery",
+      "app": "Browser",
+      "precondition": "Browser is foreground on a search surface or retained Example Domain result surface; no login/download dialog is open.",
+      "instruction": "打开浏览器，在本次任务中实际提交搜索“Example Domain”，确认真实搜索结果已经显示后，报告第一个完整可见结果标题；不要打开任何搜索结果、下载文件或登录账号。",
+      "repetitions": 2,
+      "historical_baseline": {
+        "task_id": "6c037817-511f-4bc0-ba75-b56fdfb58687",
+        "true_success": true,
+        "outer_steps": 11,
+        "device_actions": 9,
+        "llm_rounds": 18,
+        "input_tokens": 106218,
+        "cached_tokens": 54528,
+        "output_tokens": 1604,
+        "human_same_purpose_repetitions": 6,
+        "invalid_submits": 0,
+        "note": "Seven down-scroll actions were dispatched before the model changed search-engine strategy."
+      },
+      "acceptance": [
+        "A task-local search submit for the exact query occurs.",
+        "The first complete visible result title is reported correctly without opening it.",
+        "No download, login, or unsafe side effect occurs.",
+        "Human audit counts same-purpose repeated and wrong actions from the trace rather than a Harness label."
+      ],
+      "stop_rule": "Stop at terminal status, opening a result, download/login side effect, any safety violation, or 14 outer steps."
+    },
+    {
+      "case_id": "amap-route-preview-recovery",
+      "app": "AMap",
+      "precondition": "AMap is foreground on its home/search surface with location available; navigation has not started and no blocking dialog is open.",
+      "instruction": "打开高德地图，搜索北京南站，进入从当前位置出发的驾车路线预览；确认路线和预计时间已经加载后停留，不要开始导航。",
+      "repetitions": 2,
+      "historical_baseline": {
+        "task_id": "8735c09f-0fd2-40ea-bb21-789550f71e38",
+        "true_success": true,
+        "outer_steps": 20,
+        "device_actions": 16,
+        "llm_rounds": 28,
+        "input_tokens": 207198,
+        "cached_tokens": 87040,
+        "output_tokens": 2638,
+        "human_same_purpose_repetitions": 4,
+        "invalid_submits": 0,
+        "note": "Four repeated destination-field taps occurred before route preview was reached."
+      },
+      "acceptance": [
+        "The final route preview visibly targets 北京南站 and shows route/time information.",
+        "Navigation is not started and no ride-hail, call, order, or payment action occurs.",
+        "Human audit counts repeated destination-field/control attempts and wrong actions from trace evidence."
+      ],
+      "stop_rule": "Stop at terminal status, navigation start, route rewritten away from 北京南站, any prohibited/safety action, or 25 outer steps."
+    },
+    {
+      "case_id": "settings-post-delay-control",
+      "app": "System Settings",
+      "precondition": "System Settings home is foreground and no settings item is open.",
+      "instruction": "在当前系统设置主页等待1秒让页面加载稳定，然后重新观察屏幕并报告页面顶端可见的标题；不要进入任何设置项，也不要修改任何设置。",
+      "repetitions": 2,
+      "historical_baseline": {
+        "task_ids": [
+          "eb5ec330-a351-4395-96d4-943bf02d9ef4",
+          "2a4d0aa6-34da-4688-91c1-c0a3aab99684"
+        ],
+        "true_success": "2/2",
+        "outer_steps": 4,
+        "device_actions": 2,
+        "llm_rounds": 10,
+        "input_tokens": 47520,
+        "current_reads": 2,
+        "temporal_reads": 0,
+        "extra_role_loops": 0
+      },
+      "acceptance": [
+        "Each run dispatches exactly one sleep and one later observe_screen(current).",
+        "Each run reports 设置 with no temporal read or extra Planner/Executor loop.",
+        "No settings item is entered or modified."
+      ],
+      "stop_rule": "Stop at terminal status, settings item entry/mutation, any safety violation, or 8 outer steps."
+    }
+  ],
+  "reported_metrics": [
+    "true_success",
+    "false_success",
+    "blocked_failure",
+    "human_same_purpose_repetitions",
+    "human_wrong_actions",
+    "device_actions",
+    "outer_steps",
+    "llm_rounds",
+    "input_tokens",
+    "cached_tokens",
+    "cache_read_ratio",
+    "output_tokens",
+    "current_reads",
+    "temporal_reads",
+    "invalid_submits",
+    "planner_replan_projection_exposures",
+    "provider_invalid",
+    "environment_invalid",
+    "safety_violations"
+  ],
+  "causal_exposure_rule": "At least one Browser or AMap candidate run must traverse a nonterminal Reviewer boundary and the immediately following Planner request must contain a non-empty oldest-to-newest active_action_timeline. A run without this exposure is a control and cannot be credited as evidence of this change's benefit.",
+  "candidate_stop_rule": "Reject on any false-success, safety violation, material Settings control regression, or no repeatable reduction in the targeted same-purpose action/round failure family. Treat zero target causal exposures as insufficient evidence rather than success. Provider-invalid and environment-invalid are audited separately and cannot be relabeled after seeing outcomes."
+}
