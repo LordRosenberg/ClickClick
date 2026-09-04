@@ -379,6 +379,19 @@ The Collector requires **Android 8.0+ (API 26)**. Some OEMs still require manual
 | Driver HTTP RPC | `8765` | `clickclick-driver --port` |
 | Vite dev server | `5173` | `web/vite.config.ts` (`/api` proxies to 8080 by default) |
 
+### LAN Access & HTTPS (Live Mirror)
+
+The Live mirror decodes H.264 with browser WebCodecs, which only run in a *secure context* — `localhost` qualifies, but a LAN IP over plain `http://` does not, so other machines could open the Console yet never see Live. Enable HTTPS to fix it:
+
+```bash
+# .env
+CLICKCLICK_API_HOST=0.0.0.0
+CLICKCLICK_API_SSL_CERTFILE=./data/certs/cert.pem
+CLICKCLICK_API_SSL_KEYFILE=./data/certs/key.pem
+```
+
+The self-signed cert is **auto-generated at startup** (SAN covers the machine's current LAN IPs and is regenerated automatically when they change — no manual step). Other computers just type `192.168.x.x:8080` (no scheme needed; plain HTTP gets a 308 redirect to HTTPS), click "Advanced → Proceed" once, and nothing needs to be installed on client devices.
+
 ## API Overview
 
 Main Control API endpoints (FastAPI; full definitions in [control_api/main.py](control_api/main.py)):

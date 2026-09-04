@@ -403,6 +403,19 @@ Collector 需 **Android 8.0+（API 26）**。部分 OEM 仍要手动开无障碍
 | Driver HTTP RPC | `8765` | `clickclick-driver --port`              |
 | Vite dev server | `5173` | `web/vite.config.ts`（`/api` 默认代理到 8080） |
 
+### 局域网访问与 HTTPS（Live 投屏）
+
+Live 投屏在浏览器端用 WebCodecs 解码，而 WebCodecs 只在「安全上下文」可用——`localhost` 天然可信，但局域网 IP 走 `http://` 时浏览器会禁用它，导致其他电脑能打开 Console 却看不到 Live。启用 HTTPS 即可解决：
+
+```bash
+# .env
+CLICKCLICK_API_HOST=0.0.0.0
+CLICKCLICK_API_SSL_CERTFILE=./data/certs/cert.pem
+CLICKCLICK_API_SSL_KEYFILE=./data/certs/key.pem
+```
+
+证书在启动时**自动生成**（自签名，SAN 覆盖当前局域网 IP；IP 变化时自动重签，无需任何手工步骤）。其他电脑浏览器直接输入 `192.168.x.x:8080`（无需带协议，http 自动 308 跳转到 https），首次点「高级 → 继续前往」即可，客户端无需安装任何证书。
+
 
 ## 接口概览
 
