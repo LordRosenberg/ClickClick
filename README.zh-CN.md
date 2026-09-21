@@ -160,3 +160,5 @@ AndroidWorld 的[评测报告](docs/androidworld-results-20260921.md)说明 115/
 | [Skills 指南](skills/README.zh-CN.md) | 应用知识、操作经验和技能编写。 | [English](skills/README.md) |
 
 许可证：[Apache 2.0](LICENSE)。
+
+第三方组件见[许可证说明](THIRD_PARTY_NOTICES.md)。

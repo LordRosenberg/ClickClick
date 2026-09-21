@@ -160,3 +160,5 @@ For AndroidWorld, the [evaluation report](docs/androidworld-results-20260921.md)
 | [Skills](skills/README.md) | App knowledge, operating guidance and skill authoring. | [中文](skills/README.zh-CN.md) |
 
 Licensed under [Apache 2.0](LICENSE).
+
+See [third-party notices](THIRD_PARTY_NOTICES.md) for bundled components.

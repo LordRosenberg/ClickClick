@@ -24,3 +24,5 @@ Do **not** mix client desktop `scrcpy` versions with this jar for the
 Console path — Live uses the standalone server only. Local transport enables
 `send_frame_meta` and consumes the dummy handshake byte; the host removes the
 12-byte packet headers before fan-out to H.264 consumers.
+
+License: [Apache-2.0](LICENSE.scrcpy.txt). See [third-party notices](../../THIRD_PARTY_NOTICES.md).
