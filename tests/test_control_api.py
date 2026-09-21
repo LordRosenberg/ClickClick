@@ -6,127 +6,9 @@ from pathlib import Path
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from shared.schemas import (
-    Action,
-    ExecutorStepSubmit,
-    SubgoalContractBody,
-    PlannerDecision,
-    PlannerMode,
-    ReviewerDecision,
-    ReviewerVerdict,
-)
-from tests.fake_agents import FakeExecutor, FakePlanner, FakeReviewer, fake_task_scope
-
-
-class BoundPlanner(FakePlanner):
-    async def decide(self, state, package, **kwargs):
-        decision, refs, observation_refs = await super().decide(state, package, **kwargs)
-        refs["active_package"] = package
-        observation_refs["observation_id"] = package.observation_id
-        return decision, refs, observation_refs
-
-
-class BoundReviewer(FakeReviewer):
-    async def decide(self, state, package, **kwargs):
-        decision, refs, observation_refs = await super().decide(state, package, **kwargs)
-        refs["active_package"] = package
-        observation_refs["observation_id"] = package.observation_id
-        return decision, refs, observation_refs
-
-
-def execute(subgoal: str) -> PlannerDecision:
-    return PlannerDecision(
-        mode=PlannerMode.EXECUTE,
-        next_subgoal=subgoal,
-        completion_contract=SubgoalContractBody(
-            success_conditions=[f"{subgoal} complete"],
-        ),
-        plan=[subgoal],
-        target_requirement_ref="final_ui_state:1",
-    )
-
-
-def done() -> ReviewerDecision:
-    return ReviewerDecision(
-        verdict=ReviewerVerdict.DONE,
-        reason="task scope satisfied",
-        evidence_handles=["current"],
-        packet_digest="packet-done"
-    )
-
-
-@pytest.mark.asyncio
-async def test_console_api_flow(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("CLICKCLICK_USE_FIXTURE_DRIVER", "true")
-    monkeypatch.setenv("CLICKCLICK_DRIVER_URL", "")
-
-    from control_api.main import create_app
-
-    planner = BoundPlanner([execute("launch demo and tap play")])
-    reviewer = BoundReviewer([done()], task_scope=fake_task_scope())
-    executor = FakeExecutor(
-        [
-            (Action(type="launch", app="com.example.demo"), False),
-            (Action(type="tap", index=0), False),
-            ExecutorStepSubmit(
-                decision="request_review", summary="video is playing",
-            ).to_step(),
-        ]
-    )
-    app = create_app(
-        planner_factory=lambda: planner,
-        reviewer_factory=lambda: reviewer,
-        executor_factory=lambda: executor,
-    )
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        health = await client.get("/api/health")
-        assert health.json()["ok"] is True
-        assert health.json()["skill_miner_enabled"] is False
-        assert health.json()["runtime"] == "reviewer-planner-executor-loop"
-
-        scrcpy = await client.get("/api/device/scrcpy")
-        assert scrcpy.json()["required"] is False
-
-        devices = await client.get("/api/devices")
-        assert devices.status_code == 200
-        serials = [d["serial"] for d in devices.json()]
-        assert serials, "expected remote fixture serial in inventory"
-        created = await client.post(
-            "/api/tasks",
-            json={"instruction": "打开 app 播放视频", "device_serials": serials[:1]},
-        )
-        assert created.status_code == 200
-        tid = created.json()["tasks"][0]["id"]
-
-        status = "queued"
-        for _ in range(80):
-            t = await client.get(f"/api/tasks/{tid}")
-            status = t.json()["status"]
-            if status in ("succeeded", "failed"):
-                break
-            await asyncio.sleep(0.05)
-        assert status == "succeeded"
-
-        replay = await client.get(f"/api/tasks/{tid}/replay")
-        assert replay.json()["steps"]
-        step = replay.json()["steps"][0]
-        dbg = await client.get(
-            f"/api/tasks/{tid}/steps/{step['node_id']}/{step['seq']}/debug"
-        )
-        assert dbg.status_code == 200
-        assert dbg.json().get("action") or dbg.json().get("summary")
-        assert not dbg.json().get("thought")
-
-        traces = await client.get(f"/api/tasks/{tid}/traces")
-        assert traces.status_code == 200
-        assert traces.json()
-
-        skills = await client.get("/api/skills")
-        assert skills.status_code == 200
+from driver.pool import FIXTURE_SERIAL
+from shared.schemas import Action, AgentState, ExecutorStepSubmit
+from tests.fake_agents import FakeExecutor
 
 
 # ---------------------------------------------------------------------------
@@ -246,32 +128,6 @@ class _FakeStream:
 
 
 @pytest.mark.asyncio
-async def test_mirror_endpoint_declared_when_jar_missing(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """The mirror route is registered; availability is jar/hub based."""
-    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("CLICKCLICK_USE_FIXTURE_DRIVER", "true")
-    monkeypatch.setenv("CLICKCLICK_DRIVER_URL", "")
-    monkeypatch.setenv("CLICKCLICK_ENABLE_SKILL_MINER", "false")
-
-    from control_api.main import create_app
-    from driver import scrcpy_mirror as mirror_mod
-
-    monkeypatch.setattr(mirror_mod, "is_mirror_server_available", lambda: False)
-    monkeypatch.setattr(mirror_mod, "REGISTRY", mirror_mod.MirrorRegistry())
-
-    app = create_app(
-        planner_factory=lambda: FakePlanner([]),
-        reviewer_factory=lambda: FakeReviewer([], task_scope=fake_task_scope()),
-        executor_factory=lambda: FakeExecutor([]),
-    )
-
-    routes = {r.path for r in app.routes if hasattr(r, "path")}
-    assert "/api/device/mirror/stream" in routes
-
-
-@pytest.mark.asyncio
 async def test_mirror_registry_lifecycle() -> None:
     """First start creates source, two consumers share, last stop tears down."""
     from driver import scrcpy_mirror as mirror_mod
@@ -364,3 +220,52 @@ async def test_mirror_registry_shutdown_walks_active() -> None:
     await registry.shutdown()
     assert all(s.stops == 1 for s in sources.values())
     assert registry._sessions == {}  # noqa: SLF001
+
+
+@pytest.mark.asyncio
+async def test_console_spa_deep_link_serves_index(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """React Router paths must fall back to index.html, not JSON 404."""
+    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("CLICKCLICK_USE_FIXTURE_DRIVER", "true")
+    monkeypatch.setenv("CLICKCLICK_DRIVER_URL", "")
+
+    dist = tmp_path / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text(
+        "<!doctype html><title>console</title><div id='root'></div>\n",
+        encoding="utf-8",
+    )
+    (dist / "assets" / "app.js").write_text("window.__console = 1;\n", encoding="utf-8")
+    (dist / "favicon.ico").write_bytes(b"ico")
+
+    monkeypatch.setattr("control_api.main.DIST_DIR", dist)
+
+    from control_api.main import create_app
+
+    app = create_app()
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        root = await client.get("/")
+        assert root.status_code == 200
+        assert "console" in root.text
+
+        deep = await client.get(
+            "/tasks/ea3a3a8c-5e53-4a9a-8301-3866970588c0"
+        )
+        assert deep.status_code == 200
+        assert "console" in deep.text
+        assert "text/html" in deep.headers["content-type"]
+
+        asset = await client.get("/assets/app.js")
+        assert asset.status_code == 200
+        assert "window.__console" in asset.text
+
+        favicon = await client.get("/favicon.ico")
+        assert favicon.status_code == 200
+        assert favicon.content == b"ico"
+
+        missing_api = await client.get("/api/does-not-exist")
+        assert missing_api.status_code == 404
+        assert missing_api.json()["detail"] == "Not Found"

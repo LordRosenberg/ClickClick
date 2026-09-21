@@ -16,7 +16,7 @@ EventBusLike = Any  # control_api.sse.EventBus
 class TraceWriter:
     """Persist LLM/action/UI/loop events with optional large payload refs.
 
-    Supported `kind` values: `task_scope`, `planner_decision`,
+    Supported `kind` values: `task_contract`, `planner_decision`,
     `reviewer_decision`, `executor_tick`, `loop_tick` (closed-loop event types),
     plus the `llm` / `ui` / `system`
     kinds. Executor model/action/result data is consolidated into one
@@ -42,7 +42,7 @@ class TraceWriter:
     # SoM PNGs) are still stored as artifacts and referenced by `*_ref` fields
     # inside the payload; only the wholesale payload→ref swap is suppressed.
     INLINE_PAYLOAD_KINDS = frozenset({
-        "task_scope", "planner_decision", "reviewer_decision",
+        "planner_decision", "reviewer_decision",
         "executor_tick", "loop_tick",
         "agent_tool_started", "agent_tool_finished", "agent_tool_failed",
         "agent_llm_round_finished",
@@ -67,6 +67,16 @@ class TraceWriter:
         artifact_kind: str = "llm",
     ) -> TraceEvent:
         """Append a TraceEvent, storing large blobs on disk when provided."""
+        if kind == "agent_llm_stream":
+            return self.publish_live(
+                task_id,
+                kind=kind,
+                level=level,
+                message=message,
+                node_id=node_id,
+                step_seq=step_seq,
+                payload=payload,
+            )
         ref = payload_ref
         if payload_bytes is not None:
             ref = self.artifacts.save_bytes(artifact_kind, payload_bytes, suffix=payload_suffix)
@@ -96,6 +106,32 @@ class TraceWriter:
         self.db.add_trace(event)
         # Notify live SSE subscribers (same event loop). No bus → no-op,
         # which keeps unit tests that never wire a bus compatible.
+        if self.bus is not None:
+            self.bus.publish(task_id, event.model_dump())
+        return event
+
+    def publish_live(
+        self,
+        task_id: str,
+        *,
+        kind: str,
+        level: LogLevel = LogLevel.INFO,
+        message: str = "",
+        node_id: str | None = None,
+        step_seq: int | None = None,
+        payload: dict[str, Any] | None = None,
+    ) -> TraceEvent:
+        """Publish an ephemeral SSE event without adding it to trace history."""
+        event = TraceEvent(
+            task_id=task_id,
+            node_id=node_id,
+            step_seq=step_seq,
+            kind=kind,  # type: ignore[arg-type]
+            level=level,
+            message=message,
+            payload=payload or {},
+            ts=time.time(),
+        )
         if self.bus is not None:
             self.bus.publish(task_id, event.model_dump())
         return event

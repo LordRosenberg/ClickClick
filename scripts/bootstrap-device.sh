@@ -15,6 +15,14 @@ if [[ -z "${ROOT}" ]]; then
 fi
 cd "$ROOT"
 
+if [[ -x "$ROOT/.venv/Scripts/python.exe" ]]; then
+  PYTHON_BIN="$ROOT/.venv/Scripts/python.exe"
+elif [[ -x "$ROOT/.venv/bin/python" ]]; then
+  PYTHON_BIN="$ROOT/.venv/bin/python"
+else
+  PYTHON_BIN="$(command -v python3 || command -v python)"
+fi
+
 APK_ONLY=0
 SERIAL="${CLICKCLICK_DEVICE_SERIAL:-}"
 while [[ $# -gt 0 ]]; do
@@ -35,24 +43,19 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-COLLECTOR_APK="${CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH:-$ROOT/android/prebuilt/clickclick-collector-0.2.0-debug.apk}"
-COLLECTOR_RELEASE_TAG="${CLICKCLICK_COLLECTOR_RELEASE_TAG:-collector-v0.2.0}"
-COLLECTOR_RELEASE_ASSET="${CLICKCLICK_COLLECTOR_RELEASE_ASSET:-clickclick-collector-0.2.0-debug.apk}"
-COLLECTOR_RELEASE_REPO="${CLICKCLICK_COLLECTOR_RELEASE_REPO:-LordRosenberg/ClickClick}"
-COLLECTOR_URL="${CLICKCLICK_COLLECTOR_APK_URL:-https://github.com/${COLLECTOR_RELEASE_REPO}/releases/download/${COLLECTOR_RELEASE_TAG}/${COLLECTOR_RELEASE_ASSET}}"
 IME_CACHE_DIR="${CLICKCLICK_DEVICE_APK_CACHE:-$ROOT/data/device-apks}"
 IME_APK="${CLICKCLICK_IME_APK_PATH:-$IME_CACHE_DIR/ADBKeyboard.apk}"
 IME_URL="${CLICKCLICK_IME_APK_URL:-https://raw.githubusercontent.com/senzhk/ADBKeyBoard/master/ADBKeyboard.apk}"
 IME_ID="${CLICKCLICK_IME_ID:-com.android.adbkeyboard/.AdbIME}"
 
-need_cmd() {
-  command -v "$1" >/dev/null 2>&1 || {
-    echo "missing required command: $1" >&2
-    exit 1
-  }
+resolve_adb() {
+  "$PYTHON_BIN" -c 'from driver.adb import adb_bin; print(adb_bin())'
 }
 
-need_cmd adb
+ADB_BIN="$(resolve_adb)"
+adb() {
+  "$ADB_BIN" "$@"
+}
 
 resolve_serial() {
   local devices=()
@@ -109,28 +112,7 @@ download_file() {
 }
 
 ensure_collector_apk() {
-  if [[ -f "$COLLECTOR_APK" ]]; then
-    return 0
-  fi
-  local built="$ROOT/android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk"
-  if [[ -f "$built" ]]; then
-    COLLECTOR_APK="$built"
-    return 0
-  fi
-  # Fallback: GitHub Release asset (same file as android/prebuilt/).
-  local cached="$IME_CACHE_DIR/$COLLECTOR_RELEASE_ASSET"
-  if [[ ! -f "$cached" ]]; then
-    download_file "$COLLECTOR_URL" "$cached"
-  fi
-  COLLECTOR_APK="$cached"
-  if [[ ! -f "$COLLECTOR_APK" ]]; then
-    echo "collector APK missing." >&2
-    echo "Either:" >&2
-    echo "  1) keep/copy android/prebuilt/$COLLECTOR_RELEASE_ASSET" >&2
-    echo "  2) build android/accessibility-collector/ and set CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH" >&2
-    echo "  3) download Release $COLLECTOR_RELEASE_TAG from https://github.com/$COLLECTOR_RELEASE_REPO/releases" >&2
-    exit 1
-  fi
+  COLLECTOR_APK="$("$PYTHON_BIN" -m driver.collector_release --resolve)"
 }
 
 ensure_ime_apk() {
@@ -182,12 +164,6 @@ fi
 
 export CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH="$COLLECTOR_APK"
 export CLICKCLICK_IME_APK_PATH="$IME_APK"
-
-if [[ -x "$ROOT/.venv/bin/python" ]]; then
-  PYTHON_BIN="$ROOT/.venv/bin/python"
-else
-  PYTHON_BIN="$(command -v python3)"
-fi
 
 echo "→ initialize_android_device (merge accessibility + enable IME)"
 ROOT="$ROOT" SERIAL="$SERIAL" COLLECTOR_APK="$COLLECTOR_APK" IME_APK="$IME_APK" IME_ID="$IME_ID" \

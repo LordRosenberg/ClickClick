@@ -7,6 +7,7 @@ scrcpy -> ADB selection is tested separately from that transaction boundary.
 
 from __future__ import annotations
 
+import asyncio
 from io import BytesIO
 from types import SimpleNamespace
 import time
@@ -168,9 +169,11 @@ async def test_mechanical_instability_settles_once_then_uses_fresh_second_captur
         (_tree("fresh-second"), _png("blue")),
     ])
     sleep_calls: list[float] = []
+    real_sleep = asyncio.sleep
 
     async def tracked_sleep(seconds: float) -> None:
         sleep_calls.append(seconds)
+        await real_sleep(seconds)
 
     monkeypatch.setattr("agent.action_observation.asyncio.sleep", tracked_sleep)
 
@@ -178,7 +181,8 @@ async def test_mechanical_instability_settles_once_then_uses_fresh_second_captur
 
     assert driver.capture_count == 2
     assert driver.capture_ordinals == [1, 2]
-    assert sleep_calls == [0.25]
+    assert sleep_calls and all(0 < delay <= 0.25 for delay in sleep_calls)
+    assert package.capture_meta["settle_elapsed_ms"] >= 250
     assert package.capture_meta["resample_trigger"] == "pixels_unavailable"
     assert package.capture_meta["observation_capture_attempt_count"] == 2
     assert "fresh-second" in package.text_for_llm
@@ -384,7 +388,7 @@ async def test_second_capture_returns_richest_safe_evidence_tier(
 
 
 @pytest.mark.asyncio
-async def test_first_image_never_mixes_into_second_tree_only_capture():
+async def test_valid_first_image_survives_unusable_tree_without_resampling():
     driver = _CaptureSequenceDriver([
         (
             _tree("discarded-first", coordinate_compatible=False),
@@ -395,18 +399,17 @@ async def test_first_image_never_mixes_into_second_tree_only_capture():
 
     package = await _transaction(driver).observe_current(attach_image=True)
 
-    assert driver.capture_count == 2
-    assert package.mode == ObservationMode.TREE_ONLY
-    assert package.capture_meta["evidence_tier"] == "tree_only"
-    assert package.clean_png is None
-    assert package.image_for_llm is None
-    assert package.annotated_png is None
-    assert "kept-second" in package.text_for_llm
+    assert driver.capture_count == 1
+    assert package.mode == ObservationMode.IMAGE_ONLY
+    assert package.capture_meta["evidence_tier"] == "image_only"
+    assert package.clean_png == _png("red")
+    assert package.index_actionable is False
+    assert "kept-second" not in package.text_for_llm
     assert "discarded-first" not in package.text_for_llm
 
 
 @pytest.mark.asyncio
-async def test_persistent_geometry_mismatch_ends_as_clean_image_only():
+async def test_geometry_mismatch_immediately_degrades_to_clean_image_only():
     driver = _CaptureSequenceDriver([
         (_tree("first", coordinate_compatible=False), _png("red")),
         (_tree("second", coordinate_compatible=False), _png("blue")),
@@ -414,13 +417,13 @@ async def test_persistent_geometry_mismatch_ends_as_clean_image_only():
 
     package = await _transaction(driver).observe_current(attach_image=True)
 
-    assert driver.capture_count == 2
+    assert driver.capture_count == 1
     assert package.mode == ObservationMode.IMAGE_ONLY
     assert package.capture_meta["evidence_tier"] == "image_only"
     assert package.index_actionable is False
     assert package.ui.elements == []
     assert package.som_ref is None
-    assert package.clean_png == _png("blue")
+    assert package.clean_png == _png("red")
     assert package.annotated_png == package.clean_png
     assert "first" not in package.text_for_llm
     assert "second" not in package.text_for_llm
@@ -492,7 +495,7 @@ async def test_non_boolean_component_flags_fail_closed_consistently():
 
     package = await _transaction(driver).observe_current(attach_image=True)
 
-    assert driver.capture_count == 2
+    assert driver.capture_count == 1
     assert package.accepted is True
     assert package.mode == ObservationMode.IMAGE_ONLY
     assert package.capture_meta["evidence_tier"] == "image_only"
@@ -518,7 +521,7 @@ async def test_missing_component_flags_cannot_enable_tree_grounding():
 
     package = await _transaction(driver).observe_current(attach_image=True)
 
-    assert driver.capture_count == 2
+    assert driver.capture_count == 1
     assert package.accepted is True
     assert package.mode == ObservationMode.IMAGE_ONLY
     assert package.capture_meta["evidence_tier"] == "image_only"
@@ -545,7 +548,7 @@ async def test_exhausted_or_malformed_provider_fact_cannot_restore_tree(exhauste
 
     package = await _transaction(driver).observe_current(attach_image=True)
 
-    assert driver.capture_count == 2
+    assert driver.capture_count == 1
     assert package.mode == ObservationMode.IMAGE_ONLY
     assert package.capture_meta["evidence_tier"] == "image_only"
     assert package.ui.semantic_tree == []
@@ -614,7 +617,97 @@ async def test_healthy_scrcpy_is_selected_without_starting_adb(monkeypatch):
 
     assert pixels == _png("green")
     assert metadata["pixel_provider"] == "scrcpy"
-    assert events == ["scrcpy_start", "scrcpy_current"]
+    # Selecting the newest frame after tree traversal only reads the local ring.
+    # Preserve the single-start/no-ADB contract without fixing the read count.
+    assert events[0] == "scrcpy_start"
+    assert set(events[1:]) == {"scrcpy_current"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("generation,quiet_ms,accepted", [(7, 500, True), (8, 500, False), (7, 20, False)])
+async def test_window_fence_rejects_transition_but_allows_dynamic_content(monkeypatch, generation, quiet_ms, accepted):
+    driver = AndroidDriver(stream_provider=_StreamProvider(_healthy_stream_result(), []))
+
+    async def tree(_deadline):
+        value = _tree("changing counter")
+        value["_capture"].update(window_generation=7, window_quiet_ms=500, content_changed_during_capture=True)
+        return value
+
+    async def window_state(**kwargs):
+        return {"window_generation": generation, "window_quiet_ms": quiet_ms}
+
+    monkeypatch.setattr(driver, "_deadline_tree", tree)
+    monkeypatch.setattr(driver._collector, "window_state", window_state)
+    if accepted:
+        _, image, meta = await driver.capture_deadline_frame(ObservationDeadline("current", 3500))
+        assert image and meta["complete"]
+    else:
+        with pytest.raises(ObservationStageError, match="window_transition"):
+            await driver.capture_deadline_frame(ObservationDeadline("current", 3500))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("dump_attempted", [False, True])
+async def test_failed_tree_placeholder_reports_only_actual_providers(monkeypatch, dump_attempted):
+    driver = AndroidDriver(stream_provider=_StreamProvider(_healthy_stream_result(), []))
+    attempts = [{"provider": "accessibility_collector_primary", "status": "error"}]
+    if dump_attempted:
+        attempts.append({"provider": "uiautomator_dump", "status": "error"})
+
+    async def failed_tree(_deadline):
+        raise ObservationStageError("accessibility_tree", "model-empty", provider_attempts=attempts)
+
+    monkeypatch.setattr(driver, "_deadline_tree", failed_tree)
+    tree, image, meta = await driver.capture_deadline_frame(ObservationDeadline("current", 3500))
+    assert image
+    assert meta["tree_provider"] == "unavailable"
+    assert meta["complete"] is False
+    assert tree["_capture"]["dump_attempted"] is dump_attempted
+    assert tree["_capture"]["tree_providers_exhausted"] is dump_attempted
+    assert tree["_capture"]["tree_provider_attempts"] == attempts
+
+
+@pytest.mark.asyncio
+async def test_window_entry_fence_survives_tree_without_window_metadata(monkeypatch):
+    driver = AndroidDriver(stream_provider=_StreamProvider(_healthy_stream_result(), []))
+    driver._collector_enabled = True
+    states = iter([{"window_generation": 7, "window_quiet_ms": 500},
+                   {"window_generation": 8, "window_quiet_ms": 500}])
+
+    async def tree(_deadline):
+        value = _tree("legacy tree")
+        value["_capture"]["window_generation"] = None
+        return value
+
+    async def window_state(**kwargs):
+        return next(states)
+
+    monkeypatch.setattr(driver._collector, "diagnostics", lambda: {"ready": True})
+    monkeypatch.setattr(driver._collector, "window_state", window_state)
+    monkeypatch.setattr(driver, "_deadline_tree", tree)
+    with pytest.raises(ObservationStageError, match="window_transition"):
+        await driver.capture_deadline_frame(ObservationDeadline("current", 3500))
+
+
+@pytest.mark.asyncio
+async def test_final_window_fence_allows_cold_reconnect_within_outer_budget(monkeypatch):
+    driver = AndroidDriver(stream_provider=_StreamProvider(_healthy_stream_result(), []))
+    observed_timeouts = []
+
+    async def tree(_deadline):
+        value = _tree("reconnected")
+        value["_capture"].update(window_generation=7, window_quiet_ms=500)
+        return value
+
+    async def window_state(*, timeout):
+        observed_timeouts.append(timeout)
+        return {"window_generation": 7, "window_quiet_ms": 500}
+
+    monkeypatch.setattr(driver._collector, "diagnostics", lambda: {"ready": False})
+    monkeypatch.setattr(driver._collector, "window_state", window_state)
+    monkeypatch.setattr(driver, "_deadline_tree", tree)
+    await driver.capture_deadline_frame(ObservationDeadline("current", 3500))
+    assert observed_timeouts == [1.5]
 
 
 @pytest.mark.asyncio
@@ -735,18 +828,19 @@ async def test_resample_metadata_separates_configured_and_elapsed_settle(
         (_tree("second-complete"), _png()),
     ])
 
-    async def controlled_sleep(seconds: float) -> None:
-        assert seconds == 0.25
+    real_sleep = asyncio.sleep
 
-    # Keep the test fast while preserving a real monotonic elapsed measurement;
-    # only the scheduler-sized elapsed value should differ from the configured
-    # policy value.
+    async def controlled_sleep(seconds: float) -> None:
+        assert 0 < seconds <= 0.25
+        await real_sleep(seconds + 0.05)
+
+    # Oversleep so telemetry must report elapsed time rather than the policy.
     monkeypatch.setattr("agent.action_observation.asyncio.sleep", controlled_sleep)
 
     package = await _transaction(driver, settle_ms=250).observe_current()
 
     assert package.capture_meta["settle_configured_ms"] == 250
-    assert 0 <= package.capture_meta["settle_elapsed_ms"] < 50
+    assert package.capture_meta["settle_elapsed_ms"] > 250
     assert package.capture_meta["resample_trigger"] == "pixels_unavailable"
 
 
@@ -777,69 +871,3 @@ async def test_non_mechanical_failures_do_not_open_a_second_capture(stage, reaso
     assert raised.value.capture_attempt_count == 1
     assert driver.capture_count == 1
     assert driver.capture_ordinals == [1]
-
-
-@pytest.mark.asyncio
-async def test_orchestrator_terminates_after_one_final_observation_failure(tmp_path):
-    """The transaction owns recovery; Orchestrator does not restart providers."""
-    from agent.orchestrator import Orchestrator
-    from driver.fixture import FixtureDriver
-    from shared.schemas import TaskStatus
-    from tests.fake_agents import (
-        FakeExecutor,
-        FakePlanner,
-        FakeReviewer,
-        fake_task_scope,
-    )
-    from agent.traces import TraceWriter
-    from shared.artifacts import ArtifactStore
-    from shared.db import Database
-
-    class Driver(FixtureDriver):
-        def __init__(self):
-            super().__init__()
-            self.warm_calls = 0
-            self.close_calls = 0
-
-        async def warm_observation_provider(self):
-            self.warm_calls += 1
-            return True
-
-        async def close_observation_provider(self):
-            self.close_calls += 1
-
-    driver = Driver()
-    db = Database(tmp_path / "runtime.db")
-    artifacts = ArtifactStore(tmp_path / "artifacts")
-    orchestrator = Orchestrator(
-        db,
-        TraceWriter(db, artifacts),
-        lambda: FakePlanner([]),
-        lambda: FakeReviewer([], task_scope=fake_task_scope()),
-        lambda: FakeExecutor([]),
-        driver=driver,
-        role_call_retry_n=0,
-        artifacts=artifacts,
-    )
-    observe_calls = 0
-
-    async def final_failure(*, will_send_image=False):
-        nonlocal observe_calls
-        del will_send_image
-        observe_calls += 1
-        raise ObservationStageError(
-            "observation_capture",
-            "outer_deadline_exhausted",
-            timed_out=True,
-            capture_attempt_count=2,
-        )
-
-    orchestrator._observe = final_failure
-
-    task_id = await orchestrator.start_task("bounded observation failure")
-
-    assert db.get_task(task_id).status == TaskStatus.FAILED
-    assert observe_calls == 1
-    assert driver.warm_calls == 1
-    assert driver.close_calls == 1
-    assert not hasattr(Orchestrator, "_recover_observation_provider")

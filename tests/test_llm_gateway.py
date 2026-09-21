@@ -24,10 +24,11 @@ from shared.llm_gateway import (
     GatewayInputSafetyError,
     GatewayResponse,
     GatewayTransientError,
+    GatewayQuotaError,
     complete,
     ReasoningConfig,
 )
-from shared.schemas import PlannerDecision
+from shared.revisable import PlannerDecision
 
 
 # ---------------------------------------------------------------------------
@@ -50,6 +51,17 @@ class _FakeResponse:
     def __init__(self, content: str, finish_reason: str = "stop", usage: dict | None = None) -> None:
         self.choices = [_FakeChoice(content, finish_reason)]
         self.usage = usage or {"prompt_tokens": 10, "completion_tokens": 5}
+
+
+class _FakeStream:
+    def __init__(self, chunks: list[dict[str, Any]]) -> None:
+        self.chunks = chunks
+
+    def __aiter__(self):
+        async def iterate():
+            for chunk in self.chunks:
+                yield chunk
+        return iterate()
 
 
 class _FakeExc(Exception):
@@ -92,8 +104,8 @@ def _settings(**kw) -> Settings:
 @pytest.mark.asyncio
 async def test_structured_output_success_validates(monkeypatch):
     payload = {
-        "mode": "review",
-        "review_requirement_ref": "final_ui_state:1",
+        "decision": "review",
+        "reason": "Inspect the result",
     }
     _install_fake_litellm(monkeypatch, responses=_FakeResponse(json.dumps(payload)))
     resp = await complete(
@@ -234,6 +246,25 @@ async def test_rate_limit_429_is_transient(monkeypatch):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize('status,message,body', [
+    (429, 'The usage limit has been reached', None),
+    (429, 'request rejected', {'error': {'type': 'usage_limit_reached', 'resets_at': 1234}}),
+    (402, 'insufficient credits', None),
+    (429, 'insufficient_quota', None),
+    (None, "You've hit your usage limit", None),
+])
+async def test_quota_exhaustion_is_typed_and_never_retried(monkeypatch, status, message, body):
+    exc = _FakeExc(message, status_code=status)
+    exc.body = body
+    calls = _install_fake_litellm(monkeypatch, exc=exc)
+    with pytest.raises(GatewayQuotaError) as caught:
+        await complete('kimi-k3', [{'role': 'user', 'content': 'hi'}], settings=_settings())
+    assert caught.value.category == 'quota'
+    assert caught.value.transport_attempts == 1
+    assert len(calls) == 1
+
+
+@pytest.mark.asyncio
 async def test_auth_error_not_retried(monkeypatch):
     calls = _install_fake_litellm(
         monkeypatch,
@@ -269,6 +300,93 @@ async def test_budget_length_surfaces_distinctly(monkeypatch):
     assert resp.stop_reason == "length"
     # Only one call — length exhaustion is NOT retried.
     assert len(calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_http_400_is_config_and_not_retried(monkeypatch):
+    calls = _install_fake_litellm(
+        monkeypatch,
+        exc=_FakeExc(
+            "Thinking mode does not support this tool_choice",
+            status_code=400,
+        ),
+    )
+    with pytest.raises(GatewayConfigError) as ei:
+        await complete(
+            "openai/deepseek-v4-flash-vision-exp",
+            [{"role": "user", "content": "hi"}],
+            settings=_settings(),
+        )
+    assert ei.value.category == "config"
+    assert len(calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_model_extra_body_is_forwarded_without_model_name_heuristics(monkeypatch):
+    settings = _settings(
+        models_json=json.dumps({
+            "openai/provider-model": {
+                "provider": "openai",
+                "base_url": "https://example.invalid/v1",
+                "api_key": "sk-test",
+                "extra_body": {"thinking": {"type": "disabled"}},
+            },
+        }),
+    )
+    calls = _install_fake_litellm(monkeypatch, responses=_FakeResponse("{}"))
+    await complete(
+        "openai/provider-model",
+        [{"role": "user", "content": "hi"}],
+        tools=[{"type": "function", "function": {"name": "submit_contract"}}],
+        tool_choice="required",
+        settings=settings,
+    )
+    assert calls[0]["tool_choice"] == "required"
+    assert calls[0]["extra_body"]["thinking"] == {"type": "disabled"}
+
+
+@pytest.mark.asyncio
+async def test_model_without_extra_body_gets_no_provider_specific_request_fields(monkeypatch):
+    settings = _settings(
+        models_json=json.dumps({
+            "openai/provider-model": {
+                "provider": "openai",
+                "base_url": "https://example.invalid/v1",
+                "api_key": "sk-test",
+            },
+        }),
+    )
+    calls = _install_fake_litellm(monkeypatch, responses=_FakeResponse("{}"))
+    await complete(
+        "openai/provider-model",
+        [{"role": "user", "content": "hi"}],
+        tools=[{"type": "function", "function": {"name": "submit_contract"}}],
+        tool_choice="required",
+        settings=settings,
+    )
+    assert "extra_body" not in calls[0]
+    assert "allowed_openai_params" not in calls[0]
+
+
+@pytest.mark.asyncio
+async def test_relay_reasoning_override_is_explicit_and_model_scoped(monkeypatch):
+    calls = _install_fake_litellm(monkeypatch)
+    model = "openai/deepseek-v4.1-flash-expires-on-0910"
+    settings = _settings(models_json=json.dumps({
+        model: {
+            "provider": "openai",
+            "reasoning": {"effort": "high"},
+            "extra_body": {"thinking": {"type": "enabled"}},
+            "allowed_openai_params": ["reasoning_effort"],
+        },
+    }))
+    await complete(model, [{"role": "user", "content": "test"}], settings=settings)
+    assert calls[0]["allowed_openai_params"] == ["reasoning_effort"]
+    assert calls[0]["reasoning_effort"] == "high"
+    assert calls[0]["extra_body"] == {"thinking": {"type": "enabled"}}
+    assert "drop_params" not in calls[0]
+    await complete("openai/other", [{"role": "user", "content": "test"}], settings=settings)
+    assert "allowed_openai_params" not in calls[1]
 
 
 @pytest.mark.asyncio
@@ -579,7 +697,33 @@ async def test_unsupported_reasoning_is_recorded_without_provider_kwargs(monkeyp
 
 
 @pytest.mark.asyncio
-async def test_private_reasoning_content_is_never_promoted_to_summary(monkeypatch):
+async def test_reasoning_content_promoted_when_summary_requested(monkeypatch):
+    """LiteLLM normalizes Responses-API reasoning summaries into
+    `message.reasoning_content`; when the caller explicitly requested a
+    summary, that field carries the summary text and must be extracted —
+    otherwise the Console reasoning diagnostic can never show anything."""
+    response = {
+        "choices": [{
+            "message": {"content": "", "reasoning_content": "checked the evidence"},
+            "finish_reason": "stop",
+        }],
+        "usage": {},
+    }
+    _install_fake_litellm(monkeypatch, responses=response)
+    settings = _settings(models_json=json.dumps({
+        "reasoner": {"reasoning_supported": True},
+    }))
+    result = await complete(
+        "reasoner", [{"role": "user", "content": "hi"}],
+        reasoning=ReasoningConfig(summary="concise"), settings=settings,
+    )
+    assert result.reasoning.summary == "checked the evidence"
+
+
+@pytest.mark.asyncio
+async def test_reasoning_content_ignored_without_summary_request(monkeypatch):
+    """Without an explicit summary preference, `reasoning_content` may hold a
+    relay's private chain-of-thought — it must not leak into traces."""
     response = {
         "choices": [{
             "message": {"content": "", "reasoning_content": "private chain"},
@@ -593,7 +737,7 @@ async def test_private_reasoning_content_is_never_promoted_to_summary(monkeypatc
     }))
     result = await complete(
         "reasoner", [{"role": "user", "content": "hi"}],
-        reasoning=ReasoningConfig(summary="concise"), settings=settings,
+        reasoning=ReasoningConfig(effort="high"), settings=settings,
     )
     assert result.reasoning.summary is None
 
@@ -674,3 +818,129 @@ async def test_relay_openai_keeps_ua_and_credentials_alongside_chatgpt(monkeypat
     assert "max_tokens" not in chatgpt
     assert "api_key" not in chatgpt
     assert "api_base" not in chatgpt
+
+
+@pytest.mark.asyncio
+async def test_streaming_aggregates_text_reasoning_usage_and_progress(monkeypatch):
+    stream = _FakeStream([
+        {"choices": [{"delta": {"reasoning_content": "Checking "}}]},
+        {"choices": [{"delta": {"content": "hel"}}]},
+        {"choices": [{"delta": {"content": "lo"}, "finish_reason": "stop"}]},
+        {"choices": [], "usage": {"prompt_tokens": 7, "completion_tokens": 3}},
+    ])
+    calls = _install_fake_litellm(monkeypatch, responses=stream)
+    updates: list[dict[str, Any]] = []
+    settings = _settings(models_json=json.dumps({
+        "openai/test": {
+            "provider": "openai", "stream": True, "reasoning_supported": True,
+            "reasoning": {"effort": "high", "summary": "concise"},
+        },
+    }))
+    result = await complete(
+        "openai/test", [{"role": "user", "content": "hi"}],
+        settings=settings, stream_sink=updates.append,
+    )
+    assert calls[0]["stream"] is True
+    assert result.content == "hello"
+    assert result.reasoning.summary == "Checking"
+    assert result.usage["input_tokens"] == 7
+    assert updates[0]["status"] == "started"
+    assert updates[-1]["status"] == "completed"
+    assert updates[-1]["text"] == "hello"
+
+
+@pytest.mark.asyncio
+async def test_streaming_reassembles_parallel_fragmented_tool_calls(monkeypatch):
+    stream = _FakeStream([
+        {"choices": [{"delta": {"tool_calls": [
+            {"index": 0, "id": "call_a", "function": {"name": "first", "arguments": "{\"x\":"}},
+            {"index": 1, "id": "call_b", "function": {"name": "second", "arguments": "{\"y\":"}},
+        ]}}]},
+        {"choices": [{"delta": {"tool_calls": [
+            {"index": 0, "function": {"arguments": "1}"}},
+            {"index": 1, "function": {"arguments": "2}"}},
+        ]}, "finish_reason": "tool_calls"}]},
+    ])
+    _install_fake_litellm(monkeypatch, responses=stream)
+    updates: list[dict[str, Any]] = []
+    settings = _settings(models_json=json.dumps({"openai/test": {"stream": True}}))
+    result = await complete(
+        "openai/test", [{"role": "user", "content": "hi"}],
+        settings=settings, stream_sink=updates.append,
+    )
+    assert [(call.id, call.name, call.arguments) for call in result.tool_calls] == [
+        ("call_a", "first", '{"x":1}'),
+        ("call_b", "second", '{"y":2}'),
+    ]
+    assert result.stop_reason == "tool_calls"
+    assert updates[-1]["tool_call_count"] == 2
+    assert "arguments" not in updates[-1]
+
+
+@pytest.mark.asyncio
+async def test_stream_callback_failure_is_isolated(monkeypatch):
+    _install_fake_litellm(monkeypatch, responses=_FakeStream([
+        {"choices": [{"delta": {"content": "ok"}, "finish_reason": "stop"}]},
+    ]))
+    settings = _settings(models_json=json.dumps({"openai/test": {"stream": True}}))
+
+    def broken_sink(_payload):
+        raise RuntimeError("console disconnected")
+
+    result = await complete(
+        "openai/test", [{"role": "user", "content": "hi"}],
+        settings=settings, stream_sink=broken_sink,
+    )
+    assert result.content == "ok"
+
+
+@pytest.mark.asyncio
+async def test_stream_retry_starts_a_new_attempt(monkeypatch):
+    fake = types.ModuleType("litellm")
+    attempts = 0
+
+    async def acompletion(**_kwargs):
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise _FakeExc("temporary", status_code=500)
+        return _FakeStream([
+            {"choices": [{"delta": {"content": "ok"}, "finish_reason": "stop"}]},
+        ])
+
+    async def no_sleep(_delay):
+        return None
+
+    fake.acompletion = acompletion  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "litellm", fake)
+    monkeypatch.setattr("shared.llm_gateway.asyncio.sleep", no_sleep)
+    updates: list[dict[str, Any]] = []
+    result = await complete(
+        "openai/test", [{"role": "user", "content": "hi"}], max_retries=1,
+        settings=_settings(models_json=json.dumps({"openai/test": {"stream": True}})),
+        stream_sink=updates.append,
+    )
+    assert result.content == "ok"
+    assert result.transport_attempts == 2
+    lifecycle = [
+        (update["attempt"], update["status"])
+        for update in updates
+        if update["status"] in {"started", "failed"}
+    ]
+    assert lifecycle == [
+        (1, "started"), (1, "failed"), (2, "started"),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_non_streaming_model_ignores_stream_callback(monkeypatch):
+    calls = _install_fake_litellm(monkeypatch, responses=_FakeResponse("ok"))
+    updates: list[dict[str, Any]] = []
+    result = await complete(
+        "openai/test", [{"role": "user", "content": "hi"}],
+        settings=_settings(models_json=json.dumps({"openai/test": {"stream": False}})),
+        stream_sink=updates.append,
+    )
+    assert "stream" not in calls[0]
+    assert result.content == "ok"
+    assert updates == []

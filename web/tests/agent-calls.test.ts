@@ -5,14 +5,21 @@ import {
   buildAgentCallRows,
   agentFoldKey,
   cacheSummary,
+  collapsedModelInputSummary,
+  conversationArtifactEnabled,
+  conversationArtifactQueryKey,
   inputSectionFoldKey,
+  modelConversationVisuals,
   modelInputSummary,
   observationTransitionLabel,
   projectInputSections,
   visibleArtifactPayload,
+  conversationFoldOpen,
   upsertLlmRound,
+  upsertLlmStream,
   upsertToolCall,
 } from "../src/lib/agentCalls.ts";
+
 import {
   aggregateCallMetrics,
   agentCallHash,
@@ -25,6 +32,7 @@ import {
   usageMetrics,
 } from "../src/lib/expandRoleCalls.ts";
 import type { AgentLlmRound, AgentToolCall, RoleCall, TraceEvent } from "../src/api/types.ts";
+import { artifactUrl } from "../src/api/client.ts";
 
 function round(order: number, cached: number | null): AgentLlmRound {
   return {
@@ -34,6 +42,58 @@ function round(order: number, cached: number | null): AgentLlmRound {
     message_count: 4, image_count: 0, stable_prefix_hash: "p", tool_catalog_hash: "c",
   };
 }
+
+test("model rounds naturally expose the images before and after observation", () => {
+  const before = modelConversationVisuals("executor:1", {
+    ...round(1, null),
+    input_model_image_ref: "model-images/before.jpg",
+  });
+  const after = modelConversationVisuals("executor:1", {
+    ...round(2, null),
+    input_model_image_ref: "model-images/after.jpg",
+  });
+  assert.equal(before?.output.artifactRef, "model-images/before.jpg");
+  assert.equal(after?.input.artifactRef, "model-images/after.jpg");
+});
+
+test("model input and output rows select the exact image bound to their round", () => {
+  const visuals = modelConversationVisuals("executor:1", {
+    ...round(1, null),
+    input_observation_id: "obs-model",
+    input_model_image_ref: "model-images/model.jpg",
+    input_captured_monotonic_ms: 30,
+  });
+  assert.ok(visuals);
+  assert.deepEqual(
+    [visuals.input.rowKey, visuals.output.rowKey],
+    ["executor:1:i:r1:input:main", "executor:1:i:r1:output:main"],
+  );
+  assert.equal(visuals.input.artifactRef, "model-images/model.jpg");
+  assert.equal(visuals.output.artifactRef, "model-images/model.jpg");
+  assert.equal(visuals.input.observationId, "obs-model");
+  assert.equal(visuals.output.capturedAt, 30);
+});
+
+test("round start keeps its image binding while live output streams", () => {
+  const started: AgentLlmRound = {
+    ...round(0, null),
+    stop_reason: "pending",
+    input_observation_id: "obs-start",
+    input_model_image_ref: "model-images/start.jpg",
+  };
+  const updated = upsertLlmStream([started], {
+    round_id: started.round_id,
+    order: 0,
+    role: "executor",
+    invocation_id: "i",
+    attempt: 1,
+    sequence: 1,
+    status: "streaming",
+    text: "working",
+  });
+  assert.equal(updated[0].input_model_image_ref, "model-images/start.jpg");
+  assert.equal(updated[0].live_output, "working");
+});
 
 function call(status: AgentToolCall["status"]): AgentToolCall {
   return {
@@ -67,6 +127,61 @@ test("live updates preserve cross-invocation arrival order", () => {
   assert.deepEqual(
     upsertToolCall([firstInvocationCall2], secondInvocationCall1).map((item) => item.invocation_id),
     ["first", "second"],
+  );
+});
+
+test("stream snapshots reject stale sequences and superseded attempts", () => {
+  const base = {
+    round_id: "stream:1", order: 1, role: "executor" as const,
+    invocation_id: "stream", model: "openai/test", attempt: 1,
+    sequence: 2, status: "streaming" as const, text: "new",
+  };
+  const current = upsertLlmStream([], base);
+  assert.equal(upsertLlmStream(current, { ...base, sequence: 1, text: "old" })[0].live_output, "new");
+  const retried = upsertLlmStream(current, {
+    ...base, attempt: 2, sequence: 0, status: "started", text: "",
+  });
+  assert.equal(retried[0].stream_attempt, 2);
+  assert.equal(retried[0].live_output, "");
+  const completed = upsertLlmRound(retried, { ...round(1, null), round_id: "stream:1" });
+  assert.equal(completed[0].stream_status, undefined);
+  assert.equal(upsertLlmStream(completed, { ...base, attempt: 3 })[0].stream_status, undefined);
+});
+
+test("conversation defaults only latest output open and preserves explicit choices", () => {
+  assert.equal(conversationFoldOpen({}, "older-output"), false);
+  assert.equal(conversationFoldOpen({}, "latest-output", true), true);
+  assert.equal(conversationFoldOpen({ "latest-output": false }, "latest-output", true), false);
+  assert.equal(conversationFoldOpen({ "older-output": true }, "older-output"), true);
+});
+
+test("folded conversation artifacts remain disabled and cache keys are task scoped", () => {
+  assert.equal(conversationArtifactEnabled(false, "llm/request.json"), false);
+  assert.equal(conversationArtifactEnabled(true, null), false);
+  assert.equal(conversationArtifactEnabled(true, "llm/request.json"), true);
+  assert.deepEqual(
+    conversationArtifactQueryKey("task-a", "llm/request.json"),
+    ["agent-artifact", "task-a", "llm/request.json"],
+  );
+  assert.notDeepEqual(
+    conversationArtifactQueryKey("task-a", "llm/request.json"),
+    conversationArtifactQueryKey("task-b", "llm/request.json"),
+  );
+});
+
+test("artifact URLs use the selected task source and encode path segments", () => {
+  assert.equal(
+    artifactUrl("llm/request name.json", "task/a"),
+    "/api/tasks/task%2Fa/artifacts/llm/request%20name.json",
+  );
+  assert.equal(artifactUrl("llm/legacy.json"), "/api/artifacts/llm/legacy.json");
+});
+
+test("collapsed model inputs use persisted round metadata without loading artifacts", () => {
+  assert.equal(collapsedModelInputSummary(round(1, null)), "4 messages");
+  assert.equal(
+    collapsedModelInputSummary({ ...round(1, null), message_count: 1, image_count: 2 }),
+    "1 message · 2 images sent",
   );
 });
 
@@ -159,6 +274,25 @@ test("legacy request without tools keeps all available messages", () => {
   assert.equal(modelInputSummary(request), "2 messages");
 });
 
+test("request summary distinguishes a sent image from trace binary omission", () => {
+  const request = visibleArtifactPayload(JSON.stringify({
+    messages: [{
+      role: "user",
+      content: [
+        { type: "text", text: "CURRENT OBSERVATION" },
+        {
+          type: "image_url",
+          image_url: { url: "[sent to model; binary omitted from persisted trace]" },
+          attachment_metadata: { binary: "omitted" },
+        },
+      ],
+    }],
+    message_sections: [{ name: "observation", message_index: 0 }],
+  }), "request");
+
+  assert.equal(modelInputSummary(request), "1 message · 1 image sent");
+});
+
 test("request messages use prompt-construction variable names as fold labels", () => {
   const messages = [
     { role: "system", content: "## 1. Role\nExecutor rules" },
@@ -242,26 +376,26 @@ test("focused role calls expand Reviewer then Planner then Executor", () => {
   ]);
 });
 
-test("scope is labelled before later calls and usage stays exact", () => {
-  const scopeRound = {
+test("Planner is labelled before later calls and usage stays exact", () => {
+  const plannerRound = {
     ...round(1, null),
-    role: "reviewer" as const,
-    invocation_id: "scope-inv",
+    role: "planner" as const,
+    invocation_id: "planner-inv",
     latency_ms: 12,
     usage: { input_tokens: 100, cached_read_tokens: 80, output_tokens: 7 },
   };
   const calls = expandRoleCalls([{
     step_seq: 0,
-    reviewer: {
-      kind: "task_scope",
-      phase: "task_scope",
-      agent_rounds: [scopeRound],
+    planner: {
+      kind: "planner_decision",
+      phase: "planning",
+      agent_rounds: [plannerRound],
       role_elapsed_ms: 15,
     },
   }]);
-  assert.equal(calls[0].phase, "scope");
+  assert.equal(calls[0].phase, "planning");
   assert.equal(calls[0].elapsed_ms, 15);
-  assert.deepEqual(usageMetrics([scopeRound]), {
+  assert.deepEqual(usageMetrics([plannerRound]), {
     round_count: 1,
     input_tokens_total: 100,
     output_tokens_total: 7,
@@ -269,7 +403,7 @@ test("scope is labelled before later calls and usage stays exact", () => {
     cache_read_tokens_total: 80,
     cache_read_ratio: 0.8,
   });
-  assert.equal(deriveCallRows(calls)[0].phase, "scope");
+  assert.equal(deriveCallRows(calls)[0].phase, "plan");
   assert.equal(aggregateCallMetrics([calls[0], calls[0]]).input_tokens_total, 100);
 });
 
@@ -297,37 +431,54 @@ test("SSE role calls preserve repeated same-step invocations and replay identity
   assert.equal(resolveRoleCalls([second], two), two);
 });
 
-test("live scope tool and terminal round reconcile to one invocation", () => {
-  const scopeTool = {
+test("live Planner tool and terminal round reconcile to one invocation", () => {
+  const plannerTool = {
     ...call("started"),
-    role: "reviewer" as const,
-    invocation_id: "scope-1",
+    role: "planner" as const,
+    invocation_id: "planner-1",
   };
   const pending = upsertRoleCall([], {
     step_seq: 0,
-    reviewer: {
-      kind: "task_scope" as const,
-      phase: "task_scope" as const,
-      tool_calls: [scopeTool],
+    planner: {
+      kind: "planner_decision" as const,
+      phase: "planning" as const,
+      tool_calls: [plannerTool],
     },
-  }, "reviewer", null);
-  const scopeRound = {
+  }, "planner", null);
+  const plannerRound = {
     ...round(1, 20),
-    role: "reviewer" as const,
-    invocation_id: "scope-1",
+    role: "planner" as const,
+    invocation_id: "planner-1",
   };
   const completed = upsertRoleCall(pending, {
     step_seq: 0,
-    reviewer: {
-      kind: "task_scope" as const,
-      phase: "task_scope" as const,
-      agent_rounds: [scopeRound],
-      tool_calls: [scopeTool],
+    planner: {
+      kind: "planner_decision" as const,
+      phase: "planning" as const,
+      agent_rounds: [plannerRound],
+      tool_calls: [plannerTool],
     },
-  }, "reviewer", null);
+  }, "planner", null);
   assert.equal(completed.length, 1);
   assert.equal(completed[0].call_key, pending[0].call_key);
   assert.equal(completed[0].metrics?.round_count, 1);
+});
+
+test("live obsolete Reviewer-scope events are ignored", () => {
+  const event: TraceEvent = {
+    task_id: "task",
+    step_seq: 0,
+    kind: "agent_llm_round_finished",
+    level: "INFO",
+    message: "legacy scope round",
+    payload: {
+      ...round(1, 0),
+      role: "reviewer",
+      phase: "task_scope",
+      invocation_id: "legacy-scope",
+    },
+  };
+  assert.deepEqual(upsertLiveRoleEvent([], event), []);
 });
 
 test("live same-role invocations stay separate and own no sibling observation", () => {

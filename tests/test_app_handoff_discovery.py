@@ -19,20 +19,7 @@ from shared.app_resolver import ResolverTicketStore
 from shared.artifacts import ArtifactStore
 from shared.config import Settings
 from shared.llm_gateway import GatewayResponse, ToolCall
-from shared.schemas import (
-    ActiveTaskCompletionContract,
-    AgentState,
-    Action,
-    ActionResult,
-    AppResolutionProvenance,
-    AppResolutionResult,
-    AppResolutionStatus,
-    CanonicalUI,
-    SubgoalContractBody,
-    TaskContractBody,
-    ExecutorStep,
-    ObservationMode,
-)
+from shared.schemas import AgentState, Action, ActionResult, AppResolutionProvenance, AppResolutionResult, AppResolutionStatus, CanonicalUI, ExecutorStep, ObservationMode
 
 
 def _executor_payload(action: dict, act: str, **overrides) -> dict:
@@ -48,29 +35,15 @@ def _executor_payload(action: dict, act: str, **overrides) -> dict:
 def _planner_payload(**overrides) -> dict:
     payload = {
         "mode": "execute",
-        "target_requirement_ref": "final_ui_state:1",
+        "requirement_ref": "final_ui_state:1",
         "next_subgoal": "open",
-        "completion_contract": {
+        "subgoal_completion_criteria": {
             "success_conditions": ["the requested end state is visible"],
-            "disqualifying_clauses": [],
         },
         "plan": ["open"],
     }
     payload.update(overrides)
     return payload
-
-
-def _planner_state(instruction: str = "task") -> AgentState:
-    return AgentState(
-        instruction=instruction,
-        task_completion_contract=ActiveTaskCompletionContract(
-            contract_id="test-task-scope",
-            revision=1,
-            body=TaskContractBody(
-                final_ui_state=["every requested outcome is established"],
-            ),
-        ),
-    )
 
 
 def test_ticket_binding_consumption_expiry_and_redacted_fingerprint():
@@ -194,18 +167,22 @@ class _ResolverDriver:
 
     def __init__(self) -> None:
         self.search_calls = 0
+        self.acts: list[Action] = []
+        self.recorded_selections: list[tuple[str, str]] = []
+        self.foreground_package = "com.initial"
 
     async def resolve_installed_app(self, app: str):
-        if app in {"com.demo", "Demo"}:
+        if app in {"com.demo", "com.other", "Demo"}:
+            package = app if app.startswith("com.") else "com.demo"
             return AppResolutionResult(
                 requested_name=app,
                 normalized_query=app.casefold(),
                 status=AppResolutionStatus.RESOLVED,
                 resolver_generation="g1",
-                package="com.demo",
+                package=package,
                 provenance=(
                     AppResolutionProvenance.EXACT_PACKAGE
-                    if app == "com.demo" else AppResolutionProvenance.CURATED_ALIAS
+                    if app.startswith("com.") else AppResolutionProvenance.CURATED_ALIAS
                 ),
             ).model_dump(mode="json")
         return AppResolutionResult(
@@ -220,7 +197,36 @@ class _ResolverDriver:
         return [{"package": "com.demo", "alias": "Demo", "provenance": "installed_package"}]
 
     async def validate_installed_app(self, package: str) -> bool:
-        return package == "com.demo"
+        return package in {"com.demo", "com.other"}
+
+    async def act(self, action: Action) -> ActionResult:
+        self.acts.append(action)
+        if action.type == "launch":
+            self.foreground_package = str(action.app or "")
+        return ActionResult(success=True, message="ok")
+
+    async def get_frame(self):
+        from driver.fixture import FixtureDriver
+
+        tree, pixels = await FixtureDriver().get_frame()
+        tree["package"] = self.foreground_package
+        return tree, pixels
+
+    async def current_foreground_identity(self, *, timeout_s=None):
+        del timeout_s
+        return {
+            "package": self.foreground_package,
+            "activity": "Main",
+            "component": f"{self.foreground_package}/Main",
+            "sources": [],
+            "conflict": False,
+        }
+
+    async def record_installed_app_selection(
+        self, display_name: str, package: str,
+    ) -> bool:
+        self.recorded_selections.append((display_name, package))
+        return True
 
 
 @pytest.mark.asyncio
@@ -322,6 +328,63 @@ async def test_launch_miss_search_and_resubmit_stay_in_one_agent_call(monkeypatc
     assert "[REDACTED]" in snapshot
 
 
+@pytest.mark.asyncio
+async def test_installed_package_outside_bounded_candidates_is_dispatched(monkeypatch):
+    settings = Settings(agent_max_total_rounds=6, agent_max_read_calls=2)
+    driver = _ResolverDriver()
+    executor = Executor(driver=driver, model="m", settings=settings)
+    round_no = 0
+
+    async def fake_complete(model, messages, **kwargs):
+        nonlocal round_no
+        del model, kwargs
+        round_no += 1
+        if round_no == 1:
+            name = "submit_executor_step"
+            arguments = _executor_payload(
+                {"type": "launch", "app": "Mystery App"}, "resolve app",
+            )
+        elif round_no == 2:
+            wire = "\n".join(str(message.get("content") or "") for message in messages)
+            match = re.search(r'"resolution_ticket":"([^"]+)"', wire)
+            assert match is not None
+            name = "search_installed_apps"
+            arguments = {
+                "query": "Mystery App",
+                "resolution_ticket": match.group(1),
+            }
+        else:
+            name = "submit_executor_step"
+            arguments = _executor_payload(
+                {"type": "launch", "app": "com.other"}, "launch installed app",
+            )
+        return GatewayResponse(
+            content="", model="m", stop_reason="tool_calls",
+            tool_calls=[ToolCall(
+                id=f"c{round_no}", name=name, arguments=json.dumps(arguments),
+            )],
+        )
+
+    monkeypatch.setattr("agent.session.complete", fake_complete)
+    package = ObservationPackage(
+        ui=CanonicalUI(app_id="com.initial", activity="Main"),
+        mode=ObservationMode.TREE_ONLY,
+        text_for_llm="tree",
+        image_for_llm=None,
+        annotated_png=None,
+        gap_reasons=[],
+    )
+
+    step, result, *_ = await executor.act_once(
+        "launch Mystery App", package, task_id="outside-candidates",
+    )
+
+    assert step.action is not None and step.action.app == "com.other"
+    assert result.success is True
+    assert [action.app for action in driver.acts] == ["com.other"]
+    assert driver.recorded_selections == []
+
+
 def _selection_library(tmp_path) -> SkillLibrary:
     xhs_core = tmp_path / "apps" / "com.xingin.xhs" / "core"
     xhs_workflow = tmp_path / "apps" / "com.xingin.xhs" / "workflows" / "xhs"
@@ -344,16 +407,16 @@ def _selection_library(tmp_path) -> SkillLibrary:
     return SkillLibrary(tmp_path)
 
 
-def test_exact_foreground_app_bundle_switches_without_duplicate_bodies(tmp_path):
+def test_selected_target_bundle_switches_without_duplicate_bodies(tmp_path):
     session = AgentSession("executor", "m", library=_selection_library(tmp_path))
     session.reset_lifecycle("task")
     session.freeze_allow_dirs(["generic"])
     session.set_foreground_app("com.android.launcher")
     assert "XHS WORKFLOW BODY" not in json.dumps(session._k_wire())  # noqa: SLF001
-    session.set_foreground_app("com.xingin.xhs")
+    session.set_target_app("com.xingin.xhs", ["xhs"])
     assert json.dumps(session._k_wire(), ensure_ascii=False).count("XHS WORKFLOW BODY") == 1  # noqa: SLF001
     session.set_foreground_app("com.demo.other")
-    assert "XHS WORKFLOW BODY" not in json.dumps(session._k_wire())  # noqa: SLF001
+    assert "XHS WORKFLOW BODY" in json.dumps(session._k_wire())  # noqa: SLF001
     session.set_foreground_app("com.xingin.xhs")
     rendered = json.dumps(session._k_wire(), ensure_ascii=False)  # noqa: SLF001
     assert json.dumps(session._k_wire(), ensure_ascii=False).count("XHS CORE BODY") == 1  # noqa: SLF001
@@ -412,10 +475,18 @@ async def test_executor_reuses_exact_app_bundle_across_subgoals(
 
     monkeypatch.setattr("agent.session.complete", fake_complete)
     frozen = ["generic"]
-    executor.configure_skills(frozen_skill_dirs=frozen)
+    executor.configure_skills(
+        frozen_skill_dirs=frozen,
+        target_app="com.xingin.xhs",
+        workflow_ids=["xhs"],
+    )
     *_, first_refs = await executor.act_once("sg-a", package, task_id="task-one")
 
-    executor.configure_skills(frozen_skill_dirs=frozen)
+    executor.configure_skills(
+        frozen_skill_dirs=frozen,
+        target_app="com.xingin.xhs",
+        workflow_ids=["xhs"],
+    )
     *_, second_refs = await executor.act_once("sg-b", package, task_id="task-one")
 
     assert [item["skill_id"] for item in first_refs["active_skills"]] == ["xhs", "xhs-core"]
@@ -426,49 +497,21 @@ async def test_executor_reuses_exact_app_bundle_across_subgoals(
     assert second_messages.count("XHS CORE BODY") == 1
 
 
-@pytest.mark.asyncio
-async def test_planner_receives_exact_app_workflow_without_discovery_rounds(monkeypatch, tmp_path):
-    session = AgentSession("planner", "m", library=_selection_library(tmp_path))
-    session.reset_lifecycle("task")
-    session.freeze_allow_dirs(["generic", "apps/com.xingin.xhs"])
-    session.set_stable_system(render_planner_system())
-    session.set_foreground_app("com.xingin.xhs")
-    calls = 0
-
-    async def fake_complete(model, messages, **kwargs):
-        nonlocal calls
-        calls += 1
-        return GatewayResponse(
-            content="", model="m", stop_reason="tool_calls",
-            tool_calls=[ToolCall(
-                id="submit", name="submit_planner_decision",
-                arguments=json.dumps(_planner_payload()),
-            )],
-        )
-
-    monkeypatch.setattr("agent.session.complete", fake_complete)
-    result = await session.run(
-        [{"role": "user", "content": "O"}],
-        context_state={"agent_state": _planner_state("open")},
-    )
-    assert calls == 1
-    assert [record.status for record in result.tool_calls] == ["succeeded"]
-    assert "XHS WORKFLOW BODY" in json.dumps(result.request_snapshot)
-
-
 def test_executor_catalog_is_byte_stable_and_ticket_is_required():
     first = tools_for_role("executor")
     second = tools_for_role("executor")
     assert stable_hash(first) == stable_hash(second)
     assert [tool["function"]["name"] for tool in first] == [
-        "load_skill", "observe_screen", "search_installed_apps", "submit_executor_step",
+        "inspect_image_regions", "load_skill", "observe_screen", "search_installed_apps", "submit_executor_step",
     ]
     search = next(tool for tool in first if tool["function"]["name"] == "search_installed_apps")
     assert search["function"]["parameters"]["required"] == ["query", "resolution_ticket"]
     wire = json.dumps(first, ensure_ascii=False)
-    assert wire.count("Prefer launch before navigating launcher UI") == 1
+    assert wire.count("do not navigate launcher UI to find it") == 1
     assert wire.count("in this invocation") == 1
     assert "translate the App name or use a package keyword" in wire
+    assert "results are bounded hints" in wire.lower()
+    assert "intended exact installed package" in wire
 
 
 @pytest.mark.asyncio

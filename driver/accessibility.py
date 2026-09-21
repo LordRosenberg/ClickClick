@@ -6,6 +6,7 @@ import asyncio
 import base64
 from contextlib import asynccontextmanager
 import json
+import secrets
 import struct
 import time
 from dataclasses import dataclass, field, replace
@@ -22,9 +23,14 @@ SNAPSHOT_PROTOCOL_VERSION = 1
 SNAPSHOT_MAX_FRAME_BYTES = 8 * 1024 * 1024
 SNAPSHOT_REQUEST_TIMEOUT_S = 2.5
 SNAPSHOT_CONNECT_TIMEOUT_S = 1.0
+SCREEN_BRIGHT_LEASE_TTL_MS = 90_000
+SCREEN_BRIGHT_LEASE_RENEW_S = 30.0
+SCREEN_BRIGHT_LEASE_RETRY_S = 5.0
 # The Android collector keeps idle clients for 90 s. Closing at 60 s avoids a
 # half-closed 30–60 s window while preserving persistent reuse across role calls.
 SNAPSHOT_IDLE_CLOSE_S = 60.0
+EVENT_READ_CAPABILITY = "events_after_sequence_v1"
+EVENT_READ_MAX_LIMIT = 128
 _TRANSPORT_FAILURE_CLASSES = frozenset({
     "connection_reset",
     "header_eof",
@@ -56,6 +62,7 @@ class AccessibilityWindow:
     complete: bool = True
     reason: str = ""
     traversal_elapsed_ms: float = 0.0
+    root_elapsed_ms: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -73,6 +80,12 @@ class AccessibilitySnapshot:
     connection_generation: int = 0
     collector_exchanges: list[dict[str, Any]] = field(default_factory=list)
     fallback_edges: list[dict[str, str]] = field(default_factory=list)
+    cache_cleared: bool | None = None
+    window_generation: int | None = None
+    window_quiet_ms: float | None = None
+    snapshot_elapsed_ms: float = 0.0
+    capture_attempts: int = 1
+    content_changed_during_capture: bool = False
 
     def to_raw_tree(self, *, elapsed_ms: float = 0.0) -> dict[str, Any]:
         """Return the one hierarchy shape consumed by the existing normalizer."""
@@ -114,6 +127,13 @@ class AccessibilitySnapshot:
                 ),
                 "collector_decode_ms": round(max(0.0, self.decode_elapsed_ms), 3),
                 "collector_connection_generation": self.connection_generation,
+                "collector_cache_cleared": self.cache_cleared,
+                "window_generation": self.window_generation,
+                "window_quiet_ms": self.window_quiet_ms,
+                "collector_snapshot_ms": self.snapshot_elapsed_ms,
+                "collector_capture_attempts": self.capture_attempts,
+                "content_changed_during_capture": self.content_changed_during_capture,
+                "window_root_ms": [window.root_elapsed_ms for window in self.windows],
                 "collector_exchanges": [dict(item) for item in self.collector_exchanges],
                 "fallback_edges": list(self.fallback_edges),
                 "window_traversal_ms": [
@@ -122,6 +142,96 @@ class AccessibilitySnapshot:
                 ],
             },
         }
+
+
+@dataclass(frozen=True)
+class AccessibilityInteractionEvent:
+    sequence: int
+    monotonic_ms: float
+    event_type: int
+    package: str
+    window_id: int
+    source_class: str
+    resource_id: str
+    bounds: tuple[int, int, int, int] | None
+    clickable: bool
+    long_clickable: bool
+    scrollable: bool
+    editable: bool
+    password: bool
+
+
+@dataclass(frozen=True)
+class AccessibilityEventBatch:
+    oldest_sequence: int
+    current_sequence: int
+    complete_coverage: bool
+    events: tuple[AccessibilityInteractionEvent, ...] = ()
+
+
+def decode_event_batch(payload: dict[str, Any]) -> AccessibilityEventBatch:
+    if not isinstance(payload, dict):
+        raise AdbError("collector event response must be an object")
+    if _required_int(payload, "schema_version") != 1:
+        raise AdbError("unsupported collector event schema")
+    rows = payload.get("events")
+    if not isinstance(rows, list):
+        raise AdbError("collector event response events must be a list")
+    events: list[AccessibilityInteractionEvent] = []
+    prior = 0
+    event_fields = frozenset({
+        "sequence", "monotonic_ms", "event_type", "package", "window_id",
+        "source_class", "resource_id", "bounds", "clickable", "long_clickable",
+        "scrollable", "editable", "password",
+    })
+    for index, raw in enumerate(rows):
+        if not isinstance(raw, dict):
+            raise AdbError(f"collector event[{index}] must be an object")
+        unexpected = set(raw) - event_fields
+        if unexpected:
+            raise AdbError(
+                f"collector event[{index}] has unsupported fields: {sorted(unexpected)}"
+            )
+        sequence = _required_int(raw, "sequence")
+        if sequence <= prior:
+            raise AdbError("collector events must be strictly ordered")
+        prior = sequence
+        bounds_raw = raw.get("bounds")
+        bounds: tuple[int, int, int, int] | None = None
+        if bounds_raw != []:
+            if (
+                not isinstance(bounds_raw, list) or len(bounds_raw) != 4
+                or any(isinstance(v, bool) or not isinstance(v, int) for v in bounds_raw)
+            ):
+                raise AdbError(f"collector event[{index}].bounds must be empty or four integers")
+            bounds = tuple(bounds_raw)  # type: ignore[assignment]
+        events.append(AccessibilityInteractionEvent(
+            sequence=sequence,
+            monotonic_ms=_required_number(raw, "monotonic_ms"),
+            event_type=_required_int(raw, "event_type"),
+            package=_required_string(raw, "package", max_length=300),
+            window_id=_required_int(raw, "window_id"),
+            source_class=_required_string(raw, "source_class", max_length=300),
+            resource_id=_required_string(raw, "resource_id", max_length=500),
+            bounds=bounds,
+            clickable=_required_bool(raw, "clickable"),
+            long_clickable=_required_bool(raw, "long_clickable"),
+            scrollable=_required_bool(raw, "scrollable"),
+            editable=_required_bool(raw, "editable"),
+            password=_required_bool(raw, "password"),
+        ))
+    oldest = _required_int(payload, "oldest_sequence")
+    current = _required_int(payload, "current_sequence")
+    if oldest < 0 or current < 0 or oldest > current + 1:
+        raise AdbError("collector event response has invalid coverage range")
+    if any(event.sequence > current for event in events):
+        raise AdbError("collector event sequence exceeds current cursor")
+    return AccessibilityEventBatch(
+        oldest_sequence=oldest,
+        current_sequence=current,
+        complete_coverage=_required_bool(payload, "complete_coverage"),
+        events=tuple(events),
+    )
 
 
 def decode_snapshot(payload: str | bytes | dict[str, Any]) -> AccessibilitySnapshot:
@@ -180,6 +290,7 @@ def decode_snapshot(payload: str | bytes | dict[str, Any]) -> AccessibilitySnaps
             complete=complete,
             reason=_bounded_reason(item.get("reason")),
             traversal_elapsed_ms=_optional_number(item, "traversal_elapsed_ms"),
+            root_elapsed_ms=_optional_number(item, "root_elapsed_ms"),
         ))
     reasons = raw.get("reasons", [])
     if not isinstance(reasons, list):
@@ -192,6 +303,15 @@ def decode_snapshot(payload: str | bytes | dict[str, Any]) -> AccessibilitySnaps
         reasons=[_bounded_reason(reason) for reason in reasons if _bounded_reason(reason)],
         windows=windows,
         serialization_elapsed_ms=_optional_number(raw, "serialization_elapsed_ms"),
+        window_generation=_required_int(raw, "window_generation") if "window_generation" in raw else None,
+        window_quiet_ms=_optional_number(raw, "window_quiet_ms") if "window_quiet_ms" in raw else None,
+        snapshot_elapsed_ms=_optional_number(raw, "snapshot_elapsed_ms"),
+        capture_attempts=_required_int(raw, "capture_attempts") if "capture_attempts" in raw else 1,
+        content_changed_during_capture=_required_bool(raw, "content_changed_during_capture") if "content_changed_during_capture" in raw else False,
+        cache_cleared=(
+            _required_bool(raw, "cache_cleared")
+            if raw.get("cache_cleared") is not None else None
+        ),
     )
 
 
@@ -232,6 +352,33 @@ class AccessibilityCollectorClient:
         )
         return await self._channel.snapshot(timeout=budget_s)
 
+    async def window_state(self, *, timeout: float = 0.3) -> dict[str, Any]:
+        """Read only mechanical window-change counters on the existing channel."""
+        if self._channel is None:
+            return {}
+        response = await self._channel.control("health", timeout=timeout)
+        return {key: response[key] for key in ("window_generation", "window_quiet_ms") if key in response}
+
+    async def click_node(self, handle: str, *, timeout: float = 2.5) -> dict[str, Any]:
+        """One mutating exchange, NEVER reconnected/replayed on uncertain failure."""
+        if not self.serial or not handle:
+            raise AdbError("native node click unavailable")
+        self._channel = self._channel or CHANNEL_REGISTRY.get(self.serial, self.authority)
+        response = await self._channel.control(
+            "node_click", fields={"node_handle": handle}, timeout=timeout,
+        )
+        status = response.get("node_click_status")
+        if status not in {
+            "performed", "not_performed", "obsolete", "identity_changed", "not_available",
+            "no_longer_clickable", "expired_or_consumed", "refresh_failed", "outcome_unknown",
+        } or not isinstance(response.get("action_attempted"), bool):
+            raise AdbError("invalid native node click response")
+        if status == "performed" and (
+            response.get("performed") is not True or response["action_attempted"] is not True
+        ):
+            raise AdbError("inconsistent native node click response")
+        return response
+
     async def warm(self, *, timeout: float = SNAPSHOT_REQUEST_TIMEOUT_S) -> dict[str, Any]:
         if not self.serial:
             return {"ready": False, "reason": "serial is not bound"}
@@ -256,6 +403,73 @@ class AccessibilityCollectorClient:
         if channel is not None:
             await channel.close()
 
+    async def power_lease(
+        self,
+        operation: str,
+        *,
+        lease_id: str = "",
+        ttl_ms: int | None = None,
+        timeout: float = SNAPSHOT_REQUEST_TIMEOUT_S,
+    ) -> dict[str, Any]:
+        """Execute one authenticated lease operation, reconnecting once."""
+        if not self.serial:
+            raise AdbError("power lease channel unavailable")
+        self._channel = self._channel or CHANNEL_REGISTRY.get(
+            self.serial, self.authority
+        )
+        fields: dict[str, Any] = {"lease_id": lease_id}
+        if ttl_ms is not None:
+            fields["ttl_ms"] = int(ttl_ms)
+        last_error: Exception | None = None
+        deadline = time.monotonic() + max(0.0, float(timeout))
+        for _attempt in range(2):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            try:
+                return await self._channel.control(
+                    operation, fields=fields, timeout=remaining,
+                )
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:  # noqa: BLE001
+                last_error = exc
+        raise AdbError(f"collector power lease failed: {last_error or 'deadline exhausted'}")
+
+    async def event_cursor(self, *, timeout: float = 0.5) -> int | None:
+        """Return a pre-dispatch exclusive cursor, or None on old collectors."""
+        if not self.serial:
+            return None
+        self._channel = self._channel or CHANNEL_REGISTRY.get(self.serial, self.authority)
+        try:
+            # Health is an existing operation. Capability-checking here avoids
+            # sending an unknown operation to a legacy collector.
+            response = await self._channel.control("health", timeout=timeout)
+            capabilities = response.get("capabilities") or []
+            if EVENT_READ_CAPABILITY not in capabilities:
+                return None
+            cursor = _required_int(response, "event_sequence")
+            return cursor if cursor >= 0 else None
+        except (AdbError, AccessibilityTransportError):
+            return None
+
+    async def events_after(
+        self, after_sequence: int, *, limit: int = 64, timeout: float = 0.5,
+    ) -> AccessibilityEventBatch | None:
+        """Read one bounded event batch; unsupported/degraded channels return None."""
+        if not self.serial or after_sequence < 0 or not 1 <= limit <= EVENT_READ_MAX_LIMIT:
+            return None
+        self._channel = self._channel or CHANNEL_REGISTRY.get(self.serial, self.authority)
+        try:
+            response = await self._channel.control(
+                "events_after_sequence",
+                fields={"after_sequence": after_sequence, "limit": limit},
+                timeout=timeout,
+            )
+            return decode_event_batch(response)
+        except (AdbError, AccessibilityTransportError):
+            return None
+
     def diagnostics(self) -> dict[str, Any]:
         return self._channel.diagnostics() if self._channel else {
             "ready": False, "status": "unbound"
@@ -279,6 +493,7 @@ class AccessibilityChannelBootstrap:
     token: str
     protocol_version: int
     bootstrap_snapshot_generation: int
+    capabilities: frozenset[str] = frozenset()
 
 
 class AccessibilityTransportError(AdbError):
@@ -318,6 +533,10 @@ class AccessibilitySnapshotChannel:
         self._socket_cleanup_task: asyncio.Task[Any] | None = None
         self._forward_cleanup_task: asyncio.Task[Any] | None = None
         self._cleanup_failed = False
+        self._closing_writer: asyncio.StreamWriter | None = None
+        self._forward_socket_name: str | None = None
+        self._socket_cleanup_failed = False
+        self._forward_cleanup_failed = False
 
     async def snapshot(
         self, *, timeout: float = SNAPSHOT_REQUEST_TIMEOUT_S,
@@ -474,6 +693,50 @@ class AccessibilitySnapshotChannel:
                     exchanges=[exchange],
                 ) from exc
 
+    async def control(
+        self,
+        operation: str,
+        *,
+        fields: dict[str, Any] | None = None,
+        timeout: float = SNAPSHOT_REQUEST_TIMEOUT_S,
+    ) -> dict[str, Any]:
+        """Run one bounded non-snapshot command on the persistent channel."""
+        budget_s = max(0.0, float(timeout))
+        deadline = time.monotonic() + budget_s
+        async with self._lock_before_deadline(deadline):
+            stage = "control_connect"
+            try:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise AccessibilityTransportError(
+                        "collector control deadline exhausted before connect",
+                        failure_class="deadline_exhausted",
+                        stage=stage,
+                    )
+                await asyncio.wait_for(
+                    self._ensure_connected(timeout=remaining), timeout=remaining,
+                )
+                stage = "control_exchange"
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise AccessibilityTransportError(
+                        "collector control deadline exhausted before exchange",
+                        failure_class="deadline_exhausted",
+                        stage=stage,
+                    )
+                response = await asyncio.wait_for(
+                    self._exchange(operation, fields=fields), timeout=remaining,
+                )
+                self._schedule_idle_close()
+                return response
+            except asyncio.CancelledError:
+                await self._close_locked_shielded(deadline=deadline)
+                raise
+            except Exception as exc:  # noqa: BLE001
+                failure = _coerce_transport_error(exc, stage=stage)
+                await self._close_locked_shielded(deadline=deadline)
+                raise failure from exc
+
     @asynccontextmanager
     async def _lock_before_deadline(self, deadline: float):
         remaining_s = deadline - time.monotonic()
@@ -504,7 +767,8 @@ class AccessibilitySnapshotChannel:
             await asyncio.gather(idle_task, return_exceptions=True)
         async with self._lock:
             cleanup = await self._close_locked(
-                deadline=time.monotonic() + SNAPSHOT_REQUEST_TIMEOUT_S
+                deadline=time.monotonic() + SNAPSHOT_REQUEST_TIMEOUT_S,
+                retry_failed=True,
             )
             if cleanup["outcome"] == "cleanup_pending":
                 pending = [
@@ -617,6 +881,7 @@ class AccessibilitySnapshotChannel:
         )
 
     async def _ensure_connected(self, *, timeout: float) -> None:
+        deadline = time.monotonic() + timeout
         self._refresh_cleanup_state()
         if self._writer is not None and not self._writer.is_closing():
             return
@@ -626,17 +891,26 @@ class AccessibilitySnapshotChannel:
             or self._forward_cleanup_task is not None
             or self._cleanup_failed
         ):
+            cleanup = await self._close_locked(deadline=deadline, retry_failed=True)
+            if cleanup["outcome"] not in {"closed", "not_owned"}:
+                raise AccessibilityTransportError(
+                    "collector channel still owns unsettled cleanup state",
+                    failure_class="cleanup_required",
+                    stage="connect_admission",
+                )
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
             raise AccessibilityTransportError(
-                "collector channel still owns unsettled cleanup state",
-                failure_class="cleanup_required",
-                stage="connect_admission",
+                "collector cleanup exhausted connection budget",
+                failure_class="deadline_exhausted", stage="connect_admission",
             )
-        bootstrap = await self._load_bootstrap(timeout=timeout)
+        bootstrap = await self._load_bootstrap(timeout=remaining)
         self._bootstrap = bootstrap
         port = await adb.forward_localabstract_async(
             self.serial, bootstrap.socket_name
         )
         self._port = port
+        self._forward_socket_name = bootstrap.socket_name
         reader, writer = await asyncio.wait_for(
             asyncio.open_connection("127.0.0.1", port),
             timeout=SNAPSHOT_CONNECT_TIMEOUT_S,
@@ -671,9 +945,15 @@ class AccessibilitySnapshotChannel:
             token=token,
             protocol_version=version,
             bootstrap_snapshot_generation=int(raw.get("generation") or 0),
+            capabilities=frozenset(
+                str(value) for value in (raw.get("capabilities") or [])
+                if isinstance(value, str)
+            ),
         )
 
-    async def _exchange(self, operation: str) -> dict[str, Any]:
+    async def _exchange(
+        self, operation: str, *, fields: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         reader, writer, bootstrap = self._reader, self._writer, self._bootstrap
         if reader is None or writer is None or bootstrap is None:
             raise AccessibilityTransportError(
@@ -683,12 +963,18 @@ class AccessibilitySnapshotChannel:
             )
         self._request_id += 1
         request_id = self._request_id
-        payload = json.dumps({
+        request = {
             "version": SNAPSHOT_PROTOCOL_VERSION,
             "request_id": request_id,
             "operation": operation,
             "token": bootstrap.token,
-        }, separators=(",", ":")).encode("utf-8")
+        }
+        reserved = frozenset(request)
+        request.update({
+            str(key): value for key, value in (fields or {}).items()
+            if str(key) not in reserved
+        })
+        payload = json.dumps(request, separators=(",", ":")).encode("utf-8")
         if not 0 < len(payload) <= SNAPSHOT_MAX_FRAME_BYTES:
             raise AccessibilityTransportError(
                 "collector request exceeds frame bound",
@@ -773,6 +1059,7 @@ class AccessibilitySnapshotChannel:
             )
         return response
 
+
     async def _close_locked_shielded(
         self, *, deadline: float,
     ) -> dict[str, Any]:
@@ -783,9 +1070,47 @@ class AccessibilitySnapshotChannel:
             await cleanup
             raise
 
-    async def _close_locked(self, *, deadline: float) -> dict[str, Any]:
+    async def _remove_owned_forward(
+        self, port: int, socket_name: str | None, *, deadline: float,
+    ) -> None:
+        # A failed removal may actually have succeeded, or the ADB server may
+        # have restarted. Never remove a reused port belonging to another target.
+        if not socket_name:
+            raise AdbError("cannot reconcile forward without its owned target")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise AdbError("forward reconciliation budget exhausted")
+        ports = await adb.list_forwards_to_localabstract_async(
+            self.serial, socket_name, timeout=min(2.0, remaining),
+        )
+        if port in ports:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise AdbError("forward reconciliation budget exhausted")
+            await adb.remove_forward_async(self.serial, port, timeout=remaining)
+
+    @staticmethod
+    async def _wait_socket_closed(writer: asyncio.StreamWriter) -> None:
+        try:
+            await writer.wait_closed()
+        except (ConnectionError, OSError):
+            # asyncio may retain the connection error in its closed future.
+            # A closed OS descriptor is stronger evidence than that exception;
+            # is_closing() alone would only say closure has been requested.
+            extra_info = getattr(writer, "get_extra_info", None)
+            socket = extra_info("socket") if callable(extra_info) else None
+            if socket is not None and socket.fileno() == -1:
+                return
+            raise
+
+    async def _close_locked(
+        self, *, deadline: float, retry_failed: bool = False,
+    ) -> dict[str, Any]:
         self._refresh_cleanup_state()
-        writer, port = self._writer, self._port
+        writer, port = self._writer or self._closing_writer, self._port
+        if self._bootstrap is not None:
+            self._forward_socket_name = self._bootstrap.socket_name
+        self._closing_writer = writer
         self._reader = None
         self._writer = None
         self._bootstrap = None
@@ -796,19 +1121,25 @@ class AccessibilitySnapshotChannel:
         if (
             writer is not None
             and self._socket_cleanup_task is None
-            and not self._cleanup_failed
+            and (not self._socket_cleanup_failed or retry_failed)
+            and (not self._socket_cleanup_failed or deadline > time.monotonic())
         ):
+            self._socket_cleanup_failed = False
             self._socket_cleanup_task = asyncio.create_task(
-                writer.wait_closed(),
+                self._wait_socket_closed(writer),
                 name=f"a11y-socket-close-{self.serial}",
             )
         if (
             port is not None
             and self._forward_cleanup_task is None
-            and not self._cleanup_failed
+            and (not self._forward_cleanup_failed or retry_failed)
+            and (not self._forward_cleanup_failed or deadline > time.monotonic())
         ):
+            was_failed = self._forward_cleanup_failed
+            self._forward_cleanup_failed = False
             self._forward_cleanup_task = asyncio.create_task(
-                adb.remove_forward_async(self.serial, port),
+                self._remove_owned_forward(port, self._forward_socket_name, deadline=deadline)
+                if was_failed else adb.remove_forward_async(self.serial, port),
                 name=f"a11y-forward-remove-{self.serial}-{port}",
             )
 
@@ -830,10 +1161,12 @@ class AccessibilitySnapshotChannel:
             elif socket_task.cancelled() or socket_task.exception() is not None:
                 socket_outcome = "close_failed"
                 self._socket_cleanup_task = None
-                self._cleanup_failed = True
+                self._socket_cleanup_failed = True
             else:
                 socket_outcome = "closed"
                 self._socket_cleanup_task = None
+                self._closing_writer = None
+                self._socket_cleanup_failed = False
 
         forward_outcome = "not_owned"
         forward_task = self._forward_cleanup_task
@@ -843,24 +1176,21 @@ class AccessibilitySnapshotChannel:
             elif forward_task.cancelled() or forward_task.exception() is not None:
                 forward_outcome = "remove_failed"
                 self._forward_cleanup_task = None
-                self._cleanup_failed = True
+                self._forward_cleanup_failed = True
             else:
                 forward_outcome = "removed"
                 self._forward_cleanup_task = None
                 if self._port == port:
                     self._port = None
+                    self._forward_socket_name = None
+                self._forward_cleanup_failed = False
 
         cleanup_pending = (
             socket_outcome == "close_pending"
             or forward_outcome == "remove_pending"
         )
-        cleanup_failed = (
-            self._cleanup_failed
-            or (
-                socket_outcome == "close_failed"
-                or forward_outcome == "remove_failed"
-            )
-        )
+        self._cleanup_failed = self._socket_cleanup_failed or self._forward_cleanup_failed
+        cleanup_failed = self._cleanup_failed
         had_transport = had_socket or had_forward
         return {
             "outcome": (
@@ -878,15 +1208,140 @@ class AccessibilitySnapshotChannel:
         socket_task = self._socket_cleanup_task
         if socket_task is not None and socket_task.done():
             if socket_task.cancelled() or socket_task.exception() is not None:
-                self._cleanup_failed = True
+                self._socket_cleanup_failed = True
+            else:
+                self._closing_writer = None
+                self._socket_cleanup_failed = False
             self._socket_cleanup_task = None
         forward_task = self._forward_cleanup_task
         if forward_task is not None and forward_task.done():
             if forward_task.cancelled() or forward_task.exception() is not None:
-                self._cleanup_failed = True
+                self._forward_cleanup_failed = True
             elif self._port is not None:
                 self._port = None
+                self._forward_socket_name = None
+                self._forward_cleanup_failed = False
             self._forward_cleanup_task = None
+        self._cleanup_failed = self._socket_cleanup_failed or self._forward_cleanup_failed
+
+
+class CollectorPowerLeaseSession:
+    """Host-side owner of one renewable task screen-bright lease."""
+
+    def __init__(
+        self,
+        client: AccessibilityCollectorClient,
+        *,
+        ttl_ms: int = SCREEN_BRIGHT_LEASE_TTL_MS,
+        renew_interval_s: float = SCREEN_BRIGHT_LEASE_RENEW_S,
+    ) -> None:
+        self._client = client
+        self._ttl_ms = int(ttl_ms)
+        self._renew_interval_s = float(renew_interval_s)
+        self._lease_id = ""
+        self._renew_task: asyncio.Task[None] | None = None
+        self._last_confirmed_at = 0.0
+        self._last_error = ""
+        self._guard = asyncio.Lock()
+
+    @property
+    def active(self) -> bool:
+        return bool(
+            self._lease_id
+            and self._last_confirmed_at
+            and (time.monotonic() - self._last_confirmed_at) * 1000 < self._ttl_ms
+        )
+
+    async def begin(self, task_id: str) -> dict[str, Any]:
+        async with self._guard:
+            if self._lease_id:
+                await self._end_locked()
+            self._lease_id = f"{task_id[:64]}-{secrets.token_hex(12)}"
+            response = await self._client.power_lease(
+                "power_lease_acquire",
+                lease_id=self._lease_id,
+                ttl_ms=self._ttl_ms,
+            )
+            if not (
+                response.get("lease_state") == "active"
+                and bool(response.get("active"))
+                and bool(response.get("held"))
+            ):
+                self._last_error = str(
+                    response.get("error_detail") or "collector did not hold wake lock"
+                )[:200]
+                return {**response, "status": "failed", "reason": self._last_error}
+            self._last_confirmed_at = time.monotonic()
+            self._last_error = ""
+            self._renew_task = asyncio.create_task(
+                self._renew_loop(), name=f"screen-bright-renew-{task_id}"
+            )
+            return {**response, "status": "active"}
+
+    async def end(self) -> dict[str, Any]:
+        async with self._guard:
+            return await self._end_locked()
+
+    async def _end_locked(self) -> dict[str, Any]:
+        renew_task, self._renew_task = self._renew_task, None
+        if renew_task is not None:
+            renew_task.cancel()
+            await asyncio.gather(renew_task, return_exceptions=True)
+        lease_id, self._lease_id = self._lease_id, ""
+        self._last_confirmed_at = 0.0
+        if not lease_id:
+            return {"status": "not_active"}
+        try:
+            response = await self._client.power_lease(
+                "power_lease_release", lease_id=lease_id,
+            )
+            return {**response, "status": "released"}
+        except Exception as exc:  # noqa: BLE001
+            self._last_error = str(exc)[:200]
+            return {
+                "status": "release_deferred_to_ttl",
+                "reason": self._last_error,
+                "ttl_ms": self._ttl_ms,
+            }
+
+    async def _renew_loop(self) -> None:
+        delay_s = self._renew_interval_s
+        while self._lease_id:
+            try:
+                await asyncio.sleep(delay_s)
+                lease_id = self._lease_id
+                if not lease_id:
+                    return
+                response = await self._client.power_lease(
+                    "power_lease_renew", lease_id=lease_id, ttl_ms=self._ttl_ms,
+                )
+                if (
+                    response.get("lease_state") == "stale"
+                    and not response.get("lease_id")
+                    and self._lease_id == lease_id
+                ):
+                    # AccessibilityService/process restart releases the old
+                    # Binder lock and leaves no active lease. Re-acquire only
+                    # in that empty state; never steal a different task's lock.
+                    response = await self._client.power_lease(
+                        "power_lease_acquire",
+                        lease_id=lease_id,
+                        ttl_ms=self._ttl_ms,
+                    )
+                if response.get("lease_state") != "active" or not response.get("held"):
+                    raise AdbError(str(
+                        response.get("error_detail") or "collector renewal was not held"
+                    ))
+                self._last_confirmed_at = time.monotonic()
+                self._last_error = ""
+                delay_s = self._renew_interval_s
+            except asyncio.CancelledError:
+                return
+            except Exception as exc:  # noqa: BLE001
+                self._last_error = str(exc)[:200]
+                if not self.active:
+                    return
+                delay_s = SCREEN_BRIGHT_LEASE_RETRY_S
 
 
 class AccessibilityChannelRegistry:
@@ -968,6 +1423,13 @@ def _required_number(raw: dict[str, Any], key: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise AdbError(f"collector field {key} must be numeric")
     return float(value)
+
+
+def _required_string(raw: dict[str, Any], key: str, *, max_length: int) -> str:
+    value = raw.get(key)
+    if not isinstance(value, str) or len(value) > max_length:
+        raise AdbError(f"collector field {key} must be a bounded string")
+    return value
 
 
 def _optional_number(raw: dict[str, Any], key: str) -> float:

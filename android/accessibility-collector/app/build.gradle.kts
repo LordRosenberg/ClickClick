@@ -11,8 +11,8 @@ android {
         applicationId = "ai.clickclick.collector"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 9
+        versionName = "0.4.5"
     }
 
     compileOptions {

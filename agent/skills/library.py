@@ -14,9 +14,10 @@ from typing import Any, Iterable, Literal
 
 import yaml
 
-Role = Literal["decision", "executor"]
+Role = Literal["decision", "planner", "reviewer", "executor"]
 RuleCategory = Literal["constraint", "hint", "fallback", "anti_pattern"]
 SkillKind = Literal["generic", "app_core", "workflow", "candidate"]
+VerifiedActionTemplate = Literal["tap_capture_key", "tap_then_key"]
 
 _SKILL_FILENAMES = frozenset({"skill.md", "SKILL.md"})
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n?(.*)\Z", re.DOTALL)
@@ -42,6 +43,17 @@ class SkillRule:
     scope: str = ""
     evidence: str = ""
     trigger: str = ""
+
+
+@dataclass(frozen=True)
+class VerifiedAction:
+    """Validated App-owned recipe metadata, never rendered as Skill prose."""
+
+    id: str
+    template: VerifiedActionTemplate
+    key: Literal["back", "media_pause"]
+    purpose: str
+    delay_ms: int = 0
 
 
 class SkillConflictError(ValueError):
@@ -98,7 +110,9 @@ class SkillPack:
 
     def section_for(self, role: Role) -> str:
         """Shared body with the other role's notes section stripped."""
-        body = filter_body_for_role(self.body, role)
+        body = filter_body_for_role(
+            self.body, role, partitioned=self.frontmatter.get("role_sections") is True,
+        )
         return body
 
     def rule_categories(self) -> list[str]:
@@ -107,6 +121,14 @@ class SkillPack:
     @property
     def active(self) -> bool:
         return self.kind != "candidate"
+
+    @property
+    def device_profiles(self) -> list[str]:
+        return list(self.frontmatter.get("device_profiles") or [])
+
+    @property
+    def verified_actions(self) -> list[VerifiedAction]:
+        return _parse_verified_actions(self.frontmatter.get("verified_actions", []))
 
     def summary_line(self) -> str:
         desc = (self.description or "").strip().replace("\n", " ")
@@ -135,7 +157,7 @@ def _is_skill_filename(path: Path) -> bool:
     return path.name in _SKILL_FILENAMES or path.name.lower() == "skill.md"
 
 
-def filter_body_for_role(body: str, role: Role) -> str:
+def filter_body_for_role(body: str, role: Role, *, partitioned: bool = False) -> str:
     """Drop decision/Executor-only note sections for the other role."""
     parts = re.split(r"(?m)^(##\s+.+)$", body or "")
     if len(parts) <= 1:
@@ -149,11 +171,14 @@ def filter_body_for_role(body: str, role: Role) -> str:
         content = parts[i + 1]
         key = heading.lstrip("#").strip().lower()
         note_role = _ROLE_NOTE_HEADINGS.get(key)
-        if note_role is None:
-            out.append(heading)
-            if content.strip():
-                out.append(content.rstrip())
-        elif note_role == role:
+        allowed = note_role is None or note_role == role or (
+            note_role == "decision" and role in {"planner", "reviewer"}
+        )
+        if partitioned and key == "execution":
+            allowed = role == "executor"
+        elif partitioned and key == "verification":
+            allowed = role != "planner"
+        if allowed:
             out.append(heading)
             if content.strip():
                 out.append(content.rstrip())
@@ -192,7 +217,7 @@ def classify_skill_rules(body: str, frontmatter: dict[str, Any] | None = None) -
             _validate_rule(rule)
             rules.append(rule)
 
-    parts = re.split(r"(?m)^##\s+(.+?)\s*$", body or "")
+    parts = re.split(r"(?m)^#{2,3}\s+(.+?)\s*$", body or "")
     for index in range(1, len(parts), 2):
         heading = parts[index].strip().casefold()
         category = _RULE_HEADINGS.get(heading)
@@ -221,6 +246,62 @@ def _validate_rule(rule: SkillRule) -> None:
         raise ValueError("fallback rules require trigger metadata")
 
 
+_VERIFIED_ACTION_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{2,127}$")
+_VERIFIED_ACTION_FIELDS = frozenset({
+    "id", "template", "key", "purpose", "delay_ms",
+})
+
+
+def _parse_verified_actions(raw_actions: Any) -> list[VerifiedAction]:
+    if raw_actions in (None, []):
+        return []
+    if not isinstance(raw_actions, list):
+        raise ValueError("verified_actions must be a list")
+    parsed: list[VerifiedAction] = []
+    seen_ids: set[str] = set()
+    for position, raw in enumerate(raw_actions):
+        if not isinstance(raw, dict):
+            raise ValueError(f"verified_actions[{position}] must be a mapping")
+        extra = set(raw) - _VERIFIED_ACTION_FIELDS
+        if extra:
+            raise ValueError(
+                f"verified_actions[{position}] contains unsupported fields: "
+                + ", ".join(sorted(str(value) for value in extra))
+            )
+        action_id = str(raw.get("id") or "").strip()
+        template = str(raw.get("template") or "").strip()
+        key = str(raw.get("key") or "").strip()
+        purpose = " ".join(str(raw.get("purpose") or "").split())
+        raw_delay = raw.get("delay_ms", 0)
+        if not _VERIFIED_ACTION_ID_RE.fullmatch(action_id):
+            raise ValueError(f"verified_actions[{position}] has invalid id")
+        if action_id in seen_ids:
+            raise ValueError(f"duplicate verified action id: {action_id}")
+        seen_ids.add(action_id)
+        if template not in {"tap_capture_key", "tap_then_key"}:
+            raise ValueError(f"unknown verified action template: {template or '<missing>'}")
+        if template == "tap_capture_key" and key != "back":
+            raise ValueError("tap_capture_key verified actions require key: back")
+        if template == "tap_then_key" and key != "media_pause":
+            raise ValueError("tap_then_key verified actions require key: media_pause")
+        if isinstance(raw_delay, bool) or not isinstance(raw_delay, int):
+            raise ValueError(f"verified_actions[{position}] delay_ms must be an integer")
+        if not 0 <= raw_delay <= 1000:
+            raise ValueError(f"verified_actions[{position}] delay_ms must be between 0 and 1000")
+        if template == "tap_capture_key" and raw_delay:
+            raise ValueError("tap_capture_key does not accept delay_ms")
+        if not purpose:
+            raise ValueError(f"verified_actions[{position}] requires purpose")
+        parsed.append(VerifiedAction(
+            id=action_id,
+            template=template,  # type: ignore[arg-type]
+            key=key,  # type: ignore[arg-type]
+            purpose=purpose,
+            delay_ms=raw_delay,
+        ))
+    return parsed
+
+
 def _section_body(body: str, heading: str) -> str:
     match = re.search(
         rf"(?ims)^##\s+{re.escape(heading)}\s*$\n(.*?)(?=^##\s+|\Z)",
@@ -230,6 +311,13 @@ def _section_body(body: str, heading: str) -> str:
 
 
 def _validate_module(pack: SkillPack) -> None:
+    verified_actions = _parse_verified_actions(
+        pack.frontmatter.get("verified_actions", [])
+    )
+    if verified_actions and (not pack.app or pack.kind not in {"app_core", "workflow"}):
+        raise ValueError(
+            "verified_actions may only be declared by an active App core or workflow skill"
+        )
     if pack.kind == "candidate":
         return
     if pack.kind == "app_core" and not pack.app:
@@ -296,6 +384,11 @@ def parse_skill_markdown(text: str, *, path: Path | None = None) -> SkillPack:
     kind: SkillKind = raw_kind  # type: ignore[assignment]
 
     description = str(fm.get("description") or "").strip()
+    profiles = fm.get("device_profiles", [])
+    if not isinstance(profiles, list) or any(
+        not isinstance(value, str) or not value.strip() for value in profiles
+    ):
+        raise ValueError("device_profiles must be a list of nonempty profile IDs")
     version = str(fm.get("version") or "0.1.0").strip() or "0.1.0"
 
     pack = SkillPack(
@@ -373,8 +466,13 @@ def _safe_dirname(name: str) -> str:
 class SkillLibrary:
     """Load and query filesystem skill packs."""
 
-    def __init__(self, root: Path | None = None) -> None:
+    def __init__(self, root: Path | None = None, *, device_profiles: Iterable[str] | None = None) -> None:
         self.root = (root or default_skills_root()).resolve()
+        # None is the authoring/admin view; an empty set is an unknown device.
+        self.device_profiles = None if device_profiles is None else frozenset(device_profiles)
+
+    def for_device(self, profiles: Iterable[str]) -> SkillLibrary:
+        return SkillLibrary(self.root, device_profiles=profiles)
 
     def iter_files(self) -> Iterable[Path]:
         if not self.root.is_dir():
@@ -403,6 +501,9 @@ class SkillLibrary:
             except Exception:  # noqa: BLE001
                 continue
             if not (pack.active or include_candidates):
+                continue
+            if (self.device_profiles is not None and pack.device_profiles
+                    and not self.device_profiles.intersection(pack.device_profiles)):
                 continue
             previous = seen_ids.setdefault(pack.id, path)
             if previous != path:
@@ -538,6 +639,39 @@ class SkillLibrary:
             ),
             key=lambda pack: pack.id,
         )
+
+    def planner_catalog_apps(self, preferred: Iterable[str] = ()) -> list[str]:
+        """Prioritize known Apps without hiding discoverable workflow metadata.
+
+        Instructions can name a capability without naming its App. Exact App
+        aliases therefore rank the index; they cannot be its visibility gate.
+        Workflow bodies still require an explicit owned selection.
+        """
+        return list(dict.fromkeys([
+            *(app.strip() for app in preferred if app.strip()),
+            *sorted(self.packages_with_skills()),
+        ]))
+
+    def workflow_catalog(self, apps: Iterable[str]) -> list[dict[str, str]]:
+        """Return compact Planner cards for the requested Apps."""
+        cards: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for app in apps:
+            package = (app or "").strip()
+            if not package or package in seen:
+                continue
+            seen.add(package)
+            for workflow in self.app_workflows(package):
+                description = " ".join(workflow.description.split())
+                if len(description) > 96:
+                    description = description[:93] + "..."
+                cards.append({
+                    "id": workflow.id,
+                    "app": package,
+                    "capability": workflow.capability,
+                    "description": description,
+                })
+        return cards
 
     def app_core(self, app: str) -> SkillPack | None:
         matches = [

@@ -1,45 +1,36 @@
 {
-  "com.android.settings": {
-    "aliases": ["设置", "系统设置", "Settings", "settings"]
-  },
-  "com.miui.calculator": {
-    "aliases": ["计算器", "Calculator", "calculator"]
-  },
-  "com.android.browser": {
-    "aliases": ["浏览器", "系统浏览器", "Browser", "browser"]
-  },
   "com.xingin.xhs": {
-    "aliases": ["小红书", "红书", "xhs", "XHS", "xiaohongshu"]
+    "aliases": ["小红书", "红书", "xhs", "xiaohongshu"]
   },
   "com.tencent.mm": {
-    "aliases": ["微信", "WeChat", "wechat", "weixin", "Weixin"]
+    "aliases": ["微信", "WeChat", "weixin"]
   },
   "com.ss.android.ugc.aweme": {
-    "aliases": ["抖音", "douyin", "Douyin", "tiktok国内"]
+    "aliases": ["抖音", "douyin", "tiktok国内"]
   },
   "tv.danmaku.bili": {
-    "aliases": ["哔哩哔哩", "B站", "b站", "bilibili", "Bilibili", "bili", "哔哩"]
+    "aliases": ["哔哩哔哩", "B站", "bilibili", "bili", "哔哩"]
   },
   "com.zhihu.android": {
-    "aliases": ["知乎", "zhihu", "Zhihu"]
+    "aliases": ["知乎", "zhihu"]
   },
   "com.taobao.taobao": {
-    "aliases": ["淘宝", "taobao", "Taobao", "淘宝网"]
+    "aliases": ["淘宝", "taobao", "淘宝网"]
   },
   "com.jingdong.app.mall": {
-    "aliases": ["京东", "jd", "JD", "jingdong"]
+    "aliases": ["京东", "jd", "jingdong"]
   },
   "com.netease.cloudmusic": {
-    "aliases": ["网易云音乐", "网易云", "cloudmusic", "网易云音乐"]
+    "aliases": ["网易云音乐", "网易云", "cloudmusic"]
   },
   "com.tencent.mobileqq": {
-    "aliases": ["QQ", "qq", "QQ手机版"]
+    "aliases": ["QQ", "QQ手机版"]
   },
   "com.eg.android.AlipayGphone": {
-    "aliases": ["支付宝", "alipay", "Alipay", "AliPay"]
+    "aliases": ["支付宝", "alipay"]
   },
   "com.sina.weibo": {
-    "aliases": ["微博", "weibo", "Weibo", "新浪微博"]
+    "aliases": ["微博", "weibo", "新浪微博"]
   },
   "com.tencent.wework": {
     "aliases": ["企业微信", "企微", "wework", "WeCom"]
@@ -54,40 +45,40 @@
     "aliases": ["今日头条极速版", "头条极速版"]
   },
   "com.smile.gifmaker": {
-    "aliases": ["快手", "kuaishou", "Kuaishou", "KS"]
+    "aliases": ["快手", "kuaishou", "KS"]
   },
   "com.kuaishou.nebula": {
     "aliases": ["快手极速版", "快极"]
   },
   "com.baidu.searchbox": {
-    "aliases": ["百度", "百度APP", "baidu", "Baidu"]
+    "aliases": ["百度", "百度APP", "baidu"]
   },
   "com.baidu.BaiduMap": {
     "aliases": ["百度地图", "Baidu Map"]
   },
   "com.autonavi.minimap": {
-    "aliases": ["高德地图", "高德", "amap", "Amap", "Gaode"]
+    "aliases": ["高德地图", "高德", "amap", "Gaode"]
   },
   "com.tencent.map": {
     "aliases": ["腾讯地图"]
   },
   "com.sdu.didi.psnger": {
-    "aliases": ["滴滴出行", "滴滴", "didi", "DiDi"]
+    "aliases": ["滴滴出行", "滴滴", "didi"]
   },
   "me.ele": {
-    "aliases": ["饿了么", "eleme", "Eleme", "饿了吗"]
+    "aliases": ["饿了么", "eleme", "饿了吗"]
   },
   "com.sankuai.meituan": {
-    "aliases": ["美团", "meituan", "Meituan"]
+    "aliases": ["美团", "meituan"]
   },
   "com.sankuai.meituan.takeoutnew": {
     "aliases": ["美团外卖", "外卖"]
   },
   "ctrip.android.view": {
-    "aliases": ["携程", "携程旅行", "ctrip", "Ctrip"]
+    "aliases": ["携程", "携程旅行", "ctrip"]
   },
   "com.Qunar": {
-    "aliases": ["去哪儿", "去哪儿旅行", "qunar", "Qunar"]
+    "aliases": ["去哪儿", "去哪儿旅行", "qunar"]
   },
   "com.taobao.trip": {
     "aliases": ["飞猪", "飞猪旅行", "fliggy"]
@@ -99,19 +90,19 @@
     "aliases": ["唯品会", "vipshop"]
   },
   "com.xunmeng.pinduoduo": {
-    "aliases": ["拼多多", "pdd", "PDD", "pinduoduo"]
+    "aliases": ["拼多多", "pdd", "pinduoduo"]
   },
   "com.tmall.wireless": {
-    "aliases": ["天猫", "tmall", "Tmall"]
+    "aliases": ["天猫", "tmall"]
   },
   "com.alibaba.android.rimet": {
-    "aliases": ["钉钉", "dingtalk", "DingTalk"]
+    "aliases": ["钉钉", "dingtalk"]
   },
   "com.larksuite.suite": {
-    "aliases": ["飞书", "feishu", "Feishu", "Lark"]
+    "aliases": ["飞书", "feishu", "Lark"]
   },
   "com.tencent.qqmusic": {
-    "aliases": ["QQ音乐", "qq音乐"]
+    "aliases": ["QQ音乐"]
   },
   "com.kugou.android": {
     "aliases": ["酷狗音乐", "酷狗", "kugou"]
@@ -123,13 +114,13 @@
     "aliases": ["腾讯视频", "腾讯视频APP"]
   },
   "com.youku.phone": {
-    "aliases": ["优酷", "优酷视频", "youku", "Youku"]
+    "aliases": ["优酷", "优酷视频", "youku"]
   },
   "com.qiyi.video": {
-    "aliases": ["爱奇艺", "iqiyi", "iQIYI"]
+    "aliases": ["爱奇艺", "iqiyi"]
   },
   "com.hunantv.imgo.activity": {
-    "aliases": ["芒果TV", "芒果tv", "芒果"]
+    "aliases": ["芒果TV", "芒果"]
   },
   "com.cmcc.cmvideo": {
     "aliases": ["咪咕视频", "咪咕"]
@@ -183,7 +174,7 @@
     "aliases": ["和平精英", "吃鸡"]
   },
   "com.miHoYo.Yuanshen": {
-    "aliases": ["原神", "Genshin", "genshin"]
+    "aliases": ["原神", "Genshin"]
   },
   "com.miHoYo.hkrpg": {
     "aliases": ["崩坏星穹铁道", "星穹铁道", "崩铁"]
@@ -296,9 +287,6 @@
   "com.baidu.browser.apps": {
     "aliases": ["百度浏览器"]
   },
-  "com.android.chrome": {
-    "aliases": ["Chrome", "谷歌浏览器", "chrome"]
-  },
   "com.microsoft.emmx": {
     "aliases": ["Edge", "微软Edge"]
   },
@@ -339,10 +327,10 @@
     "aliases": ["腾讯元宝"]
   },
   "com.openai.chatgpt": {
-    "aliases": ["ChatGPT", "chatgpt"]
+    "aliases": ["ChatGPT"]
   },
   "com.deepseek.chat": {
-    "aliases": ["DeepSeek", "deepseek"]
+    "aliases": ["DeepSeek"]
   },
   "com.tencent.edu": {
     "aliases": ["腾讯课堂"]

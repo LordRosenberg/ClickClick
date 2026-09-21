@@ -192,6 +192,8 @@ class AgentToolResult(BaseModel):
     status: ToolStatus = ToolStatus.SUCCEEDED
     summary: str = ""
     data: dict[str, Any] = Field(default_factory=dict)
+    # Persisted in local traces only; never sent to the model or saved as evidence data.
+    diagnostics: dict[str, Any] = Field(default_factory=dict, exclude=True, repr=False)
     attachments: list[ToolAttachment] = Field(default_factory=list)
     # Internal replacement for AgentSession's dynamic observation bucket.
     # It may be text-only when multimodal attachments are feature-disabled.
@@ -207,6 +209,8 @@ class AgentToolResult(BaseModel):
     terminal_value: Any = Field(default=None, exclude=True, repr=False)
     def metadata(self) -> dict[str, Any]:
         payload = self.model_dump(exclude={"attachments"})
+        if self.diagnostics:
+            payload["diagnostics"] = self.diagnostics
         payload["attachments"] = [a.model_dump() for a in self.attachments]
         return redact_value(payload)
 
@@ -222,7 +226,14 @@ class AgentToolResult(BaseModel):
         the model must echo once and is restored only on the provider wire.
         """
         summary = self.summary
-        if tool_name == "observe_screen" and self.status != ToolStatus.SUCCEEDED:
+        protocol_rejection = self.status in {
+            ToolStatus.INVALID_ARGUMENTS, ToolStatus.PRECONDITION_NOT_MET,
+        }
+        if (
+            tool_name == "observe_screen"
+            and self.status != ToolStatus.SUCCEEDED
+            and not protocol_rejection
+        ):
             mode = str(self.data.get("mode") or "screen")
             failed_stage = str(self.data.get("failed_stage") or "")
             summary = f"{mode} observation {self.status.value}"
@@ -234,6 +245,11 @@ class AgentToolResult(BaseModel):
         }
         if tool_name == "observe_screen":
             keep = {"mode", "status", "failed_stage", "frame_count"}
+            if protocol_rejection:
+                # These are actionable Harness errors, not private capture
+                # diagnostics. Hiding them makes a rejected retry look like a
+                # transient provider failure and prevents model correction.
+                keep.update({"reason", "recoverable"})
             if self.status == ToolStatus.SUCCEEDED:
                 keep.update({
                     "observation_id", "coordinate_reference", "actionable",
@@ -243,7 +259,7 @@ class AgentToolResult(BaseModel):
                 key: value for key, value in self.data.items()
                 if key in keep
                 and (
-                    key == "index_actionable"
+                    key in {"index_actionable", "recoverable"}
                     or value not in (None, "", [], {}, False)
                 )
             }
@@ -263,12 +279,19 @@ class AgentToolResult(BaseModel):
         ):
             payload["evidence_refs"] = list(self.evidence_refs)
         if self.error and not (
-            tool_name == "observe_screen" and self.status != ToolStatus.SUCCEEDED
+            tool_name == "observe_screen"
+            and self.status != ToolStatus.SUCCEEDED
+            and not protocol_rejection
         ):
             payload["error"] = self.error
 
         raw = payload
         safe = redact_value(raw)
+        if tool_name == "load_skill" and self.status == ToolStatus.SUCCEEDED:
+            # A loaded authored body is evidence for this very next decision,
+            # before the following invocation adds it to the knowledge prefix.
+            # Generic metadata truncation must not silently discard its last sections.
+            safe["summary"] = redact_value(summary, max_string=None)
 
         def restore(source: Any, target: Any) -> None:
             if isinstance(source, dict) and isinstance(target, dict):
@@ -312,6 +335,10 @@ class LLMRoundRecord(BaseModel):
     model: str = ""
     response_content_count: int = 0
     attachment_count: int = 0
+    input_observation_id: str = ""
+    input_model_image_ref: str | None = None
+    input_visual_kind: str | None = None
+    input_captured_monotonic_ms: float | None = None
     prompt_measurements: dict[str, Any] = Field(default_factory=dict)
     reasoning_status: str = "not_requested"
     reasoning_effort: str | None = None

@@ -692,7 +692,9 @@ def test_same_value_on_other_surface_does_not_mutate_envelope():
 
 
 def _current_observation_payload(observation: str) -> dict:
-    return json.loads(observation.split("CURRENT OBSERVATION:\n", 1)[1])
+    return json.loads(
+        observation.split("CURRENT OBSERVATION:\n", 1)[1].splitlines()[0]
+    )
 
 
 def test_executor_prompt_reconciles_current_source_typed_focus_with_history():
@@ -703,16 +705,16 @@ def test_executor_prompt_reconciles_current_source_typed_focus_with_history():
     payload = _current_observation_payload(observation)
     normalized_system = " ".join(system.lower().split())
 
-    assert "before `act`, reconcile the missing effect" in normalized_system
-    assert "semantic timeline is memory" in normalized_system
-    assert "repeated same-purpose actions without relevant progress" in normalized_system
-    assert "reconsider target, grounding, feasibility, or method" in normalized_system
+    assert "match the intended effect" in normalized_system
+    assert "latest runtime state overrides older records" in normalized_system
+    assert "repeated attempts without relevant progress" in normalized_system
+    assert "supported change of target or method" in normalized_system
     assert "`type` inserts at the cursor" in normalized_system
-    assert "`replace_text` clears the focused editable" in normalized_system
+    assert "`replace_text(index, text)` focuses a supported indexed editable" in normalized_system
     assert "Eiffel Tower" in task_anchor
     assert history == ""
     assert payload["foreground_package"] == "com.example"
-    assert payload["focused_interaction"]["focused_element"] is None
+    assert "focused_element" not in payload["focused_interaction"]
     focused = payload["focused_interaction"]["focused_editable"]
     assert focused["index"] == 3
     assert focused["raw_text"] == "old query"

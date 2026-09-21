@@ -36,15 +36,14 @@ const WS_CLOSE_TRY_AGAIN = 1013;
  *
  * The component owns its own connection lifecycle (no shared client): the
  * MirrorPanel is the only consumer of `/api/device/mirror/stream`, so the
- * backend's spawn-per-first / kill-on-last contract maps 1:1 to mount /
- * unmount of the panel. Mounting kicks off the WebSocket handshake;
- * unmounting drops the consumer and lets the registry tear down.
+ * backend's spawn-per-first / kill-on-last contract maps to explicit Live
+ * enable / disable. Merely mounting the panel never starts scrcpy.
  */
 export function MirrorPanel({
-  taskId: _taskId,
+  taskId,
   deviceSerial,
   deviceKey,
-  selectedStepId,
+  selectedFrameKey,
   selectedSomRef,
   action,
   frameGeometry,
@@ -55,15 +54,16 @@ export function MirrorPanel({
   deviceSerial?: string | null;
   /** Full binding key (e.g. lab-a/SERIAL); preferred for multi-hub routing. */
   deviceKey?: string | null;
-  selectedStepId: number | null;
+  /** Changes whenever the operator requests a recorded conversation frame. */
+  selectedFrameKey: string | null;
   selectedSomRef: string | null;
   action: Action | null;
   frameGeometry?: number[] | null;
   className?: string;
 }) {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<MirrorMode>("live");
-  const [connection, setConnection] = useState<MirrorConnectionState>("connecting");
+  const [mode, setMode] = useState<MirrorMode>("off");
+  const [connection, setConnection] = useState<MirrorConnectionState>("disconnected");
   const [_hasFrame, setHasFrame] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -209,6 +209,10 @@ export function MirrorPanel({
   connectRef.current = connect;
 
   useEffect(() => {
+    if (mode !== "live") {
+      setConnection("disconnected");
+      return;
+    }
     if (!isWebCodecsSupported()) {
       setConnection("unavailable");
       return;
@@ -252,19 +256,21 @@ export function MirrorPanel({
     scrcpyHint.data?.available,
     effectiveSerial,
     effectiveKey,
+    mode,
   ]);
 
-  // Effect: when the user selects a tick on the timeline, auto-flip to
-  // Frame mode (D12). We deliberately DON'T clear `selectedStepId` from
-  // the parent — the inspector keeps its selection.
   useEffect(() => {
-    if (selectedStepId != null && selectedSomRef) {
+    if (selectedFrameKey && selectedSomRef) {
       setMode("frame");
     }
-  }, [selectedStepId, selectedSomRef]);
+  }, [selectedFrameKey, selectedSomRef]);
 
   const goLive = useCallback(() => {
     setMode("live");
+  }, []);
+
+  const stopLive = useCallback(() => {
+    setMode("off");
   }, []);
 
   return (
@@ -274,12 +280,22 @@ export function MirrorPanel({
           <CardTitle className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-text-mute">
             <Radio className="h-3.5 w-3.5" /> 设备投屏
           </CardTitle>
-          <ConnectionDot state={connection} />
+          <ConnectionDot state={connection} enabled={mode === "live"} />
           <Badge variant="outline" className="border-border bg-bg-2 font-mono text-[10px] text-text-mute">
-            {mode === "live" ? "live" : "frame"}
+            {mode}
           </Badge>
           <div className="ml-auto">
-            {mode === "frame" ? (
+            {mode === "live" ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={stopLive}
+                className="font-mono text-[10px] uppercase tracking-wide"
+              >
+                关闭 Live
+              </Button>
+            ) : (
               <Button
                 type="button"
                 variant="ghost"
@@ -289,7 +305,7 @@ export function MirrorPanel({
               >
                 Live
               </Button>
-            ) : null}
+            )}
           </div>
         </div>
       </CardHeader>
@@ -308,14 +324,19 @@ export function MirrorPanel({
               切到 Frame 模式，显示该步的 SoM 标注图（含落点红圈 / 箭头）。
             </li>
             <li>
-              <span className="text-text">2.</span> 点头部的{" "}
+              <span className="text-text">2.</span> 点击中间列的 Model 输入 / 输出 →
+              右侧切换到该轮模型实际看到的画面。
+            </li>
+            <li>
+              <span className="text-text">3.</span> 点头部的{" "}
               <span className="rounded border border-border bg-bg-2 px-1 text-text">
                 Live
               </span>{" "}
-              按钮 → 回到实时投屏（首次需等 scrcpy 就绪，约 1~2s）。
+              按钮 → 开启实时投屏（默认关闭，首次需等 scrcpy 就绪，约 1~2s）。
             </li>
             <li>
-              <span className="text-text">3.</span> 屏幕黑或卡住 → 点{" "}
+              <span className="text-text">4.</span> 点关闭 Live 或选择历史 Frame
+              会立即断开投屏并释放 scrcpy；屏幕黑或卡住时可点{" "}
               <span className="rounded border border-border bg-bg-2 px-1 text-text">
                 立即重试
               </span>
@@ -325,6 +346,7 @@ export function MirrorPanel({
         </details>
 
         <MirrorCanvas
+          taskId={taskId}
           mode={mode}
           connection={connection}
           canvasRef={canvasRef}
@@ -332,6 +354,7 @@ export function MirrorPanel({
           action={action}
           frameGeometry={frameGeometry}
           onManualRetry={connect}
+          onStartLive={goLive}
           onNavigateDevice={() => navigate("/device")}
         />
       </CardContent>
@@ -343,7 +366,21 @@ export function MirrorPanel({
 /*  Connection dot                                                            */
 /* -------------------------------------------------------------------------- */
 
-function ConnectionDot({ state }: { state: MirrorConnectionState }) {
+function ConnectionDot({
+  state,
+  enabled,
+}: {
+  state: MirrorConnectionState;
+  enabled: boolean;
+}) {
+  if (!enabled) {
+    return (
+      <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wide text-text-mute">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-text-mute" />
+        off
+      </span>
+    );
+  }
   const color =
     state === "live"
       ? "bg-neon"
@@ -375,6 +412,7 @@ function ConnectionDot({ state }: { state: MirrorConnectionState }) {
 /* -------------------------------------------------------------------------- */
 
 function MirrorCanvas({
+  taskId,
   mode,
   connection,
   canvasRef,
@@ -382,8 +420,10 @@ function MirrorCanvas({
   action,
   frameGeometry,
   onManualRetry,
+  onStartLive,
   onNavigateDevice,
 }: {
+  taskId: string;
   mode: MirrorMode;
   connection: MirrorConnectionState;
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -391,6 +431,7 @@ function MirrorCanvas({
   action: Action | null;
   frameGeometry?: number[] | null;
   onManualRetry: () => void;
+  onStartLive: () => void;
   onNavigateDevice: () => void;
 }) {
   // live-screen-mirror (D29) + timeline-round-rail (bezel-fit):
@@ -436,9 +477,8 @@ function MirrorCanvas({
     }
   }, []);
 
-  // Keep the live <canvas> mounted in both modes so hello/binary can
-  // create the decoder while the operator is briefly on Frame, and so
-  // Live↔Frame flips don't detach the paint target.
+  // Keep one canvas node across mode changes, but only connect and decode while
+  // Live is explicitly enabled.
   return (
     <div className={bezel}>
       <span className={earpiece} aria-hidden />
@@ -456,11 +496,30 @@ function MirrorCanvas({
           <div className="absolute inset-0 flex items-center justify-center">
             <SomOverlay
               somRef={selectedSomRef}
+              taskId={taskId}
               action={action}
               frameGeometry={frameGeometry}
               onImageSize={handleImageSize}
             />
           </div>
+        )}
+        {mode === "off" && (
+          <OverlayCenter>
+            <div className="space-y-2 text-center text-text-mute">
+              <div className="font-mono text-[11px] uppercase tracking-wide text-text">
+                实时投屏已关闭
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onStartLive}
+                className="font-mono text-[10px] uppercase"
+              >
+                开启 Live
+              </Button>
+            </div>
+          </OverlayCenter>
         )}
         {mode === "live" && connection === "connecting" && (
           <OverlayCenter>连接中…</OverlayCenter>

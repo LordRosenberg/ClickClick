@@ -1,0 +1,74 @@
+{
+  "com.android.settings": {
+    "aliases": ["Settings", "System Settings", "设置", "系统设置"]
+  },
+  "com.google.android.deskclock": {
+    "aliases": ["Clock", "Desk Clock", "时钟", "闹钟"]
+  },
+  "com.google.android.contacts": {
+    "aliases": ["Contacts", "联系人", "通讯录"]
+  },
+  "com.android.camera2": {
+    "aliases": ["Camera", "相机", "照相机"]
+  },
+  "com.google.android.dialer": {
+    "aliases": ["Dialer", "Phone", "Google Phone", "电话", "拨号"]
+  },
+  "com.android.chrome": {
+    "aliases": ["Chrome", "Google Chrome", "谷歌浏览器"]
+  },
+  "com.simplemobiletools.calendar.pro": {
+    "aliases": ["Simple Calendar Pro", "Simple Calendar", "简易日历"]
+  },
+  "net.gsantner.markor": {
+    "aliases": ["Markor"]
+  },
+  "com.example.androidworld": {
+    "aliases": ["Android World", "AndroidWorld"]
+  },
+  "ca.zgrs.clipper": {
+    "aliases": ["Clipper"]
+  },
+  "com.flauschcode.broccoli": {
+    "aliases": ["Broccoli", "Broccoli App", "Broccoli Recipe App", "Recipe App"]
+  },
+  "com.arduia.expense": {
+    "aliases": ["Pro Expense", "Pro Expense App", "Arduia Pro Expense"]
+  },
+  "com.simplemobiletools.smsmessenger": {
+    "aliases": ["Simple SMS Messenger", "Simple SMS", "简易短信"]
+  },
+  "de.dennisguse.opentracks": {
+    "aliases": ["OpenTracks", "Open Tracks", "Open Tracks Sports Tracker", "Activity Tracker"]
+  },
+  "org.tasks": {
+    "aliases": ["Tasks", "Tasks App", "Tasks.org"]
+  },
+  "net.cozic.joplin": {
+    "aliases": ["Joplin", "Joplin App"]
+  },
+  "code.name.monkey.retromusic": {
+    "aliases": ["Retro Music", "Retro", "Retro Player"]
+  },
+  "com.simplemobiletools.gallery.pro": {
+    "aliases": ["Simple Gallery Pro", "Simple Gallery", "简易图库"]
+  },
+  "net.osmand": {
+    "aliases": ["OsmAnd", "OsmAnd Maps"]
+  },
+  "org.videolan.vlc": {
+    "aliases": ["VLC", "VLC App", "VLC Player"]
+  },
+  "com.dimowner.audiorecorder": {
+    "aliases": ["Audio Recorder", "录音机"]
+  },
+  "com.google.android.documentsui": {
+    "aliases": ["Files", "系统文件", "文件选择器"]
+  },
+  "com.google.androidenv.miniwob": {
+    "aliases": ["MiniWoB", "MiniWoB++"]
+  },
+  "com.simplemobiletools.draw.pro": {
+    "aliases": ["Simple Draw Pro", "Simple Draw", "Draw", "简易绘图"]
+  }
+}

@@ -11,23 +11,17 @@ import base64
 from collections.abc import Callable
 from typing import Any, Literal, TypeVar
 
-from agent.read_tools import make_observe_screen_handler
-from agent.session import AgentSession, ReviewerProtocol
+from agent.session import AgentSession
+from agent.skills.scope import scan_instruction_for_skill_apps
 from driver.observation_deadline import ObservationStageError
-from perception.image_utils import (
-    compress_for_model,
-    role_model_image_profile,
-    validated_model_image,
-    visual_evidence_metadata,
-)
+from perception.image_utils import compress_for_model, role_model_image_profile, validated_model_image, visual_evidence_metadata
 from perception.input_evidence import interaction_envelope
-from perception.observation import ObservationBuilder, ObservationPackage
-from shared.artifacts import ArtifactStore
+from perception.observation import ObservationPackage
+from shared.artifacts import ArtifactStore, image_suffix
 from shared.config import Settings, get_settings
-from shared.llm_gateway import GatewayError
-from shared.schemas import AgentState, ObservationMode, PlannerDecision, ReviewerDecision
+from shared.schemas import AgentState, ObservationMode
 
-DecisionT = TypeVar("DecisionT", PlannerDecision, ReviewerDecision)
+DecisionT = TypeVar("DecisionT")
 DecisionRole = Literal["planner", "reviewer"]
 DynamicProjection = Callable[[ObservationPackage], str]
 
@@ -56,7 +50,6 @@ class DecisionRoleRunner:
         *,
         model: str,
         settings: Settings | None = None,
-        reviewer_protocol: ReviewerProtocol = "boundary",
     ) -> None:
         self.role = role
         self.driver = driver
@@ -67,7 +60,6 @@ class DecisionRoleRunner:
             role,
             model,
             settings=self.settings,
-            reviewer_protocol=reviewer_protocol,
         )
         self.traces: Any | None = None
 
@@ -88,7 +80,26 @@ class DecisionRoleRunner:
             state.frozen_skill_dirs = list(directories)
         elif state.frozen_skill_dirs and not self.session.frozen_allow_dirs:
             self.session.freeze_allow_dirs(state.frozen_skill_dirs)
-        self.session.set_foreground_app(package.ui.app_id)
+        if not state.skill_app_candidates:
+            state.skill_app_candidates = scan_instruction_for_skill_apps(
+                state.instruction,
+                library=self.session.library,
+            )
+        self._sync_skill_context(state, package.ui.app_id)
+
+    def _sync_skill_context(self, state: AgentState, foreground_app: str) -> None:
+        self.session.set_target_app(
+            state.active_target_app,
+            state.active_workflow_ids,
+        )
+        self.session.set_foreground_app(foreground_app)
+        if self.role == "planner":
+            apps = self.session.library.planner_catalog_apps(
+                [*state.skill_app_candidates, foreground_app],
+            )
+            self.session.set_workflow_catalog(
+                apps, core_apps=[*state.skill_app_candidates, foreground_app],
+            )
 
     def prepare_observation(
         self,
@@ -135,99 +146,6 @@ class DecisionRoleRunner:
         )
         return image, evidence
 
-    async def run_decision(
-        self,
-        state: AgentState,
-        package: ObservationPackage,
-        *,
-        system: str,
-        task_anchor: str,
-        dynamic_projection: DynamicProjection,
-        expected_type: type[DecisionT],
-        task_id: str = "",
-        context_state: dict[str, Any] | None = None,
-        model_call_meter: Callable[[str, dict[str, Any]], Any] | None = None,
-    ) -> tuple[DecisionT, dict[str, Any], dict[str, Any]]:
-        """Run one role invocation and return its exact active observation."""
-        self.prepare_lifecycle(state, package, task_id=task_id)
-        image, baseline_visual_evidence = self.prepare_observation(package)
-        observation = dynamic_projection(package)
-        observation_messages = build_observation_messages(observation, image)
-
-        self.session.set_stable_system(system)
-        runtime_context: dict[str, Any] = {
-            "active_package": package,
-            "agent_state": state,
-            "model": self.model,
-            "visual_evidence_metadata": baseline_visual_evidence,
-            **(context_state or {}),
-        }
-
-        def render_observation_bucket(
-            current_package: ObservationPackage,
-        ) -> tuple[list[dict[str, Any]], list[str]]:
-            self.session.set_foreground_app(current_package.ui.app_id)
-            rendered = build_observation_messages(
-                dynamic_projection(current_package),
-                current_package.image_for_llm,
-            )
-            return rendered, ["observation"] * len(rendered)
-
-        runtime_context["render_observation_bucket"] = render_observation_bucket
-        handlers = {
-            "observe_screen": make_observe_screen_handler(
-                driver=self.driver,
-                builder=ObservationBuilder(),
-                artifacts=self.artifacts,
-                baseline_package=package,
-            ),
-        }
-
-        def event_sink(kind: str, payload: dict[str, Any]) -> None:
-            if self.traces is not None and task_id:
-                self.traces.write(
-                    task_id,
-                    kind=kind,
-                    step_seq=state.step_number,
-                    message=kind,
-                    payload=payload,
-                )
-
-        final_messages = (
-            [{"role": "user", "content": task_anchor}] if task_anchor else []
-        )
-        result = await self.session.run(
-            observation_messages,
-            final_messages=final_messages,
-            observation_message_names=["observation"] * len(observation_messages),
-            final_message_names=["task_anchor"] if final_messages else [],
-            handlers=handlers,
-            context_state=runtime_context,
-            event_sink=event_sink,
-            model_call_meter=model_call_meter,
-            artifacts=self.artifacts,
-        )
-        decision = result.decision
-        if not isinstance(decision, expected_type):
-            raise TypeError(
-                f"{self.role} terminal tool returned {type(decision).__name__}, "
-                f"expected {expected_type.__name__}"
-            )
-        active_package = result.context_state.get("active_package")
-        if not isinstance(active_package, ObservationPackage):
-            raise GatewayError(
-                "active observation package missing after decision invocation",
-                category="malformed",
-            )
-        package = active_package
-        invocation_refs = self._invocation_refs(result, decision)
-        invocation_refs["active_package"] = package
-        observation_refs = self._observation_refs(
-            package,
-            result.context_state,
-            baseline_visual_evidence,
-        )
-        return decision, invocation_refs, observation_refs
 
     def _invocation_refs(self, result: Any, decision: DecisionT) -> dict[str, Any]:
         llm_input_ref = None
@@ -268,12 +186,20 @@ class DecisionRoleRunner:
             if isinstance(final_visual, dict)
             else dict(baseline_visual_evidence)
         )
-        if self.artifacts is not None and package.image_for_llm is not None:
-            final_visual["image_artifact_ref"] = self.artifacts.save_bytes(
-                "model-images", package.image_for_llm, suffix=".bin",
+        if (
+            self.artifacts is not None
+            and package.image_for_llm is not None
+            and not final_visual.get("image_artifact_ref")
+        ):
+            final_visual["image_artifact_ref"] = (
+                self.artifacts.save_content_addressed_bytes(
+                    "model-images", package.image_for_llm,
+                    suffix=image_suffix(package.image_for_llm),
+                )
             )
         return {
             "som_ref": package.som_ref,
+            "model_image_ref": final_visual.get("image_artifact_ref"),
             "tree_ref": package.tree_ref,
             "observation_mode": package.mode.value,
             "gap_reasons": list(package.gap_reasons or []),

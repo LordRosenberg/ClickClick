@@ -269,7 +269,8 @@ async def test_generation_break_skips_same_capture_fallbacks(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_final_generation_break_preserves_paid_pixels_as_image_only(monkeypatch):
+@pytest.mark.parametrize("ordinal", [1, 2])
+async def test_generation_break_preserves_paid_pixels_as_image_only(monkeypatch, ordinal):
     driver = AndroidDriver()
 
     async def generation_break(_deadline):
@@ -289,16 +290,20 @@ async def test_final_generation_break_preserves_paid_pixels_as_image_only(monkey
     monkeypatch.setattr(driver, "_deadline_tree", generation_break)
     monkeypatch.setattr(driver, "_deadline_screencap", pixels)
     deadline = ObservationDeadline("current", 3500)
-    deadline.capture_ordinal = 2
+    deadline.capture_ordinal = ordinal
 
     tree, shot, metadata = await driver.capture_deadline_frame(deadline)
 
     assert shot == _png()
-    assert metadata["active_capture_ordinal"] == 2
+    assert metadata["active_capture_ordinal"] == ordinal
     assert metadata["complete"] is False
     assert metadata["coordinate_compatible"] is False
     assert metadata["pixel_provider"] == "adb_screencap"
-    assert tree["_capture"]["tree_providers_exhausted"] is True
+    # A Collector generation break does not imply that the dump fallback ran.
+    assert tree["_capture"]["tree_providers_exhausted"] is False
+    assert tree["_capture"]["dump_attempted"] is False
+    assert tree["_capture"]["reasons"] == ["generation_changed"]
+    assert tree["_capture"]["tree_provider_attempts"][0]["provider"] == "accessibility_collector_primary"
 
 
 class _Source:
@@ -445,7 +450,8 @@ async def test_registry_shares_console_and_agent_then_stops_after_idle():
     await registry.release("S1", console)
     await registry.release("S1", agent)
     assert source.stopped == 0
-    await asyncio.sleep(0.04)
+    # Await the actual shutdown; a 40ms sleep is not a scheduling guarantee.
+    await asyncio.wait_for(asyncio.shield(session._idle_task), timeout=1)
     assert source.stopped == 1
 
 
@@ -990,7 +996,7 @@ async def test_current_always_captures_fresh_observation():
         state={"active_package": baseline},
     )
 
-    result = await handler({"mode": "current"}, context)
+    result = await handler({"mode": "snapshot"}, context)
 
     assert result.status == ToolStatus.SUCCEEDED
     assert result.data["observation_id"] != baseline.observation_id
@@ -1028,7 +1034,7 @@ async def test_current_baseline_rejection_runs_fresh_capture(rejection: str):
         state={"active_package": active},
     )
 
-    result = await handler({"mode": "current"}, context)
+    result = await handler({"mode": "snapshot"}, context)
 
     assert result.status == ToolStatus.SUCCEEDED
     assert result.data["observation_id"] != baseline.observation_id
@@ -1322,7 +1328,7 @@ async def test_refresh_stream_frame_advances_scrcpy_ring():
     await task
 
     assert refreshed is True
-    assert Source.reset_calls == 1
+    assert Source.reset_calls == 0
 
 
 @pytest.mark.asyncio
@@ -1419,8 +1425,59 @@ async def test_await_fresh_frame_waits_for_ring_advance():
     frame = await provider.await_fresh_frame(after_id=1, timeout_s=1.0)
     await task
 
-    assert Source.reset_calls == 1
+    assert Source.reset_calls == 0
     assert frame is not None
+    assert frame.frame_id == 2
+
+
+@pytest.mark.asyncio
+async def test_await_fresh_frame_resets_decoder_and_discards_old_ring_pixels():
+    from driver.scrcpy_observation import ScrcpyObservationProvider
+
+    reset_finished = asyncio.Event()
+
+    class Source:
+        async def reset_video(self):
+            reset_finished.set()
+            return True
+
+    class Session:
+        source = Source()
+        generation = 1
+
+        def is_alive(self):
+            return True
+
+    provider = ScrcpyObservationProvider(
+        registry=SimpleNamespace(), device_key="S1", frame_max_age_ms=1000,
+    )
+    provider._session = Session()
+    provider.decoder.status = "healthy"
+    provider.ring.append(
+        FrameHandle(
+            _png("blue"), time.monotonic(), 1,
+            FrameGeometry(32, 64, 32, 64),
+        ),
+    )
+
+    async def append_after_reset():
+        await reset_finished.wait()
+        await asyncio.sleep(0)
+        assert not provider.ring._frames
+        assert provider.decoder.status == "reset"
+        provider.ring.append(
+            FrameHandle(
+                _png("red"), time.monotonic(), 1,
+                FrameGeometry(32, 64, 32, 64),
+            ),
+        )
+
+    append_task = asyncio.create_task(append_after_reset())
+    frame = await provider.await_fresh_frame(after_id=1, timeout_s=1.0)
+    await append_task
+
+    assert frame is not None
+    assert frame.data == _png("red")
     assert frame.frame_id == 2
 
 
@@ -1569,7 +1626,7 @@ async def test_eligible_baseline_reuses_one_fresh_ending_capture():
         baseline_package=baseline,
     )
     result = await handler(
-        {"mode": "temporal", "frames": 2, "duration_ms": 1},
+        {"mode": "sequence", "frames": 2, "duration_ms": 1},
         ToolExecutionContext(role=AgentRole.EXECUTOR, invocation_id="i"),
     )
     assert result.status == ToolStatus.SUCCEEDED
@@ -1591,7 +1648,7 @@ async def test_generation_mismatch_rejects_baseline():
         baseline_package=baseline,
     )
     result = await handler(
-        {"mode": "temporal", "frames": 2, "duration_ms": 1},
+        {"mode": "sequence", "frames": 2, "duration_ms": 1},
         ToolExecutionContext(role=AgentRole.EXECUTOR, invocation_id="i"),
     )
     assert "baseline_reused" not in result.data
@@ -1633,7 +1690,7 @@ async def test_temporal_never_stitches_fresh_packages_across_generations():
         baseline_package=old,
     )
     result = await handler(
-        {"mode": "temporal", "frames": 2, "duration_ms": 1},
+        {"mode": "sequence", "frames": 2, "duration_ms": 1},
         ToolExecutionContext(role=AgentRole.EXECUTOR, invocation_id="i"),
     )
     assert result.data["status"] == "degraded_current"
@@ -1673,9 +1730,9 @@ async def test_current_timeout_can_retry_without_cross_call_suppression():
         artifacts=None, baseline_package=baseline,
     )
     context = ToolExecutionContext(role=AgentRole.EXECUTOR, invocation_id="i")
-    first = await handler({"mode": "current"}, context)
+    first = await handler({"mode": "snapshot"}, context)
     first_call_count = driver.calls
-    second = await handler({"mode": "current"}, context)
+    second = await handler({"mode": "snapshot"}, context)
     assert first.status == ToolStatus.TIMEOUT
     assert second.status == ToolStatus.TIMEOUT
     assert "retry_suppressed" not in second.data
@@ -1683,7 +1740,7 @@ async def test_current_timeout_can_retry_without_cross_call_suppression():
     assert driver.calls > first_call_count
     second_call_count = driver.calls
     driver.generation = 2
-    third = await handler({"mode": "current"}, context)
+    third = await handler({"mode": "snapshot"}, context)
     assert third.status == ToolStatus.TIMEOUT
     assert driver.calls > second_call_count
 
@@ -1745,9 +1802,9 @@ async def test_identical_current_retry_can_recover_after_transient_provider_fail
     )
     context = ToolExecutionContext(role=AgentRole.EXECUTOR, invocation_id="i")
 
-    first = await handler({"mode": "current"}, context)
+    first = await handler({"mode": "snapshot"}, context)
     driver.fail = False
-    second = await handler({"mode": "current"}, context)
+    second = await handler({"mode": "snapshot"}, context)
 
     assert first.status == ToolStatus.FAILED
     assert second.status == ToolStatus.SUCCEEDED
@@ -1773,7 +1830,7 @@ async def test_failed_observe_attempt_remains_visible_without_local_cap(monkeypa
             return GatewayResponse(
                 content="", model="m", stop_reason="tool_calls", latency_ms=1,
                 tool_calls=[ToolCall(
-                    id=f"o{rounds}", name="observe_screen", arguments='{"mode":"current"}',
+                    id=f"o{rounds}", name="observe_screen", arguments='{"mode":"snapshot"}',
                 )],
             )
         return GatewayResponse(
@@ -1801,3 +1858,62 @@ async def test_failed_observe_attempt_remains_visible_without_local_cap(monkeypa
     assert handler_calls == 2
     assert result.tool_calls[0].status == ToolStatus.TIMEOUT
     assert result.tool_calls[1].status == ToolStatus.TIMEOUT
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('collector_enabled', [True, False])
+async def test_hung_tree_cannot_discard_current_pixels_at_transaction_deadline(monkeypatch, collector_enabled):
+    driver = AndroidDriver(collector_enabled=collector_enabled)
+    cancelled = asyncio.Event()
+    budgets = []
+
+    async def hang(*args, **kwargs):
+        budgets.append(kwargs.get('timeout_s', kwargs.get('timeout')))
+        try:
+            await asyncio.Future()
+        finally:
+            cancelled.set()
+
+    async def pixels(_deadline):
+        return _png('green')
+
+    async def identity(*, timeout_s=None):
+        return {'package': 'com.example', 'activity': '.Main',
+                'component': 'com.example/.Main', 'conflict': False}
+
+    monkeypatch.setattr(driver, '_collector_tree', hang)
+    monkeypatch.setattr(adb, 'uiautomator_dump_async', hang)
+    monkeypatch.setattr(driver, '_deadline_screencap', pixels)
+    monkeypatch.setattr(driver, 'current_foreground_identity', identity)
+    started = time.monotonic()
+    package = await ActionObservationTransaction(driver, ObservationBuilder()).observe_current(
+        deadline_ms=800, attach_image=True,
+    )
+    assert cancelled.is_set()
+    assert time.monotonic() - started < 0.75
+    assert package.accepted
+    assert package.mode == ObservationMode.IMAGE_ONLY
+    assert package.clean_png == _png('green')
+    assert not package.index_actionable
+    assert package.capture_meta['observation_capture_attempt_count'] == 1
+    assert any(row.get('error') == 'tree_budget_exhausted'
+               for row in package.capture_meta['provider_attempts'])
+    assert 0 < budgets[0] <= 0.4
+
+
+@pytest.mark.asyncio
+async def test_failed_stream_refresh_cannot_reuse_healthy_cached_pixels(monkeypatch):
+    stale = FrameHandle(_png('red'), time.monotonic(), 1, FrameGeometry(32,64,32,64))
+    class Provider:
+        action_frame_boundary = None
+        def frame_boundary(self): return (1, 1)
+        async def await_fresh_frame(self, **kwargs): return None
+        def current(self): return SimpleNamespace(status='healthy', frame=stale)
+    driver = AndroidDriver(stream_provider=Provider())
+    async def tree(_deadline):
+        return {'class':'Root', 'text':'ready', '_capture':{'complete':True}}
+    async def pixels(_deadline): return _png('green')
+    monkeypatch.setattr(driver, '_deadline_tree', tree)
+    monkeypatch.setattr(driver, '_deadline_screencap', pixels)
+    _, shot, meta = await driver.capture_deadline_frame(ObservationDeadline('current', 1000))
+    assert shot == _png('green')
+    assert meta['pixel_provider'] == 'adb_screencap'

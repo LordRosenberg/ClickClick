@@ -1,4 +1,4 @@
-"""Scripted Planner / Reviewer / Executor fakes for closed-loop tests.
+"""Scripted ContractAuthor / Planner / Reviewer / Executor test doubles.
 
 The fakes mirror the focused production role APIs. Scripts are strict: an
 exhausted Planner or Reviewer script raises instead of inventing a terminal
@@ -12,21 +12,8 @@ import inspect
 from typing import Any
 
 from agent.executor import Executor
-from agent.planner import Planner
-from agent.reviewer import Reviewer
 from perception.observation import ObservationPackage
-from shared.schemas import (
-    Action,
-    ActionResult,
-    AgentState,
-    CanonicalUI,
-    ExecutorDecisionKind,
-    ExecutorStep,
-    ObservationMode,
-    PlannerDecision,
-    ReviewerDecision,
-    TaskContractBody,
-)
+from shared.schemas import Action, ActionResult, AgentState, CanonicalUI, ExecutorDecisionKind, ExecutorStep, ObservationMode
 
 
 def _observation_refs(package: ObservationPackage) -> dict[str, Any]:
@@ -96,111 +83,7 @@ async def _record_fake_model_call(meter: Any, role: str) -> None:
         await result
 
 
-class FakePlanner(_FakeDecisionRole, Planner):
-    """Return scripted PlannerDecision entries, one per rolling plan call."""
-
-    def __init__(self, decisions: Sequence[PlannerDecision]) -> None:
-        self._init_role()
-        self._decisions = list(decisions)
-        self._index = 0
-        self.seen_states: list[AgentState] = []
-        self.seen_packages: list[ObservationPackage] = []
-        self.seen_deviations: list[str] = []
-
-    async def decide(
-        self,
-        state: AgentState,
-        package: ObservationPackage,
-        *,
-        deviation: str = "",
-        task_id: str = "",
-        model_call_meter: Any = None,
-    ) -> tuple[PlannerDecision, dict[str, Any], dict[str, Any]]:
-        del task_id
-        await _record_fake_model_call(model_call_meter, "planner")
-        if self._index >= len(self._decisions):
-            raise AssertionError("FakePlanner decision script exhausted")
-        decision = self._decisions[self._index]
-        self._index += 1
-        self.seen_states.append(state.model_copy(deep=True))
-        self.seen_packages.append(package)
-        self.seen_deviations.append(deviation)
-        return (
-            decision,
-            _minimal_role_refs(phase="planning", package=package),
-            _observation_refs(package),
-        )
-
-
-class FakeReviewer(_FakeDecisionRole, Reviewer):
-    """Author one scripted scope and return scripted boundary verdicts."""
-
-    def __init__(
-        self,
-        decisions: Sequence[ReviewerDecision],
-        *,
-        task_scope: TaskContractBody,
-    ) -> None:
-        self._init_role()
-        self._decisions = list(decisions)
-        self._index = 0
-        self._task_scope = task_scope
-        self.scope_calls = 0
-        self.seen_scope_states: list[AgentState] = []
-        self.seen_boundary_states: list[AgentState] = []
-        self.seen_packages: list[ObservationPackage] = []
-        self.seen_executor_reports: list[str] = []
-        self.seen_boundary_reasons: list[str] = []
-        self.seen_terminal_reviews: list[bool] = []
-        self.seen_review_requirement_refs: list[str] = []
-
-    async def author_task_scope(
-        self,
-        state: AgentState,
-        *,
-        task_id: str = "",
-        model_call_meter: Any = None,
-    ) -> tuple[TaskContractBody, dict[str, Any]]:
-        del task_id
-        await _record_fake_model_call(model_call_meter, "reviewer")
-        self.scope_calls += 1
-        self.seen_scope_states.append(state.model_copy(deep=True))
-        return self._task_scope, _minimal_role_refs(phase="task_scope")
-
-    async def decide(
-        self,
-        state: AgentState,
-        package: ObservationPackage,
-        *,
-        executor_report: str = "",
-        boundary_reason: str = "",
-        terminal_review: bool = False,
-        review_requirement_ref: str = "",
-        task_id: str = "",
-        model_call_meter: Any = None,
-    ) -> tuple[ReviewerDecision, dict[str, Any], dict[str, Any]]:
-        del task_id
-        await _record_fake_model_call(model_call_meter, "reviewer")
-        if self._index >= len(self._decisions):
-            raise AssertionError("FakeReviewer decision script exhausted")
-        decision = self._decisions[self._index]
-        self._index += 1
-        self.seen_boundary_states.append(state.model_copy(deep=True))
-        self.seen_packages.append(package)
-        self.seen_executor_reports.append(executor_report)
-        self.seen_boundary_reasons.append(boundary_reason)
-        self.seen_terminal_reviews.append(terminal_review)
-        self.seen_review_requirement_refs.append(review_requirement_ref)
-        refs = _minimal_role_refs(phase="boundary_review", package=package)
-        refs["reviewer_packet_digest"] = decision.packet_digest
-        return decision, refs, _observation_refs(package)
-
-
-def fake_task_scope(
-    text: str = "the whole requested outcome is established",
-) -> TaskContractBody:
-    """Return an explicit UI-independent task scope for FakeReviewer scripts."""
-    return TaskContractBody(final_ui_state=[text])
+# Backward-compatible fixture name for downstream test modules.
 
 
 class FakeExecutor(Executor):
@@ -238,6 +121,7 @@ class FakeExecutor(Executor):
                 action, boundary, summary = entry
                 return ExecutorStep(
                     decision=(ExecutorDecisionKind.REQUEST_REVIEW if boundary else ExecutorDecisionKind.ACT),
+                    review_reason=("boundary_ready" if boundary else None),
                     action=None if boundary else action,
                     summary=str(summary or ("boundary established" if boundary else f"{action.type} (fake)")),
                 )
@@ -245,6 +129,7 @@ class FakeExecutor(Executor):
                 action, boundary = entry
                 return ExecutorStep(
                     decision=(ExecutorDecisionKind.REQUEST_REVIEW if boundary else ExecutorDecisionKind.ACT),
+                    review_reason=("boundary_ready" if boundary else None),
                     action=None if boundary else action,
                     summary="boundary established" if boundary else f"{action.type} (fake)",
                 )
@@ -295,4 +180,11 @@ class FakeExecutor(Executor):
             "active_package": package,
         }
 
-__all__ = ["FakePlanner", "FakeReviewer", "FakeExecutor", "fake_task_scope"]
+__all__ = [
+    "FakeContractAuthor",
+    "FakePlanner",
+    "FakeReviewer",
+    "FakeExecutor",
+    "fake_task_contract",
+    "fake_task_scope",
+]

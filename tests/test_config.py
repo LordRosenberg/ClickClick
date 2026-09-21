@@ -6,15 +6,16 @@ from shared.config import Settings
 
 
 def test_settings_contains_only_operator_controlled_fields():
-    assert set(Settings.model_fields) == {
-        "data_dir", "api_host", "api_port",
-        "driver_url", "driver_urls_json", "platform", "use_fixture_driver",
-        "default_model", "manager_model", "executor_model", "skill_learner_model",
+        assert set(Settings.model_fields) == {
+            "data_dir", "api_host", "api_port", "api_ssl_certfile", "api_ssl_keyfile",
+            "driver_url", "driver_urls_json", "platform", "use_fixture_driver",
+        "default_model", "manager_model", "executor_model",
+        "skill_learner_model",
         "models_json", "gateway_user_agent", "chatgpt_token_dir",
         "ime_auto_setup", "ime_apk_path",
         "accessibility_collector_enabled", "accessibility_collector_apk_path",
         "device_stay_awake_while_plugged", "task_cancel_hard_timeout_s",
-        "app_resolver_cache_path",
+        "app_resolver_cache_path", "agent_architecture", "executor_context_tokens",
     }
 
 
@@ -89,6 +90,18 @@ def test_apply_chatgpt_token_dir_sets_env(monkeypatch, tmp_path):
     s = Settings(chatgpt_token_dir=str(target))
     assert s.apply_chatgpt_token_dir() == str(target)
     assert os.environ["CHATGPT_TOKEN_DIR"] == str(target)
+
+
+def test_models_json_allows_trailing_commas():
+    s = Settings(
+        models_json='{"openai/a": {"provider": "openai",}, "chatgpt/b": {"provider": "chatgpt"}}',
+    )
+    assert set(s.model_providers()) == {"openai/a", "chatgpt/b"}
+
+
+def test_models_json_still_empty_when_unparseable():
+    s = Settings(models_json="{not-json")
+    assert s.model_providers() == {}
 
 
 def test_apply_chatgpt_token_dir_noop_when_empty(monkeypatch):

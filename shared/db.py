@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS tasks (
   updated_at REAL NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS agent_records (
+  task_id TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  record_key TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  payload_json TEXT NOT NULL,
+  PRIMARY KEY (task_id, kind, record_key, version)
+);
+
 CREATE TABLE IF NOT EXISTS steps (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   task_id TEXT NOT NULL,
@@ -139,15 +148,25 @@ class Database:
         self._commit()
         return self.get_task(task_id)  # type: ignore[return-value]
 
-    def _row_to_task(self, row: sqlite3.Row) -> TaskRecord:
+    def _row_to_task(self, row: sqlite3.Row, *, include_state: bool = True) -> TaskRecord:
         state: AgentState | None = None
         if row["state_json"]:
             try:
                 raw = json.loads(row["state_json"])
+                # Earlier plan-driven checkpoints also serialized unused fields
+                # from the removed runtime. Project their existing plan state;
+                # this does not reconstruct or execute a legacy contract task.
+                if "revisable" in raw:
+                    raw = {key: value for key, value in raw.items()
+                           if key in AgentState.model_fields}
+                if not include_state:
+                    raw = {key: raw[key] for key in (
+                        "instruction", "revisable", "current_subgoal", "step_number", "skill_learn"
+                    ) if key in raw}
                 state = AgentState.model_validate(raw)
             except Exception:  # noqa: BLE001
                 state = None
-        plan = list(state.plan) if state else []
+        plan = [state.revisable.stage.goal] if state and state.revisable.stage else []
         if state and state.current_subgoal and (
             not plan or plan[0] != state.current_subgoal
         ):
@@ -169,7 +188,7 @@ class Database:
             plan=plan,
             current_subgoal=current_subgoal,
             step_number=step_number,
-            state=state,
+            state=state if include_state else None,
             device_serial=device_serial,
             skill_learn=skill_learn,
         )
@@ -181,7 +200,9 @@ class Database:
             return None
         return self._row_to_task(row)
 
-    def list_tasks(self, status: TaskStatus | None = None) -> list[TaskRecord]:
+    def list_tasks(
+        self, status: TaskStatus | None = None, *, include_state: bool = True
+    ) -> list[TaskRecord]:
         """List tasks, optionally filtered by status."""
         if status:
             rows = self._conn.execute(
@@ -190,7 +211,7 @@ class Database:
             ).fetchall()
         else:
             rows = self._conn.execute("SELECT * FROM tasks ORDER BY created_at DESC").fetchall()
-        return [self._row_to_task(r) for r in rows]
+        return [self._row_to_task(r, include_state=include_state) for r in rows]
 
     def busy_serials(self) -> dict[str, str]:
         """Map device_serial → task_id for non-terminal tasks with a binding."""
@@ -340,3 +361,41 @@ class Database:
             )
             for r in rows
         ]
+
+    def append_agent_record(self, task_id: str, kind: str, key: str, payload: dict) -> dict:
+        with self.transaction():
+            row = self._conn.execute(
+                "SELECT COALESCE(MAX(version), 0) + 1 FROM agent_records "
+                "WHERE task_id=? AND kind=? AND record_key=?", (task_id, kind, key),
+            ).fetchone()
+            version = row[0]
+            self._conn.execute(
+                "INSERT INTO agent_records VALUES (?, ?, ?, ?, ?)",
+                (task_id, kind, key, version, json.dumps(payload, ensure_ascii=False)),
+            )
+        return {"key": key, "version": version, "payload": payload}
+
+    def get_agent_record(self, task_id: str, kind: str, key: str,
+                         version: int | None = None) -> dict | None:
+        rows = self._conn.execute(
+            "SELECT record_key, version, payload_json FROM agent_records "
+            "WHERE task_id=? AND kind=? AND record_key=? "
+            "AND (? IS NULL OR version=?) ORDER BY version DESC LIMIT 1",
+            (task_id, kind, key, version, version),
+        ).fetchone()
+        return self._agent_record(rows) if rows else None
+
+    def list_agent_records(self, task_id: str, kind: str) -> list[dict]:
+        rows = self._conn.execute(
+            "SELECT r.record_key, r.version, r.payload_json FROM agent_records r "
+            "JOIN (SELECT record_key, MAX(version) AS version FROM agent_records "
+            "WHERE task_id=? AND kind=? GROUP BY record_key) latest "
+            "ON r.record_key=latest.record_key AND r.version=latest.version "
+            "WHERE r.task_id=? AND r.kind=? ORDER BY r.rowid",
+            (task_id, kind, task_id, kind),
+        ).fetchall()
+        return [self._agent_record(row) for row in rows]
+
+    @staticmethod
+    def _agent_record(row) -> dict:
+        return {"key": row[0], "version": row[1], "payload": json.loads(row[2])}

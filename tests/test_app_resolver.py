@@ -6,7 +6,31 @@ import asyncio
 import json
 from pathlib import Path
 
-from shared.app_resolver import NameResolver, flatten_alias_seed
+from shared.app_resolver import (
+    NameResolver,
+    flatten_alias_candidates,
+    flatten_alias_seed,
+)
+
+PROFILE_INDEX = Path("shared/app_alias_profiles.json")
+
+
+def _androidworld_profile() -> dict[str, str]:
+    return {
+        "manufacturer": "Google",
+        "model": "sdk_gphone64_x86_64",
+        "sdk": "33",
+        "release": "13",
+    }
+
+
+def _xiaomi_profile() -> dict[str, str]:
+    return {
+        "manufacturer": "Xiaomi",
+        "model": "24129PN74C",
+        "sdk": "35",
+        "release": "15",
+    }
 
 
 def _resolver(tmp_path: Path, packages: list[str], *, seed: dict | None = None) -> NameResolver:
@@ -37,18 +61,174 @@ def test_curated_alias_and_casefold_are_exact(tmp_path: Path):
     assert flatten_alias_seed({"小红书": "com.xingin.xhs"})["小红书"] == "com.xingin.xhs"
 
 
+def test_duplicate_aliases_preserve_ordered_device_variants(tmp_path: Path):
+    seed = {
+        "com.google.android.deskclock": {"aliases": ["Clock", "时钟"]},
+        "com.android.deskclock": {"aliases": ["Clock", "时钟"]},
+    }
+    assert flatten_alias_candidates(seed)["clock"] == [
+        "com.google.android.deskclock",
+        "com.android.deskclock",
+    ]
+    resolver = _resolver(tmp_path, ["com.android.deskclock"], seed=seed)
+    assert asyncio.run(resolver.resolve("Clock", "A")) == "com.android.deskclock"
+    resolved = asyncio.run(resolver.resolve_with_status("时钟", "A"))
+    assert resolved.package == "com.android.deskclock"
+    assert resolved.provenance == "curated_alias"
+
+
+def test_curated_variant_absence_falls_back_to_learned_device_alias(tmp_path: Path):
+    resolver = _resolver(
+        tmp_path,
+        ["vendor.clock"],
+        seed={"com.google.android.deskclock": {"aliases": ["Clock"]}},
+    )
+    assert asyncio.run(resolver.record_explicit_selection("Clock", "vendor.clock", "A"))
+    resolved = asyncio.run(resolver.resolve_with_status("Clock", "A"))
+    assert resolved.package == "vendor.clock"
+    assert resolved.provenance == "learned_alias"
+
+
 def test_default_seed_resolves_core_system_app_localized_names(tmp_path: Path):
     async def list_packages(_serial):
         return ["com.android.settings", "com.miui.calculator", "com.android.browser"]
+
+    async def describe_device(_serial):
+        return _xiaomi_profile()
 
     resolver = NameResolver(
         list_packages=list_packages,
         seed_path=Path("shared/app_aliases.json"),
         cache_path=tmp_path / "cache.json",
+        profile_index_path=PROFILE_INDEX,
+        describe_device=describe_device,
     )
     assert asyncio.run(resolver.resolve("系统设置", "A")) == "com.android.settings"
     assert asyncio.run(resolver.resolve("计算器", "A")) == "com.miui.calculator"
     assert asyncio.run(resolver.resolve("浏览器", "A")) == "com.android.browser"
+
+
+def test_default_seed_has_no_case_only_duplicate_aliases():
+    paths = [Path("shared/app_aliases.json")]
+    index = json.loads(PROFILE_INDEX.read_text(encoding="utf-8"))
+    paths.extend(PROFILE_INDEX.parent / item["aliases"] for item in index["profiles"])
+    for path in paths:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for package, entry in data.items():
+            aliases = entry.get("aliases", [])
+            normalized = [" ".join(alias.strip().casefold().split()) for alias in aliases]
+            assert len(normalized) == len(set(normalized)), f"{path}:{package}"
+
+
+def test_default_seed_selects_androidworld_or_miui_smoke_app_packages(tmp_path: Path):
+    aliases = Path("shared/app_aliases.json")
+
+    async def androidworld_packages(_serial):
+        return [
+            "com.google.android.deskclock",
+            "com.google.android.contacts",
+            "com.android.camera2",
+        ]
+
+    async def describe_androidworld(_serial):
+        return _androidworld_profile()
+
+    androidworld = NameResolver(
+        list_packages=androidworld_packages,
+        seed_path=aliases,
+        cache_path=tmp_path / "androidworld-cache.json",
+        profile_index_path=PROFILE_INDEX,
+        describe_device=describe_androidworld,
+    )
+    assert asyncio.run(androidworld.resolve("Clock", "emulator")) == "com.google.android.deskclock"
+    assert asyncio.run(androidworld.resolve("联系人", "emulator")) == "com.google.android.contacts"
+    assert asyncio.run(androidworld.resolve("相机", "emulator")) == "com.android.camera2"
+
+    async def miui_packages(_serial):
+        return ["com.android.deskclock", "com.android.contacts", "com.android.camera"]
+
+    async def describe_miui(_serial):
+        return _xiaomi_profile()
+
+    miui = NameResolver(
+        list_packages=miui_packages,
+        seed_path=aliases,
+        cache_path=tmp_path / "miui-cache.json",
+        profile_index_path=PROFILE_INDEX,
+        describe_device=describe_miui,
+    )
+    assert asyncio.run(miui.resolve("时钟", "phone")) == "com.android.deskclock"
+    assert asyncio.run(miui.resolve("Contacts", "phone")) == "com.android.contacts"
+    assert asyncio.run(miui.resolve("Camera", "phone")) == "com.android.camera"
+
+
+def test_default_seed_covers_all_androidworld_environment_apps(tmp_path: Path):
+    expected = {
+        "Settings": "com.android.settings",
+        "Clock": "com.google.android.deskclock",
+        "Contacts": "com.google.android.contacts",
+        "Camera": "com.android.camera2",
+        "Phone": "com.google.android.dialer",
+        "Chrome": "com.android.chrome",
+        "Simple Calendar Pro": "com.simplemobiletools.calendar.pro",
+        "Markor": "net.gsantner.markor",
+        "AndroidWorld": "com.example.androidworld",
+        "Clipper": "ca.zgrs.clipper",
+        "Broccoli": "com.flauschcode.broccoli",
+        "Pro Expense": "com.arduia.expense",
+        "Simple SMS Messenger": "com.simplemobiletools.smsmessenger",
+        "OpenTracks": "de.dennisguse.opentracks",
+        "Tasks": "org.tasks",
+        "Joplin": "net.cozic.joplin",
+        "Retro Music": "code.name.monkey.retromusic",
+        "Simple Gallery Pro": "com.simplemobiletools.gallery.pro",
+        "OsmAnd": "net.osmand",
+        "VLC": "org.videolan.vlc",
+        "Audio Recorder": "com.dimowner.audiorecorder",
+        "Files": "com.google.android.documentsui",
+        "MiniWoB++": "com.google.androidenv.miniwob",
+        "Simple Draw Pro": "com.simplemobiletools.draw.pro",
+    }
+
+    async def packages(_serial):
+        return list(expected.values())
+
+    async def describe_device(_serial):
+        return _androidworld_profile()
+
+    resolver = NameResolver(
+        list_packages=packages,
+        seed_path=Path("shared/app_aliases.json"),
+        cache_path=tmp_path / "androidworld-all-apps-cache.json",
+        profile_index_path=PROFILE_INDEX,
+        describe_device=describe_device,
+    )
+    for alias, package in expected.items():
+        assert asyncio.run(resolver.resolve(alias.swapcase(), "emulator")) == package
+    assert asyncio.run(resolver.selected_profile_ids("emulator")) == ["androidworld_api33"]
+
+
+def test_unmatched_device_does_not_receive_system_profile_aliases(tmp_path: Path):
+    async def packages(_serial):
+        return ["com.android.deskclock", "com.google.android.deskclock"]
+
+    async def describe_device(_serial):
+        return {
+            "manufacturer": "Other",
+            "model": "Unknown",
+            "sdk": "35",
+            "release": "15",
+        }
+
+    resolver = NameResolver(
+        list_packages=packages,
+        seed_path=Path("shared/app_aliases.json"),
+        cache_path=tmp_path / "unmatched-cache.json",
+        profile_index_path=PROFILE_INDEX,
+        describe_device=describe_device,
+    )
+    assert asyncio.run(resolver.resolve_with_status("Clock", "other")).status == "miss"
+    assert asyncio.run(resolver.selected_profile_ids("other")) == []
 
 
 def test_alias_miss_does_not_start_hidden_llm_or_choose(tmp_path: Path):

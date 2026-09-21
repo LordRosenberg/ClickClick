@@ -1,4 +1,4 @@
-import type { AgentLlmRound, AgentToolCall, ObservationTransition } from "../api/types.ts";
+import type { AgentLlmRound, AgentLlmStream, AgentToolCall, ObservationTransition } from "../api/types.ts";
 
 export function agentFoldKey(
   scope: string, round: AgentLlmRound, blockKind: string, blockId = "main",
@@ -8,6 +8,43 @@ export function agentFoldKey(
 
 export function observationTransitionLabel(transition: ObservationTransition): string {
   return `${transition.from_observation_id || "—"} ${transition.from_mode} → ${transition.to_observation_id} ${transition.to_mode}`;
+}
+
+export type ConversationVisual = {
+  rowKey: string;
+  artifactRef: string;
+  label: string;
+  observationId: string | null;
+  capturedAt: number | null;
+};
+
+export type ConversationVisualSelectionProps = {
+  selectedVisualKey?: string | null;
+  onSelectVisual?: (visual: ConversationVisual) => void;
+};
+
+export function modelConversationVisuals(
+  scope: string,
+  round: AgentLlmRound,
+): { input: ConversationVisual; output: ConversationVisual } | null {
+  if (!round.input_model_image_ref) return null;
+  const common = {
+    artifactRef: round.input_model_image_ref,
+    observationId: round.input_observation_id ?? null,
+    capturedAt: round.input_captured_monotonic_ms ?? null,
+  };
+  return {
+    input: {
+      ...common,
+      rowKey: agentFoldKey(scope, round, "input"),
+      label: "Model input",
+    },
+    output: {
+      ...common,
+      rowKey: agentFoldKey(scope, round, "output"),
+      label: "Model output context",
+    },
+  };
 }
 
 export type ArtifactView = "request" | "response" | "raw";
@@ -108,7 +145,21 @@ export function modelInputSummary(payload: unknown): string {
   const messageCount = sections.filter(
     (section) => section.label !== "tools" && section.label !== "tool_choice",
   ).length;
+  const imageCount = sections.reduce((total, section) => total + section.items.reduce(
+    (sectionTotal, item) => {
+      if (!item.content || typeof item.content !== "object" || Array.isArray(item.content)) {
+        return sectionTotal;
+      }
+      const blocks = (item.content as Record<string, unknown>).content;
+      if (!Array.isArray(blocks)) return sectionTotal;
+      return sectionTotal + blocks.filter((block) => (
+        !!block && typeof block === "object" && !Array.isArray(block)
+        && (block as Record<string, unknown>).type === "image_url"
+      )).length;
+    }, 0
+  ), 0);
   const parts = [`${messageCount} ${messageCount === 1 ? "message" : "messages"}`];
+  if (imageCount > 0) parts.push(`${imageCount} ${imageCount === 1 ? "image" : "images"} sent`);
   if (Array.isArray(tools)) parts.push(`${tools.length} ${tools.length === 1 ? "tool" : "tools"}`);
   if (toolChoice !== undefined) {
     parts.push(`choice ${typeof toolChoice === "string" ? toolChoice : "configured"}`);
@@ -215,4 +266,80 @@ export function upsertLlmRound(
   const index = output.findIndex((round) => round.round_id === next.round_id);
   if (index >= 0) output[index] = next; else output.push(next);
   return output;
+}
+
+export function upsertLlmStream(
+  rounds: AgentLlmRound[] = [],
+  next: AgentLlmStream,
+): AgentLlmRound[] {
+  const index = rounds.findIndex((round) => round.round_id === next.round_id);
+  const current = index >= 0 ? rounds[index] : undefined;
+  // A persisted/completed round is authoritative over delayed SSE snapshots.
+  if (current && current.stream_status == null && current.stop_reason !== "pending") return rounds;
+  if (current) {
+    const attempt = current.stream_attempt ?? 0;
+    const sequence = current.stream_sequence ?? -1;
+    if (next.attempt < attempt) return rounds;
+    if (
+      next.attempt === attempt
+      && next.status !== "failed"
+      && next.sequence <= sequence
+    ) return rounds;
+  }
+  const live: AgentLlmRound = {
+    ...current,
+    round_id: next.round_id,
+    order: next.order,
+    role: next.role,
+    invocation_id: next.invocation_id,
+    model: next.model,
+    stop_reason: next.status === "failed" ? "error" : "streaming",
+    latency_ms: 0,
+    usage: {},
+    message_count: current?.message_count ?? 0,
+    image_count: current?.image_count ?? 0,
+    stable_prefix_hash: current?.stable_prefix_hash ?? "",
+    tool_catalog_hash: current?.tool_catalog_hash ?? "",
+    stream_status: next.status,
+    stream_attempt: next.attempt,
+    stream_sequence: next.sequence,
+    live_output: next.text,
+  };
+  const output = [...rounds];
+  if (index >= 0) output[index] = live; else output.push(live);
+  return output;
+}
+
+export function conversationFoldOpen(
+  folds: Record<string, boolean>,
+  key: string,
+  defaultOpen = false,
+): boolean {
+  return Object.prototype.hasOwnProperty.call(folds, key) ? folds[key] : defaultOpen;
+}
+
+export function conversationArtifactEnabled(
+  open: boolean,
+  refId: string | null | undefined,
+): boolean {
+  return open && !!refId;
+}
+
+export function conversationArtifactQueryKey(
+  taskId: string,
+  refId: string | null | undefined,
+): readonly [string, string, string | null | undefined] {
+  return ["agent-artifact", taskId, refId] as const;
+}
+
+export function collapsedModelInputSummary(round: AgentLlmRound): string {
+  const messages = round.message_count;
+  const images = round.image_count;
+  const parts = [messages == null
+    ? "messages —"
+    : `${messages} ${messages === 1 ? "message" : "messages"}`];
+  if (images != null && images > 0) {
+    parts.push(`${images} ${images === 1 ? "image" : "images"} sent`);
+  }
+  return parts.join(" · ");
 }

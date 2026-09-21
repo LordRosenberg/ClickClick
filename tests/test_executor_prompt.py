@@ -1,58 +1,29 @@
-"""Stable semantic-policy tests for the compact Executor prompt."""
+"""Semantic safeguards for the plan-driven Executor policy."""
+import pytest
+from agent.prompts import render_executor_system
 
-from pathlib import Path
+@pytest.mark.parametrize("rules", [
+    ("End with one accepted `submit_executor_step`", "echoing the current `observation_id`"),
+    ("actual text, accessibility label, hint or pixels", "does not establish identity"),
+    ("repeated attempts without relevant progress", "supported change of target or method"),
+    ("a request for a new item still requires creation", "Do not create new duties"),
+    ("Use `sleep` when elapsed time itself is required", "the next decision receives a fresh observation"),
+    ("`type` inserts at the cursor", "replaces its full value", "not that the record was saved"),
+    ("A skill is guidance", "current evidence controls", "before any later-stage action"),
+    ("use `launch(app=name_or_package)` directly", "A resolver miss dispatches nothing", "`resolution_ticket`"),
+    ("`index_actions_available=true`", "Coordinates use the attached image's `image_size`", "Historical frames and indices cannot ground actions"),
+    ("`interaction_ack=confirmed` proves only", "`visible_change=none`", "Match the relevant resulting state to the goal"),
+])
+def test_executor_semantic_safeguards(rules):
+    prompt = " ".join(render_executor_system().split())
+    for rule in rules:
+        assert rule in prompt
 
-
-_PROMPT_PATH = Path(__file__).resolve().parents[1] / "agent" / "prompts" / "executor_system.md"
-
-
-def _prompt() -> str:
-    return " ".join(_PROMPT_PATH.read_text(encoding="utf-8").lower().split())
-
-
-def test_prompt_defers_transport_contract_to_registered_tool():
-    prompt = _prompt()
-    assert "`submit_executor_step` exactly once" in prompt
-    assert "basis_observation_id" not in prompt
-    assert "followed_skill" not in prompt
-    assert "subgoal_done" not in prompt
-
-
-def test_prompt_makes_visual_semantics_and_action_consistency_model_owned():
-    prompt = _prompt()
-    assert "reconcile the missing effect" in prompt
-    assert "raw text, accessibility label, hint, or pixels" in prompt
-    assert "submitted target" in prompt
-    assert "harness validates the target" not in prompt
-
-
-def test_prompt_uses_compact_semantic_history_for_root_cause_recovery():
-    prompt = _prompt()
-    assert "semantic timeline is memory" in prompt
-    assert "dispatch and capture do not prove the intended effect" in prompt
-    assert "repeated same-purpose actions without relevant progress" in prompt
-    assert "reconsider target, grounding, feasibility, or method" in prompt
-
-
-def test_prompt_separates_current_state_from_task_local_history():
-    prompt = _prompt()
-    assert "current ui proves state, not that a task-local operation occurred" in prompt
-    assert "inherited result" in prompt
-    assert "perform a missing required search, submit, refresh" in prompt
-
-
-def test_prompt_distinguishes_observation_waiting_and_text_entry():
-    prompt = _prompt()
-    assert "observe_screen(current|temporal)" in prompt
-    assert "`sleep` only delays page loading and proves nothing" in prompt
-    assert "`type` inserts at the cursor" in prompt
-    assert "`replace_text` clears the focused editable first" in prompt
-    assert "focused editable value" in prompt
-
-
-def test_prompt_keeps_completion_and_skill_authority_concise():
-    prompt = _prompt()
-    assert "`request_review`" in prompt
-    assert "`request_replan`" in prompt
-    assert "all its workflows are already supplied" in prompt
-    assert "apply only relevant guidance" in prompt
+def test_decision_gates_precede_routes_and_grounding():
+    prompt = render_executor_system()
+    sections = ["## Role", "## Decision process", "## Open a named app",
+                "## Ground one action", "## Evidence and working memory", "## Tool protocol"]
+    offsets = [prompt.index(section) for section in sections]
+    assert offsets == sorted(offsets)
+    gates = [prompt.index(gate) for gate in ("1. **Conflict.**", "2. **Stop.**", "3. **Recover.**", "4. **Act.**")]
+    assert gates == sorted(gates)

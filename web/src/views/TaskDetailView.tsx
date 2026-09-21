@@ -20,7 +20,12 @@ import {
   callKeyForAgentHash,
   resolveRoleCalls,
 } from "@/lib/expandRoleCalls";
+import type { ConversationVisual } from "@/lib/agentCalls";
 import type { RoleCall } from "@/api/types";
+
+type SelectedConversationVisual = ConversationVisual & {
+  callKey: string | null;
+};
 
 export function TaskDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +33,8 @@ export function TaskDetailView() {
   const qc = useQueryClient();
   const { timeline, task } = useTaskTimeline(id);
   const [selectedCallKey, setSelectedCallKey] = useState<string | null>(null);
+  const [selectedConversationVisual, setSelectedConversationVisual] =
+    useState<SelectedConversationVisual | null>(null);
   const [followLive, setFollowLive] = useState(true);
   const [stopping, setStopping] = useState(false);
   // Last call key we already navigated to (rail click or hash scroll).
@@ -132,6 +139,18 @@ export function TaskDetailView() {
   const effectiveCallKey = selectedCallKey ?? defaultCallKey;
   const selectedCall =
     calls.find((c) => c.call_key === effectiveCallKey) ?? null;
+  const activeConversationVisual = selectedConversationVisual?.callKey === effectiveCallKey
+    ? selectedConversationVisual
+    : null;
+  const selectConversationVisual = (visual: ConversationVisual) => {
+    setSelectedConversationVisual({
+      ...visual,
+      callKey: effectiveCallKey,
+    });
+  };
+  useEffect(() => {
+    setSelectedConversationVisual(null);
+  }, [effectiveCallKey]);
   useEffect(() => {
     if (!running || !followLive) return;
     if (defaultCallKey != null && defaultCallKey !== selectedCallKey) {
@@ -141,8 +160,12 @@ export function TaskDetailView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running, followLive, defaultCallKey]);
 
-  if (timeline.isLoading || !tl) {
+  if (timeline.isLoading && !tl) {
     return <div className="font-mono text-xs text-text-mute">loading task…</div>;
+  }
+
+  if (!tl) {
+    return <div className="font-mono text-xs text-text-mute">task not found</div>;
   }
 
   return (
@@ -171,7 +194,7 @@ export function TaskDetailView() {
         )}
         {readOnly && (
           <Badge variant="outline" title={tk?.data_source || tl?.data_source}>
-            temp · read only
+            {(tk?.data_source || tl?.data_source || "eval").split("/")[0]} · read only
           </Badge>
         )}
         {(tk?.device_serial || tl.device_serial) && (
@@ -253,6 +276,9 @@ export function TaskDetailView() {
                 {selectedCall ? (
                   <StepInspector
                     call={selectedCall}
+                    taskId={id!}
+                    selectedVisualKey={activeConversationVisual?.rowKey ?? null}
+                    onSelectVisual={selectConversationVisual}
                   />
                 ) : (
                   <div className="font-mono text-xs text-text-mute">
@@ -271,16 +297,19 @@ export function TaskDetailView() {
                       adbSerialFromKey(tk?.device_serial || tl.device_serial) ||
                       null
                     }
-                    selectedStepId={
-                      selectedCall?.step_seq != null
-                        ? selectedCall.step_seq
-                        : null
+                    selectedFrameKey={
+                      activeConversationVisual
+                        ? activeConversationVisual.rowKey
+                        : selectedCall?.call_key ?? null
                     }
                     selectedSomRef={
-                      selectedCall?.observation?.som_ref ?? null
+                      activeConversationVisual?.artifactRef
+                        ?? selectedCall?.observation?.model_image_ref
+                        ?? selectedCall?.observation?.som_ref
+                        ?? null
                     }
                     action={
-                      selectedCall?.role === "executor"
+                      !activeConversationVisual && selectedCall?.role === "executor"
                         ? (selectedCall.executor?.action ?? null)
                         : null
                     }

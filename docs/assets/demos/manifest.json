@@ -1,0 +1,125 @@
+{
+  "source_batch": "androidworld-sol-final-v1-20260918",
+  "demos": [
+    {
+      "task": "RecipeAddMultipleRecipesFromMarkor",
+      "task_id": "2015f1a4-7098-41f6-8ff9-b08daab9cc78",
+      "video": "notes-to-recipes.mp4",
+      "source_recording_seconds": 601.933,
+      "playback_speed": 3.0,
+      "output_seconds": 200.667,
+      "task_seconds": 596.344000000041,
+      "actions": 40,
+      "official_score": 1.0,
+      "crop_xyxy": [
+        0,
+        0,
+        464,
+        980
+      ],
+      "preview": "eight sampled frames, labelled preview",
+      "source_sha256": "f494d053a10012141f1f5f30c5f94d993579d3bcadb2a5f8945ca9d6da4b1d6d",
+      "output_sha256": "4b51491a915e486f63eaeadcc8383fa0c6741d64ddf98ad16776bb4d77a109c1"
+    },
+    {
+      "task": "ExpenseAddMultipleFromGallery",
+      "task_id": "f5d7d0c6-ebb3-4c02-8aad-e8b25411bd81",
+      "video": "image-to-expenses.mp4",
+      "source_recording_seconds": 456.267,
+      "playback_speed": 3.0,
+      "output_seconds": 152.133,
+      "task_seconds": 449.625,
+      "actions": 34,
+      "official_score": 1.0,
+      "crop_xyxy": [
+        0,
+        0,
+        464,
+        980
+      ],
+      "preview": "eight sampled frames, labelled preview",
+      "source_sha256": "fb71ea313d09f95aac74fe4c0e963f56240fdea90b891affa04fa9322b852b07",
+      "output_sha256": "37c361ac96794fda8deb37a8faeeca34f58e69955aa12c34a7df04b3b8da7dd8"
+    },
+    {
+      "task": "SimpleCalendarAddRepeatingEvent",
+      "task_id": "1d3926d1-ea0a-4170-8ffd-b0134ec2afcb",
+      "video": "recurring-calendar-event.mp4",
+      "source_recording_seconds": 421.4,
+      "playback_speed": 3.0,
+      "output_seconds": 140.467,
+      "task_seconds": 413.155999999959,
+      "actions": 22,
+      "official_score": 1.0,
+      "crop_xyxy": [
+        0,
+        0,
+        464,
+        980
+      ],
+      "preview": "eight sampled frames, labelled preview",
+      "source_sha256": "b2fd4f39af02449547d64efe07a78807cfd4427cc46c7f2969ab31f922b4c508",
+      "output_sha256": "55c8e43ceb6cbef1fdd16b1e50527df8333e197f624409bbf97788781e11a6de"
+    },
+    {
+      "task": "ExpenseDeleteDuplicates2",
+      "task_id": "de99238a-3602-410e-8bcd-de0242df19d4",
+      "video": "deduplicate-expenses.mp4",
+      "source_recording_seconds": 290.467,
+      "playback_speed": 3,
+      "output_seconds": 96.867,
+      "task_seconds": 284.875,
+      "actions": 15,
+      "official_score": 1.0,
+      "crop_xyxy": [
+        0,
+        0,
+        464,
+        980
+      ],
+      "preview": "eight sampled frames, labelled preview",
+      "source_sha256": "3c1d02b5b9caf23e524db5123881ee0daca923e7b863ea062b8b5ebf2329902d",
+      "output_sha256": "63e9ffcb674da3d330491a7328279da41232b621e89d22c77888d719c7132154"
+    },
+    {
+      "task": "RetroCreatePlaylist",
+      "task_id": "3135c974-0f6b-4b6b-a671-2ae7f9be50c3",
+      "video": "ordered-playlist.mp4",
+      "source_recording_seconds": 234.533,
+      "playback_speed": 3,
+      "output_seconds": 78.2,
+      "task_seconds": 228.01599999982864,
+      "actions": 18,
+      "official_score": 1.0,
+      "crop_xyxy": [
+        0,
+        0,
+        464,
+        980
+      ],
+      "preview": "eight sampled frames, labelled preview",
+      "source_sha256": "e9573895d93194c55d8603ff0b0248333fd0bbc535fae00e3bff6556ea8d8893",
+      "output_sha256": "9f0c313919870601013ccae8d047a5561cb689dc592614904831e42e37a9d8a6"
+    },
+    {
+      "task": "SportsTrackerTotalDurationForCategoryThisWeek",
+      "task_id": "41a4041b-9cf7-4d6e-8e9c-4387bd26ec0a",
+      "video": "weekly-activity-summary.mp4",
+      "source_recording_seconds": 212.133,
+      "playback_speed": 3,
+      "output_seconds": 70.733,
+      "task_seconds": 206.53100000019185,
+      "actions": 9,
+      "official_score": 1.0,
+      "crop_xyxy": [
+        0,
+        0,
+        464,
+        980
+      ],
+      "preview": "eight sampled frames, labelled preview",
+      "source_sha256": "007c8e63835736b39c61978721bc066602b08c7a9288f6a75b2394493d548201",
+      "output_sha256": "e43019da0846d32475e89206b6b215fb01a53bbfc90ba5d3b4d6af93ba0f7107"
+    }
+  ]
+}

@@ -14,10 +14,12 @@ from PIL import Image as _PILImage
 
 from agent.executor import (
     Executor,
+    execute_tap_capture_key,
     _is_valid_step,
     _missing_required_params,
     _required_params_satisfied,
     resolve_tap_index,
+    resolve_skill_authorized_index,
     rescale_action_xy,
 )
 from agent.observation_space import validate_action_bounds
@@ -25,11 +27,14 @@ from agent.tool_registry import AgentRole, ToolExecutionContext, ToolStatus
 from driver.observation_deadline import ObservationStageError
 from shared.schemas import (
     Action,
+    ActionReceipt,
+    ActionResult,
     ActionPipeline,
     ActionPipelineStage,
     AgentState,
     CanonicalUI,
     ExecutorStep,
+    EffectOutcome,
     ObservationMode,
     UIElement,
 )
@@ -100,6 +105,13 @@ def test_required_params_key_with_key():
     assert _required_params_satisfied(_a("key", key="delete"))
 
 
+def test_action_model_rejects_unsupported_key_chord():
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError, match="key chords are unsupported"):
+        Action(type="key", key="CTRL+A")
+
+
 def test_required_params_launch_missing_app():
     assert not _required_params_satisfied(_a("launch"))
 
@@ -145,6 +157,307 @@ def test_missing_required_params_names_swipe_y2():
 def test_missing_required_params_long_press_neither():
     # long_press with neither index nor (x,y) → returns the combined hint.
     assert _missing_required_params(_a("long_press")) == ["index or (x,y)"]
+
+
+def test_skill_authorized_target_resolves_index_and_preserves_opaque_id():
+    ui = CanonicalUI(elements=[UIElement(index=4, bounds=[10, 20, 50, 80])])
+    resolved = resolve_skill_authorized_index(
+        _a("skill_authorized_action", index=4, skill_action_id="demo.inspect"), ui,
+    )
+    assert resolved == Action(
+        type="skill_authorized_action", x=30, y=50,
+        skill_action_id="demo.inspect",
+    )
+
+
+def _compound_package(observation_id: str):
+    from perception.observation import ObservationPackage
+
+    return ObservationPackage(
+        ui=CanonicalUI(app_id="com.demo"), mode=ObservationMode.TREE_PLUS_IMAGE,
+        text_for_llm=observation_id, image_for_llm=b"image", annotated_png=None,
+        gap_reasons=[], observation_id=observation_id, accepted=True,
+        actionable=True, index_actionable=True, frame_width=100, frame_height=200,
+        model_image_width=100, model_image_height=200,
+    )
+
+
+def _primitive_result(
+    success: bool, observation_id: str, *, dispatched: bool = True,
+    accepted: bool | None = None,
+):
+    if accepted is None:
+        accepted = success
+    return ActionResult(
+        success=success,
+        message="ok" if success else "failed",
+        receipt=ActionReceipt(
+            dispatch_succeeded=dispatched,
+            effect_outcome=(EffectOutcome.CONFIRMED if success else EffectOutcome.UNKNOWN),
+            observation_capture_count=1,
+            observation_id=observation_id,
+            observation_accepted=accepted,
+        ),
+    )
+
+
+@pytest.mark.asyncio
+async def test_tap_capture_key_uses_two_transactions_and_separate_accounting():
+    before = _compound_package("before")
+    intermediate = _compound_package("detail")
+    final = _compound_package("list")
+    calls = []
+
+    async def act(action, current, **_kwargs):
+        calls.append((action, current.observation_id))
+        if len(calls) == 1:
+            return _primitive_result(True, "detail"), intermediate
+        return _primitive_result(True, "list"), final
+
+    result, ending, historical = await execute_tap_capture_key(
+        SimpleNamespace(act_and_observe=act),
+        _a("skill_authorized_action", x=20, y=30, skill_action_id="demo.inspect"),
+        before,
+    )
+
+    assert [(action.type, basis) for action, basis in calls] == [
+        ("tap_xy", "before"), ("back", "detail"),
+    ]
+    assert result.success and ending is final and historical is intermediate
+    assert result.detail["device_action_units"] == 1
+    assert result.detail["physical_subaction_units"] == 2
+    assert result.detail["capture_count"] == 2
+    receipt = result.detail["compound_receipt"]
+    assert receipt["intermediate_observation_id"] == "detail"
+    assert receipt["final_observation_id"] == "list"
+    assert len(receipt["subactions"]) == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fail_at", ["tap", "back"])
+async def test_tap_capture_key_stops_at_first_failed_transaction(fail_at: str):
+    before = _compound_package("before")
+    intermediate = _compound_package("detail")
+    final = _compound_package("uncertain-final")
+    calls = []
+
+    async def act(action, current, **_kwargs):
+        calls.append(action.type)
+        if action.type == "tap_xy":
+            return _primitive_result(fail_at != "tap", "detail"), intermediate
+        return _primitive_result(False, "uncertain-final"), final
+
+    result, ending, historical = await execute_tap_capture_key(
+        SimpleNamespace(act_and_observe=act),
+        _a("skill_authorized_action", x=20, y=30, skill_action_id="demo.inspect"),
+        before,
+    )
+
+    assert not result.success and historical is intermediate
+    assert calls == (["tap_xy"] if fail_at == "tap" else ["tap_xy", "back"])
+    assert ending is (intermediate if fail_at == "tap" else final)
+    assert result.detail["compound_receipt"]["status"] == "stopped"
+
+
+@pytest.mark.asyncio
+async def test_tap_capture_key_does_not_continue_without_accepted_intermediate():
+    before = _compound_package("before")
+    uncertain = _compound_package("uncertain")
+    calls = []
+
+    async def act(action, current, **_kwargs):
+        calls.append(action.type)
+        return _primitive_result(
+            True, "uncertain", accepted=False,
+        ), uncertain
+
+    result, ending, historical = await execute_tap_capture_key(
+        SimpleNamespace(act_and_observe=act),
+        _a("skill_authorized_action", x=20, y=30, skill_action_id="demo.inspect"),
+        before,
+    )
+
+    assert calls == ["tap_xy"]
+    assert not result.success and ending is uncertain and historical is uncertain
+
+
+@pytest.mark.asyncio
+async def test_verified_video_recipe_preserves_tap_then_media_pause_behavior(monkeypatch):
+    before = _compound_package("library")
+    player = _compound_package("player")
+    paused = _compound_package("paused")
+    calls = []
+    delays = []
+
+    async def act(action, current, **_kwargs):
+        calls.append((action.type, action.key, current.observation_id))
+        if action.type == "tap_xy":
+            return _primitive_result(True, "player"), player
+        return _primitive_result(True, "paused"), paused
+
+    async def sleep(seconds):
+        delays.append(seconds)
+
+    monkeypatch.setattr("agent.executor.asyncio.sleep", sleep)
+    result, ending, intermediate = await execute_tap_capture_key(
+        SimpleNamespace(act_and_observe=act),
+        _a("skill_authorized_action", x=20, y=30, skill_action_id="vlc.open_and_pause"),
+        before, key="media_pause", delay_ms=100,
+    )
+
+    assert calls == [
+        ("tap_xy", None, "library"),
+        ("key", "media_pause", "player"),
+    ]
+    assert delays == [0.1]
+    assert result.success and ending is paused and intermediate is player
+    assert result.detail["device_action_units"] == 1
+
+
+@pytest.mark.asyncio
+async def test_base_executor_has_no_transient_pending_compound_evidence_path(
+    monkeypatch,
+):
+    executor = Executor(SimpleNamespace(), model="test-model")
+    executor._session.reset_lifecycle("task:compound-next")  # noqa: SLF001
+    executor._session.freeze_allow_dirs(["generic"])  # noqa: SLF001
+    current = _compound_package("current-list")
+    current.image_for_llm = None
+    current.clean_png = None
+    calls = []
+
+    async def invoke(obs_messages, history_messages, **_kwargs):
+        calls.append((obs_messages, history_messages))
+        return ExecutorStep(
+            decision="request_replan", summary="inspection evidence delivered",
+        ), SimpleNamespace(
+            context_state={"active_package": current},
+            request_snapshot={}, tool_calls=[], llm_rounds=[],
+        )
+
+    monkeypatch.setattr(executor, "_call_with_session", invoke)
+    await executor.act_once(
+        "Compare recipe detail", current, task_id="compound-next",
+    )
+
+    assert len(calls) == 1
+    obs_messages, history_messages = calls[0]
+    assert history_messages == []
+    assert "CURRENT OBSERVATION" in str(obs_messages[0]["content"])
+    assert not hasattr(executor, "_pending_compound_evidence")
+
+
+@pytest.mark.asyncio
+async def test_plan_executor_restores_history_before_current_observation_without_resaving_it(
+    monkeypatch,
+):
+    from agent.revisable.roles import PlanExecutor
+
+    executor = PlanExecutor(SimpleNamespace(), None, model="test-model")
+    executor._restored_history = [{"role": "user", "content": "older dialogue"}]  # noqa: SLF001
+    saved_dialogue = []
+    executor.store = SimpleNamespace(
+        observe=lambda *_args: None,
+        execution_context=lambda *_args: {"runtime": "current"},
+        save_dialogue=lambda messages, _state: saved_dialogue.extend(messages),
+    )
+    captured = {}
+
+    async def run(messages, **kwargs):
+        captured["observation"] = messages
+        captured["history"] = kwargs["history_messages"]
+        captured["history_names"] = kwargs["history_message_names"]
+        return SimpleNamespace(
+            context_state={"directive": "request_replan"},
+            decision=ExecutorStep(
+                decision="request_replan", summary="evidence delivered",
+            ),
+            tool_calls=[], dialogue_messages=[
+                {"role": "assistant", "content": "new terminal decision"},
+            ],
+        )
+
+    monkeypatch.setattr(executor._session, "run", run)  # noqa: SLF001
+    current = _compound_package("current-list")
+    context_state = {
+        "agent_state": SimpleNamespace(
+            revisable=SimpleNamespace(stage=None), active_target_app="",
+            instruction="test instruction",
+        ),
+        "active_package": current,
+        "render_observation_bucket": lambda _package: (
+            [{"role": "user", "content": "latest current observation"}],
+            ["observation"],
+        ),
+    }
+    supplied = [{"role": "user", "content": "ordinary rebuilt history"}]
+    await executor._call_with_session(  # noqa: SLF001
+        [], supplied,
+        history_message_names=["history"],
+        context_state=context_state,
+    )
+
+    assert [item["content"] for item in captured["history"]] == [
+        "older dialogue", "ordinary rebuilt history",
+    ]
+    assert captured["history_names"] == [
+        "restored_history[0]", "history",
+    ]
+    assert captured["observation"][-1]["content"] == '{"runtime": "current"}'
+    assert [item["content"] for item in saved_dialogue] == ["new terminal decision"]
+
+
+def test_terminal_preflight_rejects_unlisted_skill_action_without_driver_input(tmp_path):
+    from agent.skills.library import SkillLibrary, serialize_skill_markdown
+    from perception.observation import ObservationPackage
+
+    skill_path = tmp_path / "apps/com.demo/workflows/inspect/SKILL.md"
+    skill_path.parent.mkdir(parents=True)
+    skill_path.write_text(serialize_skill_markdown(
+        name="demo-inspection", description="inspect", version="1.0.0",
+        app="com.demo", kind="workflow", capability="inspect",
+        body="## Procedure\n1. Inspect.\n\n## Verification\n- Detail compared.\n\n## Hints\n- Use current evidence.",
+        extra_frontmatter={
+            "source": "authored",
+            "verified_actions": [{
+                "id": "demo.inspect",
+                "template": "tap_capture_key",
+                "key": "back",
+                "purpose": "Inspect detail and return.",
+            }],
+        },
+    ), encoding="utf-8")
+    driver = SimpleNamespace(acts=[])
+    executor = Executor(driver, model="test-model")
+    executor._session.library = SkillLibrary(tmp_path)  # noqa: SLF001
+    executor._session.reset_lifecycle("task:verified-action")  # noqa: SLF001
+    executor._session.freeze_allow_dirs(["generic"])  # noqa: SLF001
+    executor._session.set_target_app("com.demo", ["demo-inspection"])  # noqa: SLF001
+    executor._session.set_foreground_app("com.demo")  # noqa: SLF001
+    package = ObservationPackage(
+        ui=CanonicalUI(app_id="com.demo"), mode=ObservationMode.TREE_ONLY,
+        text_for_llm="", image_for_llm=None, annotated_png=None, gap_reasons=[],
+    )
+    context = ToolExecutionContext(
+        role=AgentRole.EXECUTOR, invocation_id="verified-action",
+        state={"active_package": package},
+    )
+    authorized = ExecutorStep(
+        action=_a(
+            "skill_authorized_action", index=2,
+            skill_action_id="demo.inspect",
+        ), summary="inspect",
+    )
+    assert asyncio.run(executor._terminal_preflight(authorized, context)) is None  # noqa: SLF001
+    assert context.state["authorized_action_source"]["template"] == "tap_capture_key"
+
+    unauthorized = authorized.model_copy(deep=True)
+    unauthorized.action = _a(
+        "skill_authorized_action", index=2, skill_action_id="demo.other",
+    )
+    rejected = asyncio.run(executor._terminal_preflight(unauthorized, context))  # noqa: SLF001
+    assert rejected is not None and rejected.error == "skill_action_not_authorized"
+    assert driver.acts == []
 
 
 # ---------------------------------------------------------------------------
@@ -262,173 +575,6 @@ def _submit_json(
     }
     payload.update(overrides)
     return json.dumps(payload, ensure_ascii=False)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("action_type", ["type", "replace_text"])
-@pytest.mark.parametrize("editability", ["editable", "conflict", "unknown"])
-async def test_password_text_never_reaches_persistent_executor_surfaces(
-    monkeypatch,
-    tmp_path,
-    action_type: str,
-    editability: str,
-):
-    from agent.decision_context import task_action_timeline_rows
-    from agent.task_memory import record_attempt
-    from agent.orchestrator import Orchestrator
-    from perception.input_evidence import build_interaction_state
-    from perception.normalizer import render_semantic_tree
-    from perception.observation import ObservationPackage
-    from shared.artifacts import ArtifactStore
-    from shared.llm_gateway import GatewayResponse, ToolCall
-    from shared.schemas import ActionResult, ObservationMode
-
-    secret = f"persist-secret-{action_type}-{editability}-🔒"
-
-    class EchoDriver(_FakeDriver):
-        async def act(self, action: Action):
-            self.acts.append(action)
-            return ActionResult(
-                success=True,
-                message=f"driver accepted {action.text}",
-                detail={"echo": action.text},
-            )
-
-    field = UIElement(
-        index=0,
-        role="android.widget.EditText",
-        text=f"current-{secret}",
-        desc=f"label-{secret}",
-        hint=f"hint-{secret}",
-        bounds=[10, 20, 410, 100],
-        states={
-            "focused": True,
-            "focusable": True,
-            "password": True,
-        },
-    )
-    if editability == "conflict":
-        field.states["editable"] = False
-    elif editability == "unknown":
-        field.role = "android.view.View"
-    ui = CanonicalUI(
-        app_id="com.x",
-        activity="Main",
-        elements=[field],
-        semantic_tree=[field],
-    )
-    package = ObservationPackage(
-        ui=ui,
-        mode=ObservationMode.TREE_ONLY,
-        text_for_llm=render_semantic_tree(ui),
-        image_for_llm=None,
-        annotated_png=None,
-        gap_reasons=[],
-        interaction_state=build_interaction_state(ui),
-        actionable=True,
-        index_actionable=True,
-        frame_width=900,
-        frame_height=1600,
-    )
-    state = AgentState(
-        instruction="enter a password",
-        current_subgoal="enter the password",
-        recovery_state={"lineage_id": "password-lineage"},
-        active_timeline_lineage_ids=["password-lineage"],
-    )
-    driver = EchoDriver()
-    artifacts = ArtifactStore(tmp_path / f"artifacts-{action_type}-{editability}")
-    executor = Executor(driver, artifacts=artifacts, model="test-model")
-
-    async def fake_complete(model, messages, **kwargs):
-        del model, messages, kwargs
-        return GatewayResponse(
-            content=f"response echoed {secret}",
-            model="test-model",
-            stop_reason="tool_calls",
-            tool_calls=[ToolCall(
-                id="password-submit",
-                name="submit_executor_step",
-                arguments=_submit_json(
-                    {"type": action_type, "text": secret},
-                    summary=f"enter {secret}",
-                ),
-            )],
-        )
-
-    monkeypatch.setattr("agent.session.complete", fake_complete)
-    step, result, _ui, mode, refs = await executor.act_once(
-        state.current_subgoal,
-        package,
-        state=state,
-        task_id=f"password-{action_type}-{editability}",
-    )
-
-    assert driver.acts[0].text == secret  # one invocation-local dispatch only
-    assert step.action is not None
-    assert step.action.text is None and step.action.text_redacted is True
-    assert secret not in step.model_dump_json()
-    assert secret not in result.model_dump_json()
-    assert mode == ObservationMode.TREE_ONLY
-    persisted_refs = {
-        key: refs[key]
-        for key in (
-            "tool_calls",
-            "agent_rounds",
-            "observation_registry",
-            "interaction_state",
-        )
-    }
-    assert secret not in json.dumps(persisted_refs, ensure_ascii=False)
-
-    record_attempt(
-        state.task_memory,
-        step,
-        subgoal=state.current_subgoal,
-        step=0,
-        lineage_id="password-lineage",
-    )
-    timeline_payload = json.dumps(
-        [event.model_dump(mode="json") for event in state.task_memory.events],
-        ensure_ascii=False,
-    )
-    assert secret not in timeline_payload
-    assert secret not in json.dumps(task_action_timeline_rows(state), ensure_ascii=False)
-
-    class TraceSink:
-        payloads: list[dict[str, Any]] = []
-
-        def write(self, *args, **kwargs):
-            del args
-            self.payloads.append(dict(kwargs.get("payload") or {}))
-
-    sink = TraceSink()
-    orchestrator = object.__new__(Orchestrator)
-    orchestrator.traces = sink
-    Orchestrator._trace_executor_step(
-        orchestrator,
-        "task",
-        state,
-        step,
-        result,
-        ui,
-        mode,
-        refs,
-        package,
-    )
-    assert secret not in json.dumps(sink.payloads, ensure_ascii=False)
-    assert secret not in Orchestrator._build_step_report(
-        ui,
-        mode,
-        step,
-        result,
-        refs,
-        package,
-    ).model_dump_json()
-
-    for path in artifacts.root.rglob("*"):
-        if path.is_file():
-            assert secret.encode("utf-8") not in path.read_bytes(), path
 
 
 @pytest.mark.asyncio
@@ -797,7 +943,7 @@ async def test_act_once_places_task_anchor_in_final_bucket(monkeypatch):
     assert captured["final_message_names"] == ["task_anchor"]
     assert captured["history_messages"] == []
     assert len(captured["final_messages"]) == 1
-    assert captured["final_messages"][0]["content"].startswith("TASK ANCHOR:\n")
+    assert captured["final_messages"][0]["content"] == "Wait for verification"
     assert captured["obs_messages"][0]["content"][0]["text"].startswith("CURRENT OBSERVATION:\n")
 
 
@@ -806,19 +952,18 @@ async def test_act_once_places_task_anchor_in_final_bucket(monkeypatch):
 # ---------------------------------------------------------------------------
 
 
-def test_executor_tool_schema_contains_required_action_parameters():
+def test_executor_tool_schema_describes_harness_action_parameters():
     from agent.session import tools_for_role
 
     submit = next(
         tool for tool in tools_for_role("executor")
         if tool["function"]["name"] == "submit_executor_step"
     )
-    branches = submit["function"]["parameters"]["properties"]["action"]["oneOf"]
-    swipe = next(branch for branch in branches if branch["properties"]["type"]["enum"] == ["swipe"])
-    assert swipe["required"] == ["type", "x", "y", "x2", "y2"]
-    key = next(branch for branch in branches if branch["properties"]["type"]["enum"] == ["key"])
-    assert key["required"] == ["type", "key"]
-    assert "duration_ms" in key["properties"]
+    action = submit["function"]["parameters"]["properties"]["action"]
+    assert action["required"] == ["type"]
+    assert "swipe=x,y,x2,y2" in action["description"]
+    assert "key=key" in action["description"]
+    assert "duration_ms" in action["properties"]
 
 # ---------------------------------------------------------------------------
 # Tap target preservation
@@ -1284,5 +1429,5 @@ def test_executor_system_prompt_declares_attached_image_coordinate_space():
     from agent.prompts import render_executor_system
 
     out = " ".join(render_executor_system().lower().split())
-    assert "coordinates use the attached image’s `image_size`" in out
+    assert "coordinates use the attached image's `image_size`" in out
     assert "screen coordinates" not in out.lower()

@@ -11,7 +11,6 @@ import pytest
 from PIL import Image, ImageDraw
 
 from agent.executor import Executor
-from agent.planner import Planner
 from perception.image_utils import estimate_image_input_tokens
 from perception.observation import ObservationPackage
 from perception.som import (
@@ -25,16 +24,7 @@ from perception.som import (
 from shared.config import Settings
 from shared.artifacts import ArtifactStore
 from shared.llm_gateway import GatewayResponse, ToolCall
-from shared.schemas import (
-    ActiveTaskCompletionContract,
-    ActionResult,
-    AgentState,
-    CanonicalUI,
-    SubgoalContractBody,
-    TaskContractBody,
-    ObservationMode,
-    UIElement,
-)
+from shared.schemas import ActionResult, AgentState, CanonicalUI, ObservationMode, UIElement
 
 
 def _png(width: int = 1440, height: int = 3200) -> bytes:
@@ -105,99 +95,15 @@ class _Driver:
         return ActionResult(success=True, message=action.type)
 
 
-@pytest.mark.asyncio
-async def test_planner_receives_one_clean_1080_current_image(monkeypatch, tmp_path):
-    captured: list[list[dict]] = []
-
-    async def fake_complete(model, messages, **kwargs):
-        captured.append(messages)
-        return GatewayResponse(
-            content="",
-            model=model,
-            stop_reason="tool_calls",
-            tool_calls=[ToolCall(
-                id="planner-submit",
-                name="submit_planner_decision",
-                arguments=json.dumps({
-                    "mode": "execute",
-                    "target_requirement_ref": "final_ui_state:1",
-                    "next_subgoal": "inspect the visible result",
-                    "completion_contract": {
-                        "success_conditions": [
-                            "the requested current screen is visible",
-                        ],
-                        "disqualifying_clauses": [],
-                    },
-                    "plan": ["inspect the visible result"],
-                }),
-            )],
-        )
-
-    monkeypatch.setattr("agent.session.complete", fake_complete)
+def test_model_image_artifacts_are_content_addressed_and_renderable(tmp_path):
     artifacts = ArtifactStore(tmp_path / "artifacts")
-    planner = Planner(
-        driver=_Driver(), artifacts=artifacts,
-        model="chatgpt/gpt-5.4", settings=Settings(),
-    )
-    decision, refs, observation_refs = await planner.decide(
-        AgentState(
-            instruction="inspect",
-            task_completion_contract=ActiveTaskCompletionContract(
-                contract_id="precommitted-visual-contract",
-                revision=1,
-                body=TaskContractBody(
-                    final_ui_state=["the requested screen is currently visible"],
-                ),
-            ),
-        ),
-        _package(),
-        task_id="visual-planner",
-    )
+    image = _png(8, 8)
+    first = artifacts.save_content_addressed_bytes("model-images", image, suffix=".png")
+    second = artifacts.save_content_addressed_bytes("model-images", image, suffix=".png")
 
-    assert decision.mode.value == "execute"
-    images = _request_images(captured[0])
-    assert len(images) == 1
-    media_type, image_bytes = images[0]
-    assert media_type == "image/jpeg"
-    assert Image.open(io.BytesIO(image_bytes)).size == (486, 1080)
-    assert _cyan_pixels(image_bytes) == 0
-    metadata = observation_refs["visual_evidence"]
-    image_artifact_ref = metadata.pop("image_artifact_ref")
-    assert hashlib.sha256(artifacts.read_bytes(image_artifact_ref)).hexdigest() == (
-        hashlib.sha256(image_bytes).hexdigest()
-    )
-    assert "active_skills" in refs
-    assert observation_refs["capture"] == {}
-    assert metadata == {
-        "role": "planner",
-        "observation_id": "obs-current",
-        "visual_kind": "clean",
-        "image_delivered": True,
-        "delivered_image_byte_count": len(image_bytes),
-        "delivered_image_sha256": hashlib.sha256(image_bytes).hexdigest(),
-        "source_pixel_byte_count": len(_png()),
-        "source_pixel_sha256": hashlib.sha256(_png()).hexdigest(),
-        "model_image_width": 486,
-        "model_image_height": 1080,
-        "current_only": True,
-        "estimated_image_tokens": 653,
-        "image_profile_id": "tree-som-1080-q75",
-        "image_profile_long_edge": 1080,
-        "image_profile_jpeg_quality": 75,
-    }
-    rendered_text = "\n".join(
-        str(block.get("text") or "")
-        for message in captured[0]
-        for block in (
-            message.get("content")
-            if isinstance(message.get("content"), list)
-            else [{"text": message.get("content")}]
-        )
-    )
-    assert "executor_completed" not in rendered_text
-    assert '"role":"Button","raw_text":"Search"' in rendered_text
-    assert '"image_size":[486,1080]' not in rendered_text
-    assert "[7]" not in rendered_text
+    assert first == second
+    assert first.endswith(".png")
+    assert artifacts.read_bytes(first) == image
 
 
 @pytest.mark.asyncio
@@ -233,7 +139,9 @@ async def test_executor_receives_one_single_pass_som_1080_image(monkeypatch):
     assert media_type == "image/jpeg"
     assert Image.open(io.BytesIO(image_bytes)).size == (486, 1080)
     assert _cyan_pixels(image_bytes) > 0
-    assert refs["visual_evidence"] == {
+    executor_visual = dict(refs["visual_evidence"])
+    assert executor_visual.pop("captured_monotonic_ms") is not None
+    assert executor_visual == {
         "role": "executor",
         "observation_id": "obs-current",
         "visual_kind": "som",
@@ -319,12 +227,11 @@ def test_1080_som_reference_style_and_supported_token_estimate():
 
 def test_role_prompts_require_usable_results_before_completion():
     from agent.prompts import render_executor_system, render_reviewer_system
-
     executor = " ".join(render_executor_system().lower().split())
     reviewer = " ".join(render_reviewer_system().lower().split())
-    assert "request_review" in executor
-    assert "loading" in executor
-    assert "current ui proves state" in executor
-    assert "do not plan future" in executor
-    assert "must not operate the device or plan future work" in reviewer
-    assert "remembered_facts" in reviewer
+    assert "use `sleep` when elapsed time itself is required" in executor
+    assert "proves no outcome" in executor
+    assert "the next decision receives a fresh observation" in executor
+    assert "instruction is already supported by evidence" in executor
+    assert "before any later-stage action" in executor
+    assert "successful tool call alone does not establish its requested effect" in reviewer

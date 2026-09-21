@@ -60,6 +60,8 @@ GROUNDING_PROJECTION_FIELDS = (
 def observation_projection(payload: dict[str, Any]) -> dict[str, Any]:
     """Copy one complete, replayable observation envelope from a role tick."""
     projection = {key: payload.get(key) for key in OBSERVATION_PROJECTION_FIELDS}
+    if payload.get("model_image_ref"):
+        projection["model_image_ref"] = payload["model_image_ref"]
     capture = payload.get("capture")
     if isinstance(capture, dict) and capture:
         projection["grounding"] = {
@@ -187,7 +189,7 @@ def call_key_for(step_seq: int | None, role: str, ordinal: int = 1) -> str:
 
 def _call_phase(role: str, payload: dict[str, Any]) -> str:
     if role == "reviewer":
-        return "scope" if payload.get("phase") == "task_scope" else "boundary"
+        return "boundary"
     return "planning" if role == "planner" else "execution"
 
 
@@ -262,31 +264,15 @@ class ObservabilityQueries:
         self.artifacts = artifacts
 
     @staticmethod
-    def _progress_entries(task: TaskRecord) -> list[dict[str, Any]]:
-        """Project Reviewer-accepted progress without deriving task success."""
-        state = task.state
-        if state is None:
-            return []
-        mem = getattr(state, "task_memory", None)
-        if mem is None:
-            return []
-        out: list[dict[str, Any]] = []
-        for p in getattr(mem, "progress", None) or []:
-            out.append(
-                {
-                    "progress_id": p.progress_id,
-                    "requirement_ref": p.requirement_ref,
-                    "statement": p.statement,
-                    "effective": p.effective,
-                    "evidence_handles": list(p.evidence_handles),
-                    "packet_digest": p.packet_digest,
-                    "accepted_step": p.accepted_step,
-                    "source_subgoal": p.source_subgoal,
-                    "superseded_by_packet_digest": p.superseded_by_packet_digest,
-                    "superseded_step": p.superseded_step,
-                }
-            )
-        return out
+    def _supported_traces(events: list[TraceEvent]) -> list[TraceEvent]:
+        """Drop obsolete Reviewer-scope telemetry instead of reinterpreting it."""
+        return [
+            event
+            for event in events
+            if event.kind != "task_scope"
+            and str((event.payload or {}).get("phase") or "")
+            not in {"task_scope", "reviewer_scope"}
+        ]
 
     @staticmethod
     def _metrics(
@@ -300,9 +286,12 @@ class ObservabilityQueries:
             "reviewer": [],
             "executor": [],
         }
-        role_calls = {"planner": 0, "reviewer": 0, "executor": 0}
-        scope_rounds: list[dict[str, Any]] = []
-        provider_requests = {"planner": 0, "reviewer": 0, "executor": 0}
+        role_calls = {
+            "planner": 0, "reviewer": 0, "executor": 0,
+        }
+        provider_requests = {
+            "planner": 0, "reviewer": 0, "executor": 0,
+        }
         for event in traces:
             payload = event.payload or {}
             if (
@@ -316,16 +305,6 @@ class ObservabilityQueries:
                 role = str(payload.get("role") or "")
                 if role in rounds_by_role:
                     rounds_by_role[role].append(payload)
-                    if role == "reviewer" and payload.get("phase") == "task_scope":
-                        scope_rounds.append(payload)
-            elif event.kind == "task_scope":
-                event_rounds = payload.get("agent_rounds") or []
-                if isinstance(event_rounds, list):
-                    valid_rounds = [
-                        item for item in event_rounds if isinstance(item, dict)
-                    ]
-                    rounds_by_role["reviewer"].extend(valid_rounds)
-                    scope_rounds.extend(valid_rounds)
 
         # Always union folded role-call rounds for mixed historical/new traces;
         # canonical round ids remove duplicates below.
@@ -346,10 +325,6 @@ class ObservabilityQueries:
                 role_calls[role] += 1
         for role, rounds in rounds_by_role.items():
             rounds_by_role[role] = _dedupe_rounds(rounds)
-        scope_rounds = _dedupe_rounds(scope_rounds)
-        scope_call_count = sum(
-            1 for call in calls if call.get("phase") == "scope"
-        )
         all_rounds = [
             round_payload
             for role in ("planner", "reviewer", "executor")
@@ -362,7 +337,9 @@ class ObservabilityQueries:
             }
             for role, rounds in rounds_by_role.items()
         }
-        invalid_submits = {"planner": 0, "reviewer": 0, "executor": 0}
+        invalid_submits = {
+            "planner": 0, "reviewer": 0, "executor": 0,
+        }
         seen_tool_calls: set[tuple[str, str]] = set()
         tool_sources: list[tuple[str, dict[str, Any], str]] = []
         for call in calls:
@@ -447,7 +424,6 @@ class ObservabilityQueries:
             ),
             "role_calls": role_calls,
             "provider_requests": provider_requests,
-            "scope_call_count": scope_call_count,
             "role_rounds": {
                 role: by_role[role]["round_count"]
                 for role in ("planner", "reviewer", "executor")
@@ -459,10 +435,6 @@ class ObservabilityQueries:
             **_usage_metrics(all_rounds),
             "by_role": by_role,
             "by_phase": {
-                "reviewer_scope": {
-                    "call_count": scope_call_count,
-                    **_usage_metrics(scope_rounds),
-                },
             },
         }
 
@@ -475,7 +447,6 @@ class ObservabilityQueries:
             "current_node_id": task.current_node_id,
             "current_subgoal": task.current_subgoal,
             "plan": task.plan,
-            "progress": self._progress_entries(task),
             "step_number": task.step_number,
             "failure_reason": task.failure_reason,
             "created_at": task.created_at,
@@ -511,12 +482,11 @@ class ObservabilityQueries:
             raise KeyError(task_id)
         steps = self.db.list_steps(task_id)
         # Reconstruct the focused-role sequence from traces for replay.
-        traces = self.db.list_traces(task_id)
+        traces = self._supported_traces(self.db.list_traces(task_id))
         loop_events = [
             event.model_dump() for event in traces
             if event.kind in {
-                "task_scope",
-                "planner_decision",
+                        "planner_decision",
                 "reviewer_decision",
                 "executor_tick",
                 "loop_tick",
@@ -537,7 +507,7 @@ class ObservabilityQueries:
     def timeline(self, task_id: str) -> dict[str, Any]:
         """Aggregated timeline: task metadata + step-grouped records + role calls.
 
-        Returns the Reviewer→Planner→Executor loop grouped by `step_seq`
+        Returns the Planner→Executor loop with optional Reviewer calls grouped by `step_seq`
         into folded `steps` (shared observation / loop / step timing), plus a
         derived `calls` list with one navigable entry per focused role
         role tick. Console selection uses `call_key` (`step_seq`+`role`), not
@@ -556,8 +526,7 @@ class ObservabilityQueries:
         task = self.db.get_task(task_id)
         if not task:
             raise KeyError(task_id)
-        traces = self.db.list_traces(task_id)
-        task_scope: dict[str, Any] | None = None
+        traces = self._supported_traces(self.db.list_traces(task_id))
         wall_starts: dict[int, float] = {}
         for event in traces:
             if event.step_seq is None:
@@ -635,23 +604,14 @@ class ObservabilityQueries:
                     "llm_elapsed_ms": metrics.get("llm_latency_ms_total"),
                     "metrics": metrics,
                     "wall_started_at": wall_started_at,
+                    "_ts": event_ts,
                 }
             )
 
         for e in traces:
             seq = e.step_seq
             payload = e.payload or {}
-            if e.kind == "task_scope":
-                task_scope = {
-                    "kind": "task_scope",
-                    "phase": "task_scope",
-                    "step_seq": seq,
-                    "message": e.message,
-                    "level": e.level.value,
-                    **_with_agent_rounds(payload),
-                }
-                _append_role_call(seq, "reviewer", task_scope, {}, e.ts)
-            elif e.kind in {"planner_decision", "reviewer_decision"}:
+            if e.kind in {"planner_decision", "reviewer_decision"}:
                 bucket = _bucket(seq)
                 normalized = _with_agent_rounds(payload)
                 decision = normalized.get("decision")
@@ -696,6 +656,189 @@ class ObservabilityQueries:
                     "level": e.level.value,
                     **payload,
                 }
+        # --- Orphan role invocations --------------------------------------
+        # A role call that dies at the gateway (e.g. "AgentSession tool loop
+        # exhausted without submit") persists only its in-flight agent_*
+        # events — no planner_decision / reviewer_decision / executor_tick is
+        # ever written for it. Live SSE folds those events into the calls
+        # stream (web upsertLiveRoleEvent), so unless the replay does the
+        # same, the failed call silently vanishes from the post-terminal
+        # timeline. Reconstruct one call per invocation, mirroring the
+        # frontend merge, so the timeline strictly reflects the actual
+        # invocation sequence.
+        owned_invocations: set[str] = set()
+        for call in calls:
+            tick = call.get(call["role"])
+            if not isinstance(tick, dict):
+                continue
+            for item in list(tick.get("agent_rounds") or []) + list(tick.get("tool_calls") or []):
+                if isinstance(item, dict) and item.get("invocation_id"):
+                    owned_invocations.add(str(item["invocation_id"]))
+
+        invocations: dict[str, dict[str, Any]] = {}
+        invocation_order: list[str] = []
+        # role_invocation_started(round=0) immediately precedes the first
+        # agent event of each invocation and carries the phase label; pair
+        # them in trace order (invocations never interleave within a task).
+        pending_start: tuple[int | None, str] | None = None
+        pending_phase: str | None = None
+        last_invocation_at: dict[tuple[int | None, str], str] = {}
+
+        for e in traces:
+            payload = e.payload or {}
+            if e.kind == "system":
+                message = e.message or ""
+                if message == "role_invocation_started" and payload.get("round") == 0:
+                    pending_start = (
+                        e.step_seq,
+                        str(payload.get("role") or ""),
+                    )
+                    pending_phase = str(payload.get("phase") or "")
+                elif "gateway error" in message:
+                    role = str(payload.get("role") or "")
+                    inv_id = last_invocation_at.get((e.step_seq, role))
+                    if inv_id is not None and inv_id in invocations:
+                        invocations[inv_id]["error"] = {
+                            "message": message,
+                            "level": e.level.value,
+                            "will_retry": bool(payload.get("will_retry")),
+                        }
+                continue
+            if e.kind not in {
+                "agent_llm_round_started",
+                "agent_llm_round_finished",
+                "agent_tool_started",
+                "agent_tool_finished",
+                "agent_tool_failed",
+            }:
+                continue
+            inv_id = str(payload.get("invocation_id") or "")
+            role = str(payload.get("role") or "")
+            if not inv_id or role not in (
+                "reviewer", "planner", "executor",
+            ):
+                continue
+            inv = invocations.get(inv_id)
+            if inv is None:
+                inv = {
+                    "role": role,
+                    "step_seq": e.step_seq,
+                    "phase": None,
+                    "agent_rounds": [],
+                    "tool_calls": [],
+                    "first_ts": e.ts,
+                    "error": None,
+                }
+                if pending_start is not None and pending_start == (e.step_seq, role):
+                    inv["phase"] = pending_phase
+                    pending_start = None
+                    pending_phase = None
+                invocations[inv_id] = inv
+                invocation_order.append(inv_id)
+            last_invocation_at[(e.step_seq, role)] = inv_id
+            if e.kind in {"agent_llm_round_started", "agent_llm_round_finished"}:
+                rounds = inv["agent_rounds"]
+                round_id = payload.get("round_id")
+                for index, existing in enumerate(rounds):
+                    if existing.get("round_id") == round_id:
+                        rounds[index] = payload
+                        break
+                else:
+                    rounds.append(payload)
+            else:
+                tool_calls = inv["tool_calls"]
+                tool_call_id = payload.get("call_id")
+                for index, existing in enumerate(tool_calls):
+                    if existing.get("call_id") == tool_call_id:
+                        tool_calls[index] = payload
+                        break
+                else:
+                    tool_calls.append(payload)
+
+        kind_by_role = {
+            "reviewer": "reviewer_decision",
+            "planner": "planner_decision",
+            "executor": "executor_tick",
+        }
+        for inv_id in invocation_order:
+            if inv_id in owned_invocations:
+                continue
+            inv = invocations[inv_id]
+            role = inv["role"]
+            seq = inv["step_seq"]
+            occurrence_key = (seq, role)
+            ordinal = call_occurrences.get(occurrence_key, 0) + 1
+            call_occurrences[occurrence_key] = ordinal
+            error = inv["error"] if isinstance(inv["error"], dict) else None
+            tick: dict[str, Any] = {
+                "kind": (
+                    kind_by_role[role]
+                ),
+                "step_seq": seq,
+                "message": (
+                    str(error.get("message"))
+                    if error
+                    else "invocation ended without a terminal submit"
+                ),
+                "level": (
+                    str(error.get("level")) if error else LogLevel.INFO.value
+                ),
+                "role": role,
+                "agent_rounds": inv["agent_rounds"],
+                "tool_calls": inv["tool_calls"],
+                # No decision event exists for this invocation; the call is
+                # reconstructed from in-flight agent_* events.
+                "incomplete": True,
+            }
+            if error:
+                tick["error"] = error
+            metrics = _call_metrics(tick)
+            first_round = min(
+                inv["agent_rounds"], key=lambda item: int(item.get("order") or 0),
+                default=None,
+            )
+            orphan_observation = None
+            if isinstance(first_round, dict) and first_round.get("input_observation_id"):
+                model_image_ref = first_round.get("input_model_image_ref")
+                orphan_observation = {
+                    "model_image_ref": model_image_ref,
+                    "som_ref": None,
+                    "tree_ref": None,
+                    "observation_mode": (
+                        None if model_image_ref else "tree-only"
+                    ),
+                    "observation_id": first_round.get("input_observation_id"),
+                    "captured_monotonic_ms": first_round.get(
+                        "input_captured_monotonic_ms"
+                    ),
+                    "coordinate_actionable": False,
+                    "index_actionable": False,
+                }
+            calls.append(
+                {
+                    "call_key": call_key_for(seq, role, ordinal),
+                    "step_seq": seq,
+                    "role": role,
+                    "phase": _call_phase(role, tick),
+                    "observation": orphan_observation,
+                    "reviewer": tick if role == "reviewer" else None,
+                    "planner": tick if role == "planner" else None,
+                    "executor": tick if role == "executor" else None,
+                    "elapsed_ms": None,
+                    "llm_elapsed_ms": metrics.get("llm_latency_ms_total"),
+                    "metrics": metrics,
+                    "wall_started_at": wall_starts.get(seq),
+                    "_ts": inv["first_ts"],
+                }
+            )
+
+        # Chronological merge: decision calls were appended in trace order,
+        # orphan calls afterwards — stable-sort by first event ts so the
+        # calls stream reflects the actual invocation sequence.
+        calls.sort(key=lambda c: (c.get("_ts") is None, c.get("_ts") or 0.0))
+        for call in calls:
+            call.pop("_ts", None)
+
         # Stable order: by step_seq ascending, with NULL-seq runtime lifecycle
         # ticks kept last; they are mechanical status, not true-success labels.
         ordered_steps: list[dict[str, Any]] = []
@@ -727,8 +870,13 @@ class ObservabilityQueries:
             "device_serial": task.device_serial,
             "plan": task.plan,
             "current_subgoal": task.current_subgoal,
-            "progress": self._progress_entries(task),
-            "next_role": task.state.next_role if task.state else None,
+            "next_role": task.state.revisable.next_role if task.state else None,
+            "revisable": (
+                task.state.revisable.model_dump(
+                    include={"revision", "plan", "completed_stage_ids", "next_role", "feedback"}
+                )
+                if task.state and task.state.revisable.plan else None
+            ),
             "role_invocation_count": (
                 task.state.role_invocation_count if task.state else None
             ),
@@ -738,7 +886,6 @@ class ObservabilityQueries:
             "updated_at": task.updated_at,
             "execution_elapsed_ms": task_execution_elapsed_ms(task),
             "steps": ordered_steps,
-            "task_scope": task_scope,
             "calls": calls,
             "metrics": metrics,
         }
@@ -784,6 +931,7 @@ class ObservabilityQueries:
         }
 
     def traces(self, task_id: str, level: str | None = None) -> list[dict[str, Any]]:
-        """Retrieve graded focused-role, scope, Executor, and loop traces."""
+        """Retrieve supported focused-role, Executor, and loop traces."""
         lvl = LogLevel(level) if level else None
-        return [e.model_dump() for e in self.db.list_traces(task_id, lvl)]
+        events = self._supported_traces(self.db.list_traces(task_id, lvl))
+        return [event.model_dump() for event in events]

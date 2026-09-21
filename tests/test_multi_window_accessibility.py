@@ -72,6 +72,46 @@ def _snapshot(*windows: AccessibilityWindow, complete: bool = True) -> Accessibi
     )
 
 
+@pytest.mark.parametrize("value", [None, True, False])
+def test_snapshot_cache_clear_evidence_is_optional_and_preserved(value):
+    payload = {"schema_version": 1, "generation": 1, "captured_monotonic_ms": 1,
+               "complete": True, "windows": [], "reasons": []}
+    if value is not None:
+        payload["cache_cleared"] = value
+    snapshot = decode_snapshot(payload)
+    assert snapshot.to_raw_tree()["_capture"]["collector_cache_cleared"] is value
+
+
+def test_snapshot_cache_clear_evidence_does_not_coerce_text_to_true():
+    with pytest.raises(AdbError, match="cache_cleared"):
+        decode_snapshot({"schema_version": 1, "generation": 1, "captured_monotonic_ms": 1,
+                         "complete": True, "windows": [], "cache_cleared": "false"})
+
+
+def test_window_fence_metadata_is_optional_for_older_collectors():
+    payload = {"schema_version": 1, "generation": 5, "captured_monotonic_ms": 1,
+               "complete": True, "windows": [], "reasons": []}
+    assert decode_snapshot(payload).window_generation is None
+    snapshot = decode_snapshot({**payload, "window_generation": 2, "window_quiet_ms": 350,
+                                "capture_attempts": 1, "snapshot_elapsed_ms": 2000,
+                                "content_changed_during_capture": True})
+    capture = snapshot.to_raw_tree()["_capture"]
+    assert capture["generation"] == 5
+    assert capture["window_generation"] == 2
+    assert capture["window_quiet_ms"] == 350
+    assert capture["collector_capture_attempts"] == 1
+    assert capture["content_changed_during_capture"] is True
+
+
+@pytest.mark.parametrize("field,value", [("window_generation", "2"),
+                                        ("window_quiet_ms", "350"),
+                                        ("content_changed_during_capture", "false")])
+def test_window_fence_metadata_rejects_coerced_values(field, value):
+    with pytest.raises(AdbError, match=field):
+        decode_snapshot({"schema_version": 1, "generation": 1, "captured_monotonic_ms": 1,
+                         "complete": True, "windows": [], field: value})
+
+
 def test_window_snapshot_orders_layers_and_assigns_one_a11y_index_namespace():
     raw = _snapshot(
         AccessibilityWindow(1, 1, 2, [0, 0, 200, 400], False, False, 0,
@@ -107,6 +147,64 @@ def test_focused_application_package_wins_over_higher_system_overlay():
     ui = normalize_a11y_tree(raw)
 
     assert ui.app_id == "com.xingin.xhs"
+
+
+def test_executor_and_planner_omit_inactive_status_bar_from_model_tree():
+    """Inactive system chrome stays in the canonical tree but not model input."""
+    raw = _snapshot(
+        AccessibilityWindow(
+            9, 3, 10, [0, 0, 200, 80], False, False, 0,
+            _node(
+                "battery", [0, 0, 200, 80],
+                clickable=False, package="com.android.systemui",
+            ),
+        ),
+        AccessibilityWindow(
+            4, 1, 1, [0, 0, 200, 400], True, True, 0,
+            _node("Open", [0, 80, 200, 160], package="com.demo"),
+        ),
+    ).to_raw_tree()
+    ownership = tree_ownership_facts(raw, foreground_package="com.demo")
+    ui = normalize_a11y_tree(raw)
+    ui.app_id = "com.demo"
+    interaction = build_interaction_state(ui)
+    package = ObservationPackage(
+        ui=ui,
+        mode=ObservationMode.TREE_PLUS_IMAGE,
+        text_for_llm=render_semantic_tree(ui),
+        image_for_llm=_png(),
+        clean_png=_png(),
+        annotated_png=None,
+        gap_reasons=[],
+        interaction_state=interaction,
+        actionable=True,
+        index_actionable=True,
+        frame_width=200,
+        frame_height=400,
+        model_image_width=200,
+        model_image_height=400,
+        capture_meta={
+            "complete": True,
+            "coordinate_compatible": True,
+            **ownership,
+        },
+    )
+
+    assert "battery" not in package.text_for_llm
+    assert "Open" in package.text_for_llm
+    assert any(
+        el.window_wrapper and el.window_type == 3 for el in ui.semantic_tree
+    )
+
+    executor_tree = render_executor_observation_v2(package).split("\nTREE:\n", 1)[1]
+    planner_tree = render_planner_observation_v2(package).split("\nTREE:\n", 1)[1]
+    assert "battery" not in executor_tree
+    assert "battery" not in planner_tree
+    assert "Open" in executor_tree
+    assert "Open" in planner_tree
+    assert "[0]" in executor_tree
+    assert "window_type=3" not in executor_tree
+    assert "window_type=3" not in planner_tree
 
 
 def test_focused_window_wrapper_does_not_mask_focused_editable_in_role_contexts():
@@ -150,10 +248,14 @@ def test_focused_window_wrapper_does_not_mask_focused_editable_in_role_contexts(
     assert interaction.focused_element is not None
     assert interaction.focused_element.role == "android.widget.EditText"
     planner = json.loads(
-        render_planner_observation_v2(package).split("CURRENT OBSERVATION:\n", 1)[1]
+        render_planner_observation_v2(package)
+        .split("CURRENT OBSERVATION:\n", 1)[1]
+        .splitlines()[0]
     )["focused_interaction"]["focused_editable"]
     executor = json.loads(
-        render_executor_observation_v2(package).split("CURRENT OBSERVATION:\n", 1)[1]
+        render_executor_observation_v2(package)
+        .split("CURRENT OBSERVATION:\n", 1)[1]
+        .splitlines()[0]
     )["focused_interaction"]["focused_editable"]
     assert planner["raw_text"] == executor["raw_text"] == "hello"
     assert planner["raw_a11y_label"] == executor["raw_a11y_label"] == "搜索输入框"
@@ -744,7 +846,9 @@ async def test_frame_capture_keeps_current_pixels_when_dump_times_out(monkeypatc
     assert tree["_capture"]["complete"] is False
     assert tree["_frame_gate_degraded"] is True
     assert metadata["coordinate_compatible"] is False
-    assert metadata["tree_provider"] == "uiautomator_dump"
+    # Failed tree acquisition has no successful tree provider.
+    assert metadata["tree_provider"] == "unavailable"
+    assert "dump timed out" in tree["_capture"]["reasons"]
     assert metadata["pixel_provider"] == "adb_screencap"
     assert metadata["fallback_edges"] == [{
         "from": "direct_capture",

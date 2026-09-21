@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Clipboard } from "lucide-react";
 
 import type { AgentLlmRound, AgentToolCall } from "@/api/types";
@@ -9,8 +9,13 @@ import {
   agentFoldKey,
   buildAgentCallRows,
   cacheSummary,
+  collapsedModelInputSummary,
+  conversationArtifactEnabled,
+  conversationArtifactQueryKey,
+  type ConversationVisualSelectionProps,
+  conversationFoldOpen,
   inputSectionFoldKey,
-  modelInputSummary,
+  modelConversationVisuals,
   observationTransitionLabel,
   projectInputSections,
   type ArtifactView,
@@ -37,6 +42,9 @@ function FoldBlock({
   artifactView = "raw",
   error,
   loading = false,
+  selected = false,
+  onSelect,
+  taskId,
 }: {
   foldKey: string;
   label: string;
@@ -48,11 +56,14 @@ function FoldBlock({
   artifactView?: ArtifactView;
   error?: string | null;
   loading?: boolean;
+  selected?: boolean;
+  onSelect?: () => void;
+  taskId: string;
 }) {
   const artifact = useQuery({
-    queryKey: ["agent-artifact", refId],
-    queryFn: () => getArtifactText(refId!),
-    enabled: open && !!refId,
+    queryKey: conversationArtifactQueryKey(taskId, refId),
+    queryFn: () => getArtifactText(refId!, taskId),
+    enabled: conversationArtifactEnabled(open, refId),
     staleTime: Infinity,
   });
   const text = useMemo(() => {
@@ -61,10 +72,20 @@ function FoldBlock({
   }, [artifact.data, artifactView, value]);
 
   return (
-    <div data-fold-key={foldKey} className="rounded border border-border bg-bg-1">
+    <div
+      data-fold-key={foldKey}
+      className={cn(
+        "rounded border border-border bg-bg-1",
+        selected && "border-cyan ring-1 ring-cyan/60",
+      )}
+    >
       <button
         type="button"
-        onClick={() => setOpen(foldKey, !open)}
+        aria-pressed={onSelect ? selected : undefined}
+        onClick={() => {
+          onSelect?.();
+          setOpen(foldKey, !open);
+        }}
         className="flex w-full min-w-0 items-center gap-2 px-2 py-1.5 text-left hover:bg-bg-2"
       >
         <ChevronRight className={cn("h-3 w-3 shrink-0 transition-transform", open && "rotate-90")} />
@@ -100,6 +121,10 @@ function InputFoldBlock({
   setOpen,
   loading = false,
   error,
+  selected = false,
+  onSelect,
+  refId,
+  taskId,
 }: {
   foldKey: string;
   label: string;
@@ -110,29 +135,55 @@ function InputFoldBlock({
   setOpen: (key: string, value: boolean) => void;
   loading?: boolean;
   error?: string | null;
+  selected?: boolean;
+  onSelect?: () => void;
+  refId?: string | null;
+  taskId: string;
 }) {
+  const artifact = useQuery({
+    queryKey: conversationArtifactQueryKey(taskId, refId),
+    queryFn: () => getArtifactText(refId!, taskId),
+    enabled: conversationArtifactEnabled(open, refId),
+    staleTime: Infinity,
+  });
+  const artifactValue = artifact.data == null
+    ? undefined
+    : visibleArtifactPayload(artifact.data, "request");
+  const resolvedValue = artifactValue ?? value;
   const sections = useMemo(
-    () => value === undefined ? [] : projectInputSections(value),
-    [value],
+    () => resolvedValue === undefined ? [] : projectInputSections(resolvedValue),
+    [resolvedValue],
   );
+  const resolvedLoading = loading || (open && !!refId && artifact.isLoading);
+  const resolvedError = error || (artifact.error ? String(artifact.error) : null);
   return (
-    <div data-fold-key={foldKey} className="rounded border border-border bg-bg-1">
+    <div
+      data-fold-key={foldKey}
+      className={cn(
+        "rounded border border-border bg-bg-1",
+        selected && "border-cyan ring-1 ring-cyan/60",
+      )}
+    >
       <button
         type="button"
-        onClick={() => setOpen(foldKey, !open)}
+        aria-pressed={onSelect ? selected : undefined}
+        onClick={() => {
+          onSelect?.();
+          setOpen(foldKey, !open);
+        }}
         className="flex w-full min-w-0 items-center gap-2 px-2 py-1.5 text-left hover:bg-bg-2"
       >
         <ChevronRight className={cn("h-3 w-3 shrink-0 transition-transform", open && "rotate-90")} />
         <span className="shrink-0 font-mono text-[10px] uppercase tracking-wide text-text">{label}</span>
-        <span className={cn("min-w-0 truncate text-[10px]", error ? "text-err" : "text-text-mute")}>
-          {error || summary}
+        <span className={cn("min-w-0 truncate text-[10px]", resolvedError ? "text-err" : "text-text-mute")}>
+          {resolvedError || summary}
         </span>
       </button>
       {open && (
         <div className="space-y-1 border-t border-border bg-bg-2 p-1.5">
-          {loading && <div className="px-2 py-1 font-mono text-[10px] text-text-mute">loading…</div>}
-          {error && <div className="px-2 py-1 font-mono text-[10px] text-err">error: {error}</div>}
-          {!loading && !error && sections.map((section, index) => {
+          {resolvedLoading && <div className="px-2 py-1 font-mono text-[10px] text-text-mute">loading…</div>}
+          {resolvedError && <div className="px-2 py-1 font-mono text-[10px] text-err">error: {resolvedError}</div>}
+          {!resolvedLoading && !resolvedError && sections.map((section, index) => {
             const sectionKey = inputSectionFoldKey(foldKey, section, index);
             const sectionValue = section.items.length === 1
               ? section.items[0].content
@@ -147,6 +198,8 @@ function InputFoldBlock({
                 value={sectionValue}
                 open={!!folds[sectionKey]}
                 setOpen={setOpen}
+                onSelect={onSelect}
+                taskId={taskId}
               />
             );
           })}
@@ -172,26 +225,19 @@ export function AgentCallsBlock({
   rounds,
   calls,
   scopeKey = "call",
+  selectedVisualKey,
+  onSelectVisual,
+  taskId,
 }: {
   rounds?: AgentLlmRound[];
   calls?: AgentToolCall[];
   scopeKey?: string;
-}) {
+  taskId: string;
+} & ConversationVisualSelectionProps) {
   const rows = buildAgentCallRows(rounds ?? [], calls ?? []);
   const modelRows = rows.filter((row) => row.kind === "model").map((row) => row.round);
   const invocationId = modelRows[0]?.invocation_id;
   const [folds, setFolds] = useState<Record<string, boolean>>({});
-  const inputArtifacts = useQueries({
-    queries: modelRows.map((round) => ({
-      queryKey: ["agent-artifact", round.request_ref],
-      queryFn: () => getArtifactText(round.request_ref!),
-      enabled: !!round.request_ref,
-      staleTime: Infinity,
-    })),
-  });
-  const inputPayloads = inputArtifacts.map((artifact) => (
-    artifact.data == null ? undefined : visibleArtifactPayload(artifact.data, "request")
-  ));
   if (rows.length === 0) return null;
 
   const setOpen = (foldKey: string, value: boolean) => {
@@ -208,13 +254,9 @@ export function AgentCallsBlock({
         if (row.kind === "model") {
           const round = row.round;
           const roundIndex = modelRows.findIndex((candidate) => candidate.round_id === round.round_id);
-          const inputArtifact = inputArtifacts[roundIndex];
-          const inputPayload = inputPayloads[roundIndex];
-          const input = inputPayload;
-          const inputSections = input === undefined ? undefined : projectInputSections(input);
-          const inputSectionCount = inputSections?.length;
           const isInitialInput = roundIndex === 0;
           const inputKey = agentFoldKey(scopeKey, round, "input");
+          const modelVisuals = modelConversationVisuals(scopeKey, round);
           const outputKey = agentFoldKey(scopeKey, round, "output");
           const diagnosticsKey = agentFoldKey(scopeKey, round, "diagnostics");
           const reasoningKey = `${outputKey}:reasoning`;
@@ -225,24 +267,26 @@ export function AgentCallsBlock({
           const calledTools = [...new Set(roundCalls.map((call) => call.name))];
           const outputSummary = calledTools.length > 0
             ? `${roundMeta(round)} · calls ${calledTools.join(", ")}`
-            : `${roundMeta(round)} · ${round.stop_reason || "response"}`;
+            : `${roundMeta(round)} · ${round.stream_status || round.stop_reason || "response"}`;
+          const isLatestOutput = roundIndex === modelRows.length - 1;
           return (
             <Fragment key={round.round_id}>
-              {(inputSectionCount === undefined || inputSectionCount > 0) && (
+              {(!!round.request_ref || !!modelVisuals) && (
                 <div className="relative border-l-2 border-violet/40 pl-3">
                   <span className="absolute -left-[5px] top-3 h-2 w-2 rounded-full bg-violet" />
                   <InputFoldBlock
                     foldKey={inputKey}
                     label={isInitialInput ? "Initial input" : "Model input"}
-                    summary={input === undefined
-                      ? "loading…"
-                      : modelInputSummary(input)}
-                    value={input}
-                    open={!!folds[inputKey]}
+                    summary={collapsedModelInputSummary(round)}
+                    refId={round.request_ref}
+                    open={conversationFoldOpen(folds, inputKey)}
                     folds={folds}
                     setOpen={setOpen}
-                    loading={input === undefined && !!round.request_ref && inputArtifact?.isLoading}
-                    error={inputArtifact?.error ? String(inputArtifact.error) : null}
+                    taskId={taskId}
+                    selected={modelVisuals?.input.rowKey === selectedVisualKey}
+                    onSelect={modelVisuals && onSelectVisual
+                      ? () => onSelectVisual(modelVisuals.input)
+                      : undefined}
                   />
                 </div>
               )}
@@ -250,12 +294,18 @@ export function AgentCallsBlock({
                 <span className="absolute -left-[5px] top-3 h-2 w-2 rounded-full bg-violet" />
                 <FoldBlock
                   foldKey={outputKey}
-                  label="Model output"
+                  label={round.stream_status ? "Model output · live" : "Model output"}
                   summary={outputSummary}
                   refId={round.response_ref}
                   artifactView="response"
-                  open={!!folds[outputKey]}
+                  value={round.live_output}
+                  open={conversationFoldOpen(folds, outputKey, isLatestOutput)}
                   setOpen={setOpen}
+                  selected={modelVisuals?.output.rowKey === selectedVisualKey}
+                  onSelect={modelVisuals && onSelectVisual
+                    ? () => onSelectVisual(modelVisuals.output)
+                    : undefined}
+                  taskId={taskId}
                 />
               </div>
               <div className="ml-3">
@@ -269,8 +319,9 @@ export function AgentCallsBlock({
                     tool_catalog_hash: round.tool_catalog_hash || null,
                     stop_reason: round.stop_reason,
                   }}
-                  open={!!folds[diagnosticsKey]}
+                  open={conversationFoldOpen(folds, diagnosticsKey)}
                   setOpen={setOpen}
+                  taskId={taskId}
                 />
               </div>
               {round.reasoning_status && round.reasoning_status !== "not_requested" && (
@@ -288,8 +339,9 @@ export function AgentCallsBlock({
                       summary: round.reasoning_summary,
                       reasoning_tokens: round.usage?.reasoning_tokens ?? null,
                     }}
-                    open={!!folds[reasoningKey]}
+                    open={conversationFoldOpen(folds, reasoningKey)}
                     setOpen={setOpen}
+                    taskId={taskId}
                   />
                 </div>
               )}
@@ -315,8 +367,9 @@ export function AgentCallsBlock({
               label={`Tool input · ${call.name}`}
               summary={Object.keys(call.arguments ?? {}).join(", ") || "no arguments"}
               value={call.arguments}
-              open={!!folds[argumentsKey]}
+              open={conversationFoldOpen(folds, argumentsKey)}
               setOpen={setOpen}
+              taskId={taskId}
             />
             <FoldBlock
               foldKey={resultKey}
@@ -324,8 +377,9 @@ export function AgentCallsBlock({
               summary={`${call.status} · ${formatMs(call.elapsed_ms)}`}
               error={call.error}
               value={result}
-              open={!!folds[resultKey]}
+              open={conversationFoldOpen(folds, resultKey)}
               setOpen={setOpen}
+              taskId={taskId}
             />
             {call.observation_transition && (
               <div className="ml-2 border-l border-amber/50 py-1 pl-2 font-mono text-[10px] text-amber">

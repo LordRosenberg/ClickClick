@@ -1,30 +1,35 @@
-# Prebuilt / Release device APKs
+# Collector APK distribution
 
-## Collector（本仓库）
+APK binaries are no longer committed here. Distribution uses GitHub Releases;
+local development still uses freshly built APKs.
 
-| 文件 | Package | 要求 |
-|------|---------|------|
-| `clickclick-collector-0.2.0-debug.apk` | `ai.clickclick.collector` | Android **8.0+**（API 26） |
+Resolution order:
 
-### 获取路径
+1. `CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH` (explicit local file).
+2. `android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk`
+   when Gradle metadata matches `driver/collector_release.py` version.
+3. The exact Release tag and asset pinned in `driver/collector_release.py`,
+   verified by SHA-256 and cached under ignored `data/device-apks`.
 
-1. **仓库内预编译**：`android/prebuilt/clickclick-collector-*.apk`
-2. **GitHub Release**（公开 / 私有仓各有一份）  
-   - 公开：https://github.com/LordRosenberg/ClickClick/releases  
-   - 私有：https://github.com/LordRosenberg/ClickClick-Dev/releases  
-3. **自己编译** `android/accessibility-collector/` 后拷贝到本目录
+For local/explicit APKs, initialization compares the installed APK digest even
+when `versionName` is unchanged. A rebuilt APK is installed when different;
+a Release cannot override a matching local build. Stale-version automatic build
+outputs are skipped; bump the host version when bumping Gradle version.
 
-### 维护者：双仓日常发布
+The default Release repository is `LordRosenberg/ClickClick`; override it with
+`CLICKCLICK_COLLECTOR_RELEASE_REPO`. Private repositories require `GH_TOKEN` or
+`GITHUB_TOKEN` in the process environment. `CLICKCLICK_DEVICE_APK_CACHE` overrides
+the cache directory. Authentication/download/hash failures are reported; there
+is no fallback to an older release.
+
+## Install or build
+
+Download the pinned Collector APK from [GitHub Releases](https://github.com/LordRosenberg/ClickClick/releases), or build `android/accessibility-collector` with Gradle. APKs are distributed as Release assets rather than committed to the source tree.
+
+Bootstrap uses the same version and digest checks:
 
 ```bash
-# 私有仓：push develop；若本地 collector APK digest 变了 → 更新 Dev Release
-./devtools/push-develop.sh
-
-# 公开仓：develop → main（去掉 openspec/devtools/evaluation）→ push public；
-# 若 APK digest 变了 → 更新公开 Release
-./devtools/sync-public.sh
+bash scripts/bootstrap-device.sh YOUR_ADB_SERIAL
 ```
 
-强制重传 Release：`./devtools/publish-collector-release.sh both`
-
-一键装机：`./scripts/bootstrap-device.sh`
+ADBKeyboard is a separate third-party input method; its source and license are linked in the Release notes. Source commits and APK assets are versioned separately.

@@ -23,6 +23,40 @@ _HEADER_TIMEOUT_S = 5.0
 _PIPE_CHUNK = 64 * 1024
 
 
+def _is_expected_proactor_disconnect(context: dict[str, Any]) -> bool:
+    """Return true for the harmless Windows reset raised during transport close.
+
+    A peer may reset a browser connection before ``StreamWriter.wait_closed``
+    finishes.  On the Proactor event loop that reset can surface later from the
+    transport's private connection-lost callback, outside the coroutine that
+    already handles ``ConnectionError``.  Keep the filter deliberately narrow
+    so real application and networking failures still reach asyncio's default
+    exception handler.
+    """
+    exc = context.get("exception")
+    message = str(context.get("message", ""))
+    return (
+        isinstance(exc, ConnectionResetError)
+        and getattr(exc, "winerror", None) == 10054
+        and "_ProactorBasePipeTransport._call_connection_lost" in message
+    )
+
+
+def _install_loop_exception_handler(loop: asyncio.AbstractEventLoop) -> None:
+    previous = loop.get_exception_handler()
+
+    def handle(current_loop: asyncio.AbstractEventLoop, context: dict[str, Any]) -> None:
+        if _is_expected_proactor_disconnect(context):
+            logger.debug("browser connection reset while TLS relay was closing")
+            return
+        if previous is not None:
+            previous(current_loop, context)
+        else:
+            current_loop.default_exception_handler(context)
+
+    loop.set_exception_handler(handle)
+
+
 def _free_loopback_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind(("127.0.0.1", 0))
@@ -155,6 +189,7 @@ async def _serve(
 ) -> None:
     import uvicorn
 
+    _install_loop_exception_handler(asyncio.get_running_loop())
     upstream_port = _free_loopback_port()
     config = uvicorn.Config(
         app,

@@ -14,14 +14,8 @@ from shared.llm_gateway import GatewayResponse, ToolCall
 
 def _planner_payload() -> dict:
     return {
-        "mode": "execute",
-        "target_requirement_ref": "final_ui_state:1",
-        "next_subgoal": "establish the requested next state",
-        "completion_contract": {
-            "success_conditions": ["the requested next state is established"],
-            "disqualifying_clauses": [],
-        },
-        "plan": ["establish the requested next state"],
+        "decision": "execute", "reason": "Establish the requested state",
+        "plan": {"current_stage": {"goal": "establish the requested next state"}},
     }
 
 
@@ -64,7 +58,7 @@ async def test_round_artifacts_are_retrievable_redacted_and_deduplicated(
     assert request["round_id"] == response["round_id"] == round_record.round_id
     assert request["messages"][-1]["content"][1]["attachment_metadata"]["binary"] == "omitted"
     assert [section["name"] for section in request["message_sections"]] == [
-        "system", "observation",
+        "system", "skill_index", "observation",
     ]
     assert "AAAA" not in artifacts.read_text(round_record.request_ref)
     assert response["content"] == "visible assistant text"
@@ -90,7 +84,7 @@ async def test_next_round_records_exact_named_tool_messages(monkeypatch, tmp_pat
                 stop_reason="tool_calls", usage={}, latency_ms=1,
                 tool_calls=[ToolCall(
                     id="observe-1", name="observe_screen",
-                    arguments=json.dumps({"mode": "current"}),
+                    arguments=json.dumps({"mode": "snapshot"}),
                 )],
             )
         return GatewayResponse(

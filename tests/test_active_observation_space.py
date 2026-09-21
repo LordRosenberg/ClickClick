@@ -138,13 +138,31 @@ def test_image_only_basis_rejects_index_but_keeps_coordinates_available():
         action=Action(type="tap_xy", x=100, y=200),
         basis_observation_id=entry.observation_id,
     )
+    authorized_index = ExecutorStep(
+        action=Action(
+            type="skill_authorized_action", skill_action_id="demo.inspect", index=7,
+        ),
+        basis_observation_id=entry.observation_id,
+    )
+    authorized_coordinate = ExecutorStep(
+        action=Action(
+            type="skill_authorized_action", skill_action_id="demo.inspect", x=100, y=200,
+        ),
+        basis_observation_id=entry.observation_id,
+    )
 
     reason, _detail = _visual_submission_error(
         indexed, context=context, epsilon=1e-6,
     )
     assert reason == "index_unavailable_for_observation"
     assert _visual_submission_error(
+        authorized_index, context=context, epsilon=1e-6,
+    )[0] == "index_unavailable_for_observation"
+    assert _visual_submission_error(
         coordinate, context=context, epsilon=1e-6,
+    )[0] == ""
+    assert _visual_submission_error(
+        authorized_coordinate, context=context, epsilon=1e-6,
     )[0] == ""
 
 
@@ -162,7 +180,7 @@ async def test_tool_observation_replaces_baseline_and_owns_transform(monkeypatch
         calls += 1
         if calls == 1:
             return GatewayResponse(content="", model="m", stop_reason="tool_calls", tool_calls=[
-                ToolCall(id="observe", name="observe_screen", arguments='{"mode":"current"}'),
+                ToolCall(id="observe", name="observe_screen", arguments='{"mode":"snapshot"}'),
             ])
         seen_second = json.dumps(messages, ensure_ascii=False)
         return GatewayResponse(content="", model="m", stop_reason="tool_calls", tool_calls=[
@@ -228,7 +246,7 @@ async def test_current_read_replaces_baseline_with_fresh_model_pixels(
         calls += 1
         if calls == 1:
             return GatewayResponse(content="", model="m", stop_reason="tool_calls", tool_calls=[
-                ToolCall(id="observe", name="observe_screen", arguments='{"mode":"current"}'),
+                    ToolCall(id="observe", name="observe_screen", arguments='{"mode":"snapshot"}'),
             ])
         second_request = json.dumps(messages, ensure_ascii=False)
         return GatewayResponse(content="", model="m", stop_reason="tool_calls", tool_calls=[
@@ -276,7 +294,7 @@ async def test_temporal_start_frame_cannot_override_runtime_ending_basis(monkeyp
         calls += 1
         if calls == 1:
             return GatewayResponse(content="", model="m", stop_reason="tool_calls", tool_calls=[
-                ToolCall(id="observe", name="observe_screen", arguments='{"mode":"temporal"}'),
+                    ToolCall(id="observe", name="observe_screen", arguments='{"mode":"sequence"}'),
             ])
         second_messages = list(messages)
         return GatewayResponse(content="", model="chatgpt/gpt-5.4", stop_reason="tool_calls", tool_calls=[
@@ -322,7 +340,7 @@ async def test_temporal_start_frame_cannot_override_runtime_ending_basis(monkeyp
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mode", ["current", "temporal"])
+@pytest.mark.parametrize("mode", ["snapshot", "sequence"])
 async def test_failed_in_role_refresh_preserves_prior_o_basis_and_visual_metadata(
     monkeypatch, mode: str,
 ):
@@ -341,7 +359,7 @@ async def test_failed_in_role_refresh_preserves_prior_o_basis_and_visual_metadat
 
     driver = Driver()
     baseline = _package("obs-prior", 200, 400, color="yellow")
-    if mode == "temporal":
+    if mode == "sequence":
         invalid_start = ObservationPackage(
             ui=CanonicalUI(app_id="com.example"),
             mode=ObservationMode.IMAGE_ONLY,
@@ -444,7 +462,7 @@ async def test_accepted_nonactionable_current_refresh_replaces_o_without_action_
                 content="", model="m", stop_reason="tool_calls",
                 tool_calls=[ToolCall(
                     id="observe", name="observe_screen",
-                    arguments='{"mode":"current"}',
+                    arguments='{"mode":"snapshot"}',
                 )],
             )
         second_messages = list(messages)
@@ -519,7 +537,7 @@ async def test_accepted_nonactionable_temporal_ending_replaces_o_without_duplica
                 content="", model="m", stop_reason="tool_calls",
                 tool_calls=[ToolCall(
                     id="observe", name="observe_screen",
-                    arguments='{"mode":"temporal"}',
+                    arguments='{"mode":"sequence"}',
                 )],
             )
         second_messages = list(messages)
@@ -574,7 +592,7 @@ async def test_temporal_start_pixels_are_bound_into_delivered_evidence_digest(mo
                     content="", model="m", stop_reason="tool_calls",
                     tool_calls=[ToolCall(
                         id="observe", name="observe_screen",
-                        arguments='{"mode":"temporal"}',
+                        arguments='{"mode":"sequence"}',
                     )],
                 )
             return GatewayResponse(

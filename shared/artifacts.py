@@ -10,6 +10,17 @@ from pathlib import Path
 from typing import Any
 
 
+def image_suffix(data: bytes) -> str:
+    """Return a browser-renderable suffix for supported encoded images."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return ".png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return ".jpg"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return ".gif"
+    return ".bin"
+
+
 class ArtifactStore:
     """Store large binary/text artifacts as files and return relative refs."""
 
@@ -32,6 +43,18 @@ class ArtifactStore:
         path = self.root / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
+        return rel
+
+    def save_content_addressed_bytes(
+        self, kind: str, data: bytes, suffix: str = ".bin",
+    ) -> str:
+        """Persist immutable bytes by digest and reuse identical content."""
+        digest = hashlib.sha256(data).hexdigest()
+        rel = f"{kind}/{digest}{suffix}"
+        path = self.root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.write_bytes(data)
         return rel
 
     def save_json(self, kind: str, payload: Any) -> str:

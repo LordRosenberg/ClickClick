@@ -50,7 +50,7 @@ class GatewayError(RuntimeError):
     """Common error type raised by the gateway.
 
     `category` is one of: `transient`, `auth`, `malformed`, `budget`, `config`,
-    `content_safety`.
+    `content_safety`, `quota`.
     Provider-specific error shapes MUST NOT leak past this boundary; callers
     branch on `category`, not on the underlying exception type.
     """
@@ -70,6 +70,13 @@ class GatewayAuthError(GatewayError):
 class GatewayConfigError(GatewayError):
     def __init__(self, message: str, cause: Exception | None = None) -> None:
         super().__init__(message, category="config", cause=cause)
+
+
+class GatewayQuotaError(GatewayError):
+    """Provider allowance exhausted; immediate retries cannot restore it."""
+
+    def __init__(self, message: str, cause: Exception | None = None) -> None:
+        super().__init__(message, category="quota", cause=cause)
 
 
 class GatewayTransientError(GatewayError):
@@ -157,6 +164,9 @@ class GatewayResponse:
     tool_calls: list[ToolCall] = field(default_factory=list)
     reasoning: ReasoningResult = field(default_factory=ReasoningResult)
     transport_attempts: int = 1
+
+
+StreamSink = Callable[[dict[str, Any]], Any]
 
 
 def normalize_usage(raw: Any) -> dict[str, int | bool | None]:
@@ -254,8 +264,16 @@ def _effective_reasoning_config(
     return config, supported
 
 
-def _extract_reasoning_summary(resp: Any) -> str | None:
-    """Read only explicit provider summaries, never private reasoning content."""
+def _extract_reasoning_summary(resp: Any, *, allow_reasoning_content: bool = False) -> str | None:
+    """Read only explicit provider summaries, never private reasoning content.
+
+    LiteLLM normalizes Responses-API reasoning *summaries* into
+    `message.reasoning_content` (on that route the full chain-of-thought is
+    encrypted and never exposed). We read that field only when the caller
+    explicitly requested a summary — otherwise a relay's private
+    chain-of-thought (e.g. deepseek-style `reasoning_content`) would leak
+    into persisted traces.
+    """
     candidates: list[Any] = []
     if isinstance(resp, dict):
         candidates.extend([resp.get("reasoning_summary"), resp.get("summary")])
@@ -271,11 +289,15 @@ def _extract_reasoning_summary(resp: Any) -> str | None:
         message = first.get("message") if isinstance(first, dict) else getattr(first, "message", None)
         if isinstance(message, dict):
             candidates.extend([message.get("reasoning_summary"), message.get("summary")])
+            if allow_reasoning_content:
+                candidates.append(message.get("reasoning_content"))
         elif message is not None:
             candidates.extend([
                 getattr(message, "reasoning_summary", None),
                 getattr(message, "summary", None),
             ])
+            if allow_reasoning_content:
+                candidates.append(getattr(message, "reasoning_content", None))
     for value in candidates:
         if isinstance(value, str) and value.strip():
             return value.strip()[:4000]
@@ -349,6 +371,19 @@ def _classify_exception(exc: Exception) -> GatewayError:
             offending_locations=locations,
         )
 
+    # Inspect only provider errors, never model-generated task explanations.
+    # SDKs may keep the backend code in body rather than the exception message.
+    quota_detail = (msg_lower + " " + str(getattr(exc, "body", "")).lower()).replace("’", "'")
+    quota_markers = (
+        "usage_limit_reached", "insufficient_quota", "quota_exceeded",
+        "usage limit has been reached", "you've hit your usage limit",
+        "you have hit your usage limit", "usage limit reached",
+        "you have reached your usage limit",
+        "exceeded your current quota", "insufficient credits", "out of credits",
+    )
+    if any(marker in quota_detail for marker in quota_markers):
+        return GatewayQuotaError(f"quota exhausted: {msg}; provider_body={getattr(exc, 'body', None)}", cause=exc)
+
     # Auth
     if status in (401, 403):
         return GatewayAuthError(f"auth error ({status}): {msg}", cause=exc)
@@ -373,6 +408,18 @@ def _classify_exception(exc: Exception) -> GatewayError:
     # Budget / length
     if "length" in name or "max_tokens" in msg_lower or "context" in msg_lower and "length" in msg_lower:
         return GatewayBudgetError(f"budget/length: {msg}", cause=exc)
+
+    # Client 4xx (except auth/timeout/rate-limit above) is a bad request:
+    # tool_choice + thinking, unknown field, etc. Retrying wastes seconds.
+    if status is not None:
+        try:
+            sc = int(status)
+        except (TypeError, ValueError):
+            sc = 0
+        if 400 <= sc < 500 and sc not in (401, 403, 408, 429):
+            return GatewayConfigError(f"config ({sc}): {msg}", cause=exc)
+    if "badrequest" in name or "invalidrequest" in name:
+        return GatewayConfigError(f"config/argument: {msg}", cause=exc)
 
     # Default: treat as transient (safer to retry once) unless it's clearly
     # a config/argument problem.
@@ -426,6 +473,8 @@ def _build_completion_kwargs(
         "messages": messages,
         "timeout": GATEWAY_REQUEST_TIMEOUT_S,
     }
+    if provider.get("stream") is True:
+        kwargs["stream"] = True
     # ChatGPT subscription auth/base are owned by LiteLLM OAuth; do not pass
     # MODELS_JSON api_key/base_url/max_tokens (backend rejects token limits).
     if not chatgpt:
@@ -433,6 +482,18 @@ def _build_completion_kwargs(
             kwargs["api_key"] = provider["api_key"]
         if "base_url" in provider and provider["base_url"]:
             kwargs["api_base"] = provider["base_url"]
+        configured_extra_body = provider.get("extra_body")
+        if isinstance(configured_extra_body, dict) and configured_extra_body:
+            kwargs["extra_body"] = dict(configured_extra_body)
+        allowed_params = provider.get("allowed_openai_params")
+        if (
+            isinstance(allowed_params, list)
+            and allowed_params
+            and all(isinstance(param, str) for param in allowed_params)
+        ):
+            # Explicit per-model capability override for compatible relay aliases
+            # missing from LiteLLM's model registry. Keep strict defaults elsewhere.
+            kwargs["allowed_openai_params"] = list(allowed_params)
         if max_output_tokens is not None:
             kwargs["max_tokens"] = int(max_output_tokens)
         elif "max_tokens" in provider and provider["max_tokens"]:
@@ -499,8 +560,9 @@ def _apply_cache_control(
 
     When ``cache_system_prefix`` is True, mark the system message. When
     ``cache_skill_index`` is True, also mark the last contiguous Decision
-    Context v2 K message. Cumulative prefix through generic → exact App knowledge
-    is what Anthropic caches. Non-Anthropic providers: no-op.
+    Context v2 Skill-index/K message. Cumulative prefix through the stable index,
+    generic knowledge, and exact-App knowledge is what Anthropic caches.
+    Non-Anthropic providers: no-op.
     """
     if not cache_system_prefix and not cache_skill_index:
         return messages
@@ -508,6 +570,7 @@ def _apply_cache_control(
         return messages
     out: list[dict[str, Any]] = []
     k_prefixes = (
+        "SKILL INDEX",
         "[generic skill:",
         "[foreground_app_core skill:",
         "[foreground_app_workflow skill:",
@@ -564,6 +627,7 @@ async def complete(
     max_retries: int | None = None,
     max_output_tokens: int | None = None,
     attempt_meter: Callable[[str, dict[str, Any]], Any] | None = None,
+    stream_sink: StreamSink | None = None,
 ) -> GatewayResponse:
     """One Chat Completions round-trip (LiteLLM ``acompletion``).
 
@@ -585,8 +649,8 @@ async def complete(
     - Tool use (`stop_reason=tool_calls`): ``tool_calls`` populated.
 
     When ``tools`` and ``tool_choice`` are both supplied, the choice is passed
-    through to LiteLLM unchanged. AgentSession uses ``required`` so role calls
-    cannot intentionally choose a plain-text response instead of a tool.
+    through to LiteLLM unchanged. AgentSession defaults to ``required``, with
+    a per-model ``auto`` option; it still requires a validated tool submission.
 
     `cache_system_prefix` / `cache_skill_index`: when True and `model` routes
     to Anthropic, attach ephemeral `cache_control` markers to the system
@@ -615,6 +679,7 @@ async def complete(
 
     last_exc: Exception | None = None
     retry_cap = GATEWAY_MAX_RETRIES if max_retries is None else max(0, int(max_retries))
+    streaming = kwargs.get("stream") is True
     for attempt in range(retry_cap + 1):
         if attempt_meter is not None:
             metered = attempt_meter("model_call_started", {
@@ -624,8 +689,27 @@ async def complete(
                 await metered
         t0 = time.monotonic()
         try:
+            if streaming:
+                await _notify_stream(stream_sink, {
+                    "attempt": attempt + 1,
+                    "sequence": 0,
+                    "status": "started",
+                    "text": "",
+                    "summary": "",
+                    "tool_call_count": 0,
+                })
             # litellm.acompletion is the async entry point.
             resp = await litellm.acompletion(**kwargs)
+            if streaming:
+                effective_reasoning, _ = _effective_reasoning_config(s, model, reasoning)
+                resp = await _aggregate_stream(
+                    resp,
+                    stream_sink=stream_sink,
+                    attempt=attempt + 1,
+                    allow_reasoning_content=bool(
+                        effective_reasoning and effective_reasoning.summary
+                    ),
+                )
             latency_ms = (time.monotonic() - t0) * 1000.0
             result = _build_response(
                 resp, model, response_format, latency_ms,
@@ -634,9 +718,18 @@ async def complete(
             result.transport_attempts = attempt + 1
             return result
         except Exception as exc:  # noqa: BLE001
+            if streaming:
+                await _notify_stream(stream_sink, {
+                    "attempt": attempt + 1,
+                    "sequence": -1,
+                    "status": "failed",
+                    "text": "",
+                    "summary": "",
+                    "tool_call_count": 0,
+                })
             last_exc = exc
             classified = _classify_exception(exc)
-            if classified.category == "auth":
+            if classified.category in ("auth", "quota"):
                 classified.transport_attempts = attempt + 1
                 raise classified from exc
             if classified.category == "config":
@@ -659,6 +752,141 @@ async def complete(
     if last_exc is not None:
         raise _classify_exception(last_exc) from last_exc
     raise GatewayError("complete() exhausted retries with no exception", category="transient")
+
+
+def _value(obj: Any, name: str, default: Any = None) -> Any:
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    return getattr(obj, name, default)
+
+
+def _stream_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if not isinstance(value, list):
+        return ""
+    parts: list[str] = []
+    for item in value:
+        text = item if isinstance(item, str) else _value(item, "text")
+        if isinstance(text, str):
+            parts.append(text)
+    return "".join(parts)
+
+
+async def _notify_stream(sink: StreamSink | None, payload: dict[str, Any]) -> None:
+    """Best-effort progress reporting must never break model execution."""
+    if sink is None:
+        return
+    try:
+        value = sink(payload)
+        if inspect.isawaitable(value):
+            await value
+    except Exception:  # noqa: BLE001
+        return
+
+
+async def _aggregate_stream(
+    response: Any,
+    *,
+    stream_sink: StreamSink | None,
+    attempt: int,
+    allow_reasoning_content: bool,
+) -> Any:
+    """Consume LiteLLM chunks into a normal response without leaking tool args."""
+    if not hasattr(response, "__aiter__"):
+        # Some compatible relays ignore stream=True. Preserve their completed
+        # response rather than rejecting an otherwise valid model call.
+        return response
+
+    content_parts: list[str] = []
+    summary_parts: list[str] = []
+    tools: dict[int, dict[str, str]] = {}
+    finish_reason: Any = None
+    usage: Any = None
+    sequence = 0
+    last_emit_at = 0.0
+
+    async for chunk in response:
+        chunk_usage = _value(chunk, "usage")
+        if chunk_usage is not None:
+            usage = chunk_usage
+        choices = _value(chunk, "choices", []) or []
+        if not choices:
+            continue
+        first = choices[0]
+        finish = _value(first, "finish_reason")
+        if finish is not None:
+            finish_reason = finish
+        delta = _value(first, "delta") or _value(first, "message") or {}
+        content = _stream_text(_value(delta, "content"))
+        if content:
+            content_parts.append(content)
+        summary = _stream_text(_value(delta, "reasoning_summary"))
+        if not summary:
+            summary = _stream_text(_value(delta, "summary"))
+        if not summary and allow_reasoning_content:
+            summary = _stream_text(_value(delta, "reasoning_content"))
+        if summary:
+            summary_parts.append(summary)
+        for fallback_index, raw_call in enumerate(_value(delta, "tool_calls", []) or []):
+            raw_index = _value(raw_call, "index", fallback_index)
+            try:
+                index = int(raw_index)
+            except (TypeError, ValueError):
+                index = fallback_index
+            entry = tools.setdefault(index, {"id": "", "name": "", "arguments": ""})
+            call_id = _value(raw_call, "id") or ""
+            fn = _value(raw_call, "function", {}) or {}
+            entry["id"] += str(call_id)
+            entry["name"] += str(_value(fn, "name", _value(raw_call, "name", "")) or "")
+            arguments = _value(fn, "arguments", _value(raw_call, "arguments", ""))
+            if isinstance(arguments, str):
+                entry["arguments"] += arguments
+
+        now = time.monotonic()
+        if (content or summary or tools) and (sequence == 0 or now - last_emit_at >= 0.04):
+            sequence += 1
+            last_emit_at = now
+            await _notify_stream(stream_sink, {
+                "attempt": attempt,
+                "sequence": sequence,
+                "status": "streaming",
+                "text": "".join(content_parts),
+                "summary": "".join(summary_parts),
+                "tool_call_count": len(tools),
+            })
+
+    message: dict[str, Any] = {
+        "content": "".join(content_parts),
+        "tool_calls": [
+            {
+                "id": item["id"] or f"call_{index}",
+                "type": "function",
+                "function": {"name": item["name"], "arguments": item["arguments"] or "{}"},
+            }
+            for index, item in sorted(tools.items())
+            if item["name"]
+        ],
+    }
+    if summary_parts:
+        message["reasoning_summary"] = "".join(summary_parts)
+    aggregate = {
+        "choices": [{
+            "message": message,
+            "finish_reason": finish_reason or ("tool_calls" if tools else "stop"),
+        }],
+        "usage": usage,
+    }
+    sequence += 1
+    await _notify_stream(stream_sink, {
+        "attempt": attempt,
+        "sequence": sequence,
+        "status": "completed",
+        "text": message["content"],
+        "summary": message.get("reasoning_summary", ""),
+        "tool_call_count": len(message["tool_calls"]),
+    })
+    return aggregate
 
 
 def _extract_tool_calls(msg: Any) -> list[ToolCall]:
@@ -747,7 +975,16 @@ def _build_response(
             parse_risk = True
 
     reasoning_config, reasoning_supported = reasoning
-    summary = _extract_reasoning_summary(resp) if reasoning_supported else None
+    summary = (
+        _extract_reasoning_summary(
+            resp,
+            allow_reasoning_content=bool(
+                reasoning_config and reasoning_config.summary
+            ),
+        )
+        if reasoning_supported
+        else None
+    )
     reasoning_result = ReasoningResult(
         status=(
             "not_requested" if reasoning_config is None

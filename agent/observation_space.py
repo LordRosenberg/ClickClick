@@ -197,13 +197,17 @@ INDEX_ACTION_TYPES = frozenset({"tap"})
 
 def action_uses_coordinates(action: Action) -> bool:
     return action.type in COORDINATE_ACTION_TYPES or (
-        action.type == "long_press" and action.index is None
+        action.type in {"long_press", "skill_authorized_action"}
+        and action.index is None
     )
 
 
 def action_uses_index(action: Action) -> bool:
     return action.type in INDEX_ACTION_TYPES or (
-        action.type == "long_press" and action.index is not None
+        action.type in {
+            "long_press", "replace_text", "skill_authorized_action",
+        }
+        and action.index is not None
     )
 
 
@@ -255,3 +259,25 @@ def validate_action_bounds(
         data[field_name] = value
     evidence["normalized"] = normalized
     return Action.model_validate(data), normalized, evidence
+
+
+def validate_surface_containment(action: Action, entry: ObservationRegistryEntry | None) -> str:
+    """Validate a declared confined drag after transformation to device coordinates.
+
+    A straight segment inside a rectangular surface is contained iff both endpoints
+    are contained. This does not infer a target from proximity or classify task intent.
+    """
+    if action.surface_index is None:
+        return ""
+    if action.type != "drag":
+        return "surface_index_requires_drag"
+    if entry is None or not entry.actionable or not entry.index_actionable:
+        return "surface_index_unavailable"
+    matches = [e for e in entry.elements if e.index == action.surface_index and e.interactable]
+    if len(matches) != 1 or len(matches[0].bounds) != 4:
+        return "unknown_surface_index"
+    x1, y1, x2, y2 = matches[0].bounds
+    for x, y in ((action.x, action.y), (action.x2, action.y2)):
+        if x is None or y is None or not (x1 <= x < x2 and y1 <= y < y2):
+            return "drag_outside_surface"
+    return ""

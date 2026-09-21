@@ -16,14 +16,22 @@ timeout fires on the worker thread and surfaces as `AdbError`.
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import os
+import secrets
 import shlex
+import shutil
 import subprocess
 import tempfile
 import time
 from pathlib import Path
+from urllib.parse import urljoin, urlparse
+from urllib.request import Request, urlopen
+from xml.etree import ElementTree
+from zipfile import ZipFile
 
 # uiautomator dump writes to a path on the device, then we pull it.
-# A fixed device path avoids per-call temp names on the device side.
+# This is a prefix only; each attempt gets an isolated, unguessable path.
 _DEVICE_DUMP_PATH = "/sdcard/clickclick_window_dump.xml"
 
 # --- fix-stale-uiautomator-dump: defensive retry knobs --------------------
@@ -31,14 +39,22 @@ _DEVICE_DUMP_PATH = "/sdcard/clickclick_window_dump.xml"
 # the foreground window has a null accessibility root (immersive video,
 # transitioning activities, fullscreen ads). The previous frame's XML still
 # sits at the fixed device-side path and would be pulled as "fresh" data.
-# We force a clean slate (rm) before each dump, verify the dump actually
-# wrote a non-trivial file (wc -c size check), and retry on transient
-# null-root failures.
+# Isolate attempts so a failed cleanup cannot turn previous XML into current
+# evidence, then verify the new file and perform bounded best-effort cleanup.
 _DUMP_MIN_BYTES: int = 100         # null-root failure mode produces 0-byte files
 _DUMP_MAX_ATTEMPTS: int = 3        # transient null-root failures during transitions
 _DUMP_WC_TIMEOUT: float = 5.0      # fast probe; the real dump timeout is 30s
 _DUMP_RM_TIMEOUT: float = 5.0      # rm is non-fatal if it fails
 _DUMP_BACKOFF_S: float = 0.2       # sleep between standalone multi-attempt retries
+
+# A Console launched by an IDE frequently does not inherit the Android Studio
+# PATH entry.  Keep the fallback local to the repository instead of changing
+# machine-wide PATH from an agent process.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_ADB_TOOLS_DIR = _PROJECT_ROOT / "data" / "tools" / "android-platform-tools"
+_ANDROID_REPOSITORY_URL = "https://dl.google.com/android/repository/repository2-3.xml"
+_ANDROID_REPOSITORY_BASE_URL = "https://dl.google.com/android/repository/"
+_ADB_DOWNLOAD_LOCK = __import__("threading").Lock()
 
 
 class AdbError(RuntimeError):
@@ -203,6 +219,18 @@ async def install_apk_async(
     return output.decode("utf-8", "replace").strip()
 
 
+async def uninstall_package_async(
+    serial: str | None, package: str, *, timeout: float = 30.0
+) -> str:
+    """Uninstall one exact Android package through cancellable ADB."""
+    if not package or any(ch.isspace() for ch in package):
+        raise AdbError("invalid Android package name")
+    output = await _run_async(
+        [adb_bin(), *_serial_args(serial), "uninstall", package], timeout=timeout
+    )
+    return output.decode("utf-8", "replace").strip()
+
+
 async def package_version_async(serial: str | None, package: str) -> str | None:
     try:
         output = await shell_async(
@@ -218,6 +246,25 @@ async def package_version_async(serial: str | None, package: str) -> str | None:
         if line.startswith("versionName="):
             return line.split("=", 1)[1].strip()
     return "installed"
+
+
+async def package_apk_sha256_async(serial: str | None, package: str) -> str | None:
+    """Read the installed base APK digest to detect same-version local rebuilds."""
+    try:
+        output = await shell_async(serial, ["pm", "path", package], timeout=5.0)
+        paths = [line.removeprefix("package:").strip()
+                 for line in output.decode("utf-8", "replace").splitlines()
+                 if line.startswith("package:")]
+        base = next((path for path in paths if path.endswith("/base.apk")), None)
+        if base is None and len(paths) == 1:
+            base = paths[0]
+        if base is None or not base.startswith("/"):
+            return None
+        output = await shell_async(serial, ["sha256sum", shlex.quote(base)], timeout=5.0)
+        digest = output.decode("ascii", "replace").split()[0]
+        return digest.lower() if len(digest) == 64 and all(c in "0123456789abcdefABCDEF" for c in digest) else None
+    except (AdbError, IndexError):
+        return None
 
 
 async def setting_get_async(
@@ -276,13 +323,166 @@ async def stay_awake_while_plugged_async(serial: str | None, enabled: bool) -> N
 
 
 def adb_bin() -> str:
-    """Locate the adb executable."""
-    import shutil
+    """Locate ADB, provisioning a verified project-local Windows copy if needed.
 
+    Resolution order deliberately keeps operator choices first: ``PATH``, an
+    explicit ``CLICKCLICK_ADB_PATH``, SDK-root variables and common SDK paths.
+    A Windows process with none of those (for example an IDE debug launch)
+    downloads the official Platform-Tools archive into ``data/tools``.  The
+    archive URL and SHA-1 are read from Google's signed-over-TLS SDK repository
+    metadata before extraction; a failed or partial download is never exposed
+    as an executable.
+    """
     path = shutil.which("adb")
-    if not path:
-        raise AdbError("adb not found on PATH")
-    return path
+    if path:
+        return path
+
+    for candidate in _adb_candidates():
+        if candidate.is_file():
+            return str(candidate)
+
+    if os.name == "nt" and _auto_download_enabled():
+        try:
+            return str(_provision_project_adb())
+        except Exception as exc:  # noqa: BLE001
+            raise AdbError(
+                "adb was not found in PATH or an Android SDK location, and "
+                f"automatic Platform-Tools provisioning failed: {exc}"
+            ) from exc
+
+    raise AdbError(
+        "adb not found. Add Android SDK platform-tools to PATH, set "
+        "CLICKCLICK_ADB_PATH, or on Windows allow the default automatic "
+        "project-local Platform-Tools download."
+    )
+
+
+def _adb_candidates() -> list[Path]:
+    """Return explicit, SDK-root and conventional locations without mutation."""
+    executable = "adb.exe" if os.name == "nt" else "adb"
+    candidates: list[Path] = []
+    explicit = os.environ.get("CLICKCLICK_ADB_PATH", "").strip()
+    if explicit:
+        specified = Path(explicit).expanduser()
+        candidates.append(specified / executable if specified.is_dir() else specified)
+    for name in ("ANDROID_SDK_ROOT", "ANDROID_HOME"):
+        root = os.environ.get(name, "").strip()
+        if root:
+            candidates.append(Path(root).expanduser() / "platform-tools" / executable)
+    if os.name == "nt":
+        local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
+        user_profile = os.environ.get("USERPROFILE", "").strip()
+        if local_app_data:
+            candidates.append(Path(local_app_data) / "Android" / "Sdk" / "platform-tools" / executable)
+        if user_profile:
+            candidates.append(Path(user_profile) / "AppData" / "Local" / "Android" / "Sdk" / "platform-tools" / executable)
+    elif os.uname().sysname == "Darwin":
+        candidates.append(Path.home() / "Library" / "Android" / "sdk" / "platform-tools" / executable)
+    else:
+        candidates.append(Path.home() / "Android" / "Sdk" / "platform-tools" / executable)
+    candidates.append(_ADB_TOOLS_DIR / "platform-tools" / executable)
+    return candidates
+
+
+def _auto_download_enabled() -> bool:
+    return os.environ.get("CLICKCLICK_ADB_AUTO_DOWNLOAD", "1").strip().lower() not in {
+        "0", "false", "no", "off",
+    }
+
+
+def _xml_tag(element: ElementTree.Element) -> str:
+    return element.tag.rsplit("}", 1)[-1]
+
+
+def _platform_tools_archive() -> tuple[str, str]:
+    """Read the Windows Platform-Tools URL + SHA-1 from Google's repository."""
+    request = Request(_ANDROID_REPOSITORY_URL, headers={"User-Agent": "ClickClick/0.1"})
+    with urlopen(request, timeout=30) as response:  # noqa: S310 - fixed HTTPS origin
+        root = ElementTree.fromstring(response.read())
+    host = "windows" if os.name == "nt" else "linux"
+    for package in root.iter():
+        if _xml_tag(package) != "remotePackage" or package.attrib.get("path") != "platform-tools":
+            continue
+        for archive in package:
+            if _xml_tag(archive) != "archives":
+                continue
+            for item in archive:
+                if _xml_tag(item) != "archive":
+                    continue
+                values = {_xml_tag(child): (child.text or "").strip() for child in item}
+                if values.get("host-os") != host:
+                    continue
+                complete = next((child for child in item if _xml_tag(child) == "complete"), None)
+                if complete is None:
+                    continue
+                meta = {_xml_tag(child): child for child in complete}
+                relative_url = (meta.get("url").text if meta.get("url") is not None else "") or ""
+                checksum = (meta.get("checksum").text if meta.get("checksum") is not None else "") or ""
+                source_url = urljoin(_ANDROID_REPOSITORY_BASE_URL, relative_url)
+                parsed = urlparse(source_url)
+                if (
+                    parsed.scheme == "https"
+                    and parsed.netloc == "dl.google.com"
+                    and len(checksum) == 40
+                    and all(char in "0123456789abcdefABCDEF" for char in checksum)
+                ):
+                    return source_url, checksum.lower()
+    raise RuntimeError(f"no {host} Platform-Tools archive found in Google SDK repository metadata")
+
+
+def _safe_extract_platform_tools(archive: Path, destination: Path) -> Path:
+    """Extract one validated archive without allowing zip-slip paths."""
+    with ZipFile(archive) as zip_file:
+        for member in zip_file.infolist():
+            member_path = (destination / member.filename).resolve()
+            try:
+                member_path.relative_to(destination.resolve())
+            except ValueError as exc:
+                raise RuntimeError(f"unsafe path in Platform-Tools archive: {member.filename!r}") from exc
+        zip_file.extractall(destination)
+    executable = destination / "platform-tools" / "adb.exe"
+    if not executable.is_file():
+        raise RuntimeError("Platform-Tools archive did not contain platform-tools/adb.exe")
+    return executable
+
+
+def _provision_project_adb() -> Path:
+    """Download, checksum-verify and atomically install Platform-Tools once."""
+    target = _ADB_TOOLS_DIR / "platform-tools" / "adb.exe"
+    if target.is_file():
+        return target
+    with _ADB_DOWNLOAD_LOCK:
+        if target.is_file():
+            return target
+        _ADB_TOOLS_DIR.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="adb-download-", dir=_ADB_TOOLS_DIR) as raw:
+            staging = Path(raw)
+            archive = staging / "platform-tools.zip"
+            source_url, expected_sha1 = _platform_tools_archive()
+            request = Request(source_url, headers={"User-Agent": "ClickClick/0.1"})
+            with urlopen(request, timeout=90) as response, archive.open("wb") as output:  # noqa: S310 - validated HTTPS origin
+                shutil.copyfileobj(response, output)
+            actual_sha1 = hashlib.sha1(archive.read_bytes()).hexdigest()
+            if actual_sha1 != expected_sha1:
+                raise RuntimeError("Platform-Tools SHA-1 verification failed")
+            extracted = staging / "extracted"
+            _safe_extract_platform_tools(archive, extracted)
+            source = extracted / "platform-tools"
+            final = _ADB_TOOLS_DIR / "platform-tools"
+            if final.exists():
+                # Another process can only arrive here outside this process's
+                # lock; preserve a complete existing installation. A previous
+                # interrupted auto-download may leave this dedicated cache
+                # directory without adb.exe; it is safe to replace only that
+                # incomplete cache, never an arbitrary SDK directory.
+                existing = final / "adb.exe"
+                if existing.is_file():
+                    return existing
+                shutil.rmtree(final)
+            shutil.move(str(source), str(final))
+    if not target.is_file():
+        raise RuntimeError("Platform-Tools installation did not produce adb.exe")
+    return target
 
 
 def _run(args: list[str], *, capture_bytes: bool = False, timeout: float = 30.0) -> bytes:
@@ -441,6 +641,19 @@ def describe_devices() -> list[dict[str, str]]:
     return devices
 
 
+def device_profile(serial: str | None = None) -> dict[str, str]:
+    """Return stable fields used to select a device-specific App alias overlay."""
+    resolved = serial or sole_online_device()
+    return {
+        "serial": resolved,
+        "manufacturer": _getprop(resolved, "ro.product.manufacturer"),
+        "model": _getprop(resolved, "ro.product.model"),
+        "sdk": _getprop(resolved, "ro.build.version.sdk"),
+        "release": _getprop(resolved, "ro.build.version.release"),
+        "build": _getprop(resolved, "ro.build.version.incremental"),
+    }
+
+
 # --- observation -----------------------------------------------------------
 
 
@@ -471,6 +684,20 @@ def _device_file_size(serial: str | None, path: str) -> int:
     return int(parts[0])
 
 
+def _new_dump_path() -> str:
+    return f"{_DEVICE_DUMP_PATH.removesuffix('.xml')}_{secrets.token_hex(16)}.xml"
+
+
+def _read_dump_xml(path: Path) -> str:
+    try:
+        xml = path.read_text(encoding="utf-8")
+        if ElementTree.fromstring(xml).tag != "hierarchy":
+            raise AdbError("uiautomator dump returned non-hierarchy XML")
+        return xml
+    except (OSError, UnicodeError, ElementTree.ParseError) as exc:
+        raise AdbError("uiautomator dump returned unreadable or malformed XML") from exc
+
+
 def uiautomator_dump(
     serial: str | None = None,
     *,
@@ -479,21 +706,9 @@ def uiautomator_dump(
 ) -> str:
     """Dump the accessibility tree via `uiautomator dump` and return XML text.
 
-    Dumps to a fixed device path, pulls it to a local temp file, and returns
-    the XML contents. No on-device APK is required.
-
-    To eliminate the "stale-tree-on-new-screenshot" failure mode (Android's
-    `uiautomator dump` can exit 0 while writing nothing on null-root
-    windows, leaving the previous frame's XML on disk), each attempt:
-      1. `rm -f` the device-side file (non-fatal if it fails),
-      2. trigger the dump,
-      3. verify the dump wrote a non-trivial file via `wc -c`,
-      4. only then pull and return.
-
-    Transient null-root failures are absorbed by retrying up to
-    `max_attempts` rounds with a short backoff between attempts; terminal
-    failure raises `AdbError` carrying the most recent reason — never
-    silently returns the previous frame's XML.
+    Each attempt owns a unique device path. A null-root dump cannot read a
+    previous attempt's XML even when cleanup failed or calls overlap.
+    Verify size and XML, then clean up only the owned path in bounded time.
 
     Callers that own their own retry loop (Frame Gate in `get_frame`)
     SHOULD pass ``max_attempts=1`` so backoff lives outside this helper.
@@ -501,60 +716,36 @@ def uiautomator_dump(
     if max_attempts < 1:
         raise AdbError("uiautomator dump max_attempts must be >= 1")
     serial_args = ["-s", serial] if serial else []
-    dump_cmd = [adb_bin(), *serial_args, "shell", "uiautomator", "dump", _DEVICE_DUMP_PATH]
-    pull_cmd = [adb_bin(), *serial_args, "pull", _DEVICE_DUMP_PATH]
-
     last_exc: AdbError | None = None
     for attempt in range(max_attempts):
-        # 1. Clear the device-side file so a failed dump cannot pull stale.
-        # rm is best-effort: ENOENT (file already absent) and shell quoting
-        # edge cases must not block the dump itself.
+        device_path = _new_dump_path()
+        local_path: Path | None = None
         try:
-            _run(
-                [adb_bin(), *serial_args, "shell", "rm", "-f", _DEVICE_DUMP_PATH],
-                timeout=_DUMP_RM_TIMEOUT,
-            )
-        except AdbError:
-            pass
-
-        # 2. Trigger the dump.
-        try:
-            _run(dump_cmd, timeout=30.0)
+            _run([adb_bin(), *serial_args, "shell", "uiautomator", "dump", device_path], timeout=30.0)
+            size = _device_file_size(serial, device_path)
+            if size < min_bytes:
+                raise AdbError(
+                    f"uiautomator dump wrote {size} bytes (min {min_bytes}); "
+                    "refusing to pull stale device-side content"
+                )
+            with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as tf:
+                local_path = Path(tf.name)
+            _run([adb_bin(), *serial_args, "pull", device_path, str(local_path)], timeout=30.0)
+            return _read_dump_xml(local_path)
         except AdbError as exc:
             last_exc = exc
-            if attempt + 1 < max_attempts:
-                time.sleep(_DUMP_BACKOFF_S)
-            continue
-
-        # 3. Verify the dump actually wrote a non-trivial file.
-        try:
-            size = _device_file_size(serial, _DEVICE_DUMP_PATH)
-        except AdbError as exc:
-            last_exc = exc
-            if attempt + 1 < max_attempts:
-                time.sleep(_DUMP_BACKOFF_S)
-            continue
-        if size < min_bytes:
-            last_exc = AdbError(
-                f"uiautomator dump wrote {size} bytes (min {min_bytes}); "
-                f"refusing to pull stale device-side content"
-            )
-            if attempt + 1 < max_attempts:
-                time.sleep(_DUMP_BACKOFF_S)
-            continue
-
-        # 4. Pull and return.
-        with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as tf:
-            local_path = Path(tf.name)
-        try:
-            _run([*pull_cmd, str(local_path)], timeout=30.0)
-            return local_path.read_text(encoding="utf-8")
         finally:
             try:
-                local_path.unlink(missing_ok=True)
+                if local_path is not None:
+                    local_path.unlink(missing_ok=True)
             except OSError:
                 pass
-
+            try:
+                _run([adb_bin(), *serial_args, "shell", "rm", "-f", device_path], timeout=_DUMP_RM_TIMEOUT)
+            except AdbError:
+                pass
+        if attempt + 1 < max_attempts:
+            time.sleep(_DUMP_BACKOFF_S)
     raise last_exc or AdbError("uiautomator dump failed after retries")
 
 
@@ -882,22 +1073,21 @@ async def uiautomator_dump_async(
 
     last_exc: AdbError | None = None
     for attempt in range(max_attempts):
+        device_path = _new_dump_path()
         try:
             await _run_async(
-                [adb_bin(), *serial_args, "shell", "rm", "-f", _DEVICE_DUMP_PATH],
-                timeout=min(remaining(), _DUMP_RM_TIMEOUT),
-            )
-        except AdbError:
-            pass
-        try:
-            await _run_async(
-                [adb_bin(), *serial_args, "shell", "uiautomator", "dump", _DEVICE_DUMP_PATH],
+                [adb_bin(), *serial_args, "shell", "uiautomator", "dump", device_path],
                 timeout=remaining(),
             )
-            size_out = await _run_async(
-                [adb_bin(), *serial_args, "shell", "wc", "-c", _DEVICE_DUMP_PATH],
-                timeout=min(remaining(), _DUMP_WC_TIMEOUT),
-            )
+            try:
+                size_out = await _run_async(
+                    [adb_bin(), *serial_args, "shell", "wc", "-c", device_path],
+                    timeout=min(remaining(), _DUMP_WC_TIMEOUT),
+                )
+            except AdbError as exc:
+                if "no such file" in str(exc).lower() or "cannot open" in str(exc).lower():
+                    raise AdbError(f"uiautomator dump produced no file (path={device_path})") from exc
+                raise
             parts = size_out.decode("utf-8", "replace").strip().split()
             if not parts or not parts[0].isdigit() or int(parts[0]) < min_bytes:
                 raise AdbError("uiautomator dump produced incomplete output")
@@ -905,16 +1095,28 @@ async def uiautomator_dump_async(
                 local_path = Path(tf.name)
             try:
                 await _run_async(
-                    [adb_bin(), *serial_args, "pull", _DEVICE_DUMP_PATH, str(local_path)],
+                    [adb_bin(), *serial_args, "pull", device_path, str(local_path)],
                     timeout=remaining(),
                 )
-                return local_path.read_text(encoding="utf-8")
+                return _read_dump_xml(local_path)
             finally:
                 local_path.unlink(missing_ok=True)
         except AdbError as exc:
             last_exc = exc
-            if attempt + 1 < max_attempts:
-                await asyncio.sleep(min(_DUMP_BACKOFF_S, max(0.0, remaining())))
+        finally:
+            # Do not extend a spent budget or suppress cancellation to clean
+            # a file that cannot ever be selected by a later request.
+            task = asyncio.current_task()
+            if deadline > time.monotonic() and not (task and task.cancelling()):
+                try:
+                    await _run_async(
+                        [adb_bin(), *serial_args, "shell", "rm", "-f", device_path],
+                        timeout=min(remaining(), _DUMP_RM_TIMEOUT),
+                    )
+                except AdbError:
+                    pass
+        if attempt + 1 < max_attempts:
+            await asyncio.sleep(min(_DUMP_BACKOFF_S, max(0.0, remaining())))
     raise last_exc or AdbError("uiautomator dump failed after retries")
 
 
@@ -1017,6 +1219,11 @@ async def list_device_serials_async() -> list[str]:
 async def describe_devices_async() -> list[dict[str, str]]:
     """Async wrapper around `describe_devices`."""
     return await asyncio.to_thread(describe_devices)
+
+
+async def device_profile_async(serial: str | None = None) -> dict[str, str]:
+    """Async wrapper around `device_profile`."""
+    return await asyncio.to_thread(device_profile, serial)
 
 
 async def wait_ms_async(duration_ms: int) -> None:

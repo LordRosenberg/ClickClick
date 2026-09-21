@@ -3,6 +3,7 @@ package ai.clickclick.collector
 import android.net.LocalServerSocket
 import android.net.LocalSocket
 import android.os.SystemClock
+import android.util.Log
 import org.json.JSONObject
 import java.io.Closeable
 import java.io.DataInputStream
@@ -75,6 +76,10 @@ internal class OwnedSnapshotClients<T : Closeable> {
 class SnapshotSocketServer(
     private val snapshot: () -> JSONObject,
     private val health: () -> JSONObject,
+    private val powerLease: (JSONObject) -> JSONObject,
+    private val eventCursor: () -> Long,
+    private val eventsAfter: (Long, Int) -> JSONObject,
+    private val nodeClick: (JSONObject) -> JSONObject,
 ) {
     val socketName = "clickclick_a11y_${randomHex(8)}"
     val token = randomHex(16)
@@ -138,14 +143,17 @@ class SnapshotSocketServer(
 
     private fun serve(client: LocalSocket) {
         client.soTimeout = CLIENT_IDLE_TIMEOUT_MS
+        var phase = "read_request"
         try {
             val input = DataInputStream(client.inputStream)
             val output = DataOutputStream(client.outputStream)
             while (running) {
+                phase = "read_request"
                 val raw = SnapshotProtocol.readFrame(input) ?: break
                 val request = JSONObject(raw.toString(Charsets.UTF_8))
                 val requestId = request.optLong("request_id", -1L)
                 val operation = request.optString("operation")
+                phase = if (operation == "snapshot") "capture_snapshot" else "handle_request"
                 val rejection = SnapshotRequestPolicy.rejection(
                     request.optInt("version", -1),
                     request.optString("token"),
@@ -155,11 +163,26 @@ class SnapshotSocketServer(
                 val response = when {
                     rejection != null -> errorResponse(requestId, rejection)
                     operation == "health" -> health().put("status", "ok")
-                    else -> snapshot().put("status", "ok")
+                    operation == "snapshot" -> snapshot().put("status", "ok")
+                    operation == "node_click" -> nodeClick(request).put("status", "ok")
+                    operation == "events_cursor" -> JSONObject()
+                        .put("status", "ok")
+                        .put("current_sequence", eventCursor())
+                    operation == "events_after_sequence" -> {
+                        val afterSequence = request.optLong("after_sequence", -1L)
+                        val limit = request.optInt("limit", 0)
+                        val eventRejection = InteractionEventRequestPolicy.rejection(
+                            afterSequence, limit,
+                        )
+                        if (eventRejection != null) errorResponse(requestId, eventRejection)
+                        else eventsAfter(afterSequence, limit).put("status", "ok")
+                    }
+                    else -> powerLease(request).put("status", "ok")
                 }
                 response
                     .put("version", SnapshotProtocol.VERSION)
                     .put("request_id", requestId)
+                phase = "write_response"
                 val serializationStarted = SystemClock.elapsedRealtimeNanos()
                 response.put("serialization_elapsed_ms", 0.0)
                 response.toString()
@@ -172,7 +195,11 @@ class SnapshotSocketServer(
                 )
                 if (response.optString("error") == "authentication_failed") break
             }
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            // Do not log authenticated request bodies. Preserve the stage and
+            // stack so platform traversal failures are distinguishable from
+            // transport EOF / a client disconnect in live investigations.
+            Log.w("ClickClickCollector", "Channel closed during $phase", error)
             // Transport errors are represented by EOF to the host, which owns
             // one bounded reconnect before entering compatibility fallback.
         } finally {

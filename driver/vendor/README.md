@@ -21,4 +21,6 @@ Pinned standalone server jar used by Console Live mirror
 4. Smoke-test Live on one local device and one remote-hub device.
 
 Do **not** mix client desktop `scrcpy` versions with this jar for the
-Console path — Live uses the standalone server only (`raw_stream=true`).
+Console path — Live uses the standalone server only. Local transport enables
+`send_frame_meta` and consumes the dummy handshake byte; the host removes the
+12-byte packet headers before fan-out to H.264 consumers.

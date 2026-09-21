@@ -1,25 +1,78 @@
-# ClickClaw Skills
+# ClickClick Skills
+
+[中文](README.zh-CN.md) · [README](../README.md)
+
+Skills hold reusable knowledge about operating apps. Users still describe goals in natural language; the agent selects applicable guidance without requiring Skill IDs or a matching prompt format.
+
+<a id="when-to-add-a-skill"></a>
+## When should you add a Skill?
+
+Start with the skills already included and run a representative task. Add or revise a Skill when repeated runs expose a stable, explainable gap in app knowledge. Useful cases include:
+
+| Situation | Knowledge to capture |
+| --- | --- |
+| Non-obvious app behavior | Hidden entry points, editing versus saving, control meanings and applicable app or system versions. |
+| Information lost across apps | Fields to preserve, destination field mappings and when to revisit the source. Actual recipes or expenses remain task input. |
+| Long lists or similar records | How to distinguish records, retain progress and decide when searching or traversal is complete. Reuse the generic traversal skill where applicable. |
+| Partially completed forms | Field dependencies, post-submit checks and evidence that the app saved the result. |
+| Frequently repeated app operations | Proven methods, known failure patterns and alternative paths with explicit triggers. |
+
+For example, if runs repeatedly stop after filling a form that requires a separate save action, capture the save behavior and resulting-state check in the app Skill. A particular title, amount or date belongs in the current task, rather than a reusable rule.
+
+A `workflow` Skill is guidance for a class of tasks, not a prompt users must copy or a fixed click script. Describe goals and observable states so the agent can adapt to the current screen. Ordinary guidance should remain advice; hard constraints require a clear scope and evidence.
+
+## How do you validate an improvement?
+
+1. Inspect the failed call's model input, active skills, action receipts and final screen in Console. Establish whether the issue is missing or incorrect operating knowledge. If an existing Skill was not delivered, check its description, app and device scope first.
+2. Add the smallest reusable lesson to the app core or an existing task Skill. Prefer revising existing guidance over duplicating it.
+3. Validate with different data and representative starting screens, checking the saved application state. Keep model, app versions and budgets fixed for comparisons, and retain failed attempts.
+
+Skills can reduce known errors but cannot guarantee success. Provider timeouts, disconnected devices, stale screenshots and tool implementation errors require fixes to the corresponding components; extra prompt text cannot replace those fixes.
 
 Filesystem skills are the **only** runtime source of truth for agent priors.
 There is no SQLite / DB skill store.
 
 ## Runtime delivery
 
-Once an observation establishes the exact foreground package, Reviewer,
-Planner, and Executor receive that App's core plus every active workflow body. No other App's
-workflow is delivered. Harness does not rank, select, or interpret workflows;
-the model chooses applicable guidance from the complete exact-App bundle and
-ignores adjacent procedures with unrequested effects.
+Planner receives compact cards for every active workflow. Task aliases and exact
+foreground identity rank those cards first; they do not hide capabilities when
+an instruction omits the App name. For each execute subgoal, Planner may select one target App and up to
+two workflow ids. Executor and Reviewer receive that App's core plus only the
+selected role-filtered bodies. Planner prefers app names/aliases; runtime resolves
+them and validates explicit package IDs before accepting a new plan and binding
+skills. Uninstalled guessed packages cannot establish the stage's skill scope.
+Foreground identity remains separate observation
+evidence, so an unrelated starting App or overlay does not replace the handoff.
+The exact observed foreground App also supplies its core, even when the target
+differs or was guessed incorrectly. This adds local control guidance without
+changing the goal or selecting foreground workflows. Departed foreground cores
+are retired from active delivery; matching target/foreground cores are deduplicated.
 
 Skill ids are globally unique. Duplicate active ids fail closed during loading
 instead of silently hiding a foreground workflow. Delivery is traced through
 the common active-skill metadata: id, version, content hash, scope, activation
 source, and rule categories.
 
-Complete exact-App delivery is intentionally simple for the current small
-catalogs. Catalog size, prompt tokens, cache reuse, accuracy, and adjacent-rule
-interference must be measured on device; any future retrieval layer must first
-prove required-workflow recall on a frozen representative set.
+System-specific instructions declare `device_profiles: [androidworld_api33]`
+or `device_profiles: [xiaomi_15_cn_android15]` in frontmatter. These IDs come
+from `shared/app_alias_profiles.json`, selected from the bound device's
+manufacturer, model and Android version. Runtime filters both catalog cards and
+exact-ID body loading before role delivery. Unknown devices receive only shared
+skills (no `device_profiles` field); they never inherit another system's UI.
+The authoring/API library still lists all profiles. Profile metadata is retained
+when editing a skill and included in delivery traces. Keep genuinely shared app
+guidance unscoped; use unique IDs for different system variants. Do not infer
+compatibility from a shared package name or from the model's task description.
+
+Executor cannot load or replace Skills. Planner may load an exact generic Skill
+id from its index, but workflow selection uses the supplied cards rather than
+free-text search. Referenced resources are not auto-loaded.
+
+Stages can select up to four generic/workflow IDs in total (at most two owned
+workflows). For multi-screen record lists, select `adaptive-list-traversal`
+alongside the applicable App workflow. It owns anchor-based scroll sizing and
+coverage accounting; App skills retain ordering, field comparisons and local
+controls. Mentioning a generic skill in an App body does not auto-load it.
 
 ## Layout
 
@@ -45,6 +98,12 @@ app: tv.danmaku.bili
 kind: workflow
 capability: search_open_video
 tags: [video, search]
+# App core/workflow only; recipes use the closed validated template vocabulary.
+verified_actions:
+  - id: example.inspect_and_return
+    template: tap_capture_key
+    key: back
+    purpose: Open the target, preserve detail evidence, and return.
 ---
 
 # Title
@@ -85,6 +144,11 @@ tags: [video, search]
   with non-empty `## Procedure` and `## Verification` sections. Do not add
   retrieval triggers or surface inventories; the model selects from the whole
   app catalog.
+- `verified_actions` is App-scoped execution authorization, not a discovery
+  hint or free-form macro language. Only an `app_core` or workflow may declare
+  a recognized closed recipe. Runtime permits its exact id only while that
+  Skill is active and its `app` matches the current foreground package; generic
+  Skills cannot grant it. Internal recipe fields remain outside model-facing bodies.
 - Procedure steps are guidance, not automatically hard constraints.
 - Shared body is the default. Use role notes only for facts clearly useful to
   one role (e.g. `need_image` hints for Executor).

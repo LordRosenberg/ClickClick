@@ -9,6 +9,10 @@
       "type": "debugpy",
       "request": "launch",
       "module": "control_api.main",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true,
@@ -21,6 +25,10 @@
       "type": "debugpy",
       "request": "launch",
       "module": "control_api.main",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true,
@@ -33,6 +41,10 @@
       "type": "debugpy",
       "request": "launch",
       "module": "driver.main",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true,
@@ -46,6 +58,10 @@
       "type": "debugpy",
       "request": "launch",
       "module": "agent.main",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "python": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true,

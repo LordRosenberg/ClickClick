@@ -19,7 +19,9 @@ import {
 } from "@/api/client";
 import { ChatGPTLoginCard } from "@/components/ChatGPTLoginCard";
 import { cn, formatMs } from "@/lib/utils";
-import type { Task, TaskStatus } from "@/api/types";
+import type { ModelCatalogEntry, Task, TaskStatus } from "@/api/types";
+
+const NO_MODELS: ModelCatalogEntry[] = [];
 
 const statusVariant: Record<
   TaskStatus,
@@ -116,13 +118,13 @@ function TaskRow({
         statusAccent(task.status),
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className={cn("inline-block h-2 w-2 rounded-full", statusDot(task.status))} />
         <span className="font-mono text-xs text-text-mute">{task.id.slice(0, 8)}</span>
         <Badge variant={statusVariant[task.status]}>{statusLabel[task.status]}</Badge>
         {task.read_only ? (
           <Badge variant="outline" title={task.data_source}>
-            temp
+            {(task.data_source ?? "eval").split("/")[0]}
           </Badge>
         ) : null}
         {task.device_serial ? (
@@ -161,11 +163,11 @@ function TaskRow({
           </Button>
         )}
       </div>
-      <div className="mt-1 line-clamp-2 font-mono text-[12px] text-text">
+      <div className="mt-1 line-clamp-2 break-words font-mono text-[12px] text-text">
         {task.instruction}
       </div>
       {(task.current_subgoal || task.failure_reason) && (
-        <div className="mt-1 font-mono text-[10px] uppercase tracking-wide text-text-mute">
+        <div className="mt-1 break-words font-mono text-[10px] uppercase tracking-wide text-text-mute">
           {task.current_subgoal ? (
             <span>
               <span className="text-text-mute/60">subgoal</span>{" "}
@@ -204,7 +206,7 @@ function SubmitForm() {
     () => online.filter((d) => !d.busy),
     [online],
   );
-  const modelOptions = catalog.data?.models ?? [];
+  const modelOptions = catalog.data?.models ?? NO_MODELS;
 
   // Pre-select the sole online free device.
   useEffect(() => {
@@ -215,13 +217,21 @@ function SubmitForm() {
 
   // Default selectors to resolved role models once catalog loads.
   useEffect(() => {
-    if (!catalog.data) return;
-    const ids = new Set(catalog.data.models.map((m) => m.id));
-    const planner = catalog.data.roles.planner;
-    const exe = catalog.data.roles.executor;
-    setDecisionModel((prev) => prev || (ids.has(planner) ? planner : catalog.data.models[0]?.id || ""));
-    setExecutorModel((prev) => prev || (ids.has(exe) ? exe : catalog.data.models[0]?.id || ""));
-  }, [catalog.data]);
+    if (modelOptions.length === 0) return;
+    const ids = new Set(modelOptions.map((m) => m.id));
+    const fallback = modelOptions[0].id;
+    const roles = catalog.data?.roles;
+    setDecisionModel((prev) =>
+      prev && ids.has(prev)
+        ? prev
+        : (roles && ids.has(roles.planner) ? roles.planner : fallback),
+    );
+    setExecutorModel((prev) =>
+      prev && ids.has(prev)
+        ? prev
+        : (roles && ids.has(roles.executor) ? roles.executor : fallback),
+    );
+  }, [catalog.data, modelOptions]);
 
   const mutation = useMutation({
     mutationFn: ({
@@ -248,7 +258,25 @@ function SubmitForm() {
       qc.invalidateQueries({ queryKey: ["devices"] });
       const tasks = data.tasks ?? [];
       if (tasks.length === 1) {
-        navigate(`/tasks/${tasks[0].id}`);
+        const task = tasks[0];
+        // Seed detail caches so navigate does not sit on "loading task…".
+        qc.setQueryData(["task", task.id], task);
+        qc.setQueryData(["timeline", task.id], {
+          task_id: task.id,
+          status: task.status,
+          instruction: task.instruction,
+          device_serial: task.device_serial,
+          plan: task.plan ?? [],
+          current_subgoal: task.current_subgoal ?? "",
+          step_number: task.step_number ?? 0,
+          failure_reason: task.failure_reason ?? null,
+          created_at: task.created_at,
+          updated_at: task.updated_at,
+          execution_elapsed_ms: task.execution_elapsed_ms,
+          steps: [],
+          calls: [],
+        });
+        navigate(`/tasks/${task.id}`);
       }
       // Multi fan-out: stay on list so all new rows are visible.
     },
@@ -293,17 +321,29 @@ function SubmitForm() {
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
           />
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2">
             <label className="space-y-1 font-mono text-[11px] text-text-mute">
-              <span className="uppercase tracking-wide">planner + reviewer model</span>
+              <span className="uppercase tracking-wide">
+                planner / reviewer
+              </span>
               <select
                 className="w-full rounded border border-border bg-bg-2 px-2 py-1.5 text-xs text-text focus-visible:border-cyan focus-visible:outline-none"
-                value={decisionModel}
+                value={
+                  modelOptions.some((m) => m.id === decisionModel)
+                    ? decisionModel
+                    : (modelOptions[0]?.id ?? "")
+                }
                 onChange={(e) => setDecisionModel(e.target.value)}
                 disabled={modelOptions.length === 0}
               >
                 {modelOptions.length === 0 && (
-                  <option value="">— configure MODELS_JSON —</option>
+                  <option value="">
+                    {catalog.isLoading
+                      ? "loading models…"
+                      : catalog.isError
+                        ? "catalog load failed"
+                        : "— configure MODELS_JSON —"}
+                  </option>
                 )}
                 {modelOptions.map((m) => (
                   <option key={`decision-${m.id}`} value={m.id}>
@@ -317,12 +357,22 @@ function SubmitForm() {
               <span className="uppercase tracking-wide">executor model</span>
               <select
                 className="w-full rounded border border-border bg-bg-2 px-2 py-1.5 text-xs text-text focus-visible:border-cyan focus-visible:outline-none"
-                value={executorModel}
+                value={
+                  modelOptions.some((m) => m.id === executorModel)
+                    ? executorModel
+                    : (modelOptions[0]?.id ?? "")
+                }
                 onChange={(e) => setExecutorModel(e.target.value)}
                 disabled={modelOptions.length === 0}
               >
                 {modelOptions.length === 0 && (
-                  <option value="">— configure MODELS_JSON —</option>
+                  <option value="">
+                    {catalog.isLoading
+                      ? "loading models…"
+                      : catalog.isError
+                        ? "catalog load failed"
+                        : "— configure MODELS_JSON —"}
+                  </option>
                 )}
                 {modelOptions.map((m) => (
                   <option key={`exe-${m.id}`} value={m.id}>
@@ -332,6 +382,16 @@ function SubmitForm() {
                 ))}
               </select>
             </label>
+            {catalog.isError && (
+              <div className="font-mono text-[10px] text-err">
+                {(catalog.error as Error)?.message || "failed to load /api/models"}
+              </div>
+            )}
+            {catalog.data && (catalog.data.models?.length ?? 0) === 0 && (
+              <div className="font-mono text-[10px] text-amber">
+                model catalog empty — check CLICKCLICK_MODELS_JSON
+              </div>
+            )}
           </div>
           <label className="flex cursor-pointer items-center gap-2 font-mono text-[11px] text-text-mute">
             <input
@@ -412,10 +472,11 @@ function SubmitForm() {
 }
 
 function TaskList() {
+  const [visibleCount, setVisibleCount] = useState(50);
   const { data, isLoading, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: listTasks,
-    refetchInterval: 2000,
+    refetchInterval: 5000,
   });
   if (isLoading)
     return <div className="font-mono text-xs text-text-mute">loading tasks…</div>;
@@ -425,14 +486,20 @@ function TaskList() {
     return <div className="font-mono text-xs text-text-mute">— no tasks</div>;
   return (
     <div className="space-y-2">
-      {data.map((t: Task) => (
+      {data.slice(0, visibleCount).map((t: Task) => (
         <TaskRow key={t.id} task={t} />
       ))}
+      {visibleCount < data.length && (
+        <Button variant="outline" onClick={() => setVisibleCount((n) => n + 50)}>
+          加载更多（已显示 {visibleCount} / {data.length}）
+        </Button>
+      )}
     </div>
   );
 }
 
 function FailedList() {
+  const [visibleCount, setVisibleCount] = useState(50);
   const { data, isLoading } = useQuery({
     queryKey: ["tasks", "failed"],
     queryFn: listFailedTasks,
@@ -445,9 +512,14 @@ function FailedList() {
       {!isLoading && (!data || data.length === 0) && (
         <div className="font-mono text-xs text-text-mute">— no failed tasks</div>
       )}
-      {data?.map((t) => (
+      {data?.slice(0, visibleCount).map((t) => (
         <TaskRow key={t.id} task={{ ...t, status: "failed" }} />
       ))}
+      {data && visibleCount < data.length && (
+        <Button variant="outline" onClick={() => setVisibleCount((n) => n + 50)}>
+          加载更多（已显示 {visibleCount} / {data.length}）
+        </Button>
+      )}
     </div>
   );
 }
@@ -455,8 +527,8 @@ function FailedList() {
 export function TaskListView() {
   const [tab, setTab] = useState<"all" | "failed">("all");
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-4">
+    <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="min-w-0 space-y-4">
         <div className="flex items-center gap-1 font-mono text-xs uppercase tracking-wide">
           <button
             type="button"
@@ -486,7 +558,7 @@ export function TaskListView() {
         <Separator className="bg-border" />
         {tab === "all" ? <TaskList /> : <FailedList />}
       </div>
-      <div className="space-y-3 lg:sticky lg:top-20 lg:self-start">
+      <div className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
         <SubmitForm />
         <ChatGPTLoginCard />
       </div>

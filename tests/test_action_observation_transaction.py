@@ -14,6 +14,7 @@ from agent.action_observation import (
     ActionObservationTransaction,
     degraded_post_observation,
     effect_class_for,
+    unchanged_post_action_observation,
 )
 from driver.android import AndroidDriver
 from driver.observation_deadline import ObservationDeadline, ObservationStageError
@@ -23,6 +24,7 @@ from shared.schemas import (
     Action,
     ActionReceipt,
     ActionResult,
+    ActionTargetSnapshot,
     EffectClass,
     EffectOutcome,
     ObservationMode,
@@ -113,6 +115,32 @@ class _FailedDispatchDriver(_SequenceDriver):
     async def act(self, action: Action):
         self.actions.append(action)
         return ActionResult(success=False, message="dispatch failed")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status,success,performed,outcome", [
+    ("performed", True, True, EffectOutcome.UNKNOWN),
+    ("obsolete", False, None, EffectOutcome.FAILED),
+    ("outcome_unknown", False, None, EffectOutcome.UNKNOWN),
+])
+async def test_node_click_receipt_does_not_promote_semantic_success_or_retry(
+    status, success, performed, outcome,
+):
+    driver = _SequenceDriver([_tree(), _tree(page="new")])
+    async def act(action):
+        driver.actions.append(action)
+        return ActionResult(success=success, detail={
+            "node_click_status": status, "native_action_performed": performed,
+        })
+    driver.act = act
+    transaction = ActionObservationTransaction(driver, ObservationBuilder(), resample_settle_ms=0)
+    before = await transaction.observe_current()
+    result, after = await transaction.act_and_observe(Action(type="tap", index=0), before)
+    assert len(driver.actions) == 1
+    assert after.observation_id != before.observation_id
+    assert result.receipt.node_click_status == status
+    assert result.receipt.native_action_performed is performed
+    assert result.receipt.effect_outcome == outcome
 
 
 class _FlakyCaptureDriver(_SequenceDriver):
@@ -733,6 +761,85 @@ async def test_foreground_change_during_capture_rejects_mixed_package() -> None:
 
 
 @pytest.mark.asyncio
+async def test_foreground_activity_change_during_capture_rejects_mixed_page() -> None:
+    class Driver(_SequenceDriver):
+        def __init__(self):
+            super().__init__([_tree(package="com.example")])
+            self.activities = iter((".ThreadActivity", ".NewConversationActivity"))
+
+        async def current_foreground_identity(self, *, timeout_s=None):
+            activity = next(self.activities)
+            return {
+                "package": "com.example",
+                "activity": activity,
+                "component": f"com.example/{activity}",
+                "sources": [],
+                "conflict": False,
+            }
+
+    with pytest.raises(ObservationStageError) as raised:
+        await ActionObservationTransaction(
+            Driver(), ObservationBuilder(),
+            resample_settle_ms=0,
+        )._capture_once("txn", "test")
+
+    assert raised.value.stage == "grounding_barrier"
+    assert raised.value.reason == "foreground_component_changed_during_capture"
+    barrier = raised.value.provider_attempts[-1]
+    assert barrier == {
+        "provider": "grounding_barrier",
+        "status": "error",
+        "budget_ms": 0.0,
+        "elapsed_ms": 0.0,
+        "error": "foreground_component_changed_during_capture",
+        "before_package": "com.example",
+        "after_package": "com.example",
+        "before_component": "com.example/.ThreadActivity",
+        "after_component": "com.example/.NewConversationActivity",
+        "capture_ordinal": 1,
+    }
+
+
+@pytest.mark.asyncio
+async def test_foreground_activity_change_triggers_one_full_resample() -> None:
+    class Driver(_SequenceDriver):
+        def __init__(self):
+            super().__init__([
+                _tree(page="transition"),
+                _tree(page="new conversation"),
+            ])
+            self.activities = iter((
+                ".ThreadActivity",
+                ".NewConversationActivity",
+                ".NewConversationActivity",
+                ".NewConversationActivity",
+            ))
+
+        async def current_foreground_identity(self, *, timeout_s=None):
+            activity = next(self.activities)
+            return {
+                "package": "com.example",
+                "activity": activity,
+                "component": f"com.example/{activity}",
+                "sources": [],
+                "conflict": False,
+            }
+
+    driver = Driver()
+    package = await ActionObservationTransaction(
+        driver, ObservationBuilder(),
+        resample_settle_ms=0,
+    ).observe_current(deadline_ms=1_000)
+
+    assert package.accepted is True
+    assert driver.capture_count == 2
+    assert package.capture_meta["observation_capture_attempt_count"] == 2
+    assert package.capture_meta["resample_trigger"] == (
+        "grounding_barrier:foreground_component_changed_during_capture"
+    )
+
+
+@pytest.mark.asyncio
 async def test_posterior_identity_timeout_keeps_exact_tree_image_package() -> None:
     class Driver(_SequenceDriver):
         identity_calls = 0
@@ -1065,8 +1172,89 @@ async def test_generic_transition_captures_once_and_remains_unknown():
     assert result.receipt is not None
     assert result.receipt.effect_outcome == EffectOutcome.UNKNOWN
     assert result.receipt.effect_reason == "action_dispatched_observation_available"
+    assert result.receipt.visible_change is None
     assert after.accepted is True
     assert driver.capture_count == 1
+
+
+@pytest.mark.asyncio
+async def test_byte_identical_post_action_screen_sets_visible_change_none():
+    before = await ActionObservationTransaction(
+        _SequenceDriver([_tree(page="search")]), ObservationBuilder(),
+        resample_settle_ms=0,
+    ).observe_current()
+    result, after = await ActionObservationTransaction(
+        _SequenceDriver([_tree(page="search")]), ObservationBuilder(),
+        resample_settle_ms=0,
+    ).act_and_observe(Action(type="tap", index=1), before)
+    assert unchanged_post_action_observation(before, after) is True
+    assert result.receipt is not None
+    assert result.receipt.effect_outcome == EffectOutcome.UNKNOWN
+    assert result.receipt.visible_change == "none"
+
+
+@pytest.mark.asyncio
+async def test_confirmed_interaction_can_coexist_with_identical_screen_without_redispatch():
+    before = await ActionObservationTransaction(
+        _SequenceDriver([_tree(page="9")]), ObservationBuilder(), resample_settle_ms=0,
+    ).observe_current()
+
+    class EventDriver(_SequenceDriver):
+        async def interaction_event_cursor(self, *, timeout_s):
+            return 10
+
+        async def interaction_events_after(self, cursor, *, limit, timeout_s):
+            assert cursor == 10
+            return SimpleNamespace(complete_coverage=True, events=(SimpleNamespace(
+                event_type=1, package="com.example", window_id=2,
+                source_class="android.widget.Button", resource_id="com.example:id/next",
+                bounds=(0, 10, 32, 24),
+            ),))
+
+    driver = EventDriver([_tree(page="9")])
+    result, after = await ActionObservationTransaction(
+        driver, ObservationBuilder(), resample_settle_ms=0,
+    ).act_and_observe(
+        Action(type="tap_xy", x=16, y=17), before,
+        target=ActionTargetSnapshot(
+            package="com.example", window_id=2, source_class="Button",
+            resource_id="next", bounds=[0, 10, 32, 24],
+        ),
+    )
+    assert len(driver.actions) == 1
+    assert unchanged_post_action_observation(before, after) is True
+    assert result.receipt is not None
+    assert result.receipt.interaction_ack == "confirmed"
+    assert result.receipt.interaction_ack_source == "accessibility_event"
+    assert result.receipt.visible_change == "none"
+    assert result.receipt.effect_outcome == EffectOutcome.UNKNOWN
+
+
+@pytest.mark.asyncio
+async def test_pixel_only_difference_omits_visible_change():
+    class _ColorDriver(_SequenceDriver):
+        def __init__(self, trees: list[dict], color: str) -> None:
+            super().__init__(trees)
+            self.color = color
+
+        async def get_frame(self):
+            self.capture_count += 1
+            if self.trees:
+                self.last = self.trees.pop(0)
+            return self.last, _png(self.color)
+
+    before = await ActionObservationTransaction(
+        _ColorDriver([_tree(page="search")], "white"), ObservationBuilder(),
+        resample_settle_ms=0,
+    ).observe_current()
+    result, after = await ActionObservationTransaction(
+        _ColorDriver([_tree(page="search")], "black"), ObservationBuilder(),
+        resample_settle_ms=0,
+    ).act_and_observe(Action(type="tap", index=1), before)
+    assert before.text_for_llm == after.text_for_llm
+    assert unchanged_post_action_observation(before, after) is False
+    assert result.receipt is not None
+    assert result.receipt.visible_change is None
 
 
 @pytest.mark.asyncio
@@ -1074,9 +1262,11 @@ async def test_effectful_dispatch_settles_before_first_post_action_capture(
     monkeypatch,
 ):
     sleeps: list[float] = []
+    real_sleep = asyncio.sleep
 
     async def record_sleep(seconds: float) -> None:
         sleeps.append(seconds)
+        await real_sleep(seconds)
 
     monkeypatch.setattr("agent.action_observation.asyncio.sleep", record_sleep)
     before = await ActionObservationTransaction(
@@ -1089,7 +1279,8 @@ async def test_effectful_dispatch_settles_before_first_post_action_capture(
         driver, ObservationBuilder(), resample_settle_ms=250,
     ).act_and_observe(Action(type="tap", index=1), before)
 
-    assert sleeps == [0.25]
+    assert sleeps and all(0 < delay <= 0.25 for delay in sleeps)
+    assert after.capture_meta["post_action_settle_elapsed_ms"] >= 250
     assert driver.capture_count == 1
     assert after.capture_meta["post_action_settle_configured_ms"] == 250
     assert after.capture_meta["post_action_settle_elapsed_ms"] >= 0
@@ -1409,6 +1600,9 @@ async def test_post_action_capture_failure_returns_degraded_receipt_not_executor
     assert driver.capture_count == 2
     assert result.receipt.observation_capture_count == 2
     assert after.capture_meta["observation_capture_attempt_count"] == 2
+    assert result.detail["observation_failure"]["stage"] == "alignment"
+    assert result.detail["observation_failure"]["reason"] == "capture_timeout"
+    assert result.detail["observation_failure"]["capture_attempt_count"] == 2
 
 
 @pytest.mark.asyncio

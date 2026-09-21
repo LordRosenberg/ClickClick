@@ -1,70 +1,30 @@
 """Executor agent: AgentSession tool loop → one ExecutorStep + driver.act.
 
-Each tick: ``load_skill`` / ``submit_executor_step``, then one atomic device
-action. Observation and subgoal messages are replaced each tick; skill bodies
-are side-stored for the task and projected by foreground app.
+Each tick submits one atomic decision. Planner-selected Skill bodies are
+side-stored for the task and projected by target App.
 """
 
 from __future__ import annotations
 
-import json
+import asyncio
+import os
 from typing import Any
 
-from agent.action_observation import (
-    ActionObservationTransaction,
-    suppressed_action_result,
-)
-from agent.observation_space import (
-    COORDINATE_ROUNDING_EPSILON,
-    ObservationRegistry,
-    action_uses_coordinates,
-    action_uses_index,
-    make_registry_entry,
-    transform_action,
-    validate_action_bounds,
-)
+from agent.action_observation import ActionObservationTransaction, suppressed_action_result
+from agent.observation_space import COORDINATE_ROUNDING_EPSILON, ObservationRegistry, action_uses_coordinates, action_uses_index, make_registry_entry, transform_action, validate_action_bounds
 from agent.session import AgentSession
-from agent.read_tools import make_observe_screen_handler, make_search_installed_apps_handler
-from agent.tool_registry import (
-    AgentToolResult,
-    ToolExecutionContext,
-    ToolStatus,
-    redact_exact_values,
-    redact_value,
-)
+from agent.read_tools import make_inspect_image_regions_handler, make_observe_screen_handler, make_search_installed_apps_handler
+from agent.tool_registry import AgentToolResult, ToolExecutionContext, ToolStatus, redact_exact_values, redact_value
 from driver.observation_deadline import ObservationStageError
-from agent.prompts import (
-    render_executor_system,
-)
-from perception.image_utils import (
-    compress_for_model,
-    prepare_som_for_model,
-    role_model_image_profile,
-    validated_model_image,
-    visual_evidence_metadata,
-)
+from perception.image_utils import compress_for_model, prepare_som_for_model, role_model_image_profile, validated_model_image, visual_evidence_metadata
 from perception.input_evidence import editability_evidence, focused_target_evidence
 from perception.observation import ObservationBuilder, ObservationPackage
-from shared.artifacts import ArtifactStore
+from shared.artifacts import ArtifactStore, image_suffix
 from shared.config import Settings, get_settings
 from shared.app_resolver import ResolverTicketStore
 from shared.llm_gateway import GatewayError
 from shared.protocol import DeviceDriver
-from shared.schemas import (
-    Action,
-    ActionPipeline,
-    ActionPipelineStage,
-    ActionResult,
-    ActionTargetSnapshot,
-    CanonicalUI,
-    ExecutorDecisionKind,
-    ExecutorStep,
-    ObservationMode,
-    SubmittedActionSnapshot,
-    AppResolutionResult,
-    AppResolutionStatus,
-    LaunchPreflightResult,
-)
+from shared.schemas import Action, ActionPipeline, ActionPipelineStage, ActionResult, ActionTargetSnapshot, CanonicalUI, ExecutorDecisionKind, ExecutorStep, ObservationMode, SubmittedActionSnapshot, AppResolutionResult, AppResolutionStatus, LaunchPreflightResult
 
 
 # ---------------------------------------------------------------------------
@@ -77,6 +37,7 @@ from shared.schemas import (
 _REQUIRED_PARAMS: dict[str, tuple[str, ...]] = {
     "tap": ("index",),
     "tap_xy": ("x", "y"),
+    "skill_authorized_action": ("skill_action_id",),
     "type": ("text",),
     "replace_text": ("text",),
     "swipe": ("x", "y", "x2", "y2"),
@@ -100,6 +61,7 @@ def _submitted_action_snapshot(
     return SubmittedActionSnapshot(
         type=action.type,
         index=action.index,
+        surface_index=action.surface_index,
         x=action.x,
         y=action.y,
         x2=action.x2,
@@ -110,10 +72,11 @@ def _submitted_action_snapshot(
         app=action.app,
         direction=action.direction,
         duration_ms=action.duration_ms,
+        skill_action_id=action.skill_action_id,
     )
 
 
-def _target_snapshot(element: Any) -> ActionTargetSnapshot:
+def _target_snapshot(element: Any, *, package: str = "") -> ActionTargetSnapshot:
     """Bind one current source-typed accessibility target without synthesis."""
     states = dict(getattr(element, "states", None) or {})
     password = bool(getattr(element, "password", False) or states.get("password"))
@@ -134,6 +97,10 @@ def _target_snapshot(element: Any) -> ActionTargetSnapshot:
         editability=structural_editability,
         focused=bool(states.get("focused") or getattr(element, "editability", "")),
         password=password,
+        package=package,
+        window_id=getattr(element, "window_id", None),
+        source_class=role,
+        resource_id=str(getattr(element, "resource_id", "") or ""),
     )
 
 
@@ -153,6 +120,10 @@ def _required_params_satisfied(action: Action) -> bool:
         if action.index is not None:
             return True
         return action.x is not None and action.y is not None
+    if t == "skill_authorized_action":
+        has_index = action.index is not None
+        has_coordinates = action.x is not None and action.y is not None
+        return bool(action.skill_action_id) and has_index != has_coordinates
     required = _REQUIRED_PARAMS.get(t)
     if not required:
         return True
@@ -169,6 +140,15 @@ def _missing_required_params(action: Action) -> list[str]:
         if action.index is None and (action.x is None or action.y is None):
             return ["index or (x,y)"]
         return []
+    if t == "skill_authorized_action":
+        missing = []
+        if not action.skill_action_id:
+            missing.append("skill_action_id")
+        has_index = action.index is not None
+        has_coordinates = action.x is not None and action.y is not None
+        if has_index == has_coordinates or ((action.x is None) != (action.y is None)):
+            missing.append("exactly one target: index or (x,y)")
+        return missing
     required = _REQUIRED_PARAMS.get(t, ())
     return [f for f in required if getattr(action, f, None) is None]
 
@@ -179,12 +159,12 @@ def _normalize_act(value: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# tap(index) → tap_xy resolution (agent-side, D9 / 4.6)
+# Bind tap(index) to the observed native node, or legacy coordinates.
 # ---------------------------------------------------------------------------
 
 
-def resolve_tap_index(action: Action, ui: CanonicalUI) -> Action:
-    """Resolve `tap(index)` to `tap_xy(x, y)` using the current frame's UI.
+def resolve_tap_index(action: Action, ui: CanonicalUI, *, native_node_click: bool = False) -> Action:
+    """Bind `tap(index)` to its observed native node when supported.
 
     Returns the action unchanged when it's not a tap-by-index or the index
     can't be resolved (caller will surface a driver-level failure).
@@ -192,7 +172,16 @@ def resolve_tap_index(action: Action, ui: CanonicalUI) -> Action:
     if action.type != "tap" or action.index is None:
         return action
     el = next((e for e in ui.elements if e.index == action.index), None)
-    if el is None or len(el.bounds) != 4:
+    if el is None:
+        return action
+    node_click_enabled = os.getenv("CLICKCLICK_NODE_CLICK_ENABLED", "1").strip().lower() not in {
+        "0", "false", "no", "off",
+    }
+    if native_node_click and el.node_handle and node_click_enabled:
+        bound = Action(type="tap", index=action.index)
+        bound._node_handle = el.node_handle
+        return bound
+    if len(el.bounds) != 4:
         return action  # unresolved; driver will fail with a clear message
     x1, y1, x2, y2 = el.bounds
     return Action(type="tap_xy", x=(x1 + x2) / 2, y=(y1 + y2) / 2)
@@ -211,6 +200,106 @@ def resolve_long_press_index(action: Action, ui: CanonicalUI) -> Action:
         x=(x1 + x2) / 2, y=(y1 + y2) / 2,
         duration_ms=action.duration_ms if action.duration_ms is not None else 1000,
     )
+
+
+def resolve_skill_authorized_index(action: Action, ui: CanonicalUI) -> Action:
+    """Resolve an authorized target while retaining its opaque recipe id."""
+    if action.type != "skill_authorized_action" or action.index is None:
+        return action
+    el = next((e for e in ui.elements if e.index == action.index), None)
+    if el is None or len(el.bounds) != 4:
+        return action
+    x1, y1, x2, y2 = el.bounds
+    return Action(
+        type="skill_authorized_action",
+        x=(x1 + x2) / 2,
+        y=(y1 + y2) / 2,
+        skill_action_id=action.skill_action_id,
+    )
+
+
+def _compound_receipt_entry(action: Action, result: ActionResult) -> dict[str, Any]:
+    return {
+        "action": action.model_dump(mode="json", exclude_none=True),
+        "success": result.success,
+        "message": result.message,
+        "receipt": (
+            result.receipt.model_dump(mode="json")
+            if result.receipt is not None else None
+        ),
+        "detail": dict(result.detail),
+    }
+
+
+def _physical_action_dispatched(result: ActionResult) -> bool:
+    if result.receipt is not None:
+        return bool(result.receipt.dispatch_succeeded)
+    return result.detail.get("device_dispatch") != "not_dispatched"
+
+
+def _primitive_transaction_accepted(result: ActionResult) -> bool:
+    return bool(
+        result.success
+        and result.receipt is not None
+        and result.receipt.observation_accepted
+    )
+
+
+async def execute_tap_capture_key(
+    transaction: ActionObservationTransaction,
+    action: Action,
+    before: ObservationPackage,
+    *,
+    target: ActionTargetSnapshot | None = None,
+    key: str = "back",
+    delay_ms: int = 0,
+) -> tuple[ActionResult, ObservationPackage, ObservationPackage | None]:
+    """Run the closed tap/capture/Back/capture recipe through primitive transactions."""
+    tap = Action(type="tap_xy", x=action.x, y=action.y)
+    first, intermediate = await transaction.act_and_observe(tap, before, target=target)
+    entries = [_compound_receipt_entry(tap, first)]
+    results = [first]
+    final = intermediate
+    if _primitive_transaction_accepted(first):
+        if delay_ms:
+            await asyncio.sleep(delay_ms / 1000.0)
+        followup = Action(type="back") if key == "back" else Action(type="key", key=key)
+        second, final = await transaction.act_and_observe(followup, intermediate)
+        entries.append(_compound_receipt_entry(followup, second))
+        results.append(second)
+    success = len(results) == 2 and all(
+        _primitive_transaction_accepted(item) for item in results
+    )
+    physical_units = sum(_physical_action_dispatched(item) for item in results)
+    capture_count = sum(
+        item.receipt.observation_capture_count
+        for item in results
+        if item.receipt is not None
+    )
+    detail = {
+        "device_action_units": 1,
+        "physical_subaction_units": physical_units,
+        "capture_count": capture_count,
+        "compound_receipt": {
+            "skill_action_id": action.skill_action_id,
+            "basis_observation_id": before.observation_id,
+            "intermediate_observation_id": intermediate.observation_id,
+            "final_observation_id": final.observation_id,
+            "status": "succeeded" if success else "stopped",
+            "subactions": entries,
+        },
+    }
+    message = (
+        "authorized inspection completed; historical detail and current state captured"
+        if success else
+        "authorized inspection stopped after a failed primitive transaction"
+    )
+    return ActionResult(
+        success=success,
+        message=message,
+        detail=detail,
+        receipt=results[-1].receipt,
+    ), final, intermediate
 
 
 def rescale_action_xy(action: Action, sx: float, sy: float) -> Action:
@@ -240,6 +329,7 @@ def rescale_action_xy(action: Action, sx: float, sy: float) -> Action:
         "app": action.app,
         "direction": action.direction,
         "duration_ms": action.duration_ms,
+        "skill_action_id": action.skill_action_id,
     }
     if action.x is not None:
         kwargs["x"] = float(action.x) * sx
@@ -264,29 +354,19 @@ def build_executor_prompt(
     state: Any | None = None,
 ) -> tuple[str, str, str, str]:
     """Construct (system, goal, history, observation) for one Executor tick."""
-    from agent.decision_context import (
-        render_executor_history_v2,
-        render_executor_observation_v2,
-        render_executor_task_anchor,
-    )
-    from shared.schemas import AgentState
+    from agent.decision_context import render_executor_observation_v2
 
+    from agent.prompts import render_executor_system
     system = render_executor_system()
-    if isinstance(state, AgentState):
-        if subgoal and subgoal != state.current_subgoal:
-            state = state.model_copy(update={"current_subgoal": subgoal})
-        goal = render_executor_task_anchor(state)
-        history = render_executor_history_v2(state)
-    else:
-        from shared.schemas import AgentState as _AgentState
-
-        ephemeral = _AgentState(
-            instruction=subgoal,
-            current_subgoal=subgoal,
-        )
-        goal = render_executor_task_anchor(ephemeral)
-        history = render_executor_history_v2(ephemeral)
-    observation = render_executor_observation_v2(package)
+    goal = subgoal
+    history = ""
+    coordinate_work = any(
+        term in subgoal.lower()
+        for term in ("draw", "drawing", "drag", "swipe", "gesture", "coordinate", "画", "拖", "滑")
+    )
+    observation = render_executor_observation_v2(
+        package, include_surface_bounds=coordinate_work,
+    )
     return system, goal, history, observation
 
 
@@ -312,6 +392,28 @@ def _build_messages(
         content.append({"type": "image_url", "image_url": {"url": data_url}})
         messages.append({"role": "user", "content": content})
     return messages
+
+
+def _compound_history_messages(
+    package: ObservationPackage,
+) -> list[dict[str, Any]]:
+    """Build one historical evidence message, using clean pixels without SoM marks."""
+    from agent.decision_context import render_historical_intermediate_observation
+
+    source = package.clean_png or package.image_for_llm
+    tree_available = bool(package.ui.semantic_tree)
+    profile = role_model_image_profile(tree_available=tree_available)
+    image, _original, size = compress_for_model(
+        source,
+        max_dim=profile.long_edge,
+        quality=profile.jpeg_quality,
+    )
+    image, _size = validated_model_image(image, size)
+    text = render_historical_intermediate_observation(package)
+    return [
+        message for message in _build_messages("", text, image)
+        if message.get("role") != "system"
+    ]
 
 
 def _sniff_image_media_type(image_bytes: bytes) -> str:
@@ -360,11 +462,14 @@ class Executor:
         self.artifacts = artifacts
         self.model = model
         self.settings = settings or get_settings()
+        self.cancel_requested = lambda: False
         self._session = AgentSession(
             "executor", model, settings=self.settings,
         )
         self.traces: Any | None = None
         self._frozen_skill_dirs: list[str] = []
+        self._target_app = ""
+        self._workflow_ids: list[str] = []
         self._ticket_store = ResolverTicketStore()
         self._ticket_task_id = ""
         self._app_resolution_generations: dict[str, str] = {}
@@ -380,10 +485,16 @@ class Executor:
         self,
         *,
         frozen_skill_dirs: list[str] | None = None,
+        target_app: str | None = None,
+        workflow_ids: list[str] | None = None,
     ) -> None:
-        """Apply the task's frozen generic skill discovery scope."""
+        """Apply the Planner-selected Skill handoff for the active subgoal."""
         if frozen_skill_dirs is not None:
             self._frozen_skill_dirs = list(frozen_skill_dirs)
+        if target_app is not None:
+            self._target_app = target_app.strip()
+        if workflow_ids is not None:
+            self._workflow_ids = list(workflow_ids)
 
     def _device_id(self) -> str:
         value = getattr(self.driver, "serial", None)
@@ -490,9 +601,40 @@ class Executor:
     async def _terminal_preflight(
         self, step: ExecutorStep, context: ToolExecutionContext,
     ) -> AgentToolResult | None:
-        """Reject a deterministically invalid launch before device dispatch."""
+        """Reject deterministically invalid or unauthorized actions before dispatch."""
         if step.decision != ExecutorDecisionKind.ACT:
             return None
+        if step.action is not None and step.action.type == "skill_authorized_action":
+            package = context.state.get("active_package")
+            app_id = (
+                package.ui.app_id if isinstance(package, ObservationPackage) else ""
+            )
+            authorized = self._session.authorized_action(
+                str(step.action.skill_action_id or ""), app_id,
+            )
+            if authorized is None:
+                return AgentToolResult(
+                    status=ToolStatus.INVALID_ARGUMENTS,
+                    summary=(
+                        "recoverable authorized-action rejection: the exact action id is not "
+                        "authorized by an active App skill for the current foreground App"
+                    ),
+                    data={
+                        "recoverable": True,
+                        "reason": "skill_action_not_authorized",
+                        "skill_action_id": step.action.skill_action_id,
+                        "foreground_app": app_id,
+                    },
+                    error="skill_action_not_authorized",
+                )
+            context.state["authorized_action_source"] = {
+                "skill_id": authorized[0].id,
+                "app": authorized[0].app,
+                "skill_action_id": authorized[1].id,
+                "template": authorized[1].template,
+                "key": authorized[1].key,
+                "delay_ms": authorized[1].delay_ms,
+            }
         return await self._launch_preflight(step, context)
 
     async def act_once(
@@ -511,6 +653,7 @@ class Executor:
         Orchestrator. Active-subgoal history is projected from the canonical
         task-memory event stream in ``state``.
         """
+        await self._session.bind_device_skills(self.driver)
         ui = package.ui
         mode = package.mode
         # Production path: Agent Session tool loop (task-scoped lifecycle).
@@ -522,6 +665,11 @@ class Executor:
             base_dirs = self._frozen_skill_dirs or ["generic"]
             self._session.freeze_allow_dirs(base_dirs)
         self._ticket_store.clear_other_subgoals(task_id, subgoal)
+        target_app = str(getattr(state, "active_target_app", self._target_app) or "")
+        workflow_ids = list(
+            getattr(state, "active_workflow_ids", self._workflow_ids) or []
+        )
+        self._session.set_target_app(target_app, workflow_ids)
         self._session.set_foreground_app(package.ui.app_id)
         # Every new Executor device decision receives one current SoM image
         # when pixels exist. Derive it from the clean pixels that share this
@@ -562,7 +710,7 @@ class Executor:
         if size_for_messages is not None:
             package.model_image_width, package.model_image_height = size_for_messages
             # Keep the exact model-facing pixels on the active package.  A
-            # later observe_screen(current) may reuse this baseline, and must
+            # later observe_screen(snapshot) may reuse this baseline, and must
             # not rebind the same observation id to the larger persisted SoM.
             package.image_for_llm = llm_image
             package.mode = (
@@ -602,6 +750,13 @@ class Executor:
             model=self.model,
             profile=image_profile,
         )
+        baseline_visual_evidence["captured_monotonic_ms"] = package.captured_monotonic_ms
+        if self.artifacts is not None and llm_image is not None:
+            baseline_visual_evidence["image_artifact_ref"] = (
+                self.artifacts.save_content_addressed_bytes(
+                    "model-images", llm_image, suffix=image_suffix(llm_image),
+                )
+            )
         observation_registry = ObservationRegistry()
         initial_entry = make_registry_entry(
             observation_id=package.observation_id,
@@ -643,6 +798,7 @@ class Executor:
         def render_observation_bucket(
             current_package: ObservationPackage,
         ) -> tuple[list[dict[str, Any]], list[str]]:
+            self._session.set_target_app(target_app, workflow_ids)
             self._session.set_foreground_app(current_package.ui.app_id)
             _system, _goal, _history, current = build_executor_prompt(
                 subgoal,
@@ -671,6 +827,7 @@ class Executor:
             "search_installed_apps": make_search_installed_apps_handler(
                 driver=self.driver, ticket_store=self._ticket_store,
             ),
+            "inspect_image_regions": make_inspect_image_regions_handler(),
         }
 
         def event_sink(event_kind: str, payload: dict[str, Any]) -> None:
@@ -724,9 +881,16 @@ class Executor:
             final_visual_evidence = baseline_visual_evidence
         else:
             final_visual_evidence = dict(final_visual_evidence)
-        if self.artifacts is not None and package.image_for_llm is not None:
-            final_visual_evidence["image_artifact_ref"] = self.artifacts.save_bytes(
-                "model-images", package.image_for_llm, suffix=".bin",
+        if (
+            self.artifacts is not None
+            and package.image_for_llm is not None
+            and not final_visual_evidence.get("image_artifact_ref")
+        ):
+            final_visual_evidence["image_artifact_ref"] = (
+                self.artifacts.save_content_addressed_bytes(
+                    "model-images", package.image_for_llm,
+                    suffix=image_suffix(package.image_for_llm),
+                )
             )
         if step.decision != ExecutorDecisionKind.ACT:
             result = ActionResult(
@@ -748,6 +912,7 @@ class Executor:
                 ),
                 "basis_observation_id": step.basis_observation_id,
                 "observation_id": package.observation_id,
+                "model_image_ref": final_visual_evidence.get("image_artifact_ref"),
                 "observation_registry": [
                     entry.persistence_projection() for entry in observation_registry.values()
                 ],
@@ -770,17 +935,21 @@ class Executor:
             raise GatewayError("act decision returned no action", category="malformed")
         action = step.action
         focused_text_target = _focused_text_target(package)
+        if action.type == "replace_text" and action.index is not None:
+            focused_text_target = next((node for node in package.ui.elements if node.index == action.index), None)
         text_target_password = bool(
             action.type in {"type", "replace_text"}
             and focused_text_target is not None
-            and focused_text_target.password
+            and (getattr(focused_text_target, "password", False) or getattr(focused_text_target, "states", {}).get("password"))
         )
         step.submitted_action_snapshot = _submitted_action_snapshot(
             action,
             redact_text=text_target_password,
         )
         if action.type in {"type", "replace_text"} and focused_text_target is not None:
-            step.target_snapshot = _target_snapshot(focused_text_target)
+            step.target_snapshot = _target_snapshot(
+                focused_text_target, package=package.ui.app_id,
+            )
         pipeline = step.action_pipeline or ActionPipeline()
         registry = invocation.context_state.get("observation_registry")
         if not isinstance(registry, ObservationRegistry):
@@ -928,6 +1097,13 @@ class Executor:
                                 validation_result=bounds_evidence,
                             ))
 
+        if not rejection_reason and action.surface_index is not None:
+            from agent.observation_space import validate_surface_containment
+            rejection_reason = validate_surface_containment(action, basis_entry)
+            if rejection_reason:
+                rejection_detail = {"surface_index": action.surface_index,
+                                    "hint": "Use the current surface and keep the whole confined drag inside its bounds; do not clamp or retarget."}
+
         if not rejection_reason and basis_entry is not None and action_uses_index(action):
             basis_ui = basis_entry.ui()
             before_index_resolution = action
@@ -939,10 +1115,16 @@ class Executor:
                 None,
             )
             if target is not None:
-                step.target_snapshot = _target_snapshot(target)
-            action = resolve_tap_index(action, basis_ui)
+                step.target_snapshot = _target_snapshot(
+                    target, package=basis_ui.app_id,
+                )
+            action = resolve_tap_index(
+                action, basis_ui,
+                native_node_click=getattr(self.driver, "supports_native_node_click", False) is True,
+            )
             action = resolve_long_press_index(action, basis_ui)
-            if action == before_index_resolution:
+            action = resolve_skill_authorized_index(action, basis_ui)
+            if action == before_index_resolution and not (action.type == "replace_text" and target is not None):
                 rejection_reason = "mismatched_observation_basis"
                 rejection_detail = {
                     "index_set_id": basis_entry.element_set_id,
@@ -992,35 +1174,64 @@ class Executor:
                 if value
             }
             discovery_query = str(invocation.context_state.get("installed_app_query") or "")
-            if (
-                action.type == "launch" and discovered_candidates
-                and str(action.app or "") not in discovered_candidates
-            ):
-                pipeline.dispatch_suppressed = True
-                pipeline.origin = "model_rejected"
-                pipeline.fallback_reason = "invalid_installed_app_selection"
-                pipeline.stages.append(ActionPipelineStage(
-                    stage="rejected", action=action, coordinate_space="device",
-                    reason="invalid_installed_app_selection",
-                ))
-                result = suppressed_action_result(
-                    action, "invalid_installed_app_selection",
+            transaction = ActionObservationTransaction(
+                self.driver, ObservationBuilder(),
+            )
+            if self.cancel_requested():
+                raise asyncio.CancelledError
+            if action.type == "replace_text" and action.index is not None:
+                from agent.targeted_input import replace_target_text
+                runtime = state.revisable if state is not None else None
+                remaining = (runtime.limits.device_actions - runtime.execution_count
+                             if runtime is not None and runtime.limits.device_actions is not None else None)
+                result, post_action_package = await replace_target_text(
+                    transaction, action, package, target_snapshot=step.target_snapshot,
+                    cancel_requested=self.cancel_requested, remaining_actions=remaining,
                 )
-                post_action_package = package
+            elif action.type == "skill_authorized_action":
+                source = invocation.context_state.get("authorized_action_source")
+                if not isinstance(source, dict) or source.get("template") not in {
+                    "tap_capture_key", "tap_then_key",
+                }:
+                    result = suppressed_action_result(
+                        action, "skill_action_not_authorized",
+                    )
+                    result.detail.update({
+                        "device_action_units": 0,
+                        "physical_subaction_units": 0,
+                        "capture_count": 0,
+                    })
+                    post_action_package = package
+                else:
+                    result, post_action_package, compound_intermediate = (
+                        await execute_tap_capture_key(
+                            transaction, action, package, target=step.target_snapshot,
+                            key=str(source.get("key") or ""),
+                            delay_ms=int(source.get("delay_ms") or 0),
+                        )
+                    )
+                    invocation.context_state["compound_intermediate_package"] = (
+                        compound_intermediate
+                    )
+                    if (
+                        result.success
+                        and source.get("template") == "tap_capture_key"
+                    ):
+                        invocation.context_state["compound_model_evidence_package"] = (
+                            compound_intermediate
+                        )
             else:
-                transaction = ActionObservationTransaction(
-                    self.driver, ObservationBuilder(),
-                )
                 result, post_action_package = await transaction.act_and_observe(
-                    action, package,
+                    action, package, target=step.target_snapshot,
                 )
-                if (
-                    result.success and action.type == "launch" and discovery_query
-                    and str(action.app or "") in discovered_candidates
-                ):
-                    remember = getattr(self.driver, "record_installed_app_selection", None)
-                    if callable(remember):
-                        await remember(discovery_query, str(action.app))
+            if (
+                result.success and action.type == "launch" and discovery_query
+                and str(action.app or "") in discovered_candidates
+            ):
+                remember = getattr(self.driver, "record_installed_app_selection", None)
+                if callable(remember):
+                    await remember(discovery_query, str(action.app))
+            if result.detail.get("device_dispatch") != "not_dispatched":
                 pipeline.stages.append(ActionPipelineStage(
                     stage="dispatched", action=action, coordinate_space="device",
                     reason="driver_dispatched",
@@ -1113,6 +1324,7 @@ class Executor:
             "ticket_lifecycle": list(invocation.context_state.get("ticket_lifecycle") or []),
             "basis_observation_id": step.basis_observation_id,
             "observation_id": package.observation_id,
+            "model_image_ref": final_visual_evidence.get("image_artifact_ref"),
             "observation_registry": [
                 entry.persistence_projection() for entry in registry.values()
             ],
@@ -1120,6 +1332,12 @@ class Executor:
             "visual_evidence": final_visual_evidence,
             "active_package": package,
             "post_action_package": post_action_package,
+            "compound_intermediate_package": invocation.context_state.get(
+                "compound_intermediate_package"
+            ),
+            "compound_model_evidence_package": invocation.context_state.get(
+                "compound_model_evidence_package"
+            ),
         }
         from perception.input_evidence import interaction_envelope
 

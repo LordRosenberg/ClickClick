@@ -87,6 +87,10 @@ async def test_driver_client_rpc_get_frame_and_act():
     h = await client.health()
     assert h["ok"] is True
 
+    assert (await client.begin_task_session("task-1"))["status"] == "disabled"
+    assert (await client.end_task_session("task-1"))["status"] == "not_active"
+    assert backing.task_sessions == [("begin", "task-1"), ("end", "task-1")]
+
 
 @pytest.mark.asyncio
 async def test_driver_client_preserves_identity_timeout_fact_over_rpc():

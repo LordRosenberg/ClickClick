@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 JsonContainer = TypeVar("JsonContainer", dict, list)
@@ -14,13 +16,27 @@ JsonContainer = TypeVar("JsonContainer", dict, list)
 # LiteLLM ChatGPT OAuth reads this env var for the token storage directory.
 CHATGPT_TOKEN_DIR_ENV = "CHATGPT_TOKEN_DIR"
 
+# .env JSON blobs commonly grow a trailing comma after the last property.
+_TRAILING_COMMA = re.compile(r",(\s*[}\]])")
+
+
+def _loads_json(raw: str) -> Any:
+    """Parse JSON, retrying once after stripping trailing commas."""
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        repaired = _TRAILING_COMMA.sub(r"\1", raw)
+        if repaired == raw:
+            raise
+        return json.loads(repaired)
+
 
 def _parse_json_container(raw: str, expected: type[JsonContainer]) -> JsonContainer | None:
     """Return one JSON object/array of the expected shape, or ``None``."""
     if not raw:
         return None
     try:
-        value: Any = json.loads(raw)
+        value: Any = _loads_json(raw)
     except (json.JSONDecodeError, TypeError):
         return None
     return value if isinstance(value, expected) else None
@@ -36,6 +52,9 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(env_prefix="CLICKCLICK_", env_file=".env", extra="ignore")
+
+    agent_architecture: Literal["plan_reviewer", "plan_executor"] = "plan_executor"
+    executor_context_tokens: int = Field(default=16000, ge=1)
 
     # Storage and process bindings.
     data_dir: Path = Path("./data")
@@ -109,6 +128,30 @@ class Settings(BaseSettings):
     def provider_for(self, model_id: str) -> dict:
         """Return the provider config dict for a model id (empty if absent)."""
         return self.model_providers().get(model_id, {})
+
+    def tool_choice_for(self, model_id: str) -> Literal["required", "auto"]:
+        """Resolve the model's Agent tool policy without weakening submit validation."""
+        choice = self.provider_for(model_id).get("tool_choice", "required")
+        if choice not in ("required", "auto"):
+            raise ValueError("Model tool_choice must be 'required' or 'auto'")
+        return choice
+
+    def context_policy(self, model_id: str, role: str) -> dict[str, int]:
+        """Resolve explicit model/role limits; never infer a model's window."""
+        raw = self.provider_for(model_id).get("context", {})
+        if not isinstance(raw, dict):
+            raise ValueError("Model context configuration must be an object")
+        role_policy = raw.get(role, {})
+        if not isinstance(role_policy, dict):
+            raise ValueError("Role context configuration must be an object")
+        values = {key: value for key, value in raw.items() if key in {"history_tokens", "max_input_tokens"}}
+        values.update(role_policy)
+        if role == "executor":
+            values.setdefault("history_tokens", self.executor_context_tokens)
+        for key, value in values.items():
+            if key not in {"history_tokens", "max_input_tokens"} or type(value) is not int or value < 1:
+                raise ValueError(f"Invalid context setting: {key}")
+        return values
 
     def apply_chatgpt_token_dir(self) -> str | None:
         """Export ``CHATGPT_TOKEN_DIR`` when ``chatgpt_token_dir`` is set.

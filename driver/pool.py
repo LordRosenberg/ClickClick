@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from typing import TYPE_CHECKING, Any
 
 from driver.fixture import FixtureDriver
@@ -79,6 +80,8 @@ class DriverPool:
         self._force_local = force_local
         self._drivers: dict[str, "DeviceDriver"] = {}
         self._locks: dict[str, asyncio.Lock] = {}
+        self._environment_results: dict[str, dict[str, Any]] = {}
+        self._online_keys: set[str] = set()
 
     def hubs(self) -> list[dict[str, str]]:
         """Remote hubs visible to this pool (empty when force_local / fixture)."""
@@ -209,3 +212,109 @@ class DriverPool:
         drv = _build_android_driver(self._settings, serial=serial)
         self._drivers[key] = drv
         return drv
+
+    async def ensure_environment(
+        self, key: str, *, force: bool = False,
+    ) -> dict[str, Any]:
+        """Idempotently install/upgrade one online device environment."""
+        if not self._settings.accessibility_collector_enabled:
+            return self.record_environment_result(key, {
+                "status": "disabled",
+                "reason": "accessibility_collector_disabled",
+            })
+        cached = self._environment_results.get(key)
+        if not force and cached is not None and cached.get("collector_ready"):
+            return dict(cached)
+        async with self.lock_for(key):
+            cached = self._environment_results.get(key)
+            if not force and cached is not None and cached.get("collector_ready"):
+                return dict(cached)
+            driver = self.get(key)
+            initialize = getattr(driver, "reconcile_environment", None)
+            if not callable(initialize):
+                result: dict[str, Any] = {
+                    "status": "unsupported",
+                    "reason": "driver does not support environment initialization",
+                }
+            else:
+                try:
+                    raw = await initialize()
+                    result = raw if isinstance(raw, dict) else {
+                        "status": "failed", "reason": "invalid initialization response",
+                    }
+                except asyncio.CancelledError:
+                    raise
+                except Exception as exc:  # noqa: BLE001
+                    result = {"status": "failed", "reason": str(exc)[:240]}
+            return self.record_environment_result(key, result)
+
+    async def reconcile_environments(
+        self, *, skip_keys: set[str] | None = None,
+    ) -> dict[str, dict[str, Any]]:
+        """Initialize newly-online or previously-failed devices in parallel."""
+        inventory = await self.inventory()
+        online = {str(row.get("key") or row.get("serial") or "") for row in inventory}
+        online.discard("")
+        for offline in self._online_keys - online:
+            self._environment_results.pop(offline, None)
+        self._online_keys = online
+        skipped = set(skip_keys or ())
+        keys = [
+            key for key in sorted(online)
+            if key not in skipped and not (
+                self._environment_results.get(key, {}).get("collector_ready")
+            )
+        ]
+        if keys:
+            values = await asyncio.gather(
+                *(self.ensure_environment(key) for key in keys),
+                return_exceptions=True,
+            )
+            for key, value in zip(keys, values):
+                if isinstance(value, BaseException):
+                    self._environment_results[key] = {
+                        "status": "failed",
+                        "reason": str(value)[:240],
+                        "collector_ready": False,
+                        "checked_monotonic": time.monotonic(),
+                    }
+        return {
+            key: dict(value) for key, value in self._environment_results.items()
+            if key in online
+        }
+
+    def environment_status(self, key: str) -> dict[str, Any] | None:
+        value = self._environment_results.get(key)
+        return dict(value) if value is not None else None
+
+    def record_environment_result(
+        self, key: str, result: dict[str, Any],
+    ) -> dict[str, Any]:
+        recorded = {
+            **result,
+            "collector_ready": self._collector_ready(result),
+            "checked_monotonic": time.monotonic(),
+        }
+        self._environment_results[key] = recorded
+        return dict(recorded)
+
+    @staticmethod
+    def _collector_ready(result: dict[str, Any]) -> bool:
+        if result.get("status") == "disabled":
+            return True
+        if result.get("status") == "ready" and not result.get("steps"):
+            return True  # fixture and drivers with one aggregate readiness bit
+        steps = result.get("steps")
+        if not isinstance(steps, dict):
+            return False
+        required = (
+            "collector_apk",
+            "accessibility_service",
+            "collector_health",
+            "collector_channel",
+        )
+        return all(
+            isinstance(steps.get(name), dict)
+            and steps[name].get("status") == "ready"
+            for name in required
+        )

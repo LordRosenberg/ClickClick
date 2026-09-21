@@ -212,6 +212,16 @@ def create_driver_app(
             elif body.method == "wake_and_unlock":
                 await drv.wake_and_unlock()
                 result = {"ok": True}
+            elif body.method == "begin_task_session":
+                fn = getattr(drv, "begin_task_session", None)
+                result = await fn(str(body.params.get("task_id") or "")) if callable(fn) else {
+                    "status": "disabled", "reason": "driver_does_not_require_session",
+                }
+            elif body.method == "end_task_session":
+                fn = getattr(drv, "end_task_session", None)
+                result = await fn(str(body.params.get("task_id") or "")) if callable(fn) else {
+                    "status": "not_active",
+                }
             elif body.method == "current_activity":
                 result = {"activity": await drv.current_activity()}
             elif body.method == "current_foreground_identity":
@@ -238,6 +248,9 @@ def create_driver_app(
                     limit=int(body.params.get("limit", 12)),
                 ) if callable(fn) else []
                 result = {"candidates": candidates}
+            elif body.method == "skill_profile_ids":
+                fn = getattr(drv, "skill_profile_ids", None)
+                result = {"profiles": await fn() if callable(fn) else []}
             elif body.method == "resolve_installed_app":
                 fn = getattr(drv, "resolve_installed_app", None)
                 result = await fn(str(body.params.get("app") or "")) if callable(fn) else {}
@@ -256,6 +269,11 @@ def create_driver_app(
                 fn = getattr(drv, "initialize_environment", None)
                 result = await fn() if callable(fn) else {
                     "status": "failed", "reason": "driver does not support initialization"
+                }
+            elif body.method == "reconcile_environment":
+                fn = getattr(drv, "reconcile_environment", None)
+                result = await fn() if callable(fn) else {
+                    "status": "disabled", "reason": "automatic reconciliation unsupported"
                 }
             elif body.method == "readiness":
                 fn = getattr(drv, "readiness", None)

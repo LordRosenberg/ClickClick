@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+import datetime
 import hashlib
 import io
 import time
@@ -26,6 +27,7 @@ from driver.accessibility import (
     CAPTURE_META_KEY,
     AccessibilityCollectorClient,
     AccessibilityTransportError,
+    CollectorPowerLeaseSession,
     mark_dump_fallback,
 )
 from driver.adb import AdbError
@@ -91,6 +93,7 @@ _KEYCODES = {
     "volume_up": 24,
     "volume_down": 25,
     "power": 26,
+    "media_pause": 127,
 }
 
 _DEFAULT_CAPTURE_BUDGET_MS = CURRENT_DEADLINE_MS
@@ -103,7 +106,6 @@ _DEFAULT_ADBKEYBOARD_IME_ID = "com.android.adbkeyboard/.AdbIME"
 # to receive broadcasts.  Task readiness switches early, and this short wait
 # also protects the lazy input-time fallback when readiness was skipped.
 _DEFAULT_IME_SWITCH_SETTLE_MS = 350
-
 
 @dataclass(frozen=True)
 class _PixelCapture:
@@ -148,6 +150,10 @@ def _tree_has_model_visible_content(
 class AndroidDriver:
     """Android driver: collector semantics, scrcpy/ADB pixels, ADB actions."""
 
+    # Private native references can only cross an explicitly supporting transport.
+    # Legacy HTTP drivers retain coordinate resolution instead of losing a binding.
+    supports_native_node_click = True
+
     def __init__(
         self,
         *,
@@ -189,6 +195,7 @@ class AndroidDriver:
         self._collector = AccessibilityCollectorClient(
             serial, authority=collector_authority
         )
+        self._task_power_lease = CollectorPowerLeaseSession(self._collector)
 
     def set_last_ui(self, ui: CanonicalUI) -> None:
         """Inject the current frame's normalized UI so driver-side index/scroll
@@ -203,6 +210,22 @@ class AndroidDriver:
     def last_frame_geometry(self) -> Any | None:
         """Geometry for the exact image most recently returned by get_frame."""
         return self._last_frame_geometry
+
+    async def interaction_event_cursor(self, *, timeout_s: float = 0.5) -> int | None:
+        """Return a collector action boundary without exposing event content."""
+        if not self._collector_enabled:
+            return None
+        return await self._collector.event_cursor(timeout=timeout_s)
+
+    async def interaction_events_after(
+        self, after_sequence: int, *, limit: int = 64, timeout_s: float = 0.5,
+    ) -> Any | None:
+        """Return one bounded safe-metadata batch for transaction correlation."""
+        if not self._collector_enabled:
+            return None
+        return await self._collector.events_after(
+            after_sequence, limit=limit, timeout=timeout_s,
+        )
 
     @staticmethod
     def _image_dimensions(image: bytes) -> tuple[int, int]:
@@ -331,6 +354,7 @@ class AndroidDriver:
         return bool(await starter())
 
     async def close_observation_provider(self) -> None:
+        await self._task_power_lease.end()
         await self._collector.close()
         closer = getattr(self._stream_provider, "close", None)
         if callable(closer):
@@ -396,14 +420,17 @@ class AndroidDriver:
             stage = "tree_collector"
             timeout_s = deadline.remaining_seconds(stage)
             started = time.monotonic()
+            capture = {}
             try:
                 tree = await self._collector_tree(timeout_s=timeout_s)
                 capture = tree.get(CAPTURE_META_KEY) or {}
                 reasons = [str(value) for value in capture.get("reasons") or []]
                 if "generation_changed" in reasons:
+                    if capture.get("window_generation") is not None:
+                        raise ObservationStageError("alignment", "window_transition")
                     raise ObservationStageError("accessibility_tree", "generation_changed")
                 if capture.get("complete") is not True:
-                    raise AdbError("collector returned incomplete snapshot")
+                    raise AdbError("collector returned incomplete snapshot: " + ",".join(reasons))
                 if not _tree_has_model_visible_content(tree, screen=screen):
                     raise AdbError("collector returned model-empty snapshot")
             except asyncio.CancelledError:
@@ -426,6 +453,18 @@ class AndroidDriver:
                     "budget_ms": round(timeout_s * 1000.0, 3),
                     "elapsed_ms": round((time.monotonic() - started) * 1000.0, 3),
                     "error": reason,
+                    "window_generation": capture.get("window_generation"),
+                    "window_quiet_ms": capture.get("window_quiet_ms"),
+                    "failed_capture": {
+                        key: value[:200] if isinstance(value, str) else value for key in (
+                            "provider", "complete", "generation", "window_generation",
+                            "window_quiet_ms", "content_changed_during_capture",
+                            "window_count", "collector_snapshot_ms", "collector_elapsed_ms",
+                            "collector_cache_cleared", "collector_capture_attempts",
+                        )
+                        if isinstance((value := capture.get(key)), (bool, int, float, str))
+                    },
+                    "failed_capture_reasons": [str(item)[:100] for item in (capture.get("reasons") or [])[:8]],
                 })
                 if capture_ordinal == 1 or isinstance(exc, ObservationStageError):
                     raise ObservationStageError(
@@ -645,6 +684,18 @@ class AndroidDriver:
         capture_started_ms = time.monotonic() * 1000.0
         capture_ordinal = int(getattr(deadline, "capture_ordinal", 1))
         fallback_edges: list[dict[str, str]] = []
+        entry_window_state = {}
+        if self._collector_enabled and self._collector.diagnostics().get("ready"):
+            try:
+                entry_window_state = await self._collector.window_state(
+                    timeout=min(0.3, deadline.remaining_seconds("window_fence")),
+                )
+                quiet_ms = entry_window_state.get("window_quiet_ms")
+                if quiet_ms is not None and float(quiet_ms) < 300:
+                    await deadline.wait(300 - max(0, float(quiet_ms)))
+            except Exception:
+                # A failed optional entry read is not a reason to discard pixels.
+                entry_window_state = {}
 
         async def capture_pixels() -> tuple[bytes, str, float, Any | None, str]:
             provider = self._stream_provider if prefer_stream else None
@@ -670,7 +721,7 @@ class AndroidDriver:
                     frame = await self._refresh_scrcpy_before_pixel_capture(
                         provider, deadline,
                     )
-                    if frame is None:
+                    if frame is None and not callable(getattr(provider, "await_fresh_frame", None)):
                         result = provider.current()
                         frame = self._healthy_frame(result)
                     else:
@@ -728,6 +779,7 @@ class AndroidDriver:
                 "to": "adb_screencap",
                 "reason": failure_reason,
             })
+            deadline.fallback_edges.append(dict(fallback_edges[-1]))
             adb_started = time.monotonic()
             try:
                 captured = await self._deadline_screencap(deadline)
@@ -767,9 +819,37 @@ class AndroidDriver:
                 })
                 return b"", "unavailable", 0.0, None, reason
 
-        tree_task = asyncio.create_task(
-            self._deadline_tree(deadline), name="current-observation-tree",
-        )
+        async def capture_tree() -> dict[str, Any]:
+            # Tree acquisition is optional when current pixels are available.
+            # Bound its entire route (including dump fallback), leaving time
+            # for pixel fallback and the transaction's foreground checks.
+            budget_ms = min(TREE_PRIMARY_ATTEMPT_TIMEOUT_MS, deadline.remaining_ms / 2)
+            tree_deadline = ObservationDeadline(deadline.mode, budget_ms)
+            tree_deadline.capture_ordinal = capture_ordinal
+            tree_deadline.provider_attempts = deadline.provider_attempts
+            tree_deadline.stage_timings = deadline.stage_timings
+            tree_deadline.fallback_edges = deadline.fallback_edges
+            started = time.monotonic()
+            try:
+                return await asyncio.wait_for(
+                    self._deadline_tree(tree_deadline), timeout=budget_ms / 1000.0,
+                )
+            except asyncio.TimeoutError as exc:
+                deadline.cancelled_tasks.append("current-observation-tree")
+                deadline.record_attempt({
+                    "provider": "tree_capture", "status": "timeout",
+                    "budget_ms": budget_ms,
+                    "elapsed_ms": (time.monotonic() - started) * 1000.0,
+                    "error": "tree_budget_exhausted", "capture_ordinal": capture_ordinal,
+                    "collector_diagnostics": self._collector.diagnostics(),
+                })
+                raise ObservationStageError(
+                    "accessibility_tree", "tree_budget_exhausted",
+                    budget_ms=budget_ms, timed_out=True,
+                    provider_attempts=list(deadline.provider_attempts),
+                ) from exc
+
+        tree_task = asyncio.create_task(capture_tree(), name="current-observation-tree")
         pixel_task = asyncio.create_task(
             capture_pixels(), name="current-observation-pixels",
         )
@@ -781,31 +861,28 @@ class AndroidDriver:
         tree_failure = (
             tree_result if isinstance(tree_result, BaseException) else None
         )
-        if (
-            isinstance(tree_failure, ObservationStageError)
-            and tree_failure.stage == "accessibility_tree"
-            and tree_failure.reason == "generation_changed"
-            and capture_ordinal == 1
-        ):
+        if isinstance(tree_failure, ObservationStageError) and tree_failure.reason == "window_transition":
             raise tree_failure
         if tree_failure is None:
             tree = tree_result
         else:
             tree = parse_uiautomator_xml(_EMPTY_HIERARCHY_XML)
             tree[FRAME_GATE_DEGRADED_KEY] = True
-            tree = mark_dump_fallback(
-                tree,
-                reason=str(getattr(tree_failure, "reason", tree_failure))[:200],
-            )
             failure_capture = tree.setdefault(CAPTURE_META_KEY, {})
             if isinstance(failure_capture, dict):
+                attempts = list(getattr(tree_failure, "provider_attempts", []) or [])
+                dump_attempted = any(row.get("provider") == "uiautomator_dump" for row in attempts)
                 failure_capture.update({
+                    "provider": "unavailable",
                     "complete": False,
-                    "tree_providers_exhausted": True,
-                    "tree_provider_attempts": list(
-                        getattr(tree_failure, "provider_attempts", []) or []
-                    ),
+                    "reasons": [str(getattr(tree_failure, "reason", tree_failure))[:200]],
+                    "tree_providers_exhausted": dump_attempted,
+                    "dump_attempted": dump_attempted,
+                    "tree_provider_attempts": attempts,
                 })
+                for attempt in getattr(tree_failure, "provider_attempts", []) or []:
+                    if attempt.get("window_generation") is not None:
+                        failure_capture.update({key: attempt[key] for key in ("window_generation", "window_quiet_ms") if key in attempt})
 
         if isinstance(pixel_result, BaseException):
             if isinstance(pixel_result, asyncio.CancelledError):
@@ -817,6 +894,30 @@ class AndroidDriver:
             shot, pixel_provider, pixel_ms, pixel_geometry, pixel_failure = (
                 pixel_result
             )
+
+        if pixel_provider == "scrcpy" and self._stream_provider is not None:
+            # Tree traversal may outlast the first refreshed image. Use an
+            # already decoded newer frame from that same stream, without a
+            # second RESET, capture, wait, or semantic comparison.
+            try:
+                latest = self._healthy_frame(self._stream_provider.current())
+                if (
+                    latest is not None
+                    and latest.generation == getattr(pixel_geometry, "generation", None)
+                    and latest.timestamp * 1000.0 >= pixel_ms
+                    and self._scrcpy_frame_after_action(
+                        latest, getattr(self._stream_provider, "action_frame_boundary", None),
+                    )
+                ):
+                    shot = latest.data
+                    pixel_ms = latest.timestamp * 1000.0
+                    pixel_geometry = latest.geometry
+                    self._last_frame_geometry = latest.geometry
+            except Exception as exc:  # A failed optional read must not discard captured pixels.
+                deadline.record_attempt({
+                    "provider": "scrcpy", "phase": "final_pixel_selection", "status": "error",
+                    "error": str(exc)[:200], "capture_ordinal": capture_ordinal,
+                })
 
         self._stamp_capture_timings(tree, deadline)
         geometry_meta = self._stamp_geometry(tree, shot, pixel_geometry)
@@ -831,6 +932,33 @@ class AndroidDriver:
             )
         )
         tree_capture = tree.setdefault(CAPTURE_META_KEY, {})
+        # A readable/current image is not evidence that a window transition
+        # has ended. Only the new collector exposes this mechanical fence;
+        # missing trees on legacy/unsupported surfaces still permit image-only.
+        window_generation = tree_capture.get("window_generation")
+        if window_generation is None:
+            window_generation = entry_window_state.get("window_generation")
+        if window_generation is not None:
+            try:
+                # A cancelled tree exchange closes its socket. A cold health
+                # read then includes ADB bootstrap/forwarding; the warm 300 ms
+                # budget would systematically fail before checking the window.
+                fence_timeout = 0.3 if self._collector.diagnostics().get("ready") else 1.5
+                window_state = await self._collector.window_state(
+                    timeout=min(fence_timeout, deadline.remaining_seconds("window_fence")),
+                )
+            except Exception as exc:
+                raise ObservationStageError("alignment", "window_fence_unavailable") from exc
+            if (
+                window_state.get("window_generation") != window_generation
+                or (entry_window_state.get("window_generation") is not None
+                    and entry_window_state["window_generation"] != window_generation)
+                or float(window_state.get("window_quiet_ms", 0)) < 300
+                or (tree_capture.get("window_quiet_ms") is not None
+                    and float(tree_capture["window_quiet_ms"]) < 300)
+            ):
+                raise ObservationStageError("alignment", "window_transition")
+            tree_capture["window_fence"] = "unchanged"
         tree_ready_ms = float(
             tree_capture.get("tree_ready_monotonic_ms")
             or time.monotonic() * 1000.0
@@ -980,8 +1108,7 @@ class AndroidDriver:
             deadline.record("provider_wait", started, budget_s=wait_s, outcome="error")
             raise ObservationStageError("provider_wait", str(exc), budget_ms=wait_s * 1000) from exc
         deadline.record("provider_wait", started, budget_s=wait_s)
-        sample_delay_s = max(0.0, end - time.monotonic())
-        if sample_delay_s:
+        while (sample_delay_s := end - time.monotonic()) > 0:
             sample_started = time.monotonic()
             sample_budget_s = deadline.remaining_seconds("temporal_sample")
             if sample_delay_s > sample_budget_s:
@@ -989,7 +1116,12 @@ class AndroidDriver:
                     "temporal_sample", "outer_deadline_exhausted", timed_out=True,
                     budget_ms=sample_budget_s * 1000,
                 )
-            await asyncio.sleep(sample_delay_s)
+            # Windows 3.12 may resume sleep before the coarse monotonic clock
+            # reaches the requested boundary. Check the boundary again, using
+            # the same clock and the original outer deadline.
+            await asyncio.sleep(min(sample_budget_s, max(
+                sample_delay_s, time.get_clock_info("monotonic").resolution,
+            )))
             deadline.record(
                 "temporal_sample", sample_started,
                 budget_s=sample_budget_s,
@@ -1022,6 +1154,16 @@ class AndroidDriver:
     @property
     def serial(self) -> str | None:
         return self._serial
+
+    async def current_device_date(self) -> str:
+        """Return the Android device-local date as ISO ``YYYY-MM-DD``."""
+
+        raw = await adb.shell_async(
+            self._serial, ["date", "+%Y-%m-%d"], timeout=3.0,
+        )
+        value = raw.decode("utf-8", "replace").strip()
+        datetime.date.fromisoformat(value)
+        return value
 
     async def health(self) -> dict[str, Any]:
         """Report driver reachability and ADB device presence."""
@@ -1063,17 +1205,23 @@ class AndroidDriver:
             return {"serial": "", "status": "failed", "steps": {
                 "adb": {"status": "failed", "reason": "driver has no bound serial"}
             }}
-        from driver.environment import initialize_android_device
+        from driver.environment import initialize_android_device, resolve_collector_apk_path
 
         options = self._provisioning
         return await initialize_android_device(
             self._serial,
             collector_authority=self._collector_authority,
-            collector_apk_path=options.collector_apk_path,
+            collector_apk_path=resolve_collector_apk_path(options.collector_apk_path),
             ime_id=self._ime_id if self._ime_auto_setup else "",
             ime_apk_path=options.ime_apk_path,
             stay_awake_while_plugged=options.stay_awake_while_plugged,
         )
+
+    async def reconcile_environment(self) -> dict[str, Any]:
+        """Automatic Collector install/upgrade, honoring the disable switch."""
+        if not self._collector_enabled:
+            return {"status": "disabled", "reason": "collector_disabled"}
+        return await self.initialize_environment()
 
     async def readiness(self) -> dict[str, Any]:
         """Run independent bounded task-start probes concurrently."""
@@ -1213,6 +1361,12 @@ class AndroidDriver:
             ).model_dump(mode="json")
         return (await self._resolver.resolve_with_status(app, self._serial)).model_dump(mode="json")
 
+    async def skill_profile_ids(self) -> list[str]:
+        """Use the same verified device identity as the app alias resolver."""
+        if self._resolver is None:
+            return []
+        return await self._resolver.selected_profile_ids(self._serial)
+
     async def validate_installed_app(self, package: str) -> bool:
         if self._resolver is None:
             return package in set(await adb.list_packages_async(self._serial))
@@ -1257,6 +1411,11 @@ class AndroidDriver:
         window-manager command instead of a swipe so it cannot scroll or open
         something in the foreground app.
         """
+        # A live task lease already wakes/brightens the display atomically.
+        # Avoid injecting KEYCODE_WAKEUP, whose check-then-send race can turn
+        # off or otherwise disturb a display brightened by the environment.
+        if self._task_power_lease.active:
+            return
         try:
             interactive = await adb.screen_interactive_async(self._serial)
         except AdbError:
@@ -1275,6 +1434,21 @@ class AndroidDriver:
         except AdbError:
             pass
 
+    async def begin_task_session(self, task_id: str) -> dict[str, Any]:
+        """Acquire the renewable display lease for one task execution."""
+        if not self._collector_enabled:
+            return {"status": "disabled", "reason": "collector_disabled"}
+        try:
+            return await self._task_power_lease.begin(task_id)
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:  # noqa: BLE001
+            return {"status": "failed", "reason": str(exc)[:200]}
+
+    async def end_task_session(self, _task_id: str = "") -> dict[str, Any]:
+        """Release immediately; TTL remains the fallback after transport loss."""
+        return await self._task_power_lease.end()
+
     async def _act(
         self,
         action: Action,
@@ -1282,6 +1456,28 @@ class AndroidDriver:
         before_dispatch: Callable[[], None] = lambda: None,
     ) -> ActionResult:
         atype = action.type
+        if atype == "tap" and action._node_handle:
+            before_dispatch()
+            try:
+                response = await self._collector.click_node(action._node_handle)
+            except asyncio.CancelledError:
+                raise
+            except Exception:  # A request may already have reached Android.
+                return ActionResult(
+                    success=False, message="node_click outcome unknown; observe before any further action",
+                    detail={"node_click_status": "outcome_unknown", "device_dispatch": "unknown"},
+                )
+            status = response["node_click_status"]
+            return ActionResult(
+                success=status == "performed", message=f"node_click:{status}",
+                detail={
+                    "node_click_status": status,
+                    "native_action_performed": response.get("performed"),
+                    "device_dispatch": "attempted" if response["action_attempted"] else "not_dispatched",
+                    "node_click_elapsed_ms": response.get("elapsed_ms"),
+                    "node_click_bounds": response.get("bounds"),
+                },
+            )
         if atype == "tap":
             x, y = self._resolve_xy(action)
             if x is None or y is None:
@@ -1374,6 +1570,9 @@ class AndroidDriver:
                             "text_chars": len(text)},
                 )
         if atype == "replace_text":
+            if action.index is not None:
+                return ActionResult(success=False, message="targeted_input_requires_harness",
+                                    detail={"device_dispatch": "not_dispatched"})
             if not action.text:
                 return ActionResult(success=False, message="replace_text missing text")
             text = action.text

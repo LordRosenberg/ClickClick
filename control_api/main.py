@@ -11,42 +11,26 @@ from pathlib import Path
 from typing import Any, Literal
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from agent.executor import Executor
-from agent.orchestrator import Orchestrator
-from agent.planner import Planner
-from agent.reviewer import Reviewer
+from agent.runtime import create_orchestrator
 from agent.traces import TraceWriter
 from control_api.data_sources import ConsoleDataSources
 from control_api.services import ObservabilityQueries, task_execution_elapsed_ms
 from control_api.sse import EventBus, TooManySubscribers
-from driver.fixture import FixtureDriver
 from driver.pool import DriverPool
 from driver.pool import LOCAL_DRIVER_ID, FIXTURE_DRIVER_ID, parse_device_key
-from driver.scrcpy_mirror import (
-    REGISTRY as MIRROR_REGISTRY,
-)
-from driver.scrcpy_mirror import (
-    LocalStreamSource,
-    MirrorUnavailableError,
-    RemoteStreamSource,
-    is_mirror_server_available,
-)
+from driver.scrcpy_mirror import REGISTRY as MIRROR_REGISTRY
+from driver.scrcpy_mirror import LocalStreamSource, MirrorUnavailableError, RemoteStreamSource, is_mirror_server_available
 from shared.artifacts import ArtifactStore
-from shared.chatgpt_auth import (
-    PendingDeviceLogin,
-    chatgpt_status,
-    poll_device_login,
-    start_device_login,
-)
+from shared.chatgpt_auth import PendingDeviceLogin, chatgpt_status, poll_device_login, start_device_login
 from shared.config import get_settings
 from shared.db import Database
 from shared.model_catalog import build_model_catalog, catalog_model_ids
-from shared.model_router import ModelRouter
 from shared.schemas import AgentState, LogLevel, TaskStatus
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
@@ -60,7 +44,7 @@ class CreateTaskBody(BaseModel):
     manager_model: str | None = Field(
         default=None,
         description=(
-            "Existing shared decision-model override used by both Planner and Reviewer"
+            "Shared decision-model override for Planner and Reviewer."
         ),
     )
     executor_model: str | None = None
@@ -108,6 +92,7 @@ def _sse_format(event: dict[str, Any]) -> str:
 # branch into the unavailable state without parsing payloads).
 _WS_CLOSE_INTERNAL = 1011
 _WS_CLOSE_TRY_AGAIN = 1013
+_DEVICE_ENVIRONMENT_RECONCILE_INTERVAL_S = 30.0
 
 
 logger = logging.getLogger("control_api")
@@ -115,8 +100,8 @@ logger = logging.getLogger("control_api")
 
 def create_app(
     *,
-    planner_factory: Callable[[], Planner] | None = None,
-    reviewer_factory: Callable[[], Reviewer] | None = None,
+    planner_factory: Callable[[], Any] | None = None,
+    reviewer_factory: Callable[[], Any] | None = None,
     executor_factory: Callable[[], Executor] | None = None,
     include_temp_runs: bool | None = None,
     temp_runs_root: Path = Path("/private/tmp"),
@@ -143,9 +128,6 @@ def create_app(
     traces = TraceWriter(db, artifacts, bus=bus)
     queries = ObservabilityQueries(db, artifacts)
     pool = DriverPool(settings)
-    router = ModelRouter.from_settings(settings)
-    # Placeholder driver for factory construction; run_task rebinds per serial.
-    _placeholder_driver = FixtureDriver()
 
     # Live mirror: local jar on API host, or relay to configured remote hubs.
     hub_by_id = {h["id"]: h["url"] for h in settings.driver_hubs()}
@@ -170,31 +152,7 @@ def create_app(
     app.state.bus = bus
     app.state.driver_pool = pool
 
-    if planner_factory is None:
-        def planner_factory() -> Planner:
-            return Planner(
-                _placeholder_driver,
-                artifacts,
-                model=router.planner,
-                settings=settings,
-            )
-
-    if reviewer_factory is None:
-        def reviewer_factory() -> Reviewer:
-            return Reviewer(
-                _placeholder_driver,
-                artifacts,
-                model=router.reviewer,
-                settings=settings,
-            )
-
-    if executor_factory is None:
-        def executor_factory() -> Executor:
-            return Executor(
-                _placeholder_driver, artifacts, model=router.executor, settings=settings
-            )
-
-    orch = Orchestrator(
+    orch = create_orchestrator(
         db,
         traces,
         planner_factory=planner_factory,
@@ -212,6 +170,7 @@ def create_app(
 
     # Retained handles so operator cancel can hard-stop a stuck run.
     _running: dict[str, asyncio.Task] = {}
+    _environment_reconcile_task: asyncio.Task[None] | None = None
     _TERMINAL = (
         TaskStatus.SUCCEEDED,
         TaskStatus.FAILED,
@@ -221,9 +180,25 @@ def create_app(
     async def _run(task_id: str) -> None:
         try:
             await orch.run_task(task_id)
+        except asyncio.CancelledError:
+            latest = db.get_task(task_id)
+            if latest is not None and latest.status not in _TERMINAL:
+                state = latest.state or AgentState(instruction=latest.instruction)
+                orch._cancel(task_id, state, mode="hard")
         finally:
             _running.pop(task_id, None)
             orch.cancel_registry.clear(task_id)
+
+    async def _schedule_run(task_id: str) -> None:
+        """Start the agent after the create HTTP response has been sent.
+
+        Kicking ``_run`` with ``asyncio.create_task`` inside the create handler
+        lets sync ADB connect during driver construction steal the event loop
+        and delay the response — the Console then waits on submit before
+        navigating to the detail page.
+        """
+        handle = asyncio.create_task(_run(task_id))
+        _running[task_id] = handle
 
     async def _hard_cancel_after(task_id: str) -> None:
         await asyncio.sleep(float(settings.task_cancel_hard_timeout_s))
@@ -290,9 +265,38 @@ def create_app(
                     "key": key,
                     "busy": task_id is not None,
                     "busy_task_id": task_id,
+                    "environment": pool.environment_status(key),
                 }
             )
         return out
+
+    async def _reconcile_device_environments() -> None:
+        while True:
+            try:
+                live_busy_keys = {
+                    record.device_serial
+                    for task_id, handle in tuple(_running.items())
+                    if not handle.done()
+                    and (record := db.get_task(task_id)) is not None
+                    and record.device_serial
+                }
+                await pool.reconcile_environments(
+                    skip_keys=live_busy_keys,
+                )
+            except asyncio.CancelledError:
+                return
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("automatic device environment reconciliation failed: %s", exc)
+            await asyncio.sleep(_DEVICE_ENVIRONMENT_RECONCILE_INTERVAL_S)
+
+    @app.on_event("startup")
+    async def _start_device_environment_reconciler() -> None:
+        nonlocal _environment_reconcile_task
+        if _environment_reconcile_task is None or _environment_reconcile_task.done():
+            _environment_reconcile_task = asyncio.create_task(
+                _reconcile_device_environments(),
+                name="device-environment-reconciler",
+            )
 
     @app.get("/api/health")
     async def health() -> dict[str, Any]:
@@ -310,7 +314,7 @@ def create_app(
                 "hubs": [{"id": h["id"], "url": h["url"]} for h in hubs],
             },
             "devices": devices,
-            "runtime": "reviewer-planner-executor-loop",
+            "runtime": settings.agent_architecture,
         }
 
     @app.get("/api/models")
@@ -366,7 +370,9 @@ def create_app(
             return await initialize()
 
     @app.post("/api/tasks")
-    async def create_task(body: CreateTaskBody) -> dict[str, Any]:
+    async def create_task(
+        body: CreateTaskBody, background_tasks: BackgroundTasks
+    ) -> dict[str, Any]:
         # Deduplicate while preserving order. Entries are device keys
         # (``driver_id/serial`` for remote hubs) or bare serials when unique.
         seen: set[str] = set()
@@ -383,7 +389,10 @@ def create_app(
         known = catalog_model_ids(settings)
         manager_model = (body.manager_model or "").strip() or None
         executor_model = (body.executor_model or "").strip() or None
-        for label, mid in (("manager_model", manager_model), ("executor_model", executor_model)):
+        for label, mid in (
+            ("manager_model", manager_model),
+            ("executor_model", executor_model),
+        ):
             if mid is None:
                 continue
             if not known:
@@ -419,24 +428,24 @@ def create_app(
                 ),
                 device_serial=serial,
             )
-            handle = asyncio.create_task(_run(record.id))
-            _running[record.id] = handle
             created.append(record.model_dump())
+            # Defer agent start until after this response is flushed.
+            background_tasks.add_task(_schedule_run, record.id)
 
         return {"tasks": created}
 
     @app.get("/api/tasks")
-    async def list_tasks(status: str | None = None) -> list[dict[str, Any]]:
+    async def list_tasks(status: str | None = None, summary: bool = False) -> list[dict[str, Any]]:
         st = TaskStatus(status) if status else None
         return [
             data_sources.decorate(
                 {
-                    **task.model_dump(),
+                    **task.model_dump(exclude={"state", "plan"} if summary else set()),
                     "execution_elapsed_ms": task_execution_elapsed_ms(task),
                 },
                 source,
             )
-            for task, source in data_sources.list_tasks(st)
+            for task, source in data_sources.list_tasks(st, include_state=not summary)
         ]
 
     @app.get("/api/tasks/failed/list")
@@ -457,7 +466,7 @@ def create_app(
                 },
                 source,
             )
-            for task, source in data_sources.list_tasks(TaskStatus.FAILED)
+            for task, source in data_sources.list_tasks(TaskStatus.FAILED, include_state=False)
         ]
 
     @app.post("/api/tasks/{task_id}/cancel")
@@ -632,6 +641,17 @@ def create_app(
     async def get_artifact(ref: str) -> FileResponse:
         try:
             path = data_sources.resolve_artifact(ref)
+        except ValueError as exc:
+            raise HTTPException(403, "artifact ref not authorized") from exc
+        if path is None:
+            raise HTTPException(404, "artifact not found")
+        return FileResponse(path)
+
+    @app.get("/api/tasks/{task_id}/artifacts/{ref:path}")
+    async def get_task_artifact(task_id: str, ref: str) -> FileResponse:
+        """Serve an artifact directly from its task's data source."""
+        try:
+            path = data_sources.resolve_artifact(ref, task_id=task_id)
         except ValueError as exc:
             raise HTTPException(403, "artifact ref not authorized") from exc
         if path is None:
@@ -1006,6 +1026,11 @@ def create_app(
     # also register an `atexit` fallback for uvicorn workers that bypass it.
     @app.on_event("shutdown")
     async def _shutdown_mirror_registry() -> None:
+        nonlocal _environment_reconcile_task
+        reconcile_task, _environment_reconcile_task = _environment_reconcile_task, None
+        if reconcile_task is not None:
+            reconcile_task.cancel()
+            await asyncio.gather(reconcile_task, return_exceptions=True)
         data_sources.close()
         await MIRROR_REGISTRY.shutdown()
 
@@ -1037,8 +1062,31 @@ def create_app(
 
     atexit.register(_atexit_shutdown)
 
+    # Serve the built Console as an SPA. StaticFiles(html=True) only falls back
+    # to index.html for directory paths, so React Router deep links like
+    # /tasks/<id> would otherwise 404 with {"detail":"Not Found"}.
     if DIST_DIR.exists():
-        app.mount("/", StaticFiles(directory=str(DIST_DIR), html=True), name="web")
+        dist_root = DIST_DIR.resolve()
+        assets_dir = dist_root / "assets"
+        if assets_dir.is_dir():
+            app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+        @app.get("/")
+        async def console_index() -> FileResponse:
+            return FileResponse(dist_root / "index.html")
+
+        @app.get("/{full_path:path}")
+        async def console_spa(full_path: str) -> FileResponse:
+            if full_path == "api" or full_path.startswith("api/"):
+                raise HTTPException(status_code=404, detail="Not Found")
+            candidate = (dist_root / full_path).resolve()
+            try:
+                candidate.relative_to(dist_root)
+            except ValueError as exc:
+                raise HTTPException(status_code=404, detail="Not Found") from exc
+            if candidate.is_file():
+                return FileResponse(candidate)
+            return FileResponse(dist_root / "index.html")
 
     return app
 

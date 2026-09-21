@@ -54,26 +54,15 @@ def resolve_learner_model(settings: Settings | None = None) -> str:
     return mgr or s.default_model
 
 
-def _compact_trace(task: TaskRecord, *, max_steps: int = 24) -> list[dict[str, Any]]:
-    state = task.state
-    if state is None:
-        return []
-    steps = [
-        event
-        for event in state.task_memory.events
-        if event.kind == "attempt"
-    ][-max_steps:]
-    out: list[dict[str, Any]] = []
-    for s in steps:
-        act = (s.model_intent or s.summary or "").strip()
-        out.append({
-            "subgoal": s.subgoal,
-            "action": s.submitted_action_type or s.action_type,
-            "act": act[:80],
-            "dispatch": s.dispatch_status or "not_dispatched",
-            "post_observation": s.post_dispatch_observation,
-        })
-    return out
+def _compact_trace(task: TaskRecord, *, settings: Settings, max_steps: int = 24) -> list[dict[str, Any]]:
+    from shared.db import Database
+
+    db = Database(settings.db_path, read_only=True)
+    try:
+        rows = db.list_agent_records(task.id, "event")[-max_steps:]
+        return [row["payload"] for row in rows]
+    finally:
+        db.close()
 
 
 def _pick_target_app(task: TaskRecord, library: SkillLibrary) -> str | None:
@@ -157,7 +146,7 @@ async def run_skill_learner(
         "outcome": outcome,
         "failure_reason": task.failure_reason or "",
         "plan": task.plan,
-        "steps": _compact_trace(task),
+        "steps": _compact_trace(task, settings=settings),
         "current_skill": {
             "name": name,
             "description": description,

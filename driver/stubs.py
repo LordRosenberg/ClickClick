@@ -31,8 +31,17 @@ class WindowsDriver:
     async def wake_and_unlock(self) -> None:
         return None
 
+    async def begin_task_session(self, _task_id: str) -> dict[str, Any]:
+        return {"status": "disabled", "reason": "unsupported_platform"}
+
+    async def end_task_session(self, _task_id: str = "") -> dict[str, Any]:
+        return {"status": "not_active"}
+
     async def initialize_environment(self) -> dict[str, Any]:
         raise UnsupportedPlatformError("Windows initialization is not implemented")
+
+    async def reconcile_environment(self) -> dict[str, Any]:
+        return {"status": "disabled", "reason": "unsupported_platform"}
 
     async def readiness(self) -> dict[str, Any]:
         return {"status": "degraded", "reason": "unsupported platform"}
@@ -64,8 +73,17 @@ class IOSDriver:
     async def wake_and_unlock(self) -> None:
         return None
 
+    async def begin_task_session(self, _task_id: str) -> dict[str, Any]:
+        return {"status": "disabled", "reason": "unsupported_platform"}
+
+    async def end_task_session(self, _task_id: str = "") -> dict[str, Any]:
+        return {"status": "not_active"}
+
     async def initialize_environment(self) -> dict[str, Any]:
         raise UnsupportedPlatformError("iOS initialization is not implemented")
+
+    async def reconcile_environment(self) -> dict[str, Any]:
+        return {"status": "disabled", "reason": "unsupported_platform"}
 
     async def readiness(self) -> dict[str, Any]:
         return {"status": "degraded", "reason": "unsupported platform"}

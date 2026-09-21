@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "id": "androidworld_api33",
+      "match": {
+        "manufacturer": "Google",
+        "model_regex": "(?:sdk_gphone.*|Pixel 6)",
+        "sdk": "33",
+        "release": "13"
+      },
+      "aliases": "app_aliases/androidworld_api33.json"
+    },
+    {
+      "id": "xiaomi_15_cn_android15",
+      "match": {
+        "manufacturer": "Xiaomi",
+        "model": "24129PN74C",
+        "sdk": "35",
+        "release": "15"
+      },
+      "aliases": "app_aliases/xiaomi_15_cn_android15.json"
+    }
+  ]
+}

@@ -34,7 +34,7 @@ def test_executor_prompt_requests_tools_not_next_tick_image_field():
     from agent.prompts import render_executor_system
 
     prompt = " ".join(render_executor_system().split())
-    assert "observe_screen(current|temporal)" in prompt
+    assert "Use `observe_screen`" in prompt
     assert "basis_observation_id" not in prompt
     assert "need_image" not in prompt
-    assert "instead of repeating from habit" in prompt
+    assert "rather than observing again for confidence" in prompt

@@ -88,6 +88,8 @@ class FixtureDriver:
     def __init__(self, tree: dict[str, Any] | None = None) -> None:
         self.tree = tree or DEFAULT_TREE
         self.actions: list[Action] = []
+        self.task_sessions: list[tuple[str, str]] = []
+        self.environment_initializations = 0
         self._png = _blank_png()
 
     async def health(self) -> dict[str, Any]:
@@ -99,7 +101,11 @@ class FixtureDriver:
         }
 
     async def initialize_environment(self) -> dict[str, Any]:
+        self.environment_initializations += 1
         return {"serial": self.serial, "status": "ready", "steps": {}}
+
+    async def reconcile_environment(self) -> dict[str, Any]:
+        return await self.initialize_environment()
 
     async def readiness(self) -> dict[str, Any]:
         return {"status": "ready", "collector": {"ready": True}}
@@ -204,6 +210,14 @@ class FixtureDriver:
     async def wake_and_unlock(self) -> None:
         # Fixture driver: nothing to wake. Record nothing; never raise.
         return None
+
+    async def begin_task_session(self, _task_id: str) -> dict[str, Any]:
+        self.task_sessions.append(("begin", _task_id))
+        return {"status": "disabled", "reason": "fixture_driver"}
+
+    async def end_task_session(self, _task_id: str = "") -> dict[str, Any]:
+        self.task_sessions.append(("end", _task_id))
+        return {"status": "not_active"}
 
     async def act(self, action: Action) -> ActionResult:
         self.actions.append(action)

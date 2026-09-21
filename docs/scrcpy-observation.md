@@ -5,6 +5,12 @@ explicit leases.  The source parses Annex-B H.264 and new/slow consumers begin
 only at SPS/PPS + IDR boundaries.  A source restart increments its generation;
 temporal queries never silently cross generations.
 
+Local transport retains scrcpy's frame-length headers until a complete encoded
+packet has arrived. Annex-B parsing then releases its final NAL immediately,
+including on static pages; arbitrary TCP fragments still use incremental
+parsing. The dummy handshake byte is consumed before connecting control, so
+startup does not wait for video bytes while the server waits for control.
+
 Host decode is the primary pixel source for current, temporal, baseline-frame,
 and direct screenshot requests. Install the `decode` extra
 (`pip install clickclick[decode]`) to provide PyAV (LGPL/GPL obligations depend
@@ -15,11 +21,15 @@ encoded mirroring continues, and pixel requests use the bounded ADB path.
 The pinned scrcpy server (3.3.1) supports the official `RESET_VIDEO` control
 message (type 17) on the control socket, which restarts capture/encoding and
 forces a fresh keyframe. Before each real pixel capture the provider issues
-`RESET_VIDEO` and waits up to 800 ms (`SCRCPY_ROUND_REFRESH_TIMEOUT_MS`) for the
-decoded `frame_id` to advance, so the host ring can never lag the collector by
-many seconds unnoticed; temporal history frames are captured without per-frame
-resets. When a relayed hub connection has no control socket the reset is a
-no-op and selection falls back to the existing generation/frame-id validation.
+`RESET_VIDEO` under its decoder-consumption lock. On success it clears retained
+observation pixels, resets decoder prediction state, and waits up to 800 ms
+(`SCRCPY_ROUND_REFRESH_TIMEOUT_MS`) for a later monotonic `frame_id`. Queued
+predictive frames cannot cross this decode barrier; publication resumes from a
+subsequent decodable keyframe. A reset does not reconnect the source, so it does
+not fabricate a new source generation. Temporal history frames are captured
+without per-frame resets. When a relayed hub connection has no control socket,
+or reset fails, existing generation/frame-id validation remains in force and
+the bounded caller may fall back to ADB.
 
 The stream-backed path completes the ending UI Tree before selecting pixels.
 After an action, decoded frame identity—not selection time or pixel content—is
@@ -57,8 +67,9 @@ only when publishing complete decoded images into the ring; dropping compressed
 input would break reference continuity and can leave a live connection with an
 old image. An isolated libavcodec packet rejection is recorded without resetting
 the mid-stream codec context; the next accepted packet can recover publication.
-Resetting immediately would strand the subscriber until a future SPS/PPS+IDR
-bootstrap. Ring artifacts use fast lossless PNG. The shared device stream uses
+Decoder reset is reserved for a successful `RESET_VIDEO`, which deliberately
+requests the SPS/PPS+IDR bootstrap needed to recover. Ring artifacts use fast
+lossless PNG. The shared device stream uses
 a fixed 1440 maximum dimension and 8 Mbps video bitrate; no runtime settings are
 added for these production rules.
 

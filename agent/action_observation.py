@@ -35,6 +35,7 @@ from shared.schemas import (
     Action,
     ActionReceipt,
     ActionResult,
+    ActionTargetSnapshot,
     CanonicalUI,
     EffectClass,
     EffectOutcome,
@@ -47,6 +48,106 @@ DEFAULT_EFFECT_DEADLINE_MS = CURRENT_DEADLINE_MS
 MAX_CAPTURE_ATTEMPTS = 2
 DEFAULT_RESAMPLE_SETTLE_MS = 1_000
 RESAMPLE_SETTLE_ENV = "CLICKCLICK_OBSERVATION_RESAMPLE_SETTLE_MS"
+INTERACTION_ACK_ACTION_EVENTS = {
+    "tap_xy": frozenset({1}),
+    "long_press": frozenset({2}),
+    "scroll": frozenset({4096}),
+    "swipe": frozenset({4096}),
+}
+INTERACTION_ACK_BOUNDS_TOLERANCE_PX = 4
+INTERACTION_EVENT_READS_ENV = "CLICKCLICK_INTERACTION_EVENT_READS_ENABLED"
+
+
+def _interaction_event_reads_enabled() -> bool:
+    return os.getenv(INTERACTION_EVENT_READS_ENV, "1").strip().lower() not in {
+        "0", "false", "no", "off",
+    }
+
+
+def _bounded_identity_equal(left: str, right: str) -> bool:
+    left, right = left.strip(), right.strip()
+    if not left or not right:
+        return True
+    return left == right or left.endswith(right) or right.endswith(left)
+
+
+def _event_matches_target(event: Any, target: ActionTargetSnapshot) -> bool:
+    if target.package and str(getattr(event, "package", "")) != target.package:
+        return False
+    event_window = int(getattr(event, "window_id", -1))
+    if target.window_id is not None and event_window >= 0 and event_window != target.window_id:
+        return False
+    if not _bounded_identity_equal(
+        str(getattr(event, "resource_id", "")), target.resource_id,
+    ):
+        return False
+    if not _bounded_identity_equal(
+        str(getattr(event, "source_class", "")), target.source_class,
+    ):
+        return False
+    event_bounds = getattr(event, "bounds", None)
+    if len(target.bounds) == 4 and event_bounds is not None:
+        if len(event_bounds) != 4 or any(
+            abs(int(observed) - int(expected)) > INTERACTION_ACK_BOUNDS_TOLERANCE_PX
+            for observed, expected in zip(event_bounds, target.bounds, strict=True)
+        ):
+            return False
+    return True
+
+
+def interaction_ack_for_batch(
+    action: Action,
+    target: ActionTargetSnapshot | None,
+    batch: Any | None,
+) -> tuple[str, str | None]:
+    """Return a non-semantic acknowledgement from one complete bounded read."""
+    eligible_types = INTERACTION_ACK_ACTION_EVENTS.get(action.type)
+    if eligible_types is None or target is None or batch is None:
+        return "unavailable", None
+    if not bool(getattr(batch, "complete_coverage", False)):
+        return "unavailable", None
+    for event in tuple(getattr(batch, "events", ())):
+        if (
+            int(getattr(event, "event_type", -1)) in eligible_types
+            and _event_matches_target(event, target)
+        ):
+            return "confirmed", "accessibility_event"
+    return "unobserved", None
+def unchanged_post_action_observation(
+    before: ObservationPackage,
+    after: ObservationPackage,
+) -> bool:
+    """True only when accepted tree text and source pixels are byte-identical.
+
+    Any missing, degraded, or differing tree/image is treated as uncertain.
+    Callers must not report a UI change or success from a false result.
+    """
+    if not before.accepted or not after.accepted:
+        return False
+    before_tree = (before.text_for_llm or "").strip()
+    after_tree = (after.text_for_llm or "").strip()
+    if not before_tree or before_tree != after_tree:
+        return False
+    if (before.ui.app_id or "").strip() != (after.ui.app_id or "").strip():
+        return False
+    before_kind, before_pixels = _source_pixels(before)
+    after_kind, after_pixels = _source_pixels(after)
+    return (
+        before_kind is not None
+        and before_kind == after_kind
+        and bool(before_pixels)
+        and before_pixels == after_pixels
+    )
+
+
+def _source_pixels(package: ObservationPackage) -> tuple[str | None, bytes]:
+    if package.clean_png:
+        return "clean", package.clean_png
+    if package.annotated_png:
+        return "annotated", package.annotated_png
+    return None, b""
+
+
 # Two 50/50-valid project-device probes observed a 788.431 ms worst tail.
 # A 50% scheduling margin gives 1,182.647 ms, rounded upward. Keep this bound
 # independent of tree/pixel acquisition; the outer observation fuse remains
@@ -146,7 +247,7 @@ def _mechanical_resample_reason(package: ObservationPackage) -> str:
     if ownership in {"conflict", "ambiguous"}:
         return f"tree_ownership_{ownership}"
     components = _mechanical_component_facts(package)
-    if not components.tree_usable:
+    if not components.tree_usable and not components.pixels_usable:
         return "tree_unavailable"
     if not components.pixels_usable:
         return "pixels_unavailable"
@@ -528,6 +629,7 @@ class ActionObservationTransaction:
             else:
                 raise
         before_package = str(identity_before.get("package") or "").strip()
+        before_component = str(identity_before.get("component") or "").strip()
         tree, shot, _metadata = await capture_frame()
         posterior_identity_timeout: ObservationStageError | None = None
         try:
@@ -549,6 +651,7 @@ class ActionObservationTransaction:
                 raise
         app_id = str(identity_after.get("package") or "").strip()
         activity = str(identity_after.get("activity") or "").strip()
+        after_component = str(identity_after.get("component") or "").strip()
         posterior_only = bool(
             anterior_identity_timeout is not None
             and not before_package
@@ -573,6 +676,35 @@ class ActionObservationTransaction:
             raise ObservationStageError(
                 "grounding_barrier",
                 "foreground_changed_during_capture",
+                provider_attempts=list(capture_deadline.provider_attempts),
+            )
+        if (
+            posterior_identity_timeout is None
+            and before_component
+            and after_component
+            and before_component != after_component
+            and not posterior_only
+        ):
+            # A package can reuse the same application window while switching
+            # activities. During that interval the collector tree, rendered
+            # pixels, and post-capture activity can describe different pages.
+            # Treat the exact component change as a mechanical transition so
+            # observe_current performs its one bounded full resample.
+            capture_deadline.record_attempt({
+                "provider": "grounding_barrier",
+                "status": "error",
+                "budget_ms": 0.0,
+                "elapsed_ms": 0.0,
+                "error": "foreground_component_changed_during_capture",
+                "before_package": before_package,
+                "after_package": app_id,
+                "before_component": before_component,
+                "after_component": after_component,
+                "capture_ordinal": capture_ordinal,
+            })
+            raise ObservationStageError(
+                "grounding_barrier",
+                "foreground_component_changed_during_capture",
                 provider_attempts=list(capture_deadline.provider_attempts),
             )
 
@@ -849,9 +981,9 @@ class ActionObservationTransaction:
             if deadline.remaining_ms < self.resample_settle_ms:
                 return False
             started = time.monotonic()
-            await asyncio.sleep(settle_s)
+            settled = await deadline.wait(self.resample_settle_ms)
             settle_elapsed_ms = (time.monotonic() - started) * 1000.0
-            return deadline.remaining_ms > 0
+            return settled
 
         for ordinal in range(1, MAX_CAPTURE_ATTEMPTS + 1):
             remaining_s = deadline.remaining_ms / 1000.0
@@ -880,8 +1012,10 @@ class ActionObservationTransaction:
                     provider_attempts=list(deadline.provider_attempts),
                     cancelled_tasks=list(deadline.cancelled_tasks),
                     capture_attempt_count=ordinal,
+                    stage_timings=list(deadline.stage_timings),
                 ) from exc
             except ObservationStageError as exc:
+                exc.stage_timings = list(deadline.stage_timings)
                 exc.provider_attempts = list(deadline.provider_attempts)
                 exc.fallback_edges = list(deadline.fallback_edges)
                 exc.cancelled_tasks = list(deadline.cancelled_tasks)
@@ -978,6 +1112,7 @@ class ActionObservationTransaction:
         before: ObservationPackage,
         *,
         deadline_ms: int | None = None,
+        target: ActionTargetSnapshot | None = None,
     ) -> tuple[ActionResult, ObservationPackage]:
         """Dispatch once; capture a postcondition unless the action is delay-only."""
         transaction_id = f"txn_{uuid.uuid4().hex}"
@@ -990,6 +1125,17 @@ class ActionObservationTransaction:
             ),
         )
         started_ms = time.monotonic() * 1000.0
+        event_cursor: int | None = None
+        cursor_reader = getattr(self.driver, "interaction_event_cursor", None)
+        if (
+            _interaction_event_reads_enabled()
+            and action.type in INTERACTION_ACK_ACTION_EVENTS
+            and target is not None and callable(cursor_reader)
+        ):
+            try:
+                event_cursor = await cursor_reader(timeout_s=0.35)
+            except Exception:  # noqa: BLE001 - optional evidence cannot block dispatch
+                event_cursor = None
         result = await self.driver.act(action)
         dispatch_completed_ms = time.monotonic() * 1000.0
         post_action_settle_elapsed_ms = 0.0
@@ -1007,6 +1153,9 @@ class ActionObservationTransaction:
             started_monotonic_ms=started_ms,
             dispatch_completed_monotonic_ms=dispatch_completed_ms,
             deadline_ms=budget_ms,
+            interaction_ack="unavailable",
+            node_click_status=result.detail.get("node_click_status"),
+            native_action_performed=result.detail.get("native_action_performed"),
         )
 
         if action.type == "sleep":
@@ -1026,20 +1175,29 @@ class ActionObservationTransaction:
             _launch_target_package(action, result)
             if result.success and action.type == "launch" else ""
         )
+        event_batch = None
         try:
             if (
                 result.success and self.resample_settle_ms > 0
             ):
                 settle_started = time.monotonic()
-                await asyncio.sleep(
-                    min(
-                        self.resample_settle_ms,
-                        post_action_deadline.remaining_ms,
-                    ) / 1000.0,
-                )
+                await post_action_deadline.wait(self.resample_settle_ms)
                 post_action_settle_elapsed_ms = (
                     time.monotonic() - settle_started
                 ) * 1000.0
+            event_reader = getattr(self.driver, "interaction_events_after", None)
+            if (
+                result.success and event_cursor is not None and callable(event_reader)
+                and post_action_deadline.remaining_ms > 0
+            ):
+                try:
+                    event_batch = await event_reader(
+                        event_cursor,
+                        limit=64,
+                        timeout_s=min(0.35, post_action_deadline.remaining_ms / 1000.0),
+                    )
+                except Exception:  # noqa: BLE001 - optional evidence cannot block capture
+                    event_batch = None
             remaining_ms = int(post_action_deadline.remaining_ms)
             if remaining_ms <= 0:
                 raise ObservationStageError(
@@ -1056,10 +1214,15 @@ class ActionObservationTransaction:
                     if result.success else "failed_action_postcondition"
                 ),
                 transaction_id=transaction_id,
-                attach_image=bool(result.success and action.type != "launch"),
+                attach_image=bool(
+                    (result.success and action.type != "launch")
+                    or result.detail.get("node_click_status")
+                ),
                 expected_foreground_app_id=launch_target,
             )
         except (ObservationStageError, TimeoutError) as exc:
+            if isinstance(exc, ObservationStageError):
+                result.detail["observation_failure"] = exc.diagnostics()
             after = degraded_post_observation(
                 before,
                 transaction_id=transaction_id,
@@ -1073,7 +1236,23 @@ class ActionObservationTransaction:
             ),
         })
 
-        if not result.success:
+        ack, ack_source = interaction_ack_for_batch(action, target, event_batch)
+        receipt.interaction_ack = ack
+        receipt.interaction_ack_source = ack_source  # type: ignore[assignment]
+        result.detail.setdefault("interaction_ack", {
+            "status": ack,
+            "source": ack_source,
+            "event_count": len(tuple(getattr(event_batch, "events", ()))),
+            "complete_coverage": (
+                bool(getattr(event_batch, "complete_coverage", False))
+                if event_batch is not None else None
+            ),
+        })
+
+        if result.detail.get("node_click_status") == "outcome_unknown":
+            receipt.effect_outcome = EffectOutcome.UNKNOWN
+            effect_reason = "node_click_outcome_unknown_observe_before_retry"
+        elif not result.success:
             receipt.effect_outcome = EffectOutcome.FAILED
             effect_reason = result.message or "dispatch_failed"
         elif action.type == "launch":
@@ -1111,5 +1290,11 @@ class ActionObservationTransaction:
         receipt.observation_capture_count = attempt_count
         receipt.observation_id = after.observation_id
         receipt.observation_accepted = after.accepted
+        if (
+            result.success
+            and action.type != "sleep"
+            and unchanged_post_action_observation(before, after)
+        ):
+            receipt.visible_change = "none"
         result.receipt = receipt
         return result, after

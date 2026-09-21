@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import io
 import subprocess
+import struct
 import time
 from typing import AsyncIterator
 
@@ -230,7 +231,7 @@ async def test_cancel_after_source_start_before_lease_commit_stops_source():
 @pytest.mark.asyncio
 async def test_start_cleanup_reaps_process_after_initial_wait_timeout():
     class Proc:
-        stderr = None
+        stdout = None
 
         def __init__(self):
             self.killed = False
@@ -284,7 +285,7 @@ async def test_local_cold_start_has_no_fixed_wait_and_orders_server_before_forwa
 
     class Proc:
         def __init__(self):
-            self.stderr = io.BytesIO()
+            self.stdout = io.BytesIO()
             self.returncode = None
             self.waited = False
 
@@ -300,7 +301,7 @@ async def test_local_cold_start_has_no_fixed_wait_and_orders_server_before_forwa
 
     class Reader:
         async def read(self, _size):
-            return b"x"
+            return b"\x00"
 
     class Writer:
         def close(self):
@@ -313,6 +314,8 @@ async def test_local_cold_start_has_no_fixed_wait_and_orders_server_before_forwa
         order.append("push")
 
     def popen(*_args, **_kwargs):
+        assert _kwargs["stdout"] == subprocess.PIPE
+        assert _kwargs["stderr"] == subprocess.STDOUT
         order.append("server")
         process = Proc()
         processes.append(process)
@@ -403,6 +406,67 @@ def test_annex_b_parser_retains_config_and_bootstraps_at_idr():
 
 
 @pytest.mark.asyncio
+async def test_local_packet_delivers_static_final_nal_without_next_frame():
+    reader = asyncio.StreamReader()
+    source = LocalStreamSource("S1")
+    source._reader = reader
+    packet = b"\0\0\0\x01\x67sps\0\0\0\x01\x68pps\0\0\0\x01\x65idr"
+    framed = struct.pack(">QI", 1 << 62, len(packet)) + packet
+    stream = source.frames()
+    waiting = asyncio.create_task(anext(stream))
+    reader.feed_data(framed[:15])
+    await asyncio.sleep(0)
+    assert not waiting.done()
+    reader.feed_data(framed[15:])
+    received = await asyncio.wait_for(waiting, 0.2)
+    parser = AnnexBParser()
+    units = parser.feed(received, packet_complete=source.packet_complete)
+    assert units[-1] == (b"\0\0\0\x01\x65idr", True)
+    assert parser._buffer == b""
+    assert b"\x68pps" in parser.bootstrap(units[-1][0])
+    await stream.aclose()
+
+
+@pytest.mark.asyncio
+async def test_local_packet_rejects_unbounded_size_before_reading_body():
+    reader = asyncio.StreamReader()
+    source = LocalStreamSource("S1")
+    source._reader = reader
+    reader.feed_data(struct.pack(">QI", 0, 0xFFFFFFFF))
+    stream = source.frames()
+    with pytest.raises(MirrorUnavailableError, match="packet size"):
+        await anext(stream)
+
+
+def test_static_screen_change_decodes_without_a_following_packet(monkeypatch):
+    from fractions import Fraction
+    from PIL import Image
+    from driver.scrcpy_observation import PyAVDecoder
+
+    av = pytest.importorskip("av")
+    encoder = av.CodecContext.create("libx264", "w")
+    encoder.width = encoder.height = 64
+    encoder.pix_fmt = "yuv420p"
+    encoder.time_base = Fraction(1, 30)
+    encoder.options = {"preset": "ultrafast", "tune": "zerolatency", "crf": "0"}
+    packets = []
+    for color in ("red", "blue"):
+        frame = av.VideoFrame.from_image(Image.new("RGB", (64, 64), color))
+        packets.extend(bytes(packet) for packet in encoder.encode(frame))
+    packets.extend(bytes(packet) for packet in encoder.encode(None))
+    ticks = iter(range(1000, 1100))
+    monkeypatch.setattr("driver.scrcpy_observation.time.monotonic", lambda: next(ticks))
+    ring = FrameRing()
+    decoder = PyAVDecoder(ring, lambda: FrameGeometry(64, 64, 64, 64))
+    parser = AnnexBParser()
+    for packet in packets:
+        for unit, _ in parser.feed(packet, packet_complete=True):
+            decoder.feed(unit, 1)
+    pixel = Image.open(io.BytesIO(ring._frames[-1].data)).getpixel((32, 32))
+    assert pixel[2] > 240 and pixel[0] < 10
+
+
+@pytest.mark.asyncio
 async def test_late_subscriber_receives_cached_decoder_bootstrap():
     source = _PushSource("S1")
     session = MirrorSession(device_key="S1", source=source)
@@ -452,3 +516,16 @@ def test_ring_reports_expired_history():
     assert ring.bounds == (12.0, 12.0)
     assert ring.query(1.0, 2.0, 2).status == "partial"
     assert len(ring._frames) == 1
+
+
+def test_ring_clear_discards_pixels_without_reusing_frame_ids():
+    geometry = FrameGeometry(10, 10, 10, 10)
+    ring = FrameRing(retention_seconds=5, max_bytes=100)
+    first = ring.append(FrameHandle(b"a", 10.0, 1, geometry))
+
+    ring.clear()
+    second = ring.append(FrameHandle(b"b", 11.0, 1, geometry))
+
+    assert ring.bounds == (11.0, 11.0)
+    assert first.frame_id == 1
+    assert second.frame_id == 2

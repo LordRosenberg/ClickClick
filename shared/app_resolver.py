@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import hashlib
 import logging
+import re
 import secrets
 import time
 from dataclasses import dataclass
@@ -23,9 +24,11 @@ from shared.schemas import (
 # A callable that returns the installed package list for a serial. Injected
 # so this module does not import the driver (avoids a circular dependency).
 ListPackagesFn = Callable[[str | None], Awaitable[list[str]]]
+DescribeDeviceFn = Callable[[str | None], Awaitable[dict[str, str]]]
 
 _LOGGER = logging.getLogger(__name__)
 DEFAULT_APP_ALIAS_SEED_PATH = Path("shared/app_aliases.json")
+DEFAULT_APP_ALIAS_PROFILE_INDEX_PATH = Path("shared/app_alias_profiles.json")
 
 
 def normalize_app_query(value: str) -> str:
@@ -38,21 +41,36 @@ def _looks_like_package(app: str) -> bool:
     return "." in app and len(app.split(".")) >= 2
 
 
-def flatten_alias_seed(data: dict[str, Any]) -> dict[str, str]:
-    """Flatten curated seed into casefold(alias) → package.
+def flatten_alias_candidates(data: dict[str, Any]) -> dict[str, list[str]]:
+    """Flatten curated seed into casefold(alias) → ordered packages.
 
     Accepts:
     - Legacy flat: ``{"小红书": "com.xingin.xhs"}``
     - Package-centric: ``{"com.xingin.xhs": {"aliases": ["小红书", "红书"]}}``
       or ``{"com.xingin.xhs": ["小红书", "红书"]}``
+
+    Repeating an alias under multiple package keys is intentional: AndroidWorld
+    and OEM devices often ship the same human-facing App under different
+    packages.  Declaration order is the deterministic fallback order; the
+    resolver prefers the first candidate actually installed on the device.
     """
-    seed: dict[str, str] = {}
+    seed: dict[str, list[str]] = {}
+
+    def add(alias: str, package: str) -> None:
+        normalized = alias.strip().casefold()
+        candidate = package.strip()
+        if not normalized or not candidate:
+            return
+        packages = seed.setdefault(normalized, [])
+        if candidate not in packages:
+            packages.append(candidate)
+
     for key, value in data.items():
         if not isinstance(key, str) or not key.strip():
             continue
         if isinstance(value, str) and value.strip():
             # Legacy flat OR package key mistaken as alias — treat as alias→pkg.
-            seed[key.strip().casefold()] = value.strip()
+            add(key, value)
             continue
         aliases: list[str] = []
         if isinstance(value, list):
@@ -68,10 +86,19 @@ def flatten_alias_seed(data: dict[str, Any]) -> dict[str, str]:
             # Non-package key with nested aliases is ambiguous; skip.
             continue
         for alias in aliases:
-            seed[alias.strip().casefold()] = pkg
+            add(alias, pkg)
         # Also allow resolving by the package string itself via passthrough,
         # not via seed — no need to insert pkg as an alias.
     return seed
+
+
+def flatten_alias_seed(data: dict[str, Any]) -> dict[str, str]:
+    """Return the first declared package per alias for legacy callers."""
+    return {
+        alias: packages[0]
+        for alias, packages in flatten_alias_candidates(data).items()
+        if packages
+    }
 
 
 def load_alias_seed_file(path: Path | str) -> dict[str, str]:
@@ -85,6 +112,50 @@ def load_alias_seed_file(path: Path | str) -> dict[str, str]:
     return flatten_alias_seed(data)
 
 
+def _load_alias_candidate_file(path: Path | str) -> dict[str, list[str]]:
+    """Load all curated package candidates for each alias."""
+    p = Path(path)
+    if not p.exists():
+        return {}
+    data = json.loads(p.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        return {}
+    return flatten_alias_candidates(data)
+
+
+def _merge_candidate_seeds(
+    *seeds: dict[str, list[str]],
+) -> dict[str, list[str]]:
+    """Merge alias candidates in priority order without duplicates."""
+    merged: dict[str, list[str]] = {}
+    for seed in seeds:
+        for alias, candidates in seed.items():
+            packages = merged.setdefault(alias, [])
+            for package in candidates:
+                if package not in packages:
+                    packages.append(package)
+    return merged
+
+
+def _profile_matches(match: dict[str, Any], device: dict[str, str]) -> bool:
+    """Return whether all exact/regex fields match one device profile."""
+    for field, expected in match.items():
+        if field.endswith("_regex"):
+            key = field.removesuffix("_regex")
+            try:
+                if re.fullmatch(
+                    str(expected), str(device.get(key, "")), re.IGNORECASE,
+                ) is None:
+                    return False
+            except re.error:
+                return False
+            continue
+        actual = str(device.get(field, "")).strip().casefold()
+        if actual != str(expected).strip().casefold():
+            return False
+    return bool(match)
+
+
 class NameResolver:
     """Resolve exact local hits and expose bounded installed candidates."""
 
@@ -94,13 +165,22 @@ class NameResolver:
         list_packages: ListPackagesFn,
         seed_path: str | Path,
         cache_path: str | Path,
+        profile_index_path: str | Path | None = None,
+        describe_device: DescribeDeviceFn | None = None,
     ) -> None:
         self._list_packages = list_packages
         self._seed_path = Path(seed_path)
         self._cache_path = Path(cache_path)
+        self._profile_index_path = (
+            Path(profile_index_path) if profile_index_path is not None else None
+        )
+        self._describe_device = describe_device
 
         # Lazy-loaded.
-        self._seed: dict[str, str] | None = None
+        self._seed: dict[str, list[str]] | None = None
+        self._profiles: list[dict[str, Any]] | None = None
+        self._device_seeds: dict[str, dict[str, list[str]]] = {}
+        self._device_profile_ids: dict[str, list[str]] = {}
         # {serial: {display_name: package}}. Key "" holds serial-less entries.
         self._cache: dict[str, dict[str, str]] | None = None
 
@@ -122,10 +202,14 @@ class NameResolver:
             return None
 
         # Stage 1: curated seed (global, casefold), then learned cache (per-serial).
-        seed = self._load_seed()
+        seed = await self._seed_for(serial)
         folded = target.casefold()
-        if folded in seed:
-            return seed[folded]
+        candidates = seed.get(folded, [])
+        if candidates:
+            installed = set(await self.installed_packages(serial))
+            for package in candidates:
+                if package in installed:
+                    return package
         cache = self._load_cache()
         serial_cache = cache.get(key, {})
         if target in serial_cache:
@@ -134,6 +218,12 @@ class NameResolver:
         for cached_name, pkg in serial_cache.items():
             if cached_name.casefold() == folded:
                 return pkg
+
+        # Preserve the original local-resolution behavior when installed-app
+        # enumeration is temporarily unavailable. The driver still validates
+        # package membership before dispatch.
+        if candidates:
+            return candidates[0]
 
         return None
 
@@ -170,8 +260,9 @@ class NameResolver:
                 resolver_generation=generation,
             )
 
-        seed = self._load_seed()
-        package = seed.get(normalized)
+        seed = await self._seed_for(serial)
+        candidates = seed.get(normalized, [])
+        package = next((item for item in candidates if item in packages), None)
         provenance: AppResolutionProvenance | None = None
         if package:
             provenance = AppResolutionProvenance.CURATED_ALIAS
@@ -202,6 +293,7 @@ class NameResolver:
         """Return a compact generation that changes with curated/learned mappings."""
         payload = {
             "seed": self._load_seed(),
+            "profiles": self._load_profiles(),
             "cache": self._load_cache(),
         }
         encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
@@ -220,11 +312,12 @@ class NameResolver:
         """Return deterministic bounded candidates without choosing one."""
         packages = await self.installed_packages(serial)
         folded = (query or "").strip().casefold()
-        seed = self._load_seed()
+        seed = await self._seed_for(serial)
         cache = self._load_cache().get((serial or "").strip(), {})
         aliases_by_package: dict[str, list[tuple[str, str]]] = {}
-        for alias, package in sorted(seed.items()):
-            aliases_by_package.setdefault(package, []).append((alias, "curated_alias"))
+        for alias, candidates in sorted(seed.items()):
+            for package in candidates:
+                aliases_by_package.setdefault(package, []).append((alias, "curated_alias"))
         for alias, package in sorted(cache.items(), key=lambda item: item[0].casefold()):
             aliases_by_package.setdefault(package, []).append((alias, "learned_cache"))
 
@@ -260,12 +353,84 @@ class NameResolver:
 
     # --- local mapping table ------------------------------------------------
 
-    def _load_seed(self) -> dict[str, str]:
+    async def selected_profile_ids(self, serial: str | None) -> list[str]:
+        """Return the deterministic device-profile overlays selected for a device."""
+        await self._seed_for(serial)
+        return list(self._device_profile_ids.get((serial or "").strip(), []))
+
+    async def _seed_for(self, serial: str | None) -> dict[str, list[str]]:
+        key = (serial or "").strip()
+        cached = self._device_seeds.get(key)
+        if cached is not None:
+            return cached
+
+        common = self._load_seed()
+        profiles = self._load_profiles()
+        if not profiles or self._describe_device is None:
+            self._device_profile_ids[key] = []
+            self._device_seeds[key] = common
+            return common
+
+        try:
+            device = await self._describe_device(serial)
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("app-resolver: describe_device failed: %s", exc)
+            device = {}
+        matched = [
+            profile
+            for profile in profiles
+            if _profile_matches(profile["match"], device)
+        ]
+        overlays = [profile["seed"] for profile in matched]
+        selected = _merge_candidate_seeds(*overlays, common)
+        self._device_profile_ids[key] = [profile["id"] for profile in matched]
+        self._device_seeds[key] = selected
+        return selected
+
+    def _load_profiles(self) -> list[dict[str, Any]]:
+        if self._profiles is not None:
+            return self._profiles
+        profiles: list[dict[str, Any]] = []
+        index_path = self._profile_index_path
+        if index_path is None or not index_path.exists():
+            self._profiles = profiles
+            return profiles
+        try:
+            data = json.loads(index_path.read_text(encoding="utf-8"))
+            raw_profiles = data.get("profiles", []) if isinstance(data, dict) else []
+            root = index_path.parent.resolve()
+            for raw in raw_profiles:
+                if not isinstance(raw, dict):
+                    continue
+                profile_id = str(raw.get("id", "")).strip()
+                match = raw.get("match")
+                alias_ref = str(raw.get("aliases", "")).strip()
+                if not profile_id or not isinstance(match, dict) or not alias_ref:
+                    continue
+                alias_path = (index_path.parent / alias_ref).resolve()
+                if alias_path != root and root not in alias_path.parents:
+                    continue
+                profiles.append({
+                    "id": profile_id,
+                    "match": {str(k): str(v) for k, v in match.items()},
+                    "seed": _load_alias_candidate_file(alias_path),
+                })
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning(
+                "app-resolver: failed to load profile index %s: %s",
+                index_path,
+                exc,
+            )
+            profiles = []
+        self._profiles = profiles
+        return profiles
+
+    def _load_seed(self) -> dict[str, list[str]]:
         if self._seed is not None:
             return self._seed
-        seed: dict[str, str] = {}
+        seed: dict[str, list[str]] = {}
         try:
-            seed = load_alias_seed_file(self._seed_path)
+            seed = _load_alias_candidate_file(self._seed_path)
         except Exception as exc:  # noqa: BLE001
             _LOGGER.warning("app-resolver: failed to load seed %s: %s", self._seed_path, exc)
             seed = {}
@@ -447,4 +612,6 @@ def build_default_resolver(settings: Settings | None = None) -> "NameResolver":
         list_packages=adb.list_packages_async,
         seed_path=DEFAULT_APP_ALIAS_SEED_PATH,
         cache_path=s.app_resolver_cache_path_resolved,
+        profile_index_path=DEFAULT_APP_ALIAS_PROFILE_INDEX_PATH,
+        describe_device=adb.device_profile_async,
     )

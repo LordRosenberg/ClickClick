@@ -1,4 +1,0 @@
-# Example local deny patterns for commit guards (copy to local-block-patterns).
-# Keep real device serials / usernames out of the tracked tree.
-# REDACTED_DEVICE
-# your-username

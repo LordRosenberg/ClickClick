@@ -137,7 +137,6 @@ def build_role_component_report() -> dict[str, Any]:
     from agent.prompts import (
         render_executor_system,
         render_planner_system,
-        render_reviewer_scope_system,
         render_reviewer_system,
     )
     from agent.session import tools_for_role
@@ -166,14 +165,6 @@ def build_role_component_report() -> dict[str, Any]:
         "executor.tool_schemas",
         tools_for_role("executor"),
     )
-    reviewer_scope_role = measure_text_component(
-        "reviewer_scope.role_policy",
-        render_reviewer_scope_system(),
-    )
-    reviewer_scope_tools = measure_json_component(
-        "reviewer_scope.tool_schemas",
-        tools_for_role("reviewer", reviewer_protocol="scope"),
-    )
     return {
         "model": GPT_5_4_MODEL_ID,
         "tokenizer": GPT_5_4_TOKENIZER,
@@ -185,10 +176,6 @@ def build_role_component_report() -> dict[str, Any]:
             "reviewer": {
                 "role_policy": reviewer_role.as_dict(),
                 "tool_schemas": reviewer_tools.as_dict(),
-            },
-            "reviewer_scope": {
-                "role_policy": reviewer_scope_role.as_dict(),
-                "tool_schemas": reviewer_scope_tools.as_dict(),
             },
             "executor": {
                 "role_policy": executor_role.as_dict(),

@@ -11,7 +11,7 @@ export function RootLayout() {
   return (
     <div className="min-h-screen bg-bg-base text-text">
       <header className="sticky top-0 z-20 border-b border-border bg-bg-base/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
+        <div className="mx-auto flex min-h-14 max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2">
           <span className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight">
             <span className="inline-block h-2 w-2 animate-pulse-neon rounded-full bg-neon shadow-neon" />
             <span className="text-text">CLICK</span>

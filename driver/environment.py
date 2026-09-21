@@ -4,12 +4,19 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+import json
 from pathlib import Path
 from typing import Any, Literal
 
 from driver import adb
 from driver.accessibility import AccessibilityCollectorClient
 from driver.adb import AdbError
+from driver.collector_release import (
+    COLLECTOR_VERSION,
+    collector_cache_path,
+    download_collector_release,
+    file_sha256,
+)
 
 
 StepStatus = Literal["ready", "degraded", "operator_action_required", "failed"]
@@ -17,7 +24,37 @@ StepStatus = Literal["ready", "degraded", "operator_action_required", "failed"]
 COLLECTOR_PACKAGE = "ai.clickclick.collector"
 COLLECTOR_COMPONENT = "ai.clickclick.collector/.CollectorService"
 COLLECTOR_AUTHORITY = "ai.clickclick.collector"
-COLLECTOR_VERSION = "0.2.0"
+
+
+def resolve_collector_apk_path(
+    configured: str = "", *, root: Path | None = None,
+) -> str:
+    """Resolve explicit path, matching local build, then pinned Release cache.
+
+    Local development builds precede Release assets, including same-version
+    rebuilds. Downloading is deferred until a device actually needs installation.
+    """
+    if configured.strip():
+        return configured.strip()
+    root = root or Path(__file__).resolve().parent.parent
+    output_dir = (
+        root / "android" / "accessibility-collector" / "app" / "build" /
+        "outputs" / "apk" / "debug"
+    )
+    built = output_dir / "app-debug.apk"
+    metadata = output_dir / "output-metadata.json"
+    try:
+        raw = json.loads(metadata.read_text(encoding="utf-8"))
+        versions = {
+            str(item.get("versionName") or "")
+            for item in raw.get("elements", [])
+            if isinstance(item, dict)
+        }
+    except (OSError, json.JSONDecodeError, TypeError):
+        versions = set()
+    if built.is_file() and COLLECTOR_VERSION in versions:
+        return str(built)
+    return str(collector_cache_path(root=root))
 
 
 @dataclass(frozen=True)
@@ -76,20 +113,53 @@ async def initialize_android_device(
     needs_install = installed is None or bool(
         collector_version and installed not in {collector_version, "installed"}
     )
+    path = Path(collector_apk_path) if collector_apk_path else None
+    release_path = collector_cache_path()
+    release_selected = path is not None and path.resolve() == release_path.resolve()
+    if not needs_install and path is not None and path.is_file() and not release_selected:
+        # Same versionName does not mean the same development build.
+        installed_digest = await adb.package_apk_sha256_async(serial, collector_package)
+        needs_install = installed_digest != file_sha256(path)
     if needs_install:
-        path = Path(collector_apk_path) if collector_apk_path else None
-        if path is None or not path.is_file():
+        download_error = ""
+        if release_selected:
+            try:
+                path = await download_collector_release(release_path)
+            except Exception as exc:
+                download_error = f"{type(exc).__name__}: {exc}"
+        if download_error or path is None or not path.is_file():
             steps["collector_apk"] = _step(
-                "degraded", "collector APK is missing; build or configure collector_apk_path",
+                "degraded", download_error or "collector APK is missing; build locally or configure collector_apk_path",
                 installed_version=installed,
             )
         else:
             try:
-                await adb.install_apk_async(serial, path)
+                signature_reinstalled = False
+                try:
+                    await adb.install_apk_async(serial, path)
+                except AdbError as exc:
+                    if "INSTALL_FAILED_UPDATE_INCOMPATIBLE" not in str(exc):
+                        raise
+                    # Collector is intentionally stateless. A debug signing-key
+                    # change cannot be upgraded in place, so remove only this
+                    # exact package and immediately install the required build.
+                    await adb.uninstall_package_async(serial, collector_package)
+                    await adb.install_apk_async(serial, path)
+                    signature_reinstalled = True
                 installed = await adb.package_version_async(serial, collector_package)
-                steps["collector_apk"] = _step(
-                    "ready", installed_version=installed or "installed"
-                )
+                if collector_version and installed not in {collector_version, "installed"}:
+                    steps["collector_apk"] = _step(
+                        "failed",
+                        "installed collector version does not match required version",
+                        installed_version=installed,
+                        required_version=collector_version,
+                    )
+                else:
+                    steps["collector_apk"] = _step(
+                        "ready",
+                        installed_version=installed or "installed",
+                        signature_reinstalled=signature_reinstalled,
+                    )
             except AdbError as exc:
                 steps["collector_apk"] = _step("failed", str(exc))
     else:

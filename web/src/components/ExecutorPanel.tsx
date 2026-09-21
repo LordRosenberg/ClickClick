@@ -3,6 +3,7 @@ import { Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AgentCallsBlock } from "@/components/AgentCallsBlock";
+import type { ConversationVisualSelectionProps } from "@/lib/agentCalls";
 import type { Action, ActionPipeline, ExecutorTick } from "@/api/types";
 
 function ParamTable({ action }: { action: Action }) {
@@ -71,9 +72,18 @@ function ActionPipelineView({ pipeline }: { pipeline: ActionPipeline }) {
  * rendered by StepInspector at the top of the layout — this panel shows
  * subgoal (header-level) plus action / result + LLM I/O.
  */
-export function ExecutorPanel({ tick }: { tick: ExecutorTick }) {
+export function ExecutorPanel({
+  tick,
+  taskId,
+  selectedVisualKey,
+  onSelectVisual,
+}: { tick: ExecutorTick; taskId: string } & ConversationVisualSelectionProps) {
   const ar = tick.action_result;
   const receipt = ar?.receipt;
+  const submitted = tick.tool_calls?.slice().reverse().find(
+    (call) => call.name === "submit_executor_step" && call.status === "succeeded",
+  )?.arguments.decision;
+  const decision = typeof submitted === "string" ? submitted : tick.decision;
   const subgoal = (tick.subgoal_at_tick || "").trim();
   const visualBasisAction = tick.action != null && [
     "tap", "tap_xy", "swipe", "long_press", "drag",
@@ -85,12 +95,12 @@ export function ExecutorPanel({ tick }: { tick: ExecutorTick }) {
           <CardTitle className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-cyan">
             <Bot className="h-3.5 w-3.5" /> executor
           </CardTitle>
-          {tick.decision && (
+          {decision && (
             <Badge
               variant="outline"
               className="border-cyan/40 bg-cyan/10 font-mono text-[10px] text-cyan"
             >
-              {tick.decision}
+              {decision}
             </Badge>
           )}
           {tick.runtime_budget && (
@@ -99,7 +109,9 @@ export function ExecutorPanel({ tick }: { tick: ExecutorTick }) {
               className="font-mono text-[10px] text-text-mute"
               title="deterministic runtime capacity; not a semantic completion signal"
             >
-              remaining steps {tick.runtime_budget.remaining_steps}
+              {tick.runtime_budget.device_actions == null
+                ? `${tick.runtime_budget.executor_decisions} decisions left`
+                : `${tick.runtime_budget.device_actions} actions left`}
             </Badge>
           )}
         </div>
@@ -136,9 +148,12 @@ export function ExecutorPanel({ tick }: { tick: ExecutorTick }) {
           </div>
         )}
         <AgentCallsBlock
+          taskId={taskId}
           rounds={tick.agent_rounds}
           calls={tick.tool_calls}
           scopeKey={`executor:${tick.step_seq ?? "null"}`}
+          selectedVisualKey={selectedVisualKey}
+          onSelectVisual={onSelectVisual}
         />
         {ar && (
           <div className="space-y-1">

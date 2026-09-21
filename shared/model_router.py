@@ -1,4 +1,4 @@
-"""Model routing for the Reviewer→Planner→Executor loop."""
+"""Model routing for Planner, Reviewer and Executor."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ class ModelRole(str, Enum):
 
 @dataclass(frozen=True)
 class ModelRouter:
-    """Resolve model identifiers for the three focused roles.
+    """Resolve model identifiers for the plan-driven roles.
 
     Planner and Reviewer intentionally share the existing decision-model
     configuration. Each resolved id is passed verbatim to ``litellm.completion`` via the
@@ -34,6 +34,7 @@ class ModelRouter:
     @property
     def reviewer(self) -> str:
         return self.decision
+
 
     @classmethod
     def from_settings(cls, settings: Settings | None = None) -> ModelRouter:

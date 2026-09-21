@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from enum import Enum
-import json
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+
+from shared.revisable import PlanRuntime
 
 
 class LogLevel(str, Enum):
@@ -129,6 +130,15 @@ class ActionReceipt(BaseModel):
     effect_observation_id: str = ""
     observation_id: str = ""
     observation_accepted: bool = False
+    # Set only when pre/post tree text and source pixels are byte-identical.
+    # Absent/None means "do not tell the model the UI changed or succeeded".
+    visible_change: Literal["none"] | None = None
+    # Mechanical target-handling evidence. It never implies semantic success.
+    interaction_ack: Literal["confirmed", "unobserved", "unavailable"] | None = None
+    interaction_ack_source: Literal["accessibility_event"] | None = None
+    # Device acknowledgement, separate from semantic effect confirmation.
+    node_click_status: str | None = None
+    native_action_performed: bool | None = None
 
 
 class EvidenceSource(str, Enum):
@@ -200,6 +210,8 @@ class UIElement(BaseModel):
     window_layer: int | None = None
     display_id: int | None = None
     window_wrapper: bool = False
+    # Opaque observation-scoped native reference. Never rendered in model trees.
+    node_handle: str = ""
 
 
 class CanonicalUI(BaseModel):
@@ -225,13 +237,6 @@ class CanonicalUI(BaseModel):
     capture_reasons: list[str] = Field(default_factory=list)
 
 
-class PlannerMode(str, Enum):
-    """The only two outcomes available to the planning role."""
-
-    EXECUTE = "execute"
-    REVIEW = "review"
-
-
 class ExecutorDecisionKind(str, Enum):
     """Executor routing intent, separate from any device action."""
 
@@ -240,92 +245,26 @@ class ExecutorDecisionKind(str, Enum):
     REQUEST_REPLAN = "request_replan"
 
 
-class ReviewerVerdict(str, Enum):
-    """Reviewer-owned semantic boundary outcomes."""
-
-    ACCEPT = "accept"
-    RETRY = "retry"
-    REPLAN = "replan"
-    DONE = "done"
-    BLOCKED = "blocked"
-
-
-class TaskContractBody(BaseModel):
-    """Immutable model-authored task requirements; refs are projected by Harness."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    must_happen: list[str] = Field(default_factory=list)
-    final_ui_state: list[str] = Field(default_factory=list)
-    answer: list[str] = Field(default_factory=list)
-    disqualifying_clauses: list[str] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def validate_projection(self) -> TaskContractBody:
-        groups = (
-            self.must_happen,
-            self.final_ui_state,
-            self.answer,
-            self.disqualifying_clauses,
-        )
-        if not any(groups[:3]):
-            raise ValueError("task contract requires at least one requirement")
-        for values in groups:
-            normalized = [value.strip() for value in values]
-            if any(not value for value in normalized):
-                raise ValueError("task contract text must be non-empty")
-            values[:] = normalized
-        return self
-
-
-class SubgoalContractBody(BaseModel):
-    """Planner-authored observable boundary conditions."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    success_conditions: list[str] = Field(min_length=1)
-    disqualifying_clauses: list[str] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def validate_projection(self) -> SubgoalContractBody:
-        success = [value.strip() for value in self.success_conditions]
-        clauses = [value.strip() for value in self.disqualifying_clauses]
-        if any(not value for value in [*success, *clauses]):
-            raise ValueError("subgoal contract text must be non-empty")
-        self.success_conditions = success
-        self.disqualifying_clauses = clauses
-        return self
-
-
-class ActiveCompletionContract(BaseModel):
-    """Runtime binding for one Planner-authored subgoal contract body."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    contract_id: str = ""
-    lineage_id: str = ""
-    boundary_generation: int = 0
-    created_step: int = 0
-    target_requirement_ref: str = ""
-    body: SubgoalContractBody | None = None
-
-
-class ActiveTaskCompletionContract(BaseModel):
-    """Runtime binding for the persistent whole-task completion contract."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    contract_id: str = ""
-    revision: int = 0
-    created_step: int = 0
-    body: TaskContractBody | None = None
+SUPPORTED_ANDROID_KEY_ACTIONS = (
+    "back",
+    "home",
+    "enter",
+    "menu",
+    "delete",
+    "search",
+    "volume_up",
+    "volume_down",
+    "power",
+    "media_pause",
+)
 
 
 class Action(BaseModel):
     """One device action requested by an Executor.
 
-    Device types: `tap`/`tap_xy`/`type`/`replace_text`/`swipe`/
-    `long_press`/`scroll`/`drag`/`key`/`launch`/`back`/`home`/`sleep`.
+    Device types: `tap`/`tap_xy`/`skill_authorized_action`/
+    `type`/`replace_text`/`swipe`/`long_press`/`scroll`/`drag`/`key`/
+    `launch`/`back`/`home`/`sleep`.
     `scroll` carries a content-navigation `direction`: down reveals content
     below, up reveals content above, and horizontal values follow the same
     convention. `long_press` and `drag` reuse `duration_ms`; `drag` uses `x/y`
@@ -335,6 +274,7 @@ class Action(BaseModel):
     type: Literal[
         "tap",
         "tap_xy",
+        "skill_authorized_action",
         "type",
         "replace_text",
         "swipe",
@@ -348,6 +288,7 @@ class Action(BaseModel):
         "sleep",
     ]
     index: int | None = None
+    surface_index: int | None = Field(default=None, ge=0, strict=True)
     x: float | None = None
     y: float | None = None
     x2: float | None = None
@@ -357,7 +298,33 @@ class Action(BaseModel):
     app: str | None = None
     direction: Literal["up", "down", "left", "right"] | None = None
     duration_ms: int | None = None
+    skill_action_id: str | None = None
+    # Bound by the executor after observation validation; cannot be model-authored
+    # or resurrected from serialized history/resume data.
+    _node_handle: str = PrivateAttr(default="")
 
+    @model_validator(mode="after")
+    def validate_skill_authorized_target(self):
+        if (
+            self.type == "key"
+            and self.key is not None
+            and self.key not in SUPPORTED_ANDROID_KEY_ACTIONS
+        ):
+            raise ValueError(
+                "key requires one supported Android key name; key chords are unsupported"
+            )
+        if self.type != "skill_authorized_action":
+            return self
+        if not self.skill_action_id or not self.skill_action_id.strip():
+            raise ValueError("skill_authorized_action requires skill_action_id")
+        has_index = self.index is not None
+        has_any_coordinate = self.x is not None or self.y is not None
+        has_coordinates = self.x is not None and self.y is not None
+        if has_index == has_coordinates or (has_any_coordinate and not has_coordinates):
+            raise ValueError(
+                "skill_authorized_action requires exactly one target: index or (x,y)"
+            )
+        return self
 
 
 class ActionResult(BaseModel):
@@ -403,6 +370,10 @@ ActionPipelineReason = Literal[
     "coordinate_out_of_bounds",
     "unresolved_observation_index",
     "invalid_installed_app_selection",
+    "surface_index_requires_drag",
+    "surface_index_unavailable",
+    "unknown_surface_index",
+    "drag_outside_surface",
 ]
 
 
@@ -444,123 +415,6 @@ class ActionPipeline(BaseModel):
     dispatch_suppressed: bool = False
 
 
-class FactEntry(BaseModel):
-    """One short working fact in TaskMemory."""
-
-    value: str = ""
-    source: Literal["reviewer"] = "reviewer"
-    step: int = 0
-    evidence_handles: list[str] = Field(default_factory=list)
-    packet_digest: str = ""
-
-
-class _BoundaryReviewBase(BaseModel):
-    """Shared structure for one mechanically sourced boundary fact."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    detail: str = ""
-
-
-class DriverDispatchFailed(_BoundaryReviewBase):
-    type: Literal["driver_dispatch_failed"] = "driver_dispatch_failed"
-    source: Literal["runtime"] = "runtime"
-
-
-class VisualGroundingRejected(_BoundaryReviewBase):
-    type: Literal["visual_grounding_rejected"] = "visual_grounding_rejected"
-    source: Literal["runtime"] = "runtime"
-
-
-class PostActionObservationMissing(_BoundaryReviewBase):
-    type: Literal["post_action_observation_missing"] = "post_action_observation_missing"
-    source: Literal["runtime"] = "runtime"
-
-
-class ActionResultUnsuccessful(_BoundaryReviewBase):
-    type: Literal["action_result_unsuccessful"] = "action_result_unsuccessful"
-    source: Literal["runtime"] = "runtime"
-
-
-class ExecutorReplanRequested(_BoundaryReviewBase):
-    type: Literal["executor_replan_requested"] = "executor_replan_requested"
-    source: Literal["executor"] = "executor"
-
-
-BoundaryReviewFact = Annotated[
-    DriverDispatchFailed
-    | VisualGroundingRejected
-    | PostActionObservationMissing
-    | ActionResultUnsuccessful
-    | ExecutorReplanRequested,
-    Field(discriminator="type"),
-]
-
-
-class RecoveryState(BaseModel):
-    """Runtime-owned retry continuity state for the active subgoal."""
-
-    lineage_id: str = ""
-    boundary_generation: int = 0
-    awaiting_review: bool = False
-    boundary_cause: str = ""
-    boundary_review: BoundaryReviewFact | None = None
-    review_requirement_ref: str = ""
-    last_reviewer_verdict: ReviewerVerdict | None = None
-    last_reviewer_reason: str = ""
-
-
-class RuntimeBudgetSnapshot(BaseModel):
-    """Task-wide safety capacity; not a semantic completion signal."""
-
-    remaining_steps: int = 0
-
-
-class ProgressEntry(BaseModel):
-    """One Reviewer-accepted semantic statement and its append-only provenance."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    progress_id: str = Field(min_length=1)
-    requirement_ref: str = ""
-    statement: str = Field(min_length=1)
-    evidence_handles: list[str] = Field(min_length=1)
-    packet_digest: str = Field(min_length=1)
-    accepted_step: int = Field(default=0, ge=0)
-    source_subgoal: str = ""
-    superseded_by_packet_digest: str = ""
-    superseded_step: int | None = Field(default=None, ge=0)
-
-    @model_validator(mode="after")
-    def validate_progress(self) -> ProgressEntry:
-        self.progress_id = self.progress_id.strip()
-        self.requirement_ref = self.requirement_ref.strip()
-        self.statement = self.statement.strip()
-        self.packet_digest = self.packet_digest.strip()
-        self.source_subgoal = self.source_subgoal.strip()
-        self.evidence_handles = [
-            handle.strip() for handle in self.evidence_handles
-        ]
-        self.superseded_by_packet_digest = (
-            self.superseded_by_packet_digest.strip()
-        )
-        if not self.progress_id or not self.statement or not self.packet_digest:
-            raise ValueError("progress identity, statement, and packet digest are required")
-        if any(not handle for handle in self.evidence_handles):
-            raise ValueError("progress evidence handles must be non-empty")
-        if len(self.evidence_handles) != len(set(self.evidence_handles)):
-            raise ValueError("progress evidence handles must be unique")
-        if bool(self.superseded_by_packet_digest) != (self.superseded_step is not None):
-            raise ValueError(
-                "superseded progress requires both packet digest and step"
-            )
-        return self
-
-    @property
-    def effective(self) -> bool:
-        return not self.superseded_by_packet_digest
-
-
 class SubmittedActionSnapshot(BaseModel):
     """Exact model-submitted action payload safe for the semantic timeline."""
 
@@ -568,6 +422,7 @@ class SubmittedActionSnapshot(BaseModel):
 
     type: str
     index: int | None = None
+    surface_index: int | None = Field(default=None, ge=0, strict=True)
     x: float | None = None
     y: float | None = None
     x2: float | None = None
@@ -578,6 +433,7 @@ class SubmittedActionSnapshot(BaseModel):
     app: str | None = None
     direction: str | None = None
     duration_ms: int | None = None
+    skill_action_id: str | None = None
     image_size: tuple[int, int] | None = None
 
     @model_validator(mode="after")
@@ -602,42 +458,10 @@ class ActionTargetSnapshot(BaseModel):
     editability: Literal["editable", "not_editable", "unknown", "conflict"] = "unknown"
     focused: bool = False
     password: bool = False
-
-
-class MemoryEvent(BaseModel):
-    """Canonical compact memory event; raw trace remains authoritative."""
-
-    kind: Literal["fact", "attempt", "boundary"]
-    summary: str = ""
-    model_intent: str = ""
-    subgoal: str = ""
-    step: int = 0
-    action_type: str = ""
-    action_signature: str = ""
-    intent_sha256: str = ""
-    outcome: str = ""
-    lineage_id: str = ""
-    contract_id: str = ""
-    submitted_action_type: str = ""
-    submitted_action: SubmittedActionSnapshot | None = None
-    target: ActionTargetSnapshot | None = None
-    dispatch_status: Literal["dispatched", "rejected", "failed"] | None = None
-    post_dispatch_observation: Literal["accepted", "missing", "not_applicable"] = (
-        "not_applicable"
-    )
-    basis_observation_id: str = ""
-    post_observation_id: str = ""
-    refs: list[str] = Field(default_factory=list)
-
-
-class TaskMemory(BaseModel):
-    """Canonical accepted progress plus durable facts and mechanical events."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    facts: dict[str, FactEntry] = Field(default_factory=dict)
-    progress: list[ProgressEntry] = Field(default_factory=list)
-    events: list[MemoryEvent] = Field(default_factory=list)
+    package: str = ""
+    window_id: int | None = None
+    source_class: str = ""
+    resource_id: str = ""
 
 
 class ExecutorStepSubmit(BaseModel):
@@ -650,7 +474,14 @@ class ExecutorStepSubmit(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     decision: ExecutorDecisionKind
-    summary: str = Field(min_length=1)
+    summary: str = Field(
+        min_length=1,
+        description=(
+            "For act, one very short action intent with no reasoning or completion "
+            "claim. For request_review, concise facts established by delivered "
+            "evidence. For request_replan, the concise blocker."
+        ),
+    )
     action: Action | None = None
 
     @model_validator(mode="after")
@@ -661,7 +492,7 @@ class ExecutorStepSubmit(BaseModel):
         if self.decision == ExecutorDecisionKind.ACT and self.action is None:
             raise ValueError("act requires exactly one device action")
         if self.decision != ExecutorDecisionKind.ACT and self.action is not None:
-            raise ValueError("boundary requests must omit device action")
+            raise ValueError("handoffs must omit device action")
         return self
 
     def to_step(
@@ -684,7 +515,8 @@ class ExecutorStep(BaseModel):
     """One atomic Executor decision within a loop tick.
 
     `result` carries the Driver ActionResult digest fed back to the Reviewer;
-    `summary` is the semantic decision line (what + why) for cognitive logs.
+    `summary` is the compact decision text: operation intent for `act`, established
+    facts for `request_review`, or the blocker for `request_replan`.
     `subgoal_at_tick` records the active model-authored subgoal. Exact
     observations and timestamps provide the trace boundary; the removed
     model-authored window label is not retained as a compatibility field.
@@ -703,306 +535,6 @@ class ExecutorStep(BaseModel):
     submitted_action_snapshot: SubmittedActionSnapshot | None = None
     target_snapshot: ActionTargetSnapshot | None = None
     recovery_reason: ActionPipelineReason | None = None
-class SubgoalCompletionContractSubmit(BaseModel):
-    """LLM-facing subgoal contract; temporal task fields are not exposed."""
-
-    model_config = ConfigDict(extra="forbid")
-    success_conditions: list[str] = Field(min_length=1)
-    disqualifying_clauses: list[str] = Field(default_factory=list)
-
-
-class ReviewerScopeSubmit(BaseModel):
-    """UI-independent whole-task success contract authored once by Reviewer."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    must_happen: list[str] = Field(default_factory=list)
-    final_ui_state: list[str] = Field(default_factory=list)
-    answer: list[str] = Field(default_factory=list)
-    disqualifying_clauses: list[str] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def normalize_projection(self) -> ReviewerScopeSubmit:
-        clauses = [clause.strip() for clause in self.disqualifying_clauses]
-        if any(not clause for clause in clauses):
-            raise ValueError("scope disqualifying clauses must be non-empty")
-        self.disqualifying_clauses = clauses
-        return self
-
-    def to_contract(self) -> TaskContractBody:
-        return TaskContractBody(
-            must_happen=self.must_happen,
-            final_ui_state=self.final_ui_state,
-            answer=self.answer,
-            disqualifying_clauses=self.disqualifying_clauses,
-        )
-
-
-class PlannerDecision(BaseModel):
-    """One rolling plan decision with no adjudication or terminal authority."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: int = 1
-    mode: PlannerMode
-    next_subgoal: str = ""
-    completion_contract: SubgoalContractBody | None = None
-    plan: list[str] = Field(default_factory=list)
-    target_requirement_ref: str = ""
-    review_requirement_ref: str = ""
-
-
-class PlannerDecisionSubmit(BaseModel):
-    """Strict LLM-facing Planner protocol for execute or current-state review."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    mode: PlannerMode
-    next_subgoal: str = ""
-    completion_contract: SubgoalCompletionContractSubmit | None = None
-    plan: list[str] = Field(default_factory=list)
-    target_requirement_ref: str = ""
-    review_requirement_ref: str = ""
-
-    @model_validator(mode="after")
-    def validate_mode(self) -> PlannerDecisionSubmit:
-        supplied = set(self.model_fields_set)
-        self.next_subgoal = self.next_subgoal.strip()
-        self.target_requirement_ref = self.target_requirement_ref.strip()
-        self.review_requirement_ref = self.review_requirement_ref.strip()
-        plan = [step.strip() for step in self.plan]
-        if any(not step for step in plan):
-            raise ValueError("plan steps must be non-empty")
-        self.plan = plan
-        if self.mode == PlannerMode.EXECUTE:
-            if "review_requirement_ref" in supplied:
-                raise ValueError("execute must omit review_requirement_ref")
-            if not self.target_requirement_ref:
-                raise ValueError("execute requires target_requirement_ref")
-            if not self.next_subgoal:
-                raise ValueError("execute requires one non-empty next_subgoal")
-            if self.completion_contract is None:
-                raise ValueError("execute requires completion_contract")
-            if "plan" not in supplied:
-                raise ValueError("execute requires plan, which may be []")
-        else:
-            forbidden = supplied.intersection({
-                "next_subgoal", "completion_contract", "plan",
-                "target_requirement_ref",
-            })
-            if forbidden:
-                raise ValueError(
-                    "review must omit execute fields: "
-                    + ", ".join(sorted(forbidden))
-                )
-            if not self.review_requirement_ref:
-                raise ValueError("review requires review_requirement_ref")
-        return self
-
-    def to_decision(self) -> PlannerDecision:
-        contract = None
-        if self.completion_contract is not None:
-            contract = SubgoalContractBody.model_validate(
-                self.completion_contract.model_dump()
-            )
-        return PlannerDecision(
-            schema_version=1,
-            mode=self.mode,
-            next_subgoal=self.next_subgoal,
-            completion_contract=contract,
-            plan=self.plan,
-            target_requirement_ref=self.target_requirement_ref,
-            review_requirement_ref=self.review_requirement_ref,
-        )
-
-
-class ReviewerAcceptedProgress(BaseModel):
-    """One semantic progress statement correlated to delivered evidence."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    requirement_ref: str = Field(min_length=1)
-    statement: str = Field(min_length=1)
-    evidence_handles: list[str] = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def normalize_projection(self) -> ReviewerAcceptedProgress:
-        self.requirement_ref = self.requirement_ref.strip()
-        self.statement = self.statement.strip()
-        handles = [handle.strip() for handle in self.evidence_handles]
-        if (
-            not self.requirement_ref
-            or not self.statement
-            or any(not handle for handle in handles)
-        ):
-            raise ValueError(
-                "requirement ref, accepted progress, and evidence handles must be non-empty"
-            )
-        if len(handles) != len(set(handles)):
-            raise ValueError("accepted progress evidence handles must be unique")
-        self.evidence_handles = handles
-        return self
-
-
-class ReviewerRememberedFact(BaseModel):
-    """One Reviewer-accepted value retained for later work."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    key: str = Field(min_length=1)
-    value: str = Field(min_length=1)
-    evidence_handles: list[str] = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def normalize_projection(self) -> ReviewerRememberedFact:
-        self.key = self.key.strip()
-        self.value = self.value.strip()
-        handles = [handle.strip() for handle in self.evidence_handles]
-        if not self.key or not self.value or any(not handle for handle in handles):
-            raise ValueError("remembered fact key, value, and evidence are required")
-        if len(handles) != len(set(handles)):
-            raise ValueError("remembered fact evidence handles must be unique")
-        self.evidence_handles = handles
-        return self
-
-
-class ReviewerAnswer(BaseModel):
-    """One Reviewer-authored answer bound to a contract answer ref."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    requirement_ref: str = Field(min_length=1)
-    text: str = Field(min_length=1)
-    evidence_handles: list[str] = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def normalize_projection(self) -> ReviewerAnswer:
-        self.requirement_ref = self.requirement_ref.strip()
-        self.text = self.text.strip()
-        handles = [handle.strip() for handle in self.evidence_handles]
-        if (
-            not self.requirement_ref
-            or not self.text
-            or any(not handle for handle in handles)
-        ):
-            raise ValueError(
-                "answer ref, text, and evidence handles must be non-empty"
-            )
-        if len(handles) != len(set(handles)):
-            raise ValueError("answer evidence handles must be unique")
-        self.evidence_handles = handles
-        return self
-
-
-class ReviewerDecision(BaseModel):
-    """Reviewer-owned semantic verdict bound to one exact evidence packet."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: int = 1
-    verdict: ReviewerVerdict
-    accepted_progress: list[ReviewerAcceptedProgress] = Field(default_factory=list)
-    remembered_facts: list[ReviewerRememberedFact] = Field(default_factory=list)
-    answers: list[ReviewerAnswer] = Field(default_factory=list)
-    superseded_progress_ids: list[str] = Field(default_factory=list)
-    reason: str
-    evidence_handles: list[str] = Field(default_factory=list)
-    packet_digest: str
-
-    def user_facing_answer(self) -> str:
-        return "\n".join(item.text for item in self.answers if item.text)
-
-
-class ReviewerDecisionSubmit(BaseModel):
-    """Strict LLM-facing Reviewer boundary protocol; it cannot plan work."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    verdict: ReviewerVerdict
-    accepted_progress: list[ReviewerAcceptedProgress] = Field(default_factory=list)
-    remembered_facts: list[ReviewerRememberedFact] = Field(default_factory=list)
-    answers: list[ReviewerAnswer] = Field(default_factory=list)
-    superseded_progress_ids: list[str] = Field(default_factory=list)
-    reason: str = Field(min_length=1)
-    evidence_handles: list[str] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def validate_verdict(self) -> ReviewerDecisionSubmit:
-        supplied = set(self.model_fields_set)
-        self.reason = self.reason.strip()
-        self.superseded_progress_ids = [
-            progress_id.strip() for progress_id in self.superseded_progress_ids
-        ]
-        self.evidence_handles = [
-            handle.strip() for handle in self.evidence_handles
-        ]
-        if not self.reason:
-            raise ValueError("review reason must be non-empty")
-        if any(not value for value in self.superseded_progress_ids):
-            raise ValueError("superseded progress ids must be non-empty")
-        if any(not value for value in self.evidence_handles):
-            raise ValueError("evidence handles must be non-empty")
-        if len(self.superseded_progress_ids) != len(set(self.superseded_progress_ids)):
-            raise ValueError("superseded progress ids must be unique")
-        if len(self.evidence_handles) != len(set(self.evidence_handles)):
-            raise ValueError("evidence handles must be unique")
-        fact_keys = [fact.key for fact in self.remembered_facts]
-        if len(fact_keys) != len(set(fact_keys)):
-            raise ValueError("remembered fact keys must be unique")
-        answer_refs = [item.requirement_ref for item in self.answers]
-        if len(answer_refs) != len(set(answer_refs)):
-            raise ValueError("each answer ref may be bound at most once")
-        cited_handles = {
-            *self.evidence_handles,
-            *(
-                handle
-                for progress in self.accepted_progress
-                for handle in progress.evidence_handles
-            ),
-            *(
-                handle
-                for fact in self.remembered_facts
-                for handle in fact.evidence_handles
-            ),
-            *(
-                handle
-                for item in self.answers
-                for handle in item.evidence_handles
-            ),
-        }
-        if not cited_handles:
-            raise ValueError(f"{self.verdict.value} verdict requires evidence")
-        if self.verdict != ReviewerVerdict.DONE and (
-            "answers" in supplied and self.answers
-        ):
-            raise ValueError("non-done verdict must omit answers")
-        return self
-
-    def to_decision(self, *, packet_digest: str) -> ReviewerDecision:
-        evidence_handles = list(dict.fromkeys([
-            *self.evidence_handles,
-            *(
-                handle
-                for progress in self.accepted_progress
-                for handle in progress.evidence_handles
-            ),
-            *(
-                handle
-                for fact in self.remembered_facts
-                for handle in fact.evidence_handles
-            ),
-            *(
-                handle
-                for item in self.answers
-                for handle in item.evidence_handles
-            ),
-        ]))
-        return ReviewerDecision(
-            schema_version=1,
-            packet_digest=packet_digest,
-            **self.model_dump(exclude={"evidence_handles"}),
-            evidence_handles=evidence_handles,
-        )
 
 
 class AgentState(BaseModel):
@@ -1011,31 +543,30 @@ class AgentState(BaseModel):
     Persisted per task; independent of any SDK ``message_history``. On crash
     or session loss each focused role rebuilds its projection from this state.
 
-    ``task_memory.progress`` contains only Reviewer-accepted semantic progress.
-    Canonical action events remain append-only mechanical evidence.
+    ``revisable`` stores the current plan and runtime budgets. Versioned notes
+    and action evidence live in the task record store.
     """
 
     model_config = ConfigDict(extra="forbid")
 
     instruction: str
-    plan: list[str] = Field(default_factory=list)
-    next_role: Literal["reviewer", "planner", "executor"] = "reviewer"
+    # Authoritative device-local date captured by the runtime. Models must not
+    # substitute the host clock for relative-date instructions.
+    current_device_date: str = ""
+    # Adapter-owned conventions for deterministic evaluation environments.
+    temporal_conventions: list[str] = Field(default_factory=list, max_length=8)
+    revisable: PlanRuntime = Field(default_factory=PlanRuntime)
     current_subgoal: str = ""
-    task_memory: TaskMemory = Field(default_factory=TaskMemory)
     step_number: int = 0
     # Mechanical task-wide liveness count across Reviewer/Planner/Executor
     # invocations, including provider retries. It is not a semantic score.
     role_invocation_count: int = 0
-    active_completion_contract: ActiveCompletionContract | None = None
-    task_completion_contract: ActiveTaskCompletionContract | None = None
-    recovery_state: RecoveryState = Field(default_factory=RecoveryState)
-    # Explicit mechanical scope of the one active semantic-subgoal timeline.
-    # Reviewer owns whether a boundary is accepted or residual; Harness only
-    # maintains the corresponding lineage ids.
-    active_timeline_lineage_ids: list[str] = Field(default_factory=list)
-    runtime_budget: RuntimeBudgetSnapshot = Field(default_factory=RuntimeBudgetSnapshot)
     # Internal tool scope. Model-visible catalogs are not derived from the instruction.
     frozen_skill_dirs: list[str] = Field(default_factory=list)
+    # Deterministic task hints and the Planner-selected Skill handoff.
+    skill_app_candidates: list[str] = Field(default_factory=list)
+    active_target_app: str = ""
+    active_workflow_ids: list[str] = Field(default_factory=list, max_length=2)
     # Explicit opt-in: ordinary and evaluation tasks never run a hidden learner call.
     skill_learn: bool = False
     # Optional per-task model overrides (must be keys in MODELS_JSON when set).
@@ -1090,7 +621,9 @@ class TraceEvent(BaseModel):
         "agent_tool_started",
         "agent_tool_finished",
         "agent_tool_failed",
+        "agent_llm_round_started",
         "agent_llm_round_finished",
+        "agent_llm_stream",
         "agent_input_safety_degraded",
         "agent_tool_call_recovery",
         "harness_event",

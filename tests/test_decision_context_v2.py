@@ -7,35 +7,18 @@ import json
 import pytest
 
 from agent.decision_context import (
+    historical_intermediate_tree_projection,
     render_executor_observation_v2,
+    render_historical_intermediate_observation,
     render_planner_observation_v2,
-    render_planner_task_anchor,
-    render_reviewer_packet,
-    reviewer_packet_payload,
-    reviewer_protocol_metadata,
+    render_role_tree,
+    semantic_tree_projection,
 )
-from agent.executor import build_executor_prompt
-from agent.reviewer import Reviewer
+from agent.executor import _compound_history_messages, build_executor_prompt
 from perception.input_evidence import build_interaction_state
 from perception.observation import ObservationPackage
 from shared.config import Settings
-from shared.schemas import (
-    ActiveCompletionContract,
-    ActiveTaskCompletionContract,
-    ActionTargetSnapshot,
-    AgentState,
-    CanonicalUI,
-    FactEntry,
-    MemoryEvent,
-    ObservationMode,
-    ProgressEntry,
-    ReviewerVerdict,
-    SubmittedActionSnapshot,
-    SubgoalContractBody,
-    TaskContractBody,
-    TaskMemory,
-    UIElement,
-)
+from shared.schemas import ActionTargetSnapshot, AgentState, CanonicalUI, ObservationMode, SubmittedActionSnapshot, UIElement
 
 
 def _package() -> ObservationPackage:
@@ -80,326 +63,133 @@ def _package() -> ObservationPackage:
     )
 
 
-def _event(*, step: int, lineage: str, intent: str, index: int) -> MemoryEvent:
-    return MemoryEvent(
-        kind="attempt",
-        step=step,
-        lineage_id=lineage,
-        subgoal="Open the first visible result",
-        model_intent=intent,
-        action_type="tap",
-        submitted_action_type="tap",
-        submitted_action=SubmittedActionSnapshot(type="tap", index=index),
-        target=ActionTargetSnapshot(
-            index=index,
-            role="Button",
-            raw_text=f"result-{index}",
-            bounds=[10, 100, 200, 160],
+def _payload(rendered: str, marker: str):
+    return json.loads(rendered.split(marker, 1)[1].splitlines()[0])
+
+
+def _tree(rendered: str) -> str:
+    return rendered.split("\nTREE:\n", 1)[1] if "\nTREE:\n" in rendered else ""
+
+
+def test_role_tree_recomputes_depth_and_keeps_readable_state_channels() -> None:
+    tree = [
+        UIElement(index=-1, role="FrameLayout", interactable=False, children=[1], depth=4),
+        UIElement(
+            index=7,
+            role="android.widget.Button",
+            desc="Continue",
+            clickable=True,
+            states={"focusable": True},
+            resource_id="continue_button",
+            depth=9,
         ),
-        dispatch_status="dispatched",
-        post_dispatch_observation="accepted",
-    )
-
-
-def _state() -> AgentState:
-    return AgentState(
-        instruction="Search for OpenAI and report the first visible title",
-        plan=["Open the first result", "Report its title"],
-        current_subgoal="Open the first visible result",
-        task_completion_contract=ActiveTaskCompletionContract(
-            contract_id="task-contract",
-            revision=1,
-            body=TaskContractBody(
-                must_happen=["Submit the exact OpenAI query"],
-                final_ui_state=["The first result is open"],
-                answer=["Report the first visible title"],
-                disqualifying_clauses=["Do not follow an account"],
-            ),
-        ),
-        active_completion_contract=ActiveCompletionContract(
-            contract_id="subgoal-contract",
-            lineage_id="active",
-            boundary_generation=1,
-            target_requirement_ref="final_ui_state:1",
-            body=SubgoalContractBody(
-                success_conditions=["The first visible result is open"],
-                disqualifying_clauses=["Do not open a different result"],
-            ),
-        ),
-        active_timeline_lineage_ids=["active"],
-        task_memory=TaskMemory(
-            facts={
-                "query": FactEntry(
-                    value="OpenAI",
-                    step=1,
-                    evidence_handles=["task-action:1"],
-                    packet_digest="sha256:query",
-                ),
-            },
-            progress=[
-                ProgressEntry(
-                    progress_id="p1",
-                    requirement_ref="must_happen:1",
-                    statement="The exact OpenAI query was submitted",
-                    evidence_handles=["task-action:1"],
-                    packet_digest="sha256:accepted",
-                    accepted_step=1,
-                ),
-            ],
-            events=[
-                _event(step=1, lineage="old", intent="Submit OpenAI", index=1),
-                _event(
-                    step=2,
-                    lineage="active",
-                    intent="Open the first visible result",
-                    index=2,
-                ),
-            ],
-        ),
-    )
-
-
-def _payload(rendered: str, marker: str) -> dict:
-    return json.loads(rendered.split(marker, 1)[1])
-
-
-def test_executor_context_is_active_subgoal_scoped_and_actionable() -> None:
-    state = _state()
-    _system, anchor_text, history_text, observation_text = build_executor_prompt(
-        state.current_subgoal,
-        _package(),
-        state=state,
-    )
-    anchor = _payload(anchor_text, "TASK ANCHOR:\n")
-    history = _payload(
-        history_text,
-        "ACCEPTED RESULTS AND ACTIVE ATTEMPTS:\n",
-    )
-    observation = _payload(observation_text, "CURRENT OBSERVATION:\n")
-
-    assert anchor["current_subgoal"] == state.current_subgoal
-    assert anchor["target_requirement_ref"] == "final_ui_state:1"
-    assert anchor["active_subgoal_contract"] == {
-        "success_conditions": ["The first visible result is open"],
-        "disqualifying_clauses": ["Do not open a different result"],
-    }
-    assert "plan" not in anchor
-    assert history["accepted_progress"] == [{
-        "requirement_ref": "must_happen:1",
-        "statement": "The exact OpenAI query was submitted",
-    }]
-    assert history["remembered_facts"] == {"query": "OpenAI"}
-    assert history["active_action_timeline"] == [{
-        "intent": "Open the first visible result",
-        "submitted_action": {"type": "tap"},
-        "dispatch": "dispatched",
-        "post_action_capture": {"status": "available"},
-        "target_at_submission": {"role": "Button", "raw_text": "result-2"},
-    }]
-    assert observation["focused_interaction"]["focused_editable"]["index"] == 0
-    assert "[0] EditText" in observation["semantic_tree"]
-
-
-def test_planner_context_is_task_level_and_locator_free() -> None:
-    state = _state()
-    anchor = _payload(
-        render_planner_task_anchor(state, deviation="The first tap had no effect"),
-        "PLANNER TASK ANCHOR:\n",
-    )
-    observation = _payload(
-        render_planner_observation_v2(_package()),
-        "CURRENT OBSERVATION:\n",
-    )
-
-    assert anchor["task_contract"]["must_happen"][0]["status"] == "accepted"
-    assert anchor["task_contract"]["final_ui_state"][0]["status"] == "active"
-    assert anchor["accepted_progress"] == [{
-        "requirement_ref": "must_happen:1",
-        "statement": "The exact OpenAI query was submitted",
-    }]
-    assert anchor["remembered_facts"] == {"query": "OpenAI"}
-    assert anchor["plan"] == ["Open the first result", "Report its title"]
-    assert anchor["last_reviewed_subgoal"] == "Open the first visible result"
-    assert anchor["current_deviation_or_blocker"] == "The first tap had no effect"
-    assert anchor["active_action_timeline"] == [{
-        "intent": "Open the first visible result",
-        "submitted_action": {"type": "tap"},
-        "dispatch": "dispatched",
-        "post_action_capture": {"status": "available"},
-    }]
-    assert "active_subgoal_contract" not in anchor
-    assert "index" not in observation["focused_interaction"]["focused_editable"]
-    assert all("index" not in row and "bounds" not in row for row in observation["semantic_tree"])
-
-
-def test_reviewer_context_is_requirement_and_evidence_scoped() -> None:
-    state = _state()
-    payload, handles = reviewer_packet_payload(
-        state,
-        _package(),
-        executor_report="The first result appears open",
-        boundary_reason="executor_review_requested",
-    )
-    metadata = reviewer_protocol_metadata(state, terminal_review=False)
-
-    assert payload["task_contract"]["final_ui_state"][0] == {
-        "requirement_ref": "final_ui_state:1",
-        "status": "active",
-        "text": "The first result is open",
-    }
-    assert payload["accepted_progress"] == [{
-        "progress_id": "p1",
-        "requirement_ref": "must_happen:1",
-        "statement": "The exact OpenAI query was submitted",
-        "evidence_handle": "progress:1",
-    }]
-    assert payload["remembered_facts"] == {
-        "query": {"value": "OpenAI", "evidence_handle": "fact:query"},
-    }
-    assert len(payload["task_action_audit"]) == 2
-    assert payload["active_subgoal_boundary"] == {
-        "current_subgoal": "Open the first visible result",
-        "target_requirement_ref": "final_ui_state:1",
-        "completion_contract": {
-            "success_conditions": ["The first visible result is open"],
-            "disqualifying_clauses": ["Do not open a different result"],
-        },
-    }
-    assert payload["executor_report"]["summary"] == "The first result appears open"
-    assert "plan" not in payload
-    assert "review_trigger" not in payload
-    assert "index" not in payload["current"]["focused_interaction"]["focused_editable"]
-    assert {
-        "current",
-        "evidence-current",
-        "task-action:1",
-        "task-action:2",
-        "progress:1",
-        "fact:query",
-        "executor-report",
-        "boundary",
-    }.issubset(handles)
-    assert metadata["reviewer_requirement_categories"] == {
-        "must_happen:1": "must_happen",
-        "final_ui_state:1": "final_ui_state",
-        "answer:1": "answer",
-    }
-    assert metadata["reviewer_dispatched_action_handles"] == [
-        "task-action:1",
-        "task-action:2",
     ]
 
+    executor = render_role_tree(tree, include_action_indexes=True)
+    reviewer = render_role_tree(tree, include_action_indexes=False)
 
-def test_planner_review_trigger_cannot_inherit_active_subgoal_boundary() -> None:
-    state = _state()
-    payload, handles = reviewer_packet_payload(
-        state,
-        _package(),
-        boundary_reason="planner_review_requested",
-        terminal_review=True,
-        review_requirement_ref="answer:1",
+    assert executor == "depth=0 | [7] Button | accessibility_label=\"Continue\" | focusable"
+    assert reviewer == (
+        "depth=0 | Button | accessibility_label=\"Continue\" | clickable | focusable"
+    )
+    assert "resource_id" not in executor
+
+
+def test_role_tree_uses_resource_id_only_as_unlabelled_fallback() -> None:
+    labelled = UIElement(
+        index=0, role="Button", text="Save", resource_id="save_button",
+    )
+    unlabelled = UIElement(
+        index=1, role="Button", resource_id="share_button",
     )
 
-    assert payload["review_trigger"] == {
-        "requirement_ref": "answer:1",
-    }
-    assert "active_subgoal_boundary" not in payload
-    assert "boundary" not in payload
-    assert "plan" not in payload
-    assert "boundary" not in handles
-
-
-def test_new_reviewer_feedback_is_shared_without_retyping_semantics() -> None:
-    state = _state()
-    state.recovery_state.last_reviewer_verdict = ReviewerVerdict.RETRY
-    state.recovery_state.last_reviewer_reason = "The selected result did not open"
-    expected = {
-        "verdict": "retry",
-        "reason": "The selected result did not open",
-    }
-
-    planner = _payload(
-        render_planner_task_anchor(state),
-        "PLANNER TASK ANCHOR:\n",
-    )
-    executor = _payload(
-        build_executor_prompt(state.current_subgoal, _package(), state=state)[1],
-        "TASK ANCHOR:\n",
-    )
-    reviewer, _handles = reviewer_packet_payload(state, _package())
-
-    assert planner["last_reviewer_feedback"] == expected
-    assert executor["last_reviewer_feedback"] == expected
-    assert reviewer["last_reviewer_feedback"] == expected
-
-
-def test_missing_post_action_observation_is_not_relabelled_current() -> None:
-    state = _state()
-    package = _package()
-    state.task_memory.events[-1].post_observation_id = package.observation_id
-
-    payload, handles = reviewer_packet_payload(
-        state,
-        package,
-        boundary_reason="post_action_observation_missing",
-        current_evidence=False,
+    rendered = render_role_tree(
+        [labelled, unlabelled], include_action_indexes=True,
     )
 
-    assert "current" not in payload
-    assert payload["pre_action_observation"]["evidence_handle"] == "before-action"
-    assert "current" not in handles
-    assert "before-action" in handles
+    assert "text=\"Save\"" in rendered
+    assert "resource_id=\"save_button\"" not in rendered
+    assert "resource_id=\"share_button\"" in rendered
 
 
-@pytest.mark.asyncio
-async def test_reviewer_registers_all_and_only_current_observation_handles(
-    monkeypatch,
-) -> None:
-    captured: list[list[str]] = []
-    reviewer = Reviewer(model="chatgpt/gpt-5.4", settings=Settings())
-
-    async def fake_run_decision(state, package, **kwargs):
-        del state
-        kwargs["dynamic_projection"](package)
-        captured.append(list(kwargs["context_state"]["reviewer_current_evidence_handles"]))
-        return object(), {}, {}
-
-    monkeypatch.setattr(reviewer._runner, "run_decision", fake_run_decision)  # noqa: SLF001
-    try:
-        await reviewer.decide(_state(), _package())
-        await reviewer.decide(
-            _state(),
-            _package(),
-            boundary_reason="post_action_observation_missing",
+def test_tree_row_grammar_is_smaller_than_repeated_structured_labels() -> None:
+    tree = [
+        UIElement(
+            index=index,
+            role="android.widget.Button",
+            text=f"Result {index}",
+            desc=f"Open result {index}",
+            clickable=True,
+            states={"focusable": True},
+            depth=3,
         )
-    finally:
-        await reviewer.aclose()
+        for index in range(20)
+    ]
 
-    assert captured == [["current", "evidence-current"], []]
-
-
-def test_reviewer_digest_and_internal_handles_stay_off_model_wire() -> None:
-    rendered, digest, handles = render_reviewer_packet(
-        _state(),
-        _package(),
-        executor_report="candidate",
+    rows = render_role_tree(tree, include_action_indexes=True)
+    structured = json.dumps(
+        semantic_tree_projection(tree),
+        ensure_ascii=False,
+        separators=(",", ":"),
     )
-    payload = _payload(rendered, "REVIEW PACKET:\n")
 
-    assert digest
-    assert handles
-    assert digest not in rendered
-    assert "packet_digest" not in payload
-    assert "evidence_handles" not in payload
+    assert len(rows) < len(structured)
+    assert rows.count("depth=0") == len(tree)
 
 
-def test_all_role_observations_require_exact_foreground() -> None:
-    package = _package()
-    package.ui.app_id = ""
+def test_historical_intermediate_tree_keeps_structure_and_removes_action_noise() -> None:
+    tree = [
+        UIElement(
+            index=-1, role="List", interactable=False, children=[1, 3], depth=0,
+        ),
+        UIElement(
+            index=-1, role="Card", interactable=False, children=[2], depth=1,
+        ),
+        UIElement(
+            index=4, role="TextView", text="Mango Chicken Curry",
+            desc="Description A", clickable=True,
+            states={"focusable": True, "focused": True}, depth=2,
+        ),
+        UIElement(
+            index=5, role="TextView", text="Mango Chicken Curry",
+            desc="Description B", clickable=True,
+            states={"selected": True, "enabled": True}, depth=1,
+        ),
+    ]
+    ui = CanonicalUI(
+        app_id="com.flauschcode.broccoli",
+        elements=[tree[2], tree[3]], semantic_tree=tree,
+    )
+    package = ObservationPackage(
+        ui=ui, mode=ObservationMode.TREE_ONLY, text_for_llm="",
+        image_for_llm=None, annotated_png=None, gap_reasons=[],
+        observation_id="obs-detail",
+    )
 
-    with pytest.raises(ValueError, match="foreground application"):
-        render_executor_observation_v2(package)
-    with pytest.raises(ValueError, match="foreground application"):
-        render_planner_observation_v2(package)
-    with pytest.raises(ValueError, match="foreground application"):
-        reviewer_packet_payload(_state(), package)
+    rows = historical_intermediate_tree_projection(package)
+    encoded = json.dumps(rows, ensure_ascii=False)
+    assert encoded.count("Mango Chicken Curry") == 2
+    assert "Description A" in encoded and "Description B" in encoded
+    assert [row["depth"] for row in rows] == [0, 1, 2, 1]
+    assert all("states" not in row and "editability" not in row for row in rows)
+    assert "index" not in encoded and "clickable" not in encoded
+
+    rendered = render_historical_intermediate_observation(package)
+    assert "HISTORICAL INTERMEDIATE" in rendered
+    assert '"actionable":false' in rendered
+    assert "latest current state" in rendered
+
+
+def test_compound_history_message_precedes_current_and_has_no_actionable_tree() -> None:
+    historical = _package()
+    historical.observation_id = "obs-historical"
+    historical.clean_png = None
+    historical.image_for_llm = None
+    history_messages = _compound_history_messages(historical)
+    current = {"role": "user", "content": "CURRENT ACTIONABLE STATE"}
+    combined = [*history_messages, current]
+
+    assert len(history_messages) == 1
+    assert "HISTORICAL INTERMEDIATE" in history_messages[0]["content"]
+    assert "[0]" not in history_messages[0]["content"]
+    assert combined[-1] is current

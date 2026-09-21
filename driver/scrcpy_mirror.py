@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import struct
 import subprocess
 import threading
 import time
@@ -54,9 +55,9 @@ class _Subscriber:
 
 
 class AnnexBParser:
-    """Incremental Annex-B parser that emits complete access-unit boundaries.
+    """Incremental Annex-B parser that emits complete NAL units.
 
-    scrcpy sends a raw Annex-B H.264 stream.  We retain SPS/PPS and use IDR
+    We retain SPS/PPS and use IDR
     NALs as safe bootstrap boundaries; arbitrary TCP chunks are never exposed
     to a recovering consumer.
     """
@@ -76,9 +77,11 @@ class AnnexBParser:
             else: i += 1
         return starts
 
-    def feed(self, data: bytes) -> list[tuple[bytes, bool]]:
+    def feed(self, data: bytes, *, packet_complete: bool = False) -> list[tuple[bytes, bool]]:
         self._buffer += data
         starts = self._starts(self._buffer)
+        if packet_complete and starts:
+            starts.append(len(self._buffer))
         if len(starts) < 2:
             return []
         out: list[tuple[bytes, bool]] = []
@@ -135,7 +138,7 @@ def _scrcpy_socket_name(scid: int) -> str:
 
 @dataclass
 class LocalStreamSource:
-    """Push/forward/start scrcpy-server on this host's adb; TCP-read raw H.264."""
+    """Read complete H.264 packets from a local scrcpy-server over ADB."""
 
     serial: str
     max_size: int = SCRCPY_OBSERVATION_MAX_SIZE
@@ -151,12 +154,12 @@ class LocalStreamSource:
         default=None, init=False, repr=False,
     )
     _port: int | None = field(default=None, init=False, repr=False)
-    _stderr_thread: threading.Thread | None = field(default=None, init=False, repr=False)
+    _output_thread: threading.Thread | None = field(default=None, init=False, repr=False)
     _codec_string: str | None = field(default=None, init=False, repr=False)
-    _pending: bytes = field(default=b"", init=False, repr=False)
+    packet_complete: bool = field(default=True, init=False)
     _scid: int | None = field(default=None, init=False, repr=False)
     _socket_name: str = field(default="", init=False, repr=False)
-    _stderr_lines: list[str] = field(default_factory=list, init=False, repr=False)
+    _output_lines: list[str] = field(default_factory=list, init=False, repr=False)
 
     @property
     def codec_string(self) -> str | None:
@@ -174,7 +177,7 @@ class LocalStreamSource:
         socket_name = _scrcpy_socket_name(scid)
         self._scid = scid
         self._socket_name = socket_name
-        self._stderr_lines.clear()
+        self._output_lines.clear()
 
         try:
             await self._start_transport(
@@ -214,27 +217,33 @@ class LocalStreamSource:
             "tunnel_forward=true",
             "audio=false",
             "control=true",
+            "clipboard_autosync=false",
             "cleanup=false",
-            "raw_stream=true",
+            "send_device_meta=false",
+            "send_codec_meta=false",
+            "send_frame_meta=true",
+            "send_dummy_byte=true",
             f"max_size={self.max_size}",
             f"video_bit_rate={self.bit_rate}",
         ]
         logger.info("scrcpy-server local start serial=%s", self.serial)
         self._proc = subprocess.Popen(
             argv,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
+            # scrcpy writes startup and controller failures to stdout too.
+            # Drain both channels into one bounded diagnostic tail.
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
             start_new_session=True,
         )
 
-        self._stderr_thread = threading.Thread(
-            target=_drain_stderr,
-            args=(self._proc, self.serial, self._stderr_lines),
-            name=f"scrcpy-server-stderr-{self.serial}",
+        self._output_thread = threading.Thread(
+            target=_drain_output,
+            args=(self._proc, self.serial, self._output_lines),
+            name=f"scrcpy-server-output-{self.serial}",
             daemon=True,
         )
-        self._stderr_thread.start()
+        self._output_thread.start()
 
         try:
             # The server process exists before the forward. Connection retry
@@ -264,9 +273,10 @@ class LocalStreamSource:
                 try:
                     first = await asyncio.wait_for(reader.read(1), timeout=1.0)
                 except asyncio.TimeoutError:
-                    # No bytes yet but socket still open — keep it (encoder may lag).
-                    await self._attach_video_connection(reader, writer)
-                    return
+                    writer.close()
+                    await writer.wait_closed()
+                    last_err = MirrorUnavailableError("scrcpy handshake timeout")
+                    continue
                 if not first:
                     writer.close()
                     try:
@@ -275,7 +285,11 @@ class LocalStreamSource:
                         pass
                     last_err = MirrorUnavailableError("empty forward socket")
                     continue
-                await self._attach_video_connection(reader, writer, pending=first)
+                if first != b"\x00":
+                    writer.close()
+                    await writer.wait_closed()
+                    raise MirrorUnavailableError("invalid scrcpy handshake")
+                await self._attach_video_connection(reader, writer)
                 return
             except OSError as exc:
                 last_err = exc
@@ -288,10 +302,7 @@ class LocalStreamSource:
         self,
         reader: asyncio.StreamReader,
         writer: asyncio.StreamWriter,
-        *,
-        pending: bytes = b"",
     ) -> None:
-        self._pending = pending
         self._reader = reader
         self._writer = writer
         self._codec_string = "avc1.42E01E"
@@ -376,8 +387,8 @@ class LocalStreamSource:
             self._cleanup_forward(timeout=0.75),
             return_exceptions=True,
         )
-        thread, self._stderr_thread = self._stderr_thread, None
-        self._close_stderr(proc)
+        thread, self._output_thread = self._output_thread, None
+        self._close_output(proc)
         if thread is not None and thread.is_alive():
             await asyncio.to_thread(thread.join, 0.2)
         self._scid = None
@@ -416,22 +427,16 @@ class LocalStreamSource:
                             await asyncio.to_thread(proc.wait)
             except Exception as exc:  # noqa: BLE001
                 logger.debug("scrcpy-server stop error serial=%s: %s", self.serial, exc)
-        thread = self._stderr_thread
-        self._stderr_thread = None
-        stream = proc.stderr if proc is not None else None
-        if stream is not None:
-            try:
-                stream.close()
-            except Exception:  # noqa: BLE001
-                pass
+        thread, self._output_thread = self._output_thread, None
+        self._close_output(proc)
         if thread is not None and thread.is_alive():
             await asyncio.to_thread(thread.join, 0.2)
         await self._cleanup_forward()
         self._scid = None
         self._socket_name = ""
 
-    def _close_stderr(self, proc: subprocess.Popen[bytes] | None) -> None:
-        stream = proc.stderr if proc is not None else None
+    def _close_output(self, proc: subprocess.Popen[bytes] | None) -> None:
+        stream = proc.stdout if proc is not None else None
         if stream is not None:
             try:
                 stream.close()
@@ -439,7 +444,7 @@ class LocalStreamSource:
                 pass
 
     def _early_exit_reason(self) -> str:
-        detail = "; ".join(self._stderr_lines[-3:])
+        detail = "; ".join(self._output_lines[-3:])
         suffix = f": {detail}" if detail else ""
         return f"scrcpy-server exited early for serial={self.serial}{suffix}"
 
@@ -490,28 +495,20 @@ class LocalStreamSource:
         return self._proc.poll() is None
 
     async def frames(self, chunk_size: int = _CHUNK_SIZE) -> AsyncIterator[bytes]:
+        del chunk_size
         reader = self._reader
         if reader is None:
             return
         try:
-            if self._pending:
-                first, self._pending = self._pending, b""
-                # Fill the rest of the first chunk from the socket when possible.
-                try:
-                    more = await asyncio.wait_for(
-                        reader.read(max(0, chunk_size - len(first))), timeout=0.05
-                    )
-                    if more:
-                        first = first + more
-                except (asyncio.TimeoutError, Exception):  # noqa: BLE001
-                    pass
-                yield first
             while True:
-                chunk = await reader.read(chunk_size)
-                if not chunk:
-                    return
-                yield chunk
-        except (asyncio.CancelledError, ConnectionError, OSError):
+                # scrcpy's 12-byte header preserves MediaCodec packet bounds.
+                # Raw TCP chunk boundaries cannot delimit a static final NAL.
+                header = await reader.readexactly(12)
+                _pts_and_flags, size = struct.unpack(">QI", header)
+                if not 0 < size <= 16 * 1024 * 1024:
+                    raise MirrorUnavailableError("invalid scrcpy packet size")
+                yield await reader.readexactly(size)
+        except (asyncio.CancelledError, asyncio.IncompleteReadError, ConnectionError, OSError):
             return
 
 
@@ -839,7 +836,9 @@ class MirrorSession:
         try:
             async for chunk in self.source.frames():
                 self.touch()
-                units = self._parser.feed(chunk)
+                units = self._parser.feed(
+                    chunk, packet_complete=bool(getattr(self.source, "packet_complete", False)),
+                )
                 for unit, is_idr in units:
                     bootstrap_payload = self._parser.bootstrap(unit) if is_idr else None
                     async with self._lock:
@@ -992,12 +991,12 @@ class MirrorRegistry:
             ) from first
 
 
-def _drain_stderr(
+def _drain_output(
     proc: subprocess.Popen[bytes],
     serial: str,
     sink: list[str] | None = None,
 ) -> None:
-    stream = proc.stderr
+    stream = proc.stdout
     if stream is None:
         return
     try:
@@ -1011,7 +1010,7 @@ def _drain_stderr(
                 del sink[:-20]
             logger.debug("scrcpy-server[%s] %s", serial, decoded)
     except Exception as exc:  # noqa: BLE001
-        logger.debug("scrcpy-server[%s] stderr drain ended: %s", serial, exc)
+        logger.debug("scrcpy-server[%s] output drain ended: %s", serial, exc)
 
 
 REGISTRY: MirrorRegistry = MirrorRegistry(RECONNECT_GRACE_SECONDS)

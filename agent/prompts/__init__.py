@@ -1,4 +1,4 @@
-"""Load and render the Planner / Reviewer / Executor prompt templates.
+"""Load and render the Planner / Reviewer / Executor prompts.
 
 Templates live in `agent/prompts/*.md` as plain markdown with optional
 jinja2-style `{# ... #}` comments and `{{ var }}` placeholders. We render
@@ -59,19 +59,24 @@ def _render(template: str, vars_: dict[str, Any]) -> str:
 
 def render_planner_system() -> str:
     """Render the task-independent rolling Planner policy."""
-    return _render(_read("planner_system.md"), {})
-
-
-def render_reviewer_scope_system() -> str:
-    """Render the UI-independent Reviewer scope policy."""
-    return _render(_read("reviewer_scope_system.md"), {})
+    return _render(_read("revisable_planner.md") + "\n\n" + _read("revisable_common.md"), {})
 
 
 def render_reviewer_system() -> str:
     """Render the evidence-bound Reviewer boundary policy."""
-    return _render(_read("reviewer_system.md"), {})
+    return _render(_read("revisable_reviewer.md") + "\n\n" + _read("revisable_common.md"), {})
 
 
 def render_executor_system() -> str:
     """Render the Executor system prompt (bucket S): static rules only."""
-    return _render(_read("executor_system.md"), {})
+    return _render(_read("revisable_executor.md") + "\n\n" + _read("revisable_common.md"), {})
+
+
+def render_skill_index(skill_index: str) -> str:
+    """Render the stable, discoverable Skill-id index."""
+    body = (skill_index or "").strip() or "(no skills in scope)"
+    return (
+        "GENERIC SKILL INDEX (optional; load only an exact listed id).\n"
+        "A Skill may be irrelevant. Current evidence wins. Empty is valid.\n\n"
+        f"{body}\n"
+    )

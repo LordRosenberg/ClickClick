@@ -12,63 +12,8 @@ from driver.android import AndroidDriver
 from driver.pool import FIXTURE_SERIAL, DriverPool
 from shared.config import Settings
 from shared.db import Database
-from shared.schemas import (
-    Action,
-    AgentState,
-    ExecutorStepSubmit,
-    SubgoalContractBody,
-    PlannerDecision,
-    PlannerMode,
-    ReviewerDecision,
-    ReviewerVerdict,
-    TaskStatus,
-)
-from tests.fake_agents import FakeExecutor, FakePlanner, FakeReviewer, fake_task_scope
-
-
-class BoundPlanner(FakePlanner):
-    async def decide(self, state, package, **kwargs):
-        decision, refs, observation_refs = await super().decide(state, package, **kwargs)
-        refs["active_package"] = package
-        observation_refs["observation_id"] = package.observation_id
-        return decision, refs, observation_refs
-
-
-class BoundReviewer(FakeReviewer):
-    async def decide(self, state, package, **kwargs):
-        decision, refs, observation_refs = await super().decide(state, package, **kwargs)
-        refs["active_package"] = package
-        observation_refs["observation_id"] = package.observation_id
-        return decision, refs, observation_refs
-
-
-def execute() -> PlannerDecision:
-    return PlannerDecision(
-        mode=PlannerMode.EXECUTE,
-        next_subgoal="finish",
-        completion_contract=SubgoalContractBody(
-            success_conditions=["finished"],
-        ),
-        plan=["finish"],
-        target_requirement_ref="final_ui_state:1",
-    )
-
-
-def done() -> ReviewerDecision:
-    return ReviewerDecision(
-        verdict=ReviewerVerdict.DONE,
-        reason="finished",
-        evidence_handles=["current"],
-        packet_digest="packet-done"
-    )
-
-
-def inert_factories():
-    return {
-        "planner_factory": lambda: FakePlanner([]),
-        "reviewer_factory": lambda: FakeReviewer([], task_scope=fake_task_scope()),
-        "executor_factory": lambda: FakeExecutor([]),
-    }
+from shared.schemas import Action, AgentState, ExecutorStepSubmit, TaskStatus
+from tests.fake_agents import FakeExecutor
 
 
 def _settings(**overrides) -> Settings:
@@ -88,6 +33,42 @@ async def test_driver_pool_fixture_inventory_and_get():
     a = pool.get(FIXTURE_SERIAL)
     b = pool.get(FIXTURE_SERIAL)
     assert a is b
+
+
+@pytest.mark.asyncio
+async def test_environment_reconciliation_initializes_once_per_online_period():
+    pool = DriverPool(_settings())
+    driver = pool.get(FIXTURE_SERIAL)
+
+    first = await pool.reconcile_environments()
+    second = await pool.reconcile_environments()
+
+    assert first[FIXTURE_SERIAL]["collector_ready"] is True
+    assert second[FIXTURE_SERIAL]["collector_ready"] is True
+    assert driver.environment_initializations == 1
+
+    original_inventory = pool.inventory
+
+    async def offline():
+        return []
+
+    pool.inventory = offline  # type: ignore[method-assign]
+    await pool.reconcile_environments()
+    pool.inventory = original_inventory  # type: ignore[method-assign]
+    await pool.reconcile_environments()
+
+    assert driver.environment_initializations == 2
+
+
+@pytest.mark.asyncio
+async def test_forced_environment_check_bypasses_success_cache():
+    pool = DriverPool(_settings())
+    driver = pool.get(FIXTURE_SERIAL)
+
+    await pool.ensure_environment(FIXTURE_SERIAL)
+    await pool.ensure_environment(FIXTURE_SERIAL, force=True)
+
+    assert driver.environment_initializations == 2
 
 
 def test_driver_hubs_merge_urls_json_and_legacy():
@@ -194,87 +175,6 @@ def test_db_cancelled_releases_busy_serial(tmp_path: Path):
 
 
 @pytest.mark.asyncio
-async def test_fan_out_and_busy_rejection(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("CLICKCLICK_USE_FIXTURE_DRIVER", "true")
-    monkeypatch.setenv("CLICKCLICK_DRIVER_URL", "")
-
-    from control_api.main import create_app
-
-    planner = BoundPlanner([execute()])
-    reviewer = BoundReviewer([done()], task_scope=fake_task_scope())
-    executor = FakeExecutor([
-        ExecutorStepSubmit(
-            decision="request_review", summary="finished",
-        ).to_step(),
-    ])
-    app = create_app(
-        planner_factory=lambda: planner,
-        reviewer_factory=lambda: reviewer,
-        executor_factory=lambda: executor,
-    )
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        devices = (await client.get("/api/devices")).json()
-        assert len(devices) == 1
-        assert devices[0]["serial"] == FIXTURE_SERIAL
-
-        created = await client.post(
-            "/api/tasks",
-            json={"instruction": "hello", "device_serials": [FIXTURE_SERIAL]},
-        )
-        assert created.status_code == 200
-        tasks = created.json()["tasks"]
-        assert len(tasks) == 1
-        assert tasks[0]["device_serial"] == FIXTURE_SERIAL
-
-        # Same serial while still non-terminal → 409
-        again = await client.post(
-            "/api/tasks",
-            json={"instruction": "again", "device_serials": [FIXTURE_SERIAL]},
-        )
-        # May be 409 if still running/queued, or 200 if already terminal.
-        if again.status_code == 409:
-            assert "busy" in again.text.lower()
-        else:
-            assert again.status_code == 200
-
-        # Unknown serial → 400
-        bad = await client.post(
-            "/api/tasks",
-            json={"instruction": "x", "device_serials": ["no-such-device"]},
-        )
-        assert bad.status_code == 400
-
-
-@pytest.mark.asyncio
-async def test_all_or_nothing_unknown_in_list(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("CLICKCLICK_USE_FIXTURE_DRIVER", "true")
-    monkeypatch.setenv("CLICKCLICK_DRIVER_URL", "")
-    monkeypatch.setenv("CLICKCLICK_ENABLE_SKILL_MINER", "false")
-
-    from control_api.main import create_app
-
-    app = create_app(**inert_factories())
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        bad = await client.post(
-            "/api/tasks",
-            json={
-                "instruction": "x",
-                "device_serials": [FIXTURE_SERIAL, "ghost"],
-            },
-        )
-        assert bad.status_code == 400
-        # No tasks created.
-        listed = (await client.get("/api/tasks")).json()
-        assert listed == []
-
-
-@pytest.mark.asyncio
 async def test_remote_hub_list_devices_and_serial_routing():
     """Driver RPC hub with force_local fixture exposes list_devices + serial RPC."""
     from driver.pool import DriverPool
@@ -312,34 +212,3 @@ async def test_remote_hub_list_devices_and_serial_routing():
 
         identity = await bound.current_foreground_identity(timeout_s=0.5)
         assert identity["package"] == "com.example.demo"
-
-
-@pytest.mark.asyncio
-async def test_control_api_remote_inventory(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    """Control API preserves remote hub identity without a socket server."""
-    from agent.driver_client import DriverClient
-
-    async def fake_list_devices(self):
-        return [{"serial": FIXTURE_SERIAL, "state": "device", "model": "fixture"}]
-
-    monkeypatch.setattr(DriverClient, "list_devices", fake_list_devices)
-
-    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("CLICKCLICK_DRIVER_URL", "http://driver.invalid:8765")
-    monkeypatch.setenv("CLICKCLICK_USE_FIXTURE_DRIVER", "false")
-    monkeypatch.setenv("CLICKCLICK_ENABLE_SKILL_MINER", "false")
-
-    from control_api.main import create_app
-
-    app = create_app(**inert_factories())
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        devices = (await client.get("/api/devices")).json()
-        assert len(devices) == 1
-        assert devices[0]["serial"] == FIXTURE_SERIAL
-        assert devices[0]["driver_id"] == "default"
-        assert devices[0]["key"] == f"default/{FIXTURE_SERIAL}"
-        health = (await client.get("/api/health")).json()
-        assert health["driver"]["hub_count"] == 1

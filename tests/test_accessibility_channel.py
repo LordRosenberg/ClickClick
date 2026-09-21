@@ -17,6 +17,7 @@ from driver.accessibility import (
     AccessibilityCollectorClient,
     AccessibilitySnapshotChannel,
     AccessibilityTransportError,
+    CollectorPowerLeaseSession,
     SNAPSHOT_MAX_FRAME_BYTES,
 )
 from driver.adb import AdbError
@@ -78,6 +79,91 @@ async def test_exchange_uses_bounded_length_prefix_and_request_id():
         "operation": "health",
         "token": "secret",
     }
+
+
+@pytest.mark.asyncio
+async def test_exchange_includes_lease_fields_without_overriding_envelope():
+    channel = AccessibilitySnapshotChannel("S", "authority")
+    reader = asyncio.StreamReader()
+    writer = _Writer()
+    channel._reader = reader
+    channel._writer = writer  # type: ignore[assignment]
+    channel._bootstrap = AccessibilityChannelBootstrap("socket", "secret", 1, 4)
+    response = {
+        "version": 1, "request_id": 1, "status": "ok",
+        "lease_state": "active", "active": True, "held": True,
+    }
+    encoded = json.dumps(response).encode()
+    reader.feed_data(struct.pack(">I", len(encoded)) + encoded)
+
+    await channel._exchange(
+        "power_lease_acquire",
+        fields={"lease_id": "task-1", "ttl_ms": 90_000, "token": "bad"},
+    )
+    request_size = struct.unpack(">I", writer.data[:4])[0]
+    request = json.loads(writer.data[4:4 + request_size])
+    assert request["lease_id"] == "task-1"
+    assert request["ttl_ms"] == 90_000
+    assert request["token"] == "secret"
+
+
+@pytest.mark.asyncio
+async def test_power_lease_session_acquires_and_releases_same_lease():
+    class Client:
+        def __init__(self):
+            self.calls = []
+
+        async def power_lease(self, operation, **fields):
+            self.calls.append((operation, fields))
+            if operation == "power_lease_release":
+                return {"status": "ok", "lease_state": "released", "released": True}
+            return {
+                "status": "ok", "lease_state": "active", "active": True, "held": True,
+            }
+
+    client = Client()
+    session = CollectorPowerLeaseSession(client, renew_interval_s=3600)  # type: ignore[arg-type]
+    assert (await session.begin("task"))["status"] == "active"
+    assert session.active is True
+    assert (await session.end())["status"] == "released"
+    assert session.active is False
+    assert client.calls[0][0] == "power_lease_acquire"
+    assert client.calls[-1][0] == "power_lease_release"
+    assert client.calls[0][1]["lease_id"] == client.calls[-1][1]["lease_id"]
+
+
+@pytest.mark.asyncio
+async def test_power_lease_session_release_failure_defers_to_ttl():
+    class Client:
+        async def power_lease(self, operation, **_fields):
+            if operation == "power_lease_release":
+                raise AdbError("adb disconnected")
+            return {"lease_state": "active", "active": True, "held": True}
+
+    session = CollectorPowerLeaseSession(Client(), renew_interval_s=3600)  # type: ignore[arg-type]
+    await session.begin("task")
+    result = await session.end()
+    assert result["status"] == "release_deferred_to_ttl"
+    assert result["ttl_ms"] == 90_000
+    assert session.active is False
+
+
+@pytest.mark.asyncio
+async def test_power_lease_session_does_not_hide_device_acquire_failure():
+    class Client:
+        async def power_lease(self, _operation, **_fields):
+            return {
+                "status": "ok",
+                "lease_state": "error",
+                "active": False,
+                "held": False,
+                "error_detail": "permission_denied",
+            }
+
+    session = CollectorPowerLeaseSession(Client())  # type: ignore[arg-type]
+    result = await session.begin("task")
+    assert result["status"] == "failed"
+    assert result["reason"] == "permission_denied"
 
 
 @pytest.mark.asyncio

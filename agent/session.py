@@ -1,8 +1,7 @@
 """Shared Chat Completions session owner for Planner / Reviewer / Executor.
 
 Owns ``messages[]`` assembly (system, exact skill bodies, task/history,
-observation), skill allowlists, and a bounded tool
-loop (``load_skill`` / ``search_skills`` then ``submit_*``). Gateway
+observation), skill allowlists, and a bounded tool loop. Gateway
 ``complete()`` stays sessionless; this module repeatedly calls it.
 """
 
@@ -19,69 +18,37 @@ from typing import Any, Literal
 
 from pydantic import ValidationError
 
-from agent.completion_contract import (
-    declaration_error as completion_declaration_error,
+from agent.context_projection import estimate_context
+from agent.image_region_policy import (
+    MAX_PAIRS_PER_CALL, MAX_COMPARISON_REGIONS, MAX_COMPARISON_REFERENCES,
+    MAX_COMPARISON_TOP_K, region_limit,
 )
-from agent.observation_space import (
-    COORDINATE_ROUNDING_EPSILON,
-    ObservationRegistry,
-    action_uses_coordinates,
-    action_uses_index,
-    transform_action,
-    validate_action_bounds,
-)
+from agent.observation_space import COORDINATE_ROUNDING_EPSILON, ObservationRegistry, action_uses_coordinates, action_uses_index, transform_action, validate_action_bounds
 from agent.prompt_measurement import measure_json_component, measure_text_component
-from agent.skills.library import SkillLibrary, SkillPack, default_skills_root
-from agent.tool_registry import (
-    AgentRole,
-    AgentToolRegistry,
-    AgentToolResult,
-    AgentToolSpec,
-    LLMRoundRecord,
-    NormalizedUsage,
-    ToolAttachment,
-    ToolCallRecord,
-    ToolCategory,
-    ToolExecutionContext,
-    ToolHandler,
-    ToolStatus,
-    count_message_images,
-    monotonic_ms,
-    redact_exact_values,
-    redact_value,
-    stable_hash,
-    stable_json,
+from agent.prompts import render_skill_index
+from agent.skills.library import (
+    SkillLibrary,
+    SkillPack,
+    VerifiedAction,
+    default_skills_root,
 )
+from agent.tool_registry import AgentRole, AgentToolRegistry, AgentToolResult, AgentToolSpec, LLMRoundRecord, NormalizedUsage, ToolAttachment, ToolCallRecord, ToolCategory, ToolExecutionContext, ToolHandler, ToolStatus, count_message_images, monotonic_ms, redact_exact_values, redact_value, stable_hash, stable_json
 from perception.observation import decoded_image_size
 from shared.artifacts import ArtifactStore
 from shared.config import Settings, get_settings
-from shared.llm_gateway import (
-    GatewayError,
-    GatewayInputSafetyError,
-    GatewayResponse,
-    ToolCall,
-    complete,
-)
+from shared.llm_gateway import GatewayError, GatewayInputSafetyError, GatewayResponse, complete
 from shared.schemas import (
+    SUPPORTED_ANDROID_KEY_ACTIONS,
     Action,
     ExecutorDecisionKind,
     ExecutorStep,
     ExecutorStepSubmit,
-    PlannerDecision,
-    PlannerDecisionSubmit,
-    PlannerMode,
-    ReviewerDecision,
-    ReviewerDecisionSubmit,
-    ReviewerScopeSubmit,
-    ReviewerVerdict,
-    TaskContractBody,
 )
 
 logger = logging.getLogger(__name__)
 
 Role = Literal["planner", "reviewer", "executor"]
-ReviewerProtocol = Literal["scope", "boundary"]
-TerminalValue = PlannerDecision | ReviewerDecision | ExecutorStep | TaskContractBody
+TerminalValue = Any
 
 _OPAQUE_EVIDENCE_FIELDS = (
     "action_observation_id",
@@ -253,19 +220,18 @@ LOAD_SKILL_TOOL: dict[str, Any] = {
     "function": {
         "name": "load_skill",
         "description": (
-            "Load the full body of an in-scope skill by id only when that body is "
-            "absent from the current input. If a [foreground_app_* ...] or "
-            "[loaded skill:...] body is already present, use it directly and do "
-            "not call this tool for that skill again. Apply constraints only in "
-            "their declared scope/evidence conditions; hints are advisory, fallbacks "
-            "need their trigger, and anti-patterns are warnings."
+            "Load one optional generic Skill by an exact id from the index. "
+            "Do not reload a supplied body. Current evidence overrides guidance."
         ),
         "parameters": {
             "type": "object",
+            "additionalProperties": False,
             "properties": {
                 "skill_id": {
                     "type": "string",
-                    "description": "Exact Skill id returned by an in-scope discovery tool",
+                    "description": (
+                        "Exact id from the supplied generic Skill index"
+                    ),
                 },
             },
             "required": ["skill_id"],
@@ -273,159 +239,77 @@ LOAD_SKILL_TOOL: dict[str, Any] = {
     },
 }
 
-SEARCH_SKILLS_TOOL: dict[str, Any] = {
-    "type": "function",
-    "function": {
-        "name": "search_skills",
-        "description": (
-            "Search generic non-workflow Skill knowledge on demand. The exact foreground "
-            "App core and all of its workflows are already present in context."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "Free-text query (triggers, tags, skill id, app name)",
-                },
-                "app": {
-                    "type": "string",
-                    "description": "Optional package name to restrict the search",
-                },
-            },
-            "required": [],
-        },
-    },
-}
-
-def _submit_model_tool(
-    *, name: str, description: str, model: type[Any],
+def _function_tool(
+    *, name: str, description: str, parameters: dict[str, Any],
 ) -> dict[str, Any]:
-    schema = _strip_schema_annotations(model.model_json_schema())
-    schema["additionalProperties"] = False
-    return {
-        "type": "function",
-        "function": {"name": name, "description": description, "parameters": schema},
-    }
-
-
-def _submit_planner_tool() -> dict[str, Any]:
-    tool = _submit_model_tool(
-        name="submit_planner_decision",
-        description=(
-            "Submit one rolling boundary: execute for a needed App effect, or "
-            "review for model-owned observation/adjudication. Bind the "
-            "decision to one exact unaccepted task requirement."
-        ),
-        model=PlannerDecisionSubmit,
-    )
-    tool["function"]["parameters"]["allOf"] = [
-        {
-            "if": {
-                "properties": {"mode": {"const": "execute"}},
-                "required": ["mode"],
-            },
-            "then": {
-                "required": [
-                    "next_subgoal", "completion_contract", "plan",
-                    "target_requirement_ref",
-                ],
-                "properties": {
-                    "next_subgoal": {"minLength": 1},
-                    "target_requirement_ref": {"minLength": 1},
-                },
-                "not": {"required": ["review_requirement_ref"]},
-            },
-            "else": {
-                "required": ["review_requirement_ref"],
-                "properties": {"review_requirement_ref": {"minLength": 1}},
-                "not": {"anyOf": [
-                    {"required": ["next_subgoal"]},
-                    {"required": ["completion_contract"]},
-                    {"required": ["plan"]},
-                    {"required": ["target_requirement_ref"]},
-                ]},
-            },
-        },
-    ]
-    return tool
-
-
-def _submit_reviewer_scope_tool() -> dict[str, Any]:
-    return _submit_model_tool(
-        name="submit_reviewer_scope",
-        description=(
-            "Submit task-local occurrences, final UI state, answers to user "
-            "questions, and user prohibitions as separate UI-independent "
-            "requirement groups."
-        ),
-        model=ReviewerScopeSubmit,
-    )
-
-
-def _submit_reviewer_decision_tool() -> dict[str, Any]:
-    tool = _submit_model_tool(
-        name="submit_reviewer_decision",
-        description=(
-            "Submit one evidence-bound semantic verdict. Cite only delivered handles. "
-            "For done, include answers covering every contract answer ref; omit answers "
-            "when the contract has none. The runtime binds the packet digest. This tool "
-            "cannot plan a subgoal or device action."
-        ),
-        model=ReviewerDecisionSubmit,
-    )
-    return tool
-
-
-def _submit_executor_tool() -> dict[str, Any]:
-    schema = ExecutorStepSubmit.model_json_schema()
-    schema["additionalProperties"] = False
-    schema["properties"]["decision"] = {
-        "type": "string",
-        "enum": [decision.value for decision in ExecutorDecisionKind],
-    }
-    schema["properties"]["action"] = {"oneOf": _executor_action_schema_branches()}
-    schema["$defs"] = {}
-    schema = _strip_schema_annotations(schema)
-    schema["allOf"] = [{
-        "if": {
-            "properties": {"decision": {"const": "act"}},
-            "required": ["decision"],
-        },
-        "then": {"required": ["action"]},
-        "else": {"not": {"required": ["action"]}},
-    }]
+    """Build one static model-visible tool from the portable schema subset."""
     return {
         "type": "function",
         "function": {
-            "name": "submit_executor_step",
-            "description": (
-                "Submit act with one device action, or request_review/request_replan "
-                "without an action. Runtime derives evidence, receipts, and routing."
-            ),
-            "parameters": schema,
+            "name": name,
+            "description": description,
+            "parameters": parameters,
         },
     }
+
+
+def _submit_executor_tool() -> dict[str, Any]:
+    return _function_tool(
+        name="submit_executor_step",
+        description=(
+            "Submit act with one device action, or request_review/request_replan "
+            "without an action. Act requires action; boundary requests must omit it. "
+            "Keep act summary to a very short operation intent; state established facts "
+            "only for request_review. Runtime derives evidence, receipts, and routing."
+        ),
+        parameters={
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "decision": {
+                    "type": "string",
+                    "enum": [decision.value for decision in ExecutorDecisionKind],
+                },
+                "summary": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": (
+                        "For act, one very short action intent with no reasoning or "
+                        "completion claim. For request_review, concise facts established "
+                        "by delivered evidence. For request_replan, the concise blocker."
+                    ),
+                },
+                "action": _executor_action_schema(),
+            },
+            "required": ["decision", "summary"],
+        },
+    )
 
 
 _EXECUTOR_SUBMIT_REQUIRED_FIELDS = tuple(
     ExecutorStepSubmit.model_json_schema().get("required") or ()
 )
-def _strip_schema_annotations(value: Any) -> Any:
-    """Keep provider tool schemas compact without changing validation shape."""
-    if isinstance(value, dict):
-        return {
-            key: _strip_schema_annotations(item)
-            for key, item in value.items()
-            if key not in {"title", "default"}
-        }
-    if isinstance(value, list):
-        return [_strip_schema_annotations(item) for item in value]
-    return value
+
+
+def _delivered_text(content: Any) -> str:
+    """Read exact delivered text, including JSON tool results, for skill checks."""
+    if isinstance(content, str):
+        try:
+            decoded = json.loads(content)
+        except (ValueError, TypeError):
+            return content
+        return _delivered_text(decoded) if isinstance(decoded, (dict, list)) else content
+    if isinstance(content, dict):
+        return "\n".join(_delivered_text(value) for key, value in content.items() if key != "image_url")
+    if isinstance(content, list):
+        return "\n".join(_delivered_text(value) for value in content)
+    return ""
+
 
 _ACTION_REQUIRED_PARAMS: dict[str, tuple[str, ...]] = {
     "tap": ("index",),
     "tap_xy": ("x", "y"),
+    "skill_authorized_action": ("skill_action_id",),
     "type": ("text",),
     "replace_text": ("text",),
     "swipe": ("x", "y", "x2", "y2"),
@@ -441,21 +325,28 @@ _ACTION_REQUIRED_PARAMS: dict[str, tuple[str, ...]] = {
 
 _ACTION_FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
     "index": {"type": "integer"},
+    "surface_index": {"type": "integer", "minimum": 0,
+                      "description": "For a drag confined to an indexed surface, supply its current index. Both endpoints must stay inside that surface."},
     "x": {"type": "number"},
     "y": {"type": "number"},
     "x2": {"type": "number"},
     "y2": {"type": "number"},
     "text": {"type": "string", "minLength": 1},
-    "key": {"type": "string", "minLength": 1},
+    "key": {
+        "type": "string",
+        "enum": list(SUPPORTED_ANDROID_KEY_ACTIONS),
+        "description": "One supported Android key event. Key chords are unsupported.",
+    },
     "app": {
         "type": "string",
         "minLength": 1,
         "description": (
-            "Human-facing App name or exact package. Prefer launch before "
-            "navigating launcher UI. A miss dispatches nothing; use its ticket "
-            "with search_installed_apps in this invocation; when candidates "
-            "are returned, resubmit launch with an exact package rather than "
-            "replanning."
+            "Launch the target App directly by its human-facing name or exact "
+            "package; do not navigate launcher UI to find it. A miss dispatches "
+            "nothing; use its ticket with search_installed_apps in this "
+            "invocation. Search results are bounded hints, not authorization; "
+            "launch the intended exact package, or request_replan when no "
+            "plausible installed target is known."
         ),
     },
     "direction": {
@@ -467,56 +358,103 @@ _ACTION_FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
         ),
     },
     "duration_ms": {"type": "integer", "minimum": 0},
+    "skill_action_id": {
+        "type": "string",
+        "minLength": 1,
+        "description": (
+            "Exact ID from the current stage-authorized actions. Unauthorized "
+            "invocation is prohibited; execution also requires the owning App "
+            "to be the verified foreground App."
+        ),
+    },
 }
 
 _ACTION_OPTIONAL_PARAMS: dict[str, tuple[str, ...]] = {
+    "skill_authorized_action": ("index", "x", "y"),
+    "replace_text": ("index",),
     "swipe": ("duration_ms",),
     "long_press": ("index", "x", "y", "duration_ms"),
     "scroll": ("duration_ms",),
-    "drag": ("duration_ms",),
+    "drag": ("duration_ms", "surface_index"),
     "key": ("duration_ms",),
     "sleep": ("duration_ms",),
 }
 
 
-def _executor_action_schema_branches() -> list[dict[str, Any]]:
-    branches: list[dict[str, Any]] = []
-    for action_type, required_params in _ACTION_REQUIRED_PARAMS.items():
-        params = (*required_params, *_ACTION_OPTIONAL_PARAMS.get(action_type, ()))
-        properties = {
-            "type": {"type": "string", "enum": [action_type]},
-            **{name: dict(_ACTION_FIELD_SCHEMAS[name]) for name in params},
-        }
-        branch: dict[str, Any] = {
+def _executor_action_schema() -> dict[str, Any]:
+    requirements = "; ".join(
+        f"{action_type}="
+        + (
+            ",".join(required) if required else "no additional required fields"
+        )
+        for action_type, required in _ACTION_REQUIRED_PARAMS.items()
+    )
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "description": (
+            "Use index for indexed taps, skill_authorized_action, long presses and targeted text replacement. Coordinate clicks "
+            "are only for targets without a current usable index. "
+            "One action request. Required fields by type: " + requirements + ". "
+            "long_press and skill_authorized_action require index or x,y. "
+            "skill_authorized_action also requires an exact current stage-authorized "
+            "skill_action_id; unauthorized invocation is prohibited and execution "
+            "requires its owning App to be foreground. type inserts once at the cursor; "
+            "replace_text clears and enters final text, optionally focusing its indexed field first; key sends "
+            "one Android key event and chords such as CTRL+A are unsupported; sleep "
+            "waits for a required elapsed duration, consumes a device-action unit and acquires no evidence. "
+            "Use observe_screen to determine whether loading or a UI transition has completed."
+        ),
+        "properties": {
+            "type": {
+                "type": "string",
+                "enum": list(_ACTION_REQUIRED_PARAMS),
+            },
+            **{name: dict(schema) for name, schema in _ACTION_FIELD_SCHEMAS.items()},
+        },
+        "required": ["type"],
+    }
+
+
+def executor_action_variants_schema() -> dict[str, Any]:
+    """Publish the same per-action field sets used by dispatch validation."""
+    variants = []
+    for kind, required in _ACTION_REQUIRED_PARAMS.items():
+        optional = _ACTION_OPTIONAL_PARAMS.get(kind, ())
+        variant = {
             "type": "object",
             "additionalProperties": False,
-            "properties": properties,
-            "required": ["type", *required_params],
+            "properties": {
+                "type": {"type": "string", "enum": [kind]},
+                **{name: dict(_ACTION_FIELD_SCHEMAS[name]) for name in (*required, *optional)},
+            },
+            "required": ["type", *required],
         }
-        if action_type == "long_press":
-            branch["anyOf"] = [
-                {"required": ["index"]},
-                {"required": ["x", "y"]},
+        if kind == "tap_xy":
+            variant["description"] = "Only for a target without a current usable index. Otherwise use tap(index)."
+        if kind == "skill_authorized_action":
+            variant["description"] = (
+                "Invoke one verified compound action supplied by current stage guidance. "
+                "Use an exact stage-authorized skill_action_id; unauthorized invocation "
+                "is prohibited and execution requires its owning App to be the verified "
+                "foreground App. Target a current index when available, otherwise current-image "
+                "x,y coordinates. Internal recipe parameters cannot be supplied."
+            )
+            variant["oneOf"] = [
+                {"required": ["index"], "not": {"anyOf": [{"required": ["x"]}, {"required": ["y"]}]}},
+                {"required": ["x", "y"], "not": {"required": ["index"]}},
             ]
-        elif action_type == "type":
-            branch["description"] = (
-                "Insert text once at the cursor; does not focus, clear, select, or replace."
-            )
-        elif action_type == "replace_text":
-            branch["description"] = (
-                "Clear the focused editable field, then enter exact final text once."
-            )
-        elif action_type == "key":
-            branch["description"] = (
-                "Send one Android key event; chords such as CTRL+A are unsupported."
-            )
-        elif action_type == "sleep":
-            branch["description"] = (
-                "Delay only for App loading or animation settling. It acquires no evidence; "
-                "use observe_screen for current or temporal observation."
-            )
-        branches.append(branch)
-    return branches
+        if kind == "long_press":
+            variant["description"] = "Use index for an indexed target; x,y only when it has no usable current index."
+            variant["anyOf"] = [{"required": ["index"]}, {"required": ["x", "y"]}]
+        if kind == "type":
+            variant["description"] = "Enter text in the focused editable; focus it with a separate tap first."
+        if kind == "replace_text":
+            variant["description"] = "Replace the full field value. Supply index to focus a normal indexed editable and enter text in one decision; without index, the field must already be focused. Unsupported targets require separate focus and input."
+        if kind == "sleep":
+            variant["description"] = "Wait for a required elapsed duration, such as recording time. Consumes a device-action unit and acquires no evidence. Use observe_screen to determine whether loading or a UI transition has completed."
+        variants.append(variant)
+    return {"anyOf": variants}
 
 
 OBSERVE_SCREEN_TOOL: dict[str, Any] = {
@@ -524,29 +462,30 @@ OBSERVE_SCREEN_TOOL: dict[str, Any] = {
     "function": {
         "name": "observe_screen",
         "description": (
-            "Acquire globally aligned current or temporal screen evidence inside this invocation. "
-            "Use current for a fresh frame/tree and temporal when change over time matters."
+            "Acquire globally aligned snapshot or sequence screen evidence inside this invocation. "
+            "Use snapshot for a fresh frame/tree and sequence when change over time matters."
         ),
         "parameters": {
             "type": "object",
-            "oneOf": [
-                {
-                    "type": "object",
-                    "additionalProperties": False,
-                    "properties": {"mode": {"type": "string", "enum": ["current"]}},
-                    "required": ["mode"],
+            "additionalProperties": False,
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "enum": ["snapshot", "sequence"],
                 },
-                {
-                    "type": "object",
-                    "additionalProperties": False,
-                    "properties": {
-                        "mode": {"type": "string", "enum": ["temporal"]},
-                        "frames": {"type": "integer", "enum": [2, 3]},
-                        "duration_ms": {"type": "integer", "minimum": 300, "maximum": 1500},
-                    },
-                    "required": ["mode"],
+                "frames": {
+                    "type": "integer",
+                    "enum": [2, 3],
+                    "description": "Sequence only; defaults to the runtime frame count.",
                 },
-            ],
+                "duration_ms": {
+                    "type": "integer",
+                    "minimum": 300,
+                    "maximum": 1500,
+                    "description": "Sequence only; total capture duration.",
+                },
+            },
+            "required": ["mode"],
         },
     },
 }
@@ -558,7 +497,8 @@ SEARCH_INSTALLED_APPS_TOOL: dict[str, Any] = {
         "description": (
             "Search installed packages only after a deterministic resolver miss. Requires the "
             "same-task/device/subgoal one-use resolution_ticket. You may translate the App "
-            "name or use a package keyword; explicitly choose a returned exact package."
+            "name or use a package keyword. Results are bounded hints; explicitly choose the "
+            "intended exact installed package."
         ),
         "parameters": {
             "type": "object",
@@ -576,6 +516,71 @@ SEARCH_INSTALLED_APPS_TOOL: dict[str, Any] = {
     },
 }
 
+INSPECT_IMAGE_REGIONS_TOOL: dict[str, Any] = {
+    "type": "function",
+    "function": {
+        "name": "inspect_image_regions",
+        "description": (
+            "Sample exact pixels or compare a visible group of color candidates. Put indexed controls in targets; "
+            "put unindexed reference/candidate areas in regions using current model-image bounds. Results identify index:N or "
+            "region:N (1-based input order); a free region never establishes a control index. "
+            "One call per response: at most 12 total samples, or 32 with compare (at most 8 references). "
+            "Supply metrics for sampling; compare alone returns compact rankings, adding metrics returns both. "
+            "Group comparison expands pairs internally; do not enumerate unrelated page regions."
+        ),
+        "parameters": {
+            "type": "object", "additionalProperties": False,
+            "properties": {
+                "observation_id": {"type": "string", "minLength": 1},
+                "targets": {
+                    "type": "array", "maxItems": MAX_COMPARISON_REGIONS,
+                    "items": {"type": "object", "additionalProperties": False,
+                        "properties": {
+                            "index": {"type": "integer", "minimum": 0},
+                            "inset_ratio": {"type": "number", "minimum": 0, "maximum": 0.45},
+                        }, "required": ["index"]},
+                },
+                "regions": {
+                    "type": "array", "maxItems": MAX_COMPARISON_REGIONS,
+                    "items": {"type": "object", "additionalProperties": False,
+                        "properties": {
+                            "bounds": {"type": "array", "minItems": 4, "maxItems": 4,
+                                       "items": {"type": "number"}},
+                            "inset_ratio": {"type": "number", "minimum": 0, "maximum": 0.45},
+                        }, "required": ["bounds"]},
+                },
+                "metrics": {"type": "array", "minItems": 1,
+                    "items": {"type": "string", "enum": ["median_rgb", "dominant_rgb", "lab"]}},
+                "pairs": {
+                    "description": "Optional pairs of generated IDs, e.g. [region:1, index:7].",
+                    "type": "array", "maxItems": MAX_PAIRS_PER_CALL,
+                    "items": {"type": "array", "minItems": 2, "maxItems": 2,
+                              "items": {"type": "string", "minLength": 1}},
+                },
+                "compare": {
+                    "type": "object", "additionalProperties": False,
+                    "description": "Compare disjoint groups of sampled IDs. Omit metrics for rankings only. "
+                        "Each top row is [candidate ID, delta E 2000]; ties_truncated flags ties cut by top_k. "
+                        "Nearest means closest among supplied candidates, not proof of an exact match.",
+                    "properties": {
+                        key: {"anyOf": [
+                            {"type": "string", "enum": ["all_regions", "all_targets"]},
+                            {"type": "array", "minItems": 1, "maxItems": maximum,
+                             "uniqueItems": True, "items": {"type": "string", "minLength": 1}},
+                        ]} for key, maximum in (
+                            ("references", MAX_COMPARISON_REFERENCES),
+                            ("candidates", MAX_COMPARISON_REGIONS),
+                        )
+                    } | {"top_k": {"type": "integer", "minimum": 1,
+                                    "maximum": MAX_COMPARISON_TOP_K, "default": 3}},
+                    "required": ["references", "candidates"],
+                },
+            }, "required": ["observation_id"],
+            "anyOf": [{"required": ["metrics"]}, {"required": ["compare"]}],
+        },
+    },
+}
+
 
 def _spec_from_tool(
     tool: dict[str, Any], category: ToolCategory, roles: tuple[AgentRole, ...],
@@ -584,25 +589,23 @@ def _spec_from_tool(
     fn = tool["function"]
     return AgentToolSpec(
         name=fn["name"], description=fn["description"], category=category,
-        roles=roles, parameters=fn["parameters"], timeout_ms=timeout_ms,
+        roles=roles,
+        parameters=fn["parameters"],
+        timeout_ms=timeout_ms,
         updates_action_context=updates_action_context,
     )
 
 
 def _catalog_specs(
-    role: Role, *, reviewer_protocol: ReviewerProtocol = "boundary",
+    role: Role,
 ) -> list[AgentToolSpec]:
     try:
         role = AgentRole(role).value
     except ValueError as exc:
         raise ValueError(f"unsupported agent role: {role}") from exc
-    if reviewer_protocol not in {"scope", "boundary"}:
-        raise ValueError(f"unsupported Reviewer protocol: {reviewer_protocol}")
-    if role != "reviewer" and reviewer_protocol != "boundary":
-        raise ValueError("reviewer_protocol applies only to reviewer sessions")
     specs: list[AgentToolSpec] = []
-    if role in {"planner", "executor"}:
-        interactive_roles = (AgentRole.PLANNER, AgentRole.EXECUTOR)
+    if role == "planner":
+        interactive_roles = (AgentRole.PLANNER,)
         specs.extend([
             _spec_from_tool(LOAD_SKILL_TOOL, ToolCategory.KNOWLEDGE, interactive_roles),
             _spec_from_tool(
@@ -613,49 +616,47 @@ def _catalog_specs(
                 updates_action_context=True,
             ),
         ])
-    elif role == "reviewer" and reviewer_protocol == "boundary":
+    elif role in {"reviewer", "executor"}:
+        role_value = AgentRole(role)
         specs.append(_spec_from_tool(
             OBSERVE_SCREEN_TOOL,
             ToolCategory.OBSERVATION,
-            (AgentRole.REVIEWER,),
+            (role_value,),
             timeout_ms=10_000,
             updates_action_context=True,
         ))
-    if role == "planner":
+    if role == "executor":
         specs.extend([
-            _spec_from_tool(
-                SEARCH_SKILLS_TOOL, ToolCategory.KNOWLEDGE, (AgentRole.PLANNER,),
-            ),
-            _spec_from_tool(
-                _submit_planner_tool(), ToolCategory.TERMINAL, (AgentRole.PLANNER,),
-            ),
-        ])
-    elif role == "reviewer":
-        terminal = (
-            _submit_reviewer_scope_tool()
-            if reviewer_protocol == "scope"
-            else _submit_reviewer_decision_tool()
-        )
-        specs.append(_spec_from_tool(
-            terminal, ToolCategory.TERMINAL, (AgentRole.REVIEWER,),
-        ))
-    elif role == "executor":
-        specs.extend([
+            _spec_from_tool(LOAD_SKILL_TOOL, ToolCategory.KNOWLEDGE, (AgentRole.EXECUTOR,)),
+            _spec_from_tool(INSPECT_IMAGE_REGIONS_TOOL, ToolCategory.OBSERVATION,
+                            (AgentRole.EXECUTOR,)),
             _spec_from_tool(SEARCH_INSTALLED_APPS_TOOL, ToolCategory.DEVICE_DISCOVERY,
                             (AgentRole.EXECUTOR,)),
             _spec_from_tool(_submit_executor_tool(), ToolCategory.TERMINAL, (AgentRole.EXECUTOR,)),
         ])
-    else:  # pragma: no cover - AgentRole validation above is exhaustive.
-        raise AssertionError(f"unhandled agent role: {role}")
+    else:
+        from agent.revisable.tools import tool_schema
+        from shared.revisable import PlannerDecision, Review
+
+        schema = PlannerDecision if role == "planner" else Review
+        specs.append(_spec_from_tool(
+            _function_tool(
+                name=f"submit_{role}_decision",
+                description="Submit the next plan-driven decision from current evidence.",
+                parameters=tool_schema(schema),
+            ), ToolCategory.TERMINAL, (AgentRole(role),),
+        ))
     return specs
 
 
 def tools_for_role(
-    role: Role, *, reviewer_protocol: ReviewerProtocol = "boundary",
+    role: Role,
 ) -> list[dict[str, Any]]:
     """Return the byte-stable role catalog in registry order."""
-    specs = _catalog_specs(role, reviewer_protocol=reviewer_protocol)
-    return [s.chat_completion_schema() for s in sorted(specs, key=lambda s: s.name)]
+    specs = _catalog_specs(role)
+    return [
+        s.chat_completion_schema() for s in sorted(specs, key=lambda s: s.name)
+    ]
 
 
 @dataclass
@@ -664,6 +665,7 @@ class SessionResult:
     tool_calls: list[ToolCallRecord] = field(default_factory=list)
     llm_rounds: list[LLMRoundRecord] = field(default_factory=list)
     raw_messages: list[dict[str, Any]] = field(default_factory=list)
+    dialogue_messages: list[dict[str, Any]] = field(default_factory=list)
     context_state: dict[str, Any] = field(default_factory=dict)
     request_snapshot: dict[str, Any] = field(default_factory=dict)
 
@@ -708,7 +710,6 @@ class AgentSession:
         role: Role,
         model: str,
         *,
-        reviewer_protocol: ReviewerProtocol = "boundary",
         library: SkillLibrary | None = None,
         settings: Settings | None = None,
         max_total_rounds: int = DEFAULT_MAX_TOTAL_ROUNDS,
@@ -718,27 +719,42 @@ class AgentSession:
         except ValueError as exc:
             raise ValueError(f"unsupported agent role: {role}") from exc
         self.model = model
-        if reviewer_protocol not in {"scope", "boundary"}:
-            raise ValueError(f"unsupported Reviewer protocol: {reviewer_protocol}")
-        self.reviewer_protocol = reviewer_protocol
-        if self.role != "reviewer" and reviewer_protocol != "boundary":
-            raise ValueError("reviewer_protocol applies only to reviewer sessions")
         self.settings = settings or get_settings()
-        self.library = library or SkillLibrary(default_skills_root())
+        self.library = library or SkillLibrary(default_skills_root(), device_profiles=[])
         self.max_total_rounds = max_total_rounds
 
         self._lifecycle_key: str | None = None
         self._stable: list[dict[str, Any]] = []
+        self._index: list[dict[str, Any]] = []
+        self._workflow_catalog: list[dict[str, Any]] = []
+        self._workflow_catalog_ids: frozenset[str] = frozenset()
         # Side-store of skill body messages keyed by scope (generic | apps/<pkg>).
         self._k_store: dict[str, list[dict[str, Any]]] = {}
         self._loaded_ids: set[str] = set()
         self._foreground_app: str = ""
+        self._target_app: str = ""
+        self._selected_workflow_ids: list[str] = []
+        self._stage_generic_ids: set[str] | None = None
         self._allow_dirs: list[str] | None = None
         self._frozen_dirs: list[str] = []
-        self._search_granted_ids: set[str] = set()
         self._missing_skill_ids: set[str] = set()
-        self._missing_searches: set[tuple[str, str]] = set()
         self._skill_activation_metadata: dict[str, dict[str, Any]] = {}
+
+    async def bind_device_skills(self, driver: Any) -> None:
+        """Filter discovery and exact-id loading using the bound device profile."""
+        provider = getattr(driver, "skill_profile_ids", None)
+        try:
+            profiles = await provider() if callable(provider) else []
+        except Exception:  # Missing identity must never enable another system's skills.
+            profiles = []
+        profiles = profiles if isinstance(profiles, (list, tuple)) else []
+        selected = frozenset(value for value in profiles if isinstance(value, str))
+        if self.library.device_profiles == selected:
+            return
+        self.library = self.library.for_device(selected)
+        # A device switch must not retain previously delivered scoped bodies.
+        self._lifecycle_key = None
+        self.reset_lifecycle("device-profile-change")
 
     @property
     def frozen_allow_dirs(self) -> list[str]:
@@ -758,10 +774,14 @@ class AgentSession:
         self._k_store = {}
         self._loaded_ids = set()
         self._foreground_app = ""
-        self._search_granted_ids = set()
+        self._target_app = ""
+        self._selected_workflow_ids = []
+        self._stage_generic_ids = None
         self._missing_skill_ids = set()
-        self._missing_searches = set()
         self._skill_activation_metadata = {}
+        self._index = []
+        self._workflow_catalog = []
+        self._workflow_catalog_ids = frozenset()
         self._frozen_dirs = []
         self._allow_dirs = None
         return True
@@ -770,30 +790,201 @@ class AgentSession:
         self,
         app_id: str | None,
     ) -> None:
-        """Set exact foreground and project its complete App knowledge."""
+        """Record observed foreground; it does not replace a selected target."""
         self._foreground_app = (app_id or "").strip()
         if self._foreground_app:
             pack = self.library.app_core(self._foreground_app)
             if pack is not None:
                 self._store_skill_message(pack, label="foreground_app_core")
-            for workflow in self.library.app_workflows(self._foreground_app):
-                self._store_skill_message(
-                    workflow,
-                    label="foreground_app_workflow",
-                )
+
+    def set_workflow_catalog(self, apps: list[str], *, core_apps: list[str] | None = None) -> None:
+        """Expose compact workflow cards to Planner without loading bodies."""
+        cards = self.library.workflow_catalog(apps)
+        self._workflow_catalog_ids = frozenset(card["id"] for card in cards)
+        self._workflow_catalog = [] if not cards else [{
+            "role": "user",
+            "content": (
+                "WORKFLOW CATALOG (optional; select only exact ids from one App):\n"
+                + json.dumps(cards, ensure_ascii=False, separators=(",", ":"))
+            ),
+        }]
+        for app in dict.fromkeys(core_apps or []):
+            core = self.library.app_core(app)
+            if core is not None and app != (self._target_app or self._foreground_app):
+                self._workflow_catalog.append(self.skill_message(core, label="planning_app_core"))
+
+    def skill_message(self, pack: SkillPack, *, label: str) -> dict[str, str]:
+        return {
+            "role": "user",
+            "content": f"[{label} skill:{pack.id}@{pack.version}]\n"
+            + pack.section_for(self._skill_projection_role()),
+        }
+
+    @property
+    def workflow_catalog_ids(self) -> frozenset[str]:
+        return self._workflow_catalog_ids
+
+    def set_target_app(self, app_id: str | None, workflow_ids: list[str] | None = None) -> None:
+        """Select one App core and zero to two owned workflow bodies."""
+        target = (app_id or "").strip()
+        selected = [skill_id.strip() for skill_id in (workflow_ids or []) if skill_id.strip()]
+        if len(selected) > 2 or len(set(selected)) != len(selected):
+            raise ValueError("workflow selection must contain zero to two unique ids")
+        if selected and not target:
+            raise ValueError("workflow selection requires a target App")
+        packs: list[SkillPack] = []
+        for skill_id in selected:
+            pack = self.library.get(skill_id)
+            if pack is None or pack.kind != "workflow" or pack.app != target:
+                raise ValueError(f"workflow {skill_id!r} is not owned by {target!r}")
+            packs.append(pack)
+        self._target_app = target
+        self._selected_workflow_ids = selected
+        if target:
+            core = self.library.app_core(target)
+            if core is not None:
+                self._store_skill_message(core, label="target_app_core")
+        for pack in packs:
+            self._store_skill_message(pack, label="selected_workflow")
+
+    def validate_stage_skills(self, app_id: str, skill_ids: list[str]) -> list[SkillPack]:
+        if len(skill_ids) > 4 or len(set(skill_ids)) != len(skill_ids):
+            raise ValueError("Select at most four unique catalog skill IDs")
+        packs = []
+        for sid in skill_ids:
+            pack = self.library.get(sid)
+            if pack is None or not (pack.kind == "generic" or
+                    (pack.kind == "workflow" and pack.app == app_id and app_id)):
+                raise ValueError(f"Unknown or out-of-scope stage skill: {sid}; copy an exact catalog ID")
+            if not pack.section_for("executor").strip():
+                raise ValueError(f"Stage skill has no execution guidance: {sid}")
+            packs.append(pack)
+        if sum(p.kind == "workflow" for p in packs) > 2:
+            raise ValueError("Select at most two target-owned workflows")
+        return packs
+
+    def set_stage_skills(self, app_id: str, skill_ids: list[str]) -> None:
+        packs = self.validate_stage_skills(app_id, skill_ids)
+        self.set_target_app(app_id, [p.id for p in packs if p.kind == "workflow"])
+        self._stage_generic_ids = {p.id for p in packs if p.kind == "generic"}
+        for pack in packs:
+            if pack.kind == "generic":
+                self._store_skill_message(pack, label="selected_stage_skill")
 
     @property
     def loaded_skill_ids(self) -> list[str]:
         return sorted(self._loaded_ids)
 
     def _k_wire(self) -> list[dict[str, Any]]:
-        """Compose stable generic and exact-foreground-App knowledge."""
+        """Compose generic knowledge and the selected App handoff."""
         candidates: list[dict[str, Any]] = []
-        candidates.extend(self._k_store.get("generic") or [])
-        app = self._foreground_app
-        if app:
-            candidates.extend(self._k_store.get(f"apps/{app}") or [])
-        return self._project_skill_messages(candidates)
+        candidates.extend(
+            message for message in (self._k_store.get("generic") or [])
+            if self._stage_generic_ids is None or message.get("_skill_id") in self._stage_generic_ids
+        )
+        for app in dict.fromkeys(filter(None, (self._target_app, self._foreground_app))):
+            allowed_ids = set(self._selected_workflow_ids) if app == self._target_app else set()
+            core = self.library.app_core(app)
+            if core is not None:
+                allowed_ids.add(core.id)
+            candidates.extend(
+                message
+                for message in (self._k_store.get(f"apps/{app}") or [])
+                if str(message.get("_skill_id") or "") in allowed_ids
+            )
+        projected = self._project_skill_messages(candidates)
+        availability = self._authorized_actions_message()
+        if availability is not None:
+            projected.append(availability)
+        return projected
+
+    def available_authorized_actions(self, app_id: str | None = None) -> list[dict[str, str]]:
+        """Return the model-safe catalog frozen by the current target stage."""
+        if self.role != "executor":
+            return []
+        app = (app_id if app_id is not None else self._target_app).strip()
+        if not app or app != self._target_app:
+            return []
+        active_ids = set(self._selected_workflow_ids)
+        core = self.library.app_core(app)
+        if core is not None:
+            active_ids.add(core.id)
+        summaries: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for skill_id in sorted(active_ids):
+            pack = self.library.get(skill_id)
+            if pack is None or pack.app != app or pack.kind not in {"app_core", "workflow"}:
+                continue
+            for action in pack.verified_actions:
+                if action.id in seen:
+                    continue
+                seen.add(action.id)
+                inspection = action.template == "tap_capture_key"
+                summaries.append({
+                    "id": action.id,
+                    "purpose": action.purpose,
+                    "target": "current index, or current-image x,y when no usable index exists",
+                    "result": (
+                        "historical intermediate evidence is persisted with the action result and "
+                        "restored before the latest actionable state; do not call read_history to "
+                        "retrieve that intermediate evidence"
+                        if inspection else
+                        "the latest actionable state after the verified time-sensitive operation"
+                    ),
+                    "budget": (
+                        "Use for a needed detail-page inspection when separate open and return "
+                        "actions would exceed or unnecessarily consume the remaining action budget; "
+                        "the complete inspection-and-return consumes one submitted action unit."
+                        if inspection else
+                        "Use only for its stated time-sensitive App scenario; the verified compound "
+                        "operation consumes one submitted action unit."
+                    ),
+                })
+        return summaries
+
+    def authorized_action(
+        self, action_id: str, app_id: str,
+    ) -> tuple[SkillPack, VerifiedAction] | None:
+        """Resolve one stage-authorized recipe only for the exact foreground App."""
+        wanted = (action_id or "").strip()
+        app = (app_id or "").strip()
+        if (
+            not wanted
+            or not app
+            or app != self._foreground_app
+            or app != self._target_app
+        ):
+            return None
+        visible = {item["id"] for item in self.available_authorized_actions(app)}
+        if wanted not in visible:
+            return None
+        active_ids = set(self._selected_workflow_ids)
+        core = self.library.app_core(app)
+        if core is not None:
+            active_ids.add(core.id)
+        for skill_id in sorted(active_ids):
+            pack = self.library.get(skill_id)
+            if pack is None or pack.app != app or pack.kind not in {"app_core", "workflow"}:
+                continue
+            for action in pack.verified_actions:
+                if action.id == wanted:
+                    return pack, action
+        return None
+
+    def _authorized_actions_message(self) -> dict[str, Any] | None:
+        actions = self.available_authorized_actions()
+        if not actions:
+            return None
+        return {
+            "role": "user",
+            "content": (
+                "STAGE-AUTHORIZED ACTIONS\n"
+                "Use only an exact listed id; unauthorized invocation is prohibited. "
+                "A listed action is executable only while its owning App is the verified "
+                "foreground App.\n"
+                + json.dumps(actions, ensure_ascii=False, separators=(",", ":"))
+            ),
+        }
 
     @staticmethod
     def _project_skill_messages(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -814,13 +1005,15 @@ class AgentSession:
 
     def _store_skill_message(self, pack: SkillPack, *, label: str) -> None:
         sid = pack.name
-        if sid in self._loaded_ids:
-            return
         body = pack.section_for(self._skill_projection_role())
+        previous = self._skill_activation_metadata.get(sid, {})
+        if previous.get("version") == pack.version and previous.get("content_hash") == stable_hash(body):
+            return
+        for messages in self._k_store.values():
+            messages[:] = [message for message in messages if message.get("_skill_id") != sid]
         scope = pack.scope_key()
         msg = {
-            "role": "user",
-            "content": f"[{label} skill:{sid}]\n{body}",
+            **self.skill_message(pack, label=label),
             "_skill_id": sid,
             "_content_hash": stable_hash(body),
         }
@@ -833,20 +1026,32 @@ class AgentSession:
             "scope": scope,
             "activation_source": label,
             "rule_categories": pack.rule_categories(),
+            "verified_action_ids": [action.id for action in pack.verified_actions],
+            "device_profiles": pack.device_profiles,
+            "selected_device_profiles": sorted(self.library.device_profiles or []),
         }
 
     def freeze_allow_dirs(self, dirs: list[str]) -> list[str]:
-        """Freeze generic discovery scope; exact-App knowledge is independent."""
+        """Freeze generic discovery scope and its stable exact-id index."""
         clean = [d.strip().strip("/") for d in dirs if d and d.strip()]
         if not clean:
             clean = ["generic"]
         self._frozen_dirs = clean
         self._allow_dirs = list(clean)
+        generic_dirs = [
+            directory for directory in self._allow_dirs
+            if directory == "generic" or directory.startswith("generic/")
+        ]
+        self._index = [{
+            "role": "user",
+            "content": render_skill_index(
+                self.library.index_summaries(allow_dirs=generic_dirs),
+            ),
+        }]
         return list(self._frozen_dirs)
 
-    def _skill_projection_role(self) -> Literal["decision", "executor"]:
-        """Reuse the existing Skill sections without introducing role filtering."""
-        return "executor" if self.role == "executor" else "decision"
+    def _skill_projection_role(self) -> Literal["decision", "planner", "reviewer", "executor"]:
+        return self.role if self.role in {"planner", "reviewer", "executor"} else "decision"
 
     def set_stable_system(self, system_text: str) -> None:
         """System message: static role rules (no skill index / subgoal)."""
@@ -854,16 +1059,25 @@ class AgentSession:
 
     @property
     def active_skill_metadata(self) -> list[dict[str, Any]]:
+        allowed_app_ids = set(self._selected_workflow_ids)
+        apps = set(filter(None, (self._target_app, self._foreground_app)))
+        for app in apps:
+            core = self.library.app_core(app)
+            if core is not None:
+                allowed_app_ids.add(core.id)
         active_ids: set[str] = set()
         for skill_id, item in self._skill_activation_metadata.items():
             scope = str(item.get("scope") or "")
-            if scope == "generic" or scope == f"apps/{self._foreground_app}":
+            if (scope == "generic" and (self._stage_generic_ids is None or skill_id in self._stage_generic_ids)) or (
+                scope in {f"apps/{app}" for app in apps} and skill_id in allowed_app_ids
+            ):
                 active_ids.add(skill_id)
         return [
             dict(self._skill_activation_metadata[skill_id])
             for skill_id in sorted(active_ids)
             if skill_id in self._skill_activation_metadata
         ]
+
 
     def scoped_packs(self) -> list[SkillPack]:
         return self.library.list_scoped(
@@ -874,16 +1088,6 @@ class AgentSession:
         pack = self.library.get(skill_id)
         if pack is None:
             return None
-        if self.role == "executor":
-            scope = pack.scope_key()
-            allowed_scope = (
-                scope == "generic"
-                or (self._foreground_app and scope == f"apps/{self._foreground_app}")
-            )
-            if not allowed_scope:
-                return None
-        if skill_id in self._search_granted_ids:
-            return pack
         scoped_ids = {p.id for p in self.scoped_packs()}
         if skill_id not in scoped_ids:
             return None
@@ -902,6 +1106,8 @@ class AgentSession:
         include_skill_context: bool = True,
         handlers: dict[str, ToolHandler] | None = None,
         tool_registry: AgentToolRegistry | None = None,
+        retain_observations: bool = False,
+        reserve_terminal_round: bool = False,
         context_state: dict[str, Any] | None = None,
         event_sink: Callable[[str, dict[str, Any]], Any] | None = None,
         model_call_meter: Callable[[str, dict[str, Any]], Any] | None = None,
@@ -919,10 +1125,21 @@ class AgentSession:
             # Ensure tool scope exists even if caller forgot to freeze.
             self.freeze_allow_dirs(["generic"])
 
-        self._search_granted_ids = set()
+        index_messages = (
+            list(self._index)
+            if include_skill_context and self.role == "planner"
+            else []
+        )
+        catalog_messages = (
+            list(self._workflow_catalog)
+            if include_skill_context and self.role == "planner"
+            else []
+        )
         k_wire_messages = self._k_wire() if include_skill_context else []
         prefix_entries: list[tuple[str, dict[str, Any]]] = [
             *[("system", message) for message in self._stable],
+            *[("skill_index", message) for message in index_messages],
+            *[("workflow_catalog", message) for message in catalog_messages],
             *[(f"k_wire_messages[{index}]", message) for index, message in enumerate(k_wire_messages)],
             *[
                 (
@@ -982,7 +1199,9 @@ class AgentSession:
                 f"Call {terminal_names[0]} now without a preface."
             )
         catalog_hash = registry.catalog_hash(context.role)
-        stable_prefix_hash = stable_hash([*self._stable, *k_wire_messages])
+        stable_prefix_hash = stable_hash([
+            *self._stable, *index_messages, *catalog_messages, *k_wire_messages,
+        ])
         tool_records: list[ToolCallRecord] = []
         llm_rounds: list[LLMRoundRecord] = []
         request_rounds: list[dict[str, Any]] = []
@@ -991,8 +1210,23 @@ class AgentSession:
         content_safety_removed_image_count = 0
         content_safety_offending_locations: list[tuple[int, int]] = []
         content_only_retries = 0
+        submission_start = None
 
         for round_index in range(1, self.max_total_rounds + 1):
+            submitting = (
+                reserve_terminal_round
+                and (context.state.get("evidence_saturated")
+                     or round_index >= min(self.max_total_rounds, max(2, self.max_total_rounds - 1)))
+                and bool(terminal_names)
+            )
+            if submitting:
+                submission_start = submission_start or round_index
+                if round_index >= submission_start + 2:
+                    raise GatewayError("Decision submission did not converge after evidence gathering", category="budget")
+            context.state["terminal_submission_only"] = submitting
+            if submitting:
+                tools = [tool for tool in tools if tool["function"]["name"] in terminal_names]
+                catalog_hash = stable_hash(tools)
             # Rebuild the dynamic suffix before every gateway call. Tool
             # transition text remains bounded by max_total_rounds, while the
             # observation bucket is replaced wholesale after observation tools.
@@ -1010,6 +1244,17 @@ class AgentSession:
                 *transcript_after_observation_names,
                 *final_bucket_names,
             ]
+            if submitting:
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        "Evidence gathering for this invocation has ended. Submit your decision "
+                        "now using the available terminal tool and the evidence already supplied. "
+                        "If facts remain unknown, state the gap and the supported next step in "
+                        "your decision; do not invent certainty. Correct any rejected fields."
+                    ),
+                })
+                message_names.append("submission_boundary")
             wire_messages = messages
             round_original_image_count = count_message_images(messages)
             round_removed_image_count = 0
@@ -1031,7 +1276,30 @@ class AgentSession:
                 evidence_messages,
                 evidence_names,
             )
+            current_visual = context.state.get("visual_evidence_metadata")
+            input_visual = None
+            if isinstance(current_visual, dict) and count_message_images(wire_messages) > 0:
+                input_visual = {
+                    "observation_id": str(current_visual.get("observation_id") or ""),
+                    "model_image_ref": current_visual.get("image_artifact_ref"),
+                    "visual_kind": current_visual.get("visual_kind"),
+                    "captured_monotonic_ms": current_visual.get("captured_monotonic_ms"),
+                }
             message_snapshot = _snapshot_messages(wire_messages, context)
+            context.state["delivered_skill_text"] = "\n".join(
+                _delivered_text(message.get("content")) for message in wire_messages
+            )
+            terminal_tool_choice = self.settings.tool_choice_for(self.model)
+            context_policy = self.settings.context_policy(self.model, self.role)
+            request_estimate = estimate_context(wire_messages) + estimate_context([
+                {"role": "system", "content": json.dumps(tools, ensure_ascii=False)},
+            ])
+            input_limit = context_policy.get("max_input_tokens")
+            if input_limit is not None and request_estimate > input_limit:
+                raise GatewayError(
+                    f"Estimated request size {request_estimate} exceeds configured input limit {input_limit}",
+                    category="context_capacity",
+                )
             request_payload = {
                 "schema_version": 2,
                 "decision_context_version": "v2",
@@ -1044,18 +1312,59 @@ class AgentSession:
                 "messages": message_snapshot,
                 "message_sections": _snapshot_message_sections(message_snapshot, message_names),
                 "tool_catalog": redact_value(tools, max_string=None, max_items=None),
-                "tool_choice": "required",
+                "tool_choice": terminal_tool_choice,
                 "prompt_measurements": _prompt_measurements(
                     role=self.role,
                     model=self.model,
                     tools=tools,
-                    tool_choice="required",
+                    tool_choice=terminal_tool_choice,
                     wire_messages=wire_messages,
                     message_names=message_names,
                     context_state=context.state,
                 ),
                 "attachment_policy": "metadata_only_binary_omitted",
+                "input_visual": input_visual,
+                "active_skills": self.active_skill_metadata if include_skill_context else [],
+                "context_capacity": {"estimated_input_tokens": request_estimate, "configured_input_limit": input_limit},
             }
+            round_record_base = {
+                "round_id": f"{invocation_id}:round:{round_index}",
+                "order": round_index,
+                "role": context.role,
+                "invocation_id": invocation_id,
+                "message_count": len(messages),
+                "image_count": count_message_images(messages),
+                "stable_prefix_hash": stable_prefix_hash,
+                "tool_catalog_hash": catalog_hash,
+                "attachment_count": count_message_images(messages),
+                "prompt_measurements": request_payload.get("prompt_measurements") or {},
+                "input_observation_id": (
+                    str(input_visual.get("observation_id") or "") if input_visual else ""
+                ),
+                "input_model_image_ref": (
+                    input_visual.get("model_image_ref") if input_visual else None
+                ),
+                "input_visual_kind": (
+                    input_visual.get("visual_kind") if input_visual else None
+                ),
+                "input_captured_monotonic_ms": (
+                    input_visual.get("captured_monotonic_ms") if input_visual else None
+                ),
+            }
+            initial_request_ref = (
+                artifacts.save_json("llm", request_payload) if artifacts is not None
+                else "sha256:" + stable_hash(request_payload)
+            )
+            await _emit(
+                event_sink,
+                "agent_llm_round_started",
+                LLMRoundRecord(
+                    **round_record_base,
+                    request_ref=initial_request_ref,
+                    stop_reason="pending",
+                    model=self.model,
+                ).model_dump(),
+            )
 
             def provider_meter(
                 request_kind: str,
@@ -1073,20 +1382,50 @@ class AgentSession:
 
                 return meter
 
+            async def stream_update(update: dict[str, Any]) -> None:
+                text = _scrub_sensitive_values(
+                    redact_value(update.get("text", ""), max_string=None, max_items=None),
+                    context,
+                )
+                summary = _scrub_sensitive_values(
+                    redact_value(update.get("summary", ""), max_string=None, max_items=None),
+                    context,
+                )
+                tool_count = int(update.get("tool_call_count") or 0)
+                display_text = text or summary
+                if not display_text and tool_count:
+                    display_text = (
+                        "Preparing tool call…" if tool_count == 1
+                        else f"Preparing {tool_count} tool calls…"
+                    )
+                await _emit(event_sink, "agent_llm_stream", {
+                    "round_id": f"{invocation_id}:round:{round_index}",
+                    "order": round_index,
+                    "role": self.role,
+                    "invocation_id": invocation_id,
+                    "model": self.model,
+                    "attempt": int(update.get("attempt") or 1),
+                    "sequence": int(update.get("sequence") or 0),
+                    "status": str(update.get("status") or "streaming"),
+                    "text": display_text,
+                    "tool_call_count": tool_count,
+                })
+
             try:
                 resp = await complete(
                     self.model,
                     wire_messages,
                     tools=tools,
-                    tool_choice="required",
+                    tool_choice=terminal_tool_choice,
                     cache_system_prefix=cache_system_prefix,
                     cache_skill_index=(
                         cache_system_prefix
                         and include_skill_context
-                        and self.role in {"planner", "reviewer"}
+                        and self.role in {"planner", "reviewer", "executor"}
                     ),
                     settings=self.settings,
                     attempt_meter=provider_meter("primary"),
+                    stream_sink=stream_update,
                 )
             except GatewayInputSafetyError as exc:
                 if content_safety_degraded:
@@ -1139,7 +1478,7 @@ class AgentSession:
                     role=self.role,
                     model=self.model,
                     tools=tools,
-                    tool_choice="required",
+                    tool_choice=terminal_tool_choice,
                     wire_messages=wire_messages,
                     message_names=message_names,
                     context_state=context.state,
@@ -1148,15 +1487,16 @@ class AgentSession:
                     self.model,
                     wire_messages,
                     tools=tools,
-                    tool_choice="required",
+                    tool_choice=terminal_tool_choice,
                     cache_system_prefix=cache_system_prefix,
                     cache_skill_index=(
                         cache_system_prefix
                         and include_skill_context
-                        and self.role in {"planner", "reviewer"}
+                        and self.role in {"planner", "reviewer", "executor"}
                     ),
                     settings=self.settings,
                     attempt_meter=provider_meter("input_safety_fallback"),
+                    stream_sink=stream_update,
                 )
             if content_safety_degraded:
                 request_payload["content_safety"] = {
@@ -1172,6 +1512,19 @@ class AgentSession:
                 }
             request_rounds.append(request_payload)
             messages = wire_messages
+            delivered_image_count = count_message_images(messages)
+            round_record_base["image_count"] = delivered_image_count
+            round_record_base["attachment_count"] = delivered_image_count
+            round_record_base["prompt_measurements"] = (
+                request_payload.get("prompt_measurements") or {}
+            )
+            if delivered_image_count == 0:
+                round_record_base.update({
+                    "input_observation_id": "",
+                    "input_model_image_ref": None,
+                    "input_visual_kind": None,
+                    "input_captured_monotonic_ms": None,
+                })
             for tool_call in resp.tool_calls:
                 _register_sensitive_tool_arguments(
                     tool_call.name,
@@ -1228,23 +1581,14 @@ class AgentSession:
                 else "sha256:" + stable_hash(response_payload)
             )
             round_record = LLMRoundRecord(
-                round_id=f"{invocation_id}:round:{round_index}",
-                order=round_index,
-                role=context.role,
-                invocation_id=invocation_id,
+                **round_record_base,
                 request_ref=request_ref,
                 response_ref=response_ref,
                 stop_reason=resp.stop_reason,
                 latency_ms=resp.latency_ms,
                 usage=NormalizedUsage.model_validate(resp.usage or {}),
-                message_count=len(messages),
-                image_count=count_message_images(messages),
-                stable_prefix_hash=stable_prefix_hash,
-                tool_catalog_hash=catalog_hash,
                 model=resp.model or self.model,
                 response_content_count=1 if resp.content else 0,
-                attachment_count=count_message_images(messages),
-                prompt_measurements=request_payload.get("prompt_measurements") or {},
                 reasoning_status=resp.reasoning.status,
                 reasoning_effort=resp.reasoning.effort,
                 reasoning_summary_preference=resp.reasoning.summary_preference,
@@ -1267,6 +1611,9 @@ class AgentSession:
                         (name, message) for name, message in zip(appended_names, appended)
                         if id(message) not in observation_message_ids
                     ]
+                    if retain_observations:
+                        transcript_before_observation.extend(observation_bucket)
+                        transcript_before_observation_names.extend(observation_bucket_names)
                     transcript_before_observation.extend(transcript_after_observation)
                     transcript_before_observation_names.extend(
                         transcript_after_observation_names
@@ -1295,6 +1642,8 @@ class AgentSession:
                         k_wire_messages = next_k_wire_messages
                         prefix_entries = [
                             *[("system", message) for message in self._stable],
+                            *[("skill_index", message) for message in index_messages],
+                            *[("workflow_catalog", message) for message in catalog_messages],
                             *[
                                 (f"k_wire_messages[{index}]", message)
                                 for index, message in enumerate(k_wire_messages)
@@ -1314,6 +1663,8 @@ class AgentSession:
                         prefix_message_names = [name for name, _ in prefix_entries]
                         stable_prefix_hash = stable_hash([
                             *self._stable,
+                            *index_messages,
+                            *catalog_messages,
                             *k_wire_messages,
                         ])
                         context.state.setdefault("stable_prefix_transitions", []).append({
@@ -1329,6 +1680,10 @@ class AgentSession:
                     return SessionResult(
                         decision=decision, tool_calls=tool_records,
                         llm_rounds=llm_rounds, raw_messages=messages,
+                        dialogue_messages=[
+                            *transcript_before_observation, *observation_bucket,
+                            *transcript_after_observation, *final_bucket,
+                        ],
                         context_state=context.state,
                         request_snapshot={
                             "schema_version": 2,
@@ -1369,10 +1724,13 @@ class AgentSession:
                 continue
             raise GatewayError(
                 "AgentSession global role rounds exhausted without required tool call",
-                category="malformed",
+                category="budget" if reserve_terminal_round else "malformed",
             )
 
-        raise GatewayError("AgentSession tool loop exhausted without submit", category="malformed")
+        raise GatewayError(
+            "AgentSession tool loop exhausted without submit",
+            category="budget" if reserve_terminal_round else "malformed",
+        )
 
     def _build_registry(self, external_handlers: dict[str, ToolHandler]) -> AgentToolRegistry:
         registry = AgentToolRegistry()
@@ -1387,6 +1745,13 @@ class AgentSession:
 
         async def load_skill(args: dict[str, Any], ctx: ToolExecutionContext) -> AgentToolResult:
             skill_id = str(args.get("skill_id") or "").strip()
+            pack = self.library.get(skill_id)
+            if self.role == "executor" and pack is not None and pack.kind != "generic":
+                return AgentToolResult(
+                    status=ToolStatus.INVALID_ARGUMENTS,
+                    summary="Executor may load only advertised generic skills; Planner selects app workflows.",
+                    error="skill_scope_denied",
+                )
             already_loaded = skill_id in self._loaded_ids
             known_missing = skill_id in self._missing_skill_ids
             result_text, ok = self._exec_load_skill_args(args)
@@ -1398,9 +1763,10 @@ class AgentSession:
                 self._missing_skill_ids.add(skill_id)
             pack = self.library.get(skill_id) if ok else None
             scope = pack.scope_key() if pack is not None else ""
+            active_app = self._target_app or self._foreground_app
             active = bool(
                 scope == "generic"
-                or (scope and scope == f"apps/{self._foreground_app}")
+                or (scope and scope == f"apps/{active_app}")
             )
             return AgentToolResult(
                 status=ToolStatus.SUCCEEDED if ok else ToolStatus.INVALID_ARGUMENTS,
@@ -1424,35 +1790,9 @@ class AgentSession:
                 error=None if ok else "load_skill_failed",
             )
 
-        async def search_skills(args: dict[str, Any], ctx: ToolExecutionContext) -> AgentToolResult:
-            del ctx
-            search_key = self._search_key(args)
-            known_missing = search_key in self._missing_searches
-            result_text, ids = self._exec_search_skills_args(args)
-            self._search_granted_ids.update(ids)
-            if not ids:
-                self._missing_searches.add(search_key)
-            return AgentToolResult(
-                status=ToolStatus.SUCCEEDED,
-                summary=result_text,
-                data={"skill_ids": ids},
-            )
-
         async def submit(args: dict[str, Any], ctx: ToolExecutionContext) -> AgentToolResult:
             if self.role == "executor":
                 invalid = _executor_submission_error(args, ctx)
-                if invalid is not None:
-                    return invalid
-            elif self.role == "planner":
-                invalid = _planner_submission_error(args, ctx)
-                if invalid is not None:
-                    return invalid
-            elif self.reviewer_protocol == "scope":
-                invalid = _reviewer_scope_submission_error(args)
-                if invalid is not None:
-                    return invalid
-            else:
-                invalid = _reviewer_submission_error(args, ctx)
                 if invalid is not None:
                     return invalid
             decision = self._parse_submit_args(args, context=ctx)
@@ -1513,15 +1853,11 @@ class AgentSession:
 
         internal: dict[str, ToolHandler] = {
             "load_skill": load_skill,
-            "search_skills": search_skills,
             "submit_planner_decision": submit,
-            "submit_reviewer_scope": submit,
             "submit_reviewer_decision": submit,
             "submit_executor_step": submit,
         }
-        for spec in _catalog_specs(
-            self.role, reviewer_protocol=self.reviewer_protocol,
-        ):
+        for spec in _catalog_specs(self.role):
             registry.register(spec, external_handlers.get(spec.name) or internal.get(spec.name) or unavailable)
         return registry
 
@@ -1544,6 +1880,49 @@ class AgentSession:
             except KeyError:
                 continue
         mixed_terminal_response = bool(terminal_call_ids) and len(resp.tool_calls) > 1
+        write_before_submit = (
+            context.role == AgentRole.EXECUTOR
+            and context.state.get("allow_note_before_submit", False)
+            and len(terminal_call_ids) == 1
+            and resp.tool_calls[-1].id in terminal_call_ids
+            and all(call.name == "write_note" for call in resp.tool_calls[:-1])
+        )
+        write_failed = False
+        inspection_calls = [
+            call for call in resp.tool_calls if call.name == "inspect_image_regions"
+        ]
+        inspection_scope_error = ""
+        if len(inspection_calls) > 1:
+            inspection_scope_error = (
+                "submit one shortlisted image-region verification call per response; "
+                "do not partition a broad screen search"
+            )
+        elif inspection_calls:
+            inspection_args = _safe_json(inspection_calls[0].arguments)
+            regions = inspection_args.get("regions") or []
+            targets = inspection_args.get("targets") or []
+            if isinstance(regions, list) and isinstance(targets, list):
+                regions = regions + targets
+            pairs = inspection_args.get("pairs") or []
+            limit = region_limit(inspection_args)
+            if isinstance(regions, list) and len(regions) > limit:
+                inspection_scope_error = (
+                    f"shortlist at most {limit} relevant regions from the current SoM; "
+                    "do not enumerate the page"
+                )
+            elif isinstance(pairs, list) and len(pairs) > MAX_PAIRS_PER_CALL:
+                inspection_scope_error = (
+                    f"compare at most {MAX_PAIRS_PER_CALL} shortlisted pairs; "
+                    "use compare for a visible group's cross-product"
+                )
+        repeated_inspection_scope_error = False
+        if inspection_scope_error:
+            rejection_count = int(context.state.get("image_region_scope_rejections", 0)) + 1
+            context.state["image_region_scope_rejections"] = rejection_count
+            repeated_inspection_scope_error = rejection_count > 1
+            if repeated_inspection_scope_error:
+                context.state["terminal_submission_only"] = True
+        inspection_feedback_emitted = False
         assistant_tools = [
             {
                 "id": tc.id,
@@ -1567,6 +1946,7 @@ class AgentSession:
         message_names.append("assistant_tools")
 
         submit_decision: TerminalValue | None = None
+        attachment_entries: list[tuple[str, dict[str, Any]]] = []
         for tc in resp.tool_calls:
             args = _safe_json(tc.arguments)
             try:
@@ -1577,6 +1957,8 @@ class AgentSession:
                 spec = None
             started = monotonic_ms()
             previous_observation_id = str(context.state.get("active_observation_id") or "")
+            previous_visual = context.state.get("visual_evidence_metadata")
+            previous_visual = dict(previous_visual) if isinstance(previous_visual, dict) else {}
             record = ToolCallRecord(
                 call_id=tc.id, order=len(records) + 1, name=tc.name,
                 role=context.role, invocation_id=context.invocation_id,
@@ -1587,7 +1969,44 @@ class AgentSession:
             records.append(record)
             await _emit(event_sink, "agent_tool_started", record.model_dump())
 
-            if mixed_terminal_response and tc.id in terminal_call_ids:
+            if tc.name == "inspect_image_regions" and inspection_scope_error:
+                first_scope_feedback = not inspection_feedback_emitted
+                inspection_feedback_emitted = True
+                result = AgentToolResult(
+                    status=ToolStatus.PRECONDITION_NOT_MET,
+                    summary=(
+                        (
+                            "Repeated broad image inspection rejected; evidence gathering is closed. "
+                            "Submit a terminal decision using current evidence or report the grounding gap."
+                            if repeated_inspection_scope_error
+                            else "Broad image inspection rejected. " + inspection_scope_error
+                        )
+                        if first_scope_feedback
+                        else "Rejected as part of the same aggregate inspection scope."
+                    ),
+                    data=(
+                        {"recoverable": not repeated_inspection_scope_error}
+                        if first_scope_feedback else {}
+                    ),
+                    error=(
+                        "repeated_image_region_scope_violation"
+                        if repeated_inspection_scope_error
+                        else "image_region_scope_too_broad"
+                    ),
+                )
+            elif context.state.get("terminal_submission_only") and tc.id not in terminal_call_ids:
+                result = AgentToolResult(
+                    status=ToolStatus.PRECONDITION_NOT_MET,
+                    summary="Evidence gathering has ended. Submit the decision using available evidence.",
+                    error="submission_only",
+                )
+            elif tc.id in terminal_call_ids and write_before_submit and write_failed:
+                result = AgentToolResult(
+                    status=ToolStatus.PRECONDITION_NOT_MET,
+                    summary="Note was not saved. Read the error before submitting an action.",
+                    error="note_write_failed",
+                )
+            elif mixed_terminal_response and not write_before_submit and tc.id in terminal_call_ids:
                 result = AgentToolResult(
                     status=ToolStatus.PRECONDITION_NOT_MET,
                     summary=(
@@ -1597,7 +2016,26 @@ class AgentSession:
                     error="terminal_submit_must_be_alone",
                 )
             else:
-                result = await registry.execute(tc.name, args, context)
+                if (
+                    tc.name == "observe_screen"
+                    and context.state.get("observe_screen_succeeded")
+                ):
+                    result = AgentToolResult(
+                        status=ToolStatus.PRECONDITION_NOT_MET,
+                        summary=(
+                            "observe_screen already succeeded in this invocation and "
+                            "cannot be repeated; submit the role decision now"
+                        ),
+                        data={
+                            "recoverable": True,
+                            "reason": "observe_screen_already_succeeded",
+                        },
+                        error="observe_screen_already_succeeded",
+                    )
+                else:
+                    result = await registry.execute(tc.name, args, context)
+            if tc.name == "write_note" and result.status != ToolStatus.SUCCEEDED:
+                write_failed = True
             record.status = result.status
             record.elapsed_ms = max(0.0, monotonic_ms() - started)
             record.result_summary = str(
@@ -1613,6 +2051,7 @@ class AgentSession:
                 result.model_metadata(tc.name), context,
             )
             if tc.name == "observe_screen" and result.status == ToolStatus.SUCCEEDED:
+                context.state["observe_screen_succeeded"] = True
                 # The following Decision Context v2 observation is the sole
                 # model-visible source of current screen facts. Tool-local
                 # ids and capture metadata remain available in the trace.
@@ -1633,19 +2072,20 @@ class AgentSession:
                 if (
                     tc.name == "observe_screen"
                     and result.status == ToolStatus.SUCCEEDED
-                    and result.data.get("mode") == "temporal"
+                    and result.data.get("mode") == "sequence"
                 ):
-                    temporal_refs = context.state.setdefault(
-                        "reviewer_temporal_evidence_handles", []
+                    sequence_refs = context.state.setdefault(
+                        "reviewer_sequence_evidence_handles", []
                     )
-                    for evidence_ref in record.evidence_refs:
-                        if evidence_ref not in temporal_refs:
-                            temporal_refs.append(evidence_ref)
+                    if "screen:sequence" not in sequence_refs:
+                        sequence_refs.append("screen:sequence")
             record.artifact_refs = list(result.artifact_refs)
             record.provider_status = result.provider_status
             record.error = result.error
             next_observation_id = str(result.actionable_observation_id or previous_observation_id)
             if next_observation_id and next_observation_id != previous_observation_id:
+                next_visual = context.state.get("visual_evidence_metadata")
+                next_visual = dict(next_visual) if isinstance(next_visual, dict) else {}
                 registry_state = context.state.get("observation_registry")
                 old_entry = registry_state.get(previous_observation_id) if hasattr(registry_state, "get") else None
                 new_entry = registry_state.get(next_observation_id) if hasattr(registry_state, "get") else None
@@ -1667,6 +2107,12 @@ class AgentSession:
                         else "tree-only"
                     ),
                     "attachment_refs": [a.get("artifact_ref") for a in record.attachments if a.get("artifact_ref")],
+                    "from_model_image_ref": previous_visual.get("image_artifact_ref"),
+                    "to_model_image_ref": next_visual.get("image_artifact_ref"),
+                    "from_captured_monotonic_ms": previous_visual.get("captured_monotonic_ms"),
+                    "to_captured_monotonic_ms": next_visual.get("captured_monotonic_ms"),
+                    "from_visual_kind": previous_visual.get("visual_kind"),
+                    "to_visual_kind": next_visual.get("visual_kind"),
                     "next_active_basis": next_observation_id,
                 }
                 context.state["active_observation_id"] = next_observation_id
@@ -1703,33 +2149,32 @@ class AgentSession:
                     raise RuntimeError(
                         "observe_screen projector returned an empty observation bucket"
                     )
-                temporal_message = None
-                if result.data.get("mode") == "temporal":
-                    temporal_message = _attachments_message(
+                sequence_message = None
+                if result.data.get("mode") == "sequence":
+                    sequence_message = _attachments_message(
                         tc.name,
                         replacement_attachments,
                         contact_sheet=False,
                     )
-                if temporal_message is not None:
-                    temporal_message["content"].append({
+                if sequence_message is not None:
+                    sequence_message["content"].append({
                         "type": "text",
                         "text": (
                             "The ordered sequence continues with the canonical "
-                            "current/end observation below. Prior frames are "
+                            "ending observation below. Prior frames are "
                             "visual history only and are not action bases."
                         ),
                     })
-                    messages.append(temporal_message)
-                    message_names.append("observation_temporal_history")
+                    attachment_entries.append(("observation_sequence_history", sequence_message))
                 for index, projected_message in enumerate(projected_messages):
-                    messages.append(projected_message)
-                    message_names.append(
+                    projected_name = (
                         projected_names[index]
                         if index < len(projected_names)
                         else f"next_observation[{index}]"
                     )
+                    attachment_entries.append((projected_name, projected_message))
                 context.state["_next_observation_messages"] = (
-                    ([temporal_message] if temporal_message is not None else [])
+                    ([sequence_message] if sequence_message is not None else [])
                     + projected_messages
                 )
             elif tc.name != "observe_screen" or result.status != ToolStatus.SUCCEEDED:
@@ -1738,8 +2183,7 @@ class AgentSession:
                     contact_sheet=False,
                 )
                 if attachment_message is not None:
-                    messages.append(attachment_message)
-                    message_names.append(f"attachment_message[{tc.name}]")
+                    attachment_entries.append((f"attachment_message[{tc.name}]", attachment_message))
                     if tc.name == "observe_screen":
                         context.state["_next_observation_messages"] = [attachment_message]
             if tc.name == "observe_screen" and result.status == ToolStatus.SUCCEEDED:
@@ -1749,6 +2193,10 @@ class AgentSession:
             if result.terminal_value is not None:
                 submit_decision = result.terminal_value
 
+        # Every tool call needs its reply before any user/image message can follow.
+        for name, message in attachment_entries:
+            messages.append(message)
+            message_names.append(name)
         if submit_decision is not None:
             return submit_decision, True
         return None, False
@@ -1769,7 +2217,8 @@ class AgentSession:
         stored_pack = self.library.get(skill_id)
         if skill_id in self._loaded_ids:
             scope = stored_pack.scope_key() if stored_pack is not None else ""
-            active = scope == "generic" or scope == f"apps/{self._foreground_app}"
+            active_app = self._target_app or self._foreground_app
+            active = scope == "generic" or scope == f"apps/{active_app}"
             state = "active in K_wire" if active else "stored but inactive for current foreground"
             return (
                 f"already_loaded:{skill_id} ({state}); "
@@ -1786,34 +2235,6 @@ class AgentSession:
         self._store_skill_message(pack, label="loaded")
         return f"skill:{skill_id}\n{body}", True
 
-    def _exec_search_skills_args(self, args: dict[str, Any]) -> tuple[str, list[str]]:
-        if self.role != "planner":
-            return "search_skills error: only Planner may search", []
-        query, app_key = self._search_key(args)
-        app = app_key or None
-        if (query, app_key) in self._missing_searches:
-            return "search_skills: no matches (cached for this task)", []
-        hits = [
-            pack
-            for pack in self.library.search(query, app=app, limit=20)
-            if pack.kind != "workflow"
-        ]
-        if not hits:
-            return "search_skills: no generic non-workflow matches", []
-        lines = [p.summary_line() for p in hits]
-        ids = [p.id for p in hits]
-        return (
-            "search_skills non-workflow matches:\n"
-            + "\n".join(lines)
-        ), ids
-
-    @staticmethod
-    def _search_key(args: dict[str, Any]) -> tuple[str, str]:
-        return (
-            str(args.get("query") or "").strip().casefold(),
-            str(args.get("app") or "").strip().casefold(),
-        )
-
     def _parse_submit_args(
         self,
         args: dict[str, Any],
@@ -1821,19 +2242,10 @@ class AgentSession:
         context: ToolExecutionContext | None = None,
     ) -> TerminalValue:
         try:
-            if self.role == "planner":
-                return PlannerDecisionSubmit.model_validate(args).to_decision()
-            if self.role == "reviewer":
-                if self.reviewer_protocol == "scope":
-                    return ReviewerScopeSubmit.model_validate(args).to_contract()
-                packet_digest = ""
-                if context is not None:
-                    packet_digest = str(
-                        context.state.get("reviewer_packet_digest") or ""
-                    )
-                return ReviewerDecisionSubmit.model_validate(args).to_decision(
-                    packet_digest=packet_digest,
-                )
+            if self.role in {"planner", "reviewer"}:
+                from shared.revisable import PlannerDecision, Review
+                schema = PlannerDecision if self.role == "planner" else Review
+                return schema.model_validate(args)
             active_observation_id = ""
             evidence_refs: list[str] = []
             if context is not None:
@@ -1870,366 +2282,6 @@ def _safe_json(raw: str | dict[str, Any]) -> dict[str, Any]:
         return {}
 
 
-def _invalid_role_submission(
-    role: str,
-    *,
-    detail: str,
-    fields: list[str] | None = None,
-) -> AgentToolResult:
-    data: dict[str, Any] = {"recoverable": True}
-    if fields:
-        data["invalid_fields"] = fields
-    return AgentToolResult(
-        status=ToolStatus.INVALID_ARGUMENTS,
-        summary=(
-            f"recoverable {role} submit validation error: {detail}; "
-            "correct the same role submission and resubmit in this invocation"
-        ),
-        data=data,
-        error=f"invalid_{role}_submission",
-    )
-
-
-def _validation_result(role: str, exc: ValidationError) -> AgentToolResult:
-    fields = sorted({
-        str(item["loc"][-1]) for item in exc.errors() if item.get("loc")
-    })
-    reasons = list(dict.fromkeys(
-        str(item.get("msg") or "invalid value") for item in exc.errors()
-    ))
-    return _invalid_role_submission(
-        role,
-        detail="; ".join(reasons)[:400],
-        fields=fields or ["decision"],
-    )
-
-
-def _planner_submission_error(
-    args: dict[str, Any],
-    context: ToolExecutionContext,
-) -> AgentToolResult | None:
-    try:
-        decision = PlannerDecisionSubmit.model_validate(args).to_decision()
-    except ValidationError as exc:
-        return _validation_result("planner", exc)
-    immutable_categories = dict(
-        context.state.get("planner_requirement_categories") or {}
-    )
-    target_ref = (
-        decision.target_requirement_ref
-        if decision.mode == PlannerMode.EXECUTE
-        else decision.review_requirement_ref
-    )
-    if immutable_categories:
-        if target_ref not in immutable_categories:
-            return _invalid_role_submission(
-                "planner",
-                detail="requirement ref must name one immutable requirement",
-                fields=[
-                    "target_requirement_ref"
-                    if decision.mode == PlannerMode.EXECUTE
-                    else "review_requirement_ref"
-                ],
-            )
-        if (
-            decision.mode == PlannerMode.REVIEW
-            and immutable_categories[target_ref] == "must_happen"
-        ):
-            return _invalid_role_submission(
-                "planner",
-                detail=(
-                    "a pending must_happen occurrence requires execute; "
-                    "current observation alone cannot establish it"
-                ),
-                fields=["mode", "review_requirement_ref"],
-            )
-        if "planner_accepted_requirement_refs" in context.state:
-            accepted_refs = {
-                str(ref)
-                for ref in context.state["planner_accepted_requirement_refs"]
-                if str(ref)
-            }
-            if target_ref in accepted_refs:
-                return _invalid_role_submission(
-                    "planner",
-                    detail="requirement ref must remain unaccepted",
-                    fields=[
-                        "target_requirement_ref"
-                        if decision.mode == PlannerMode.EXECUTE
-                        else "review_requirement_ref"
-                    ],
-                )
-    if decision.mode == PlannerMode.EXECUTE:
-        assert decision.completion_contract is not None
-        declaration = completion_declaration_error(decision.completion_contract)
-        if declaration:
-            return _invalid_role_submission(
-                "planner", detail=declaration, fields=["completion_contract"],
-            )
-    return None
-
-
-def _reviewer_scope_submission_error(
-    args: dict[str, Any],
-) -> AgentToolResult | None:
-    try:
-        contract = ReviewerScopeSubmit.model_validate(args).to_contract()
-    except ValidationError as exc:
-        return _validation_result("reviewer_scope", exc)
-    declaration = completion_declaration_error(contract)
-    if declaration:
-        return _invalid_role_submission(
-            "reviewer_scope", detail=declaration, fields=["must_happen"],
-        )
-    return None
-
-
-def _reviewer_submission_error(
-    args: dict[str, Any], context: ToolExecutionContext,
-) -> AgentToolResult | None:
-    try:
-        submission = ReviewerDecisionSubmit.model_validate(args)
-    except ValidationError as exc:
-        return _validation_result("reviewer", exc)
-
-    if (
-        submission.verdict == ReviewerVerdict.RETRY
-        and not bool(context.state.get("reviewer_has_active_subgoal"))
-    ):
-        return _invalid_role_submission(
-            "reviewer",
-            detail="retry requires an active Executor subgoal; use replan instead",
-            fields=["verdict"],
-        )
-
-    packet_digest = str(context.state.get("reviewer_packet_digest") or "")
-    if not packet_digest:
-        return _invalid_role_submission(
-            "reviewer",
-            detail="runtime reviewer_packet_digest is unavailable",
-            fields=["evidence_handles"],
-        )
-
-    delivered_handles = {
-        str(handle)
-        for handle in context.state.get("reviewer_evidence_handles", [])
-        if str(handle)
-    }
-    cited_handles = set(submission.evidence_handles)
-    cited_handles.update(
-        handle
-        for progress in submission.accepted_progress
-        for handle in progress.evidence_handles
-    )
-    cited_handles.update(
-        handle
-        for fact in submission.remembered_facts
-        for handle in fact.evidence_handles
-    )
-    cited_handles.update(
-        handle
-        for item in submission.answers
-        for handle in item.evidence_handles
-    )
-    unknown_handles = sorted(cited_handles - delivered_handles)
-    if unknown_handles:
-        return _invalid_role_submission(
-            "reviewer",
-            detail=(
-                "evidence handles were not delivered in this packet: "
-                + ", ".join(unknown_handles)
-            ),
-            fields=["evidence_handles"],
-        )
-
-    progress_bindings = [
-        dict(binding)
-        for binding in context.state.get("reviewer_progress_bindings", [])
-        if isinstance(binding, dict)
-    ]
-    available_progress_ids = {
-        str(binding.get("progress_id") or "")
-        for binding in progress_bindings
-        if str(binding.get("progress_id") or "")
-    }
-    unknown_progress_ids = sorted(
-        set(submission.superseded_progress_ids) - available_progress_ids
-    )
-    if unknown_progress_ids:
-        return _invalid_role_submission(
-            "reviewer",
-            detail=(
-                "superseded progress ids were not delivered: "
-                + ", ".join(unknown_progress_ids)
-            ),
-            fields=["superseded_progress_ids"],
-        )
-
-    criterion_categories = {
-        str(ref): str(category)
-        for ref, category in dict(
-            context.state.get("reviewer_requirement_categories") or {}
-        ).items()
-        if str(ref) and str(category)
-    }
-    accepted_refs = [
-        progress.requirement_ref for progress in submission.accepted_progress
-    ]
-    unknown_refs = sorted(set(accepted_refs) - set(criterion_categories))
-    if unknown_refs:
-        return _invalid_role_submission(
-            "reviewer",
-            detail=(
-                "requirement refs were not delivered in the immutable task contract: "
-                + ", ".join(unknown_refs)
-            ),
-            fields=["accepted_progress"],
-        )
-    if len(accepted_refs) != len(set(accepted_refs)):
-        return _invalid_role_submission(
-            "reviewer",
-            detail="each requirement may be bound at most once per verdict",
-            fields=["accepted_progress"],
-        )
-
-    answer_refs = [item.requirement_ref for item in submission.answers]
-    unknown_answer_refs = sorted(set(answer_refs) - set(criterion_categories))
-    if unknown_answer_refs:
-        return _invalid_role_submission(
-            "reviewer",
-            detail=(
-                "answer refs were not delivered in the immutable task contract: "
-                + ", ".join(unknown_answer_refs)
-            ),
-            fields=["answers"],
-        )
-    wrong_answer_refs = sorted(
-        ref
-        for ref in answer_refs
-        if criterion_categories.get(ref) != "answer"
-    )
-    if wrong_answer_refs:
-        return _invalid_role_submission(
-            "reviewer",
-            detail=(
-                "answers must bind contract answer refs: "
-                + ", ".join(wrong_answer_refs)
-            ),
-            fields=["answers"],
-        )
-
-    dispatched_handles = {
-        str(handle)
-        for handle in context.state.get(
-            "reviewer_dispatched_action_handles", []
-        )
-        if str(handle)
-    }
-    temporal_evidence_handles = {
-        str(handle)
-        for handle in context.state.get("reviewer_temporal_evidence_handles", [])
-        if str(handle)
-    }
-    current_evidence_handles = {
-        str(handle)
-        for handle in context.state.get("reviewer_current_evidence_handles", [])
-        if str(handle)
-    }
-    if "current" in delivered_handles:
-        current_evidence_handles.add("current")
-    superseded_ids = set(submission.superseded_progress_ids)
-    binding_by_handle = {
-        str(binding.get("evidence_handle") or ""): binding
-        for binding in progress_bindings
-        if (
-            str(binding.get("evidence_handle") or "")
-            and str(binding.get("progress_id") or "") not in superseded_ids
-        )
-    }
-    for progress in submission.accepted_progress:
-        category = criterion_categories[progress.requirement_ref]
-        handles = set(progress.evidence_handles)
-        same_criterion_progress = {
-            handle
-            for handle, binding in binding_by_handle.items()
-            if binding.get("requirement_ref") == progress.requirement_ref
-        }
-        history_handles = (
-            dispatched_handles | temporal_evidence_handles | same_criterion_progress
-        )
-        if category == "must_happen" and not handles.intersection(history_handles):
-            return _invalid_role_submission(
-                "reviewer",
-                detail=(
-                    f"must_happen requirement {progress.requirement_ref} requires an "
-                    "actually dispatched action, ordered temporal evidence, or bound "
-                    "history-progress handle"
-                ),
-                fields=["accepted_progress"],
-            )
-        if (
-            submission.verdict == ReviewerVerdict.DONE
-            and category == "final_ui_state"
-            and not handles.intersection(
-                current_evidence_handles | temporal_evidence_handles
-            )
-        ):
-            return _invalid_role_submission(
-                "reviewer",
-                detail=(
-                    f"final_ui_state requirement {progress.requirement_ref} must be rebound "
-                    "to current or ordered temporal ending evidence at terminal review"
-                ),
-                fields=["accepted_progress"],
-            )
-
-    if submission.verdict == ReviewerVerdict.DONE:
-        durable_refs = {
-            str(binding.get("requirement_ref") or "")
-            for binding in progress_bindings
-            if (
-                str(binding.get("progress_id") or "") not in superseded_ids
-                and criterion_categories.get(
-                    str(binding.get("requirement_ref") or "")
-                ) == "must_happen"
-            )
-        }
-        current_refs = set(accepted_refs)
-        expected_answer_refs = sorted(
-            ref
-            for ref, category in criterion_categories.items()
-            if category == "answer"
-        )
-        if sorted(answer_refs) != expected_answer_refs:
-            return _invalid_role_submission(
-                "reviewer",
-                detail=(
-                    "terminal done must cover every contract answer ref: "
-                    + ", ".join(expected_answer_refs or ["(none)"])
-                ),
-                fields=["answers"],
-            )
-        uncovered = sorted(
-            ref
-            for ref, category in criterion_categories.items()
-            if category != "answer"
-            and (
-                (category == "final_ui_state" and ref not in current_refs)
-                or (category == "must_happen" and ref not in durable_refs | current_refs)
-            )
-        )
-        if uncovered:
-            return _invalid_role_submission(
-                "reviewer",
-                detail=(
-                    "terminal done does not cover immutable criteria: "
-                    + ", ".join(uncovered)
-                ),
-                fields=["accepted_progress"],
-            )
-    return None
-
-
 def _executor_submission_error(
     args: dict[str, Any], context: ToolExecutionContext | None = None,
 ) -> AgentToolResult | None:
@@ -2246,6 +2298,7 @@ def _executor_submission_error(
             error="invalid_executor_submission",
         )
 
+    raw_decision = args.get("decision")
     current = dict(args)
     try:
         submission = ExecutorStepSubmit.model_validate(current)
@@ -2272,7 +2325,8 @@ def _executor_submission_error(
         if extra_fields:
             return _invalid_executor_action(
                 extra_fields,
-                f"{action_type} contains action parameter(s) from another variant",
+                f"{action_type}: remove {', '.join(extra_fields)}; allowed fields: "
+                + ", ".join(sorted(allowed_fields)),
             )
 
     missing_params = _missing_action_params(action)
@@ -2289,6 +2343,15 @@ def _missing_action_params(action: Action) -> list[str]:
         if action.index is None and (action.x is None or action.y is None):
             return ["index or (x,y)"]
         return []
+    if action.type == "skill_authorized_action":
+        missing = []
+        if not action.skill_action_id or not action.skill_action_id.strip():
+            missing.append("skill_action_id")
+        has_index = action.index is not None
+        has_coordinates = action.x is not None and action.y is not None
+        if has_index == has_coordinates or ((action.x is None) != (action.y is None)):
+            missing.append("exactly one target: index or (x,y)")
+        return missing
     return [
         name
         for name in _ACTION_REQUIRED_PARAMS.get(action.type, ())
@@ -2445,7 +2508,9 @@ def _snapshot_messages(
                 mime_type = header[5:].split(";", 1)[0] if header.startswith("data:") else "application/octet-stream"
                 safe_blocks.append({
                     "type": "image_url",
-                    "image_url": {"url": "[image attachment omitted]"},
+                    "image_url": {
+                        "url": "[sent to model; binary omitted from persisted trace]",
+                    },
                     "attachment_metadata": {
                         "mime_type": mime_type,
                         "encoded_bytes": (len(body) * 3) // 4 if body else None,
@@ -2535,7 +2600,9 @@ def _prompt_measurements(
 
     component_names = {
         "role_policy": lambda name: name == "system",
-        "skill_context": lambda name: name.startswith("k_wire_messages["),
+        "skill_context": lambda name: (
+            name == "skill_index" or name.startswith("k_wire_messages[")
+        ),
         "task_anchor": lambda name: name in {"goal", "task_anchor"},
         "history": lambda name: name == "history",
         "observation_text": lambda name: name.startswith("observation"),
@@ -2696,7 +2763,7 @@ def _redact_tool_arguments(
         or action_type not in {"type", "replace_text"}
     ):
         return _scrub_sensitive_values(redacted, context)
-    if _focused_target_is_password(context):
+    if _focused_target_is_password(context, action.get("index")):
         action["text"] = "[REDACTED]"
         action["text_redacted"] = True
     return _scrub_sensitive_values(redacted, context)
@@ -2719,7 +2786,7 @@ def _register_sensitive_tool_arguments(
         return
     raw_text = raw_action.get("text")
     if (
-        not _focused_target_is_password(context)
+        not _focused_target_is_password(context, raw_action.get("index"))
         or not isinstance(raw_text, str)
         or not raw_text
     ):
@@ -2729,9 +2796,14 @@ def _register_sensitive_tool_arguments(
         values.append(raw_text)
 
 
-def _focused_target_is_password(context: ToolExecutionContext) -> bool:
+def _focused_target_is_password(context: ToolExecutionContext, index: int | None = None) -> bool:
     """Fail closed when exact focused sources disagree about password state."""
     package = context.state.get("active_package")
+    if index is not None:
+        return any(
+            element.index == index and bool(element.states.get("password"))
+            for element in getattr(getattr(package, "ui", None), "elements", [])
+        )
     interaction = getattr(package, "interaction_state", None)
     from perception.input_evidence import focused_target_evidence
 

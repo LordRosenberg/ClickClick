@@ -8,244 +8,38 @@ completion.
 from __future__ import annotations
 
 import json
+import os
 from typing import Any, Iterable
 
-from agent.task_memory import ensure_memory
-from agent.completion_contract import (
-    model_visible_contract_body,
-)
-from agent.tool_registry import stable_hash
-from perception.input_evidence import (
-    build_interaction_state,
-    editability_evidence,
-    element_identity,
-    interaction_envelope,
-)
+from perception.input_evidence import build_interaction_state, editability_evidence, element_identity, interaction_envelope
 from perception.observation import ObservationPackage
 from perception.observation import has_model_visible_tree_content
-from shared.schemas import AgentState, CanonicalUI, MemoryEvent, UIElement
+from shared.schemas import CanonicalUI, UIElement
+
+INTERACTION_ACK_MODEL_VISIBLE_ENV = "CLICKCLICK_INTERACTION_ACK_MODEL_VISIBLE"
+SURFACE_BOUNDS_ENV = "CLICKCLICK_SURFACE_BOUNDS_ENABLED"
 
 
 def _json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def _contract_body(bound: Any) -> dict[str, Any] | None:
-    body = getattr(bound, "body", None)
-    if body is None:
-        return None
-    return model_visible_contract_body(body)
-
-
-def task_contract_projection(state: AgentState) -> dict[str, Any] | None:
-    """Project stable ordered refs for the immutable task contract."""
-    body = _contract_body(state.task_completion_contract)
-    if body is None:
-        return None
-    accepted_refs = {
-        entry.requirement_ref
-        for entry in ensure_memory(state).progress
-        if entry.effective and entry.requirement_ref
-    }
-    active_ref = (
-        state.active_completion_contract.target_requirement_ref
-        if state.active_completion_contract is not None
-        else ""
-    )
-    for group in ("must_happen", "final_ui_state", "answer"):
-        projected = []
-        for index, text in enumerate(body.get(group) or [], start=1):
-            requirement_ref = f"{group}:{index}"
-            status = (
-                "accepted"
-                if requirement_ref in accepted_refs
-                else "active" if requirement_ref == active_ref else "pending"
-            )
-            projected.append({
-                "requirement_ref": requirement_ref,
-                "status": status,
-                "text": text,
-            })
-        body[group] = projected
-    return body
-
-
-def task_requirement_categories(state: AgentState) -> dict[str, str]:
-    """Return exact immutable requirement refs and categories."""
-    body = task_contract_projection(state) or {}
-    return {
-        str(item["requirement_ref"]): group
-        for group in ("must_happen", "final_ui_state", "answer")
-        for item in body.get(group) or []
-    }
-
-
-def _accepted_memory(state: AgentState) -> dict[str, Any]:
-    memory = ensure_memory(state)
-    facts = {
-        key: entry.value
-        for key, entry in sorted(
-            memory.facts.items(),
-            key=lambda item: (int(item[1].step or 0), item[0]),
-        )
-    }
-    progress = [
-        {
-            **({"requirement_ref": entry.requirement_ref} if entry.requirement_ref else {}),
-            "statement": entry.statement,
-        }
-        for entry in memory.progress
-        if entry.effective
-    ]
-    payload: dict[str, Any] = {}
-    if facts:
-        payload["remembered_facts"] = facts
-    if progress:
-        payload["progress"] = progress
-    return payload
-
-
-def accepted_progress_projection(state: AgentState) -> list[dict[str, Any]]:
-    """Project Reviewer-accepted progress without exposing planning history."""
-    rows: list[dict[str, Any]] = []
-    for entry in ensure_memory(state).progress:
-        if not entry.effective:
-            continue
-        rows.append({
-            "progress_id": entry.progress_id,
-            **({"requirement_ref": entry.requirement_ref} if entry.requirement_ref else {}),
-            "statement": entry.statement,
-        })
-    return rows
-
-
-def _reviewer_accepted_knowledge(
-    state: AgentState,
-) -> tuple[dict[str, Any], list[str]]:
-    memory = _accepted_memory(state)
-    handles: list[str] = []
-    facts: dict[str, Any] = {}
-    for key, value in dict(memory.get("remembered_facts") or {}).items():
-        handle = f"fact:{key}"
-        facts[key] = {"value": value, "evidence_handle": handle}
-        handles.append(handle)
-    payload: dict[str, Any] = {}
-    if facts:
-        payload["remembered_facts"] = facts
-    return payload, handles
-
-
-def _active_lineage_ids(state: AgentState) -> list[str]:
-    return list(dict.fromkeys(
-        value.strip()
-        for value in state.active_timeline_lineage_ids
-        if value and value.strip()
-    ))
-
-
-def _ordered_attempts(state: AgentState) -> list[MemoryEvent]:
-    active_ids = set(_active_lineage_ids(state))
-    if not active_ids:
-        return []
-    indexed = [
-        (position, event)
-        for position, event in enumerate(ensure_memory(state).events)
-        if event.kind == "attempt" and event.lineage_id in active_ids
-    ]
-    indexed.sort(key=lambda item: (int(item[1].step or 0), item[0]))
-    return [event for _position, event in indexed]
-
-
-def _post_action_capture(event: MemoryEvent, current_observation_id: str) -> dict[str, Any]:
-    status = {
-        "accepted": "available",
-        "missing": "unavailable",
-        "not_applicable": "not_applicable",
-    }.get(event.post_dispatch_observation, "unavailable")
-    return {
-        "status": status,
-        **(
-            {"result_observation_handle": "current"}
-            if current_observation_id
-            and event.post_observation_id == current_observation_id
-            else {}
-        ),
-    }
-
-
-def _semantic_action(event: MemoryEvent) -> dict[str, Any]:
-    """Project action meaning without historical locators."""
-    if event.submitted_action is None:
-        return {"type": event.submitted_action_type or event.action_type}
-    payload = event.submitted_action.model_dump(
-        mode="json",
-        exclude_none=True,
-        exclude_defaults=True,
-    )
-    return {
-        key: value
-        for key, value in payload.items()
-        if key in {
-            "type", "text", "text_redacted", "key", "app", "direction",
-            "duration_ms",
-        }
-    }
-
-
-def _semantic_target(event: MemoryEvent) -> dict[str, Any] | None:
-    """Project exact source semantics while omitting replay-only geometry."""
-    if event.target is None:
-        return None
-    payload = event.target.model_dump(
-        mode="json",
-        exclude_none=True,
-        exclude_defaults=True,
-    )
-    target = {
-        key: value
-        for key, value in payload.items()
-        if key in {
-            "role", "raw_text", "raw_a11y_label", "raw_hint",
-            "raw_fields_redacted", "editability", "focused", "password",
-        }
-    }
-    return target or None
-
-
-def action_timeline_rows(
-    state: AgentState,
-    *,
-    current_observation_id: str = "",
-) -> list[dict[str, Any]]:
-    """Return the one active timeline; interpretation remains model-owned."""
-    rows: list[dict[str, Any]] = []
-    for event in _ordered_attempts(state):
-        row: dict[str, Any] = {
-            "intent": event.model_intent or event.summary or event.action_type,
-            "submitted_action": _semantic_action(event),
-            "dispatch": event.dispatch_status or "not_dispatched",
-            "post_action_capture": _post_action_capture(
-                event, current_observation_id,
-            ),
-        }
-        target = _semantic_target(event)
-        if target is not None:
-            row["target_at_submission"] = target
-        rows.append(row)
-    return rows
-
-
-def planner_action_timeline_rows(state: AgentState) -> list[dict[str, Any]]:
-    """Project active attempt facts needed for recovery, without action locators."""
-    return [
-        {
-            "intent": row["intent"],
-            "submitted_action": row["submitted_action"],
-            "dispatch": row["dispatch"],
-            "post_action_capture": row["post_action_capture"],
-        }
-        for row in action_timeline_rows(state)
-    ]
+def _without_empty(value: Any) -> Any:
+    """Recursively omit empty optional values from a model-facing object."""
+    if isinstance(value, dict):
+        compacted: dict[str, Any] = {}
+        for key, item in value.items():
+            compact = _without_empty(item)
+            if compact not in (None, "", [], {}) or (key == "raw_text" and item == ""):
+                compacted[key] = compact
+        return compacted
+    if isinstance(value, list):
+        return [
+            compact
+            for item in value
+            if (compact := _without_empty(item)) not in (None, "", [], {})
+        ]
+    return value
 
 
 def _observation_capabilities(package: ObservationPackage) -> dict[str, Any]:
@@ -312,7 +106,35 @@ def _semantic_interaction_state(package: ObservationPackage) -> dict[str, Any]:
         focus = payload.get(key)
         if isinstance(focus, dict):
             focus.pop("index", None)
-    return payload
+    focused = payload.get("focused_element")
+    editable = payload.get("focused_editable")
+    if isinstance(focused, dict) and isinstance(editable, dict):
+        if focused.get("identity") == editable.get("identity"):
+            payload.pop("focused_element", None)
+    return {
+        key: value for key, value in payload.items()
+        if value not in (None, "", [], {})
+    }
+
+
+def _executor_interaction_state(package: ObservationPackage) -> dict[str, Any]:
+    payload = interaction_envelope(package.interaction_state)
+    focused = payload.get("focused_element")
+    editable = payload.get("focused_editable")
+    if isinstance(focused, dict) and isinstance(editable, dict):
+        if focused.get("identity") == editable.get("identity"):
+            payload.pop("focused_element", None)
+    return {
+        key: value for key, value in payload.items()
+        if value not in (None, "", [], {})
+    }
+
+
+def _focused_editable_identity(package: ObservationPackage) -> str:
+    interaction = package.interaction_state
+    if interaction is None or interaction.focused_editable is None:
+        return ""
+    return interaction.focused_editable.identity
 
 
 def _short_role(role: str) -> str:
@@ -346,6 +168,185 @@ def _raw_fields(
         for name, value in fields.items()
         if value or (name == "raw_text" and preserve_empty_text)
     }
+
+
+_SEMANTIC_CONTAINER_ROLES = {
+    "dialog",
+    "drawerlayout",
+    "gridview",
+    "horizontalscrollview",
+    "listview",
+    "recyclerview",
+    "scrollview",
+    "tablayout",
+    "tabwidget",
+    "viewpager",
+    "webview",
+}
+
+_TREE_STATE_ORDER = (
+    "clickable",
+    "focusable",
+    "focused",
+    "editable",
+    "selected",
+    "checked",
+    "scrollable",
+    "long_clickable",
+    "password",
+)
+
+
+def _model_source_fields(element: UIElement) -> dict[str, Any]:
+    if bool((element.states or {}).get("password")):
+        return {"source_fields_redacted": True}
+    editability = editability_evidence(element)
+    return {
+        key: value
+        for key, value in {
+            "text": element.text,
+            "accessibility_label": element.desc,
+            "hint": element.hint,
+        }.items()
+        if value or (key == "text" and editability == "editable")
+    }
+
+
+def _resource_id_fallback(element: UIElement, source_fields: dict[str, Any]) -> str:
+    if any(source_fields.get(key) for key in ("text", "accessibility_label", "hint")):
+        return ""
+    value = element.resource_id.strip()
+    if "resource_name_obfuscated" in value.casefold():
+        return ""
+    return value
+
+
+def _tree_states(element: UIElement) -> dict[str, bool]:
+    states = element.states or {}
+    return {
+        name: True
+        for name in _TREE_STATE_ORDER
+        if (element.clickable if name == "clickable" else bool(states.get(name)))
+    }
+
+
+def _retain_tree_element(
+    element: UIElement,
+    *,
+    include_action_indexes: bool,
+    multiple_windows: bool,
+) -> bool:
+    sources = _model_source_fields(element)
+    states = _tree_states(element)
+    role = _short_role(element.role).casefold()
+    if element.window_wrapper:
+        return bool(
+            (element.window_type is not None and element.window_type != 1)
+            or (multiple_windows and element.window_type is None)
+        )
+    return bool(
+        sources
+        or states
+        or _resource_id_fallback(element, sources)
+        or role in _SEMANTIC_CONTAINER_ROLES
+        or (include_action_indexes and element.interactable and element.index >= 0)
+    )
+
+
+def _projected_tree_rows(
+    elements: Iterable[UIElement],
+    *,
+    include_action_indexes: bool,
+) -> list[tuple[int, UIElement]]:
+    """Return retained preorder rows with depth recomputed after pruning."""
+    tree = list(elements)
+    if not tree:
+        return []
+    children = {
+        index: [child for child in element.children if 0 <= child < len(tree)]
+        for index, element in enumerate(tree)
+    }
+    child_indexes = {child for values in children.values() for child in values}
+    roots = [index for index in range(len(tree)) if index not in child_indexes]
+    multiple_windows = sum(element.window_wrapper for element in tree) > 1
+    rows: list[tuple[int, UIElement]] = []
+    visited: set[int] = set()
+
+    def visit(index: int, depth: int) -> None:
+        if index in visited:
+            return
+        visited.add(index)
+        element = tree[index]
+        retained = _retain_tree_element(
+            element,
+            include_action_indexes=include_action_indexes,
+            multiple_windows=multiple_windows,
+        )
+        if retained:
+            rows.append((depth, element))
+        child_depth = depth + 1 if retained else depth
+        for child in children[index]:
+            visit(child, child_depth)
+
+    for root in roots:
+        visit(root, 0)
+    for index in range(len(tree)):
+        visit(index, 0)
+    return rows
+
+
+def render_role_tree(
+    elements: Iterable[UIElement],
+    *,
+    include_action_indexes: bool,
+    projected_focused_editable_identity: str = "",
+    image_bounds_by_identity: dict[int, list[int]] | None = None,
+) -> str:
+    """Render the shared, locator-aware role Tree grammar."""
+    lines: list[str] = []
+    for depth, element in _projected_tree_rows(
+        elements,
+        include_action_indexes=include_action_indexes,
+    ):
+        indexed = bool(
+            include_action_indexes and element.interactable and element.index >= 0
+        )
+        head = (
+            f"[{element.index}] {_short_role(element.role)}"
+            if indexed else _short_role(element.role)
+        )
+        fields: list[str] = [f"depth={depth}", head]
+        actual_sources = _model_source_fields(element)
+        sources = (
+            {}
+            if projected_focused_editable_identity
+            and bool((element.states or {}).get("focused"))
+            and editability_evidence(element) == "editable"
+            and element_identity(element) == projected_focused_editable_identity
+            else actual_sources
+        )
+        for name in ("text", "accessibility_label", "hint"):
+            if name in sources:
+                fields.append(f"{name}={_json(sources[name])}")
+        if sources.get("source_fields_redacted"):
+            fields.append("source_fields_redacted")
+        editability = editability_evidence(element)
+        if editability == "conflict":
+            fields.append("editability=conflict")
+        states = _tree_states(element)
+        for name in _TREE_STATE_ORDER:
+            if states.get(name) and not (name == "clickable" and indexed):
+                fields.append(name)
+        resource_id = _resource_id_fallback(element, actual_sources)
+        if resource_id:
+            fields.append(f"resource_id={_json(resource_id)}")
+        image_bounds = (image_bounds_by_identity or {}).get(id(element))
+        if image_bounds is not None:
+            fields.append(f"image_bounds={_json(image_bounds)}")
+        if element.window_wrapper and element.window_type is not None:
+            fields.append(f"window_type={element.window_type}")
+        lines.append(" | ".join(fields))
+    return "\n".join(lines)
 
 
 def semantic_tree_projection(
@@ -406,15 +407,8 @@ def semantic_tree_projection(
     return rows
 
 
-def decision_semantic_tree_projection(
-    package: ObservationPackage,
-) -> list[dict[str, Any]]:
-    """Project the capture-bound foreground window and active overlays.
-
-    Window selection uses only ownership and focus metadata already attached
-    to the accepted observation. The full canonical tree remains untouched for
-    Executor grounding, artifacts, and replay.
-    """
+def _decision_tree_elements(package: ObservationPackage) -> list[UIElement]:
+    """Select capture-bound foreground windows without changing canonical UI."""
     tree = package.ui.semantic_tree
     foreground = package.ui.app_id.strip()
     exact_window_ids = {
@@ -438,10 +432,33 @@ def decision_semantic_tree_projection(
     if not retained_window_ids:
         retained = tree
     else:
-        retained = [
-            element for element in tree
+        retained_indexes = [
+            index for index, element in enumerate(tree)
             if element.window_id in retained_window_ids
-        ] or tree
+        ]
+        if not retained_indexes:
+            return tree
+        index_map = {
+            original: projected for projected, original in enumerate(retained_indexes)
+        }
+        retained = [
+            tree[index].model_copy(update={
+                "children": [
+                    index_map[child]
+                    for child in tree[index].children
+                    if child in index_map
+                ],
+            })
+            for index in retained_indexes
+        ]
+    return retained
+
+
+def decision_semantic_tree_projection(
+    package: ObservationPackage,
+) -> list[dict[str, Any]]:
+    """Legacy structured projection retained for internal callers and tests."""
+    retained = _decision_tree_elements(package)
     focused_editable = (
         package.interaction_state.focused_editable
         if package.interaction_state is not None
@@ -467,350 +484,156 @@ def decision_semantic_tree_projection(
     ]
 
 
-def _boundary_candidate(
-    _state: AgentState,
-    *,
-    executor_report: str,
-) -> dict[str, Any] | None:
-    if not executor_report:
-        return None
-    return {"summary": executor_report}
+def historical_intermediate_tree_projection(
+    package: ObservationPackage,
+) -> list[dict[str, Any]]:
+    """Project the existing compressed hierarchy without action or interaction fields."""
+    rows = semantic_tree_projection(_decision_tree_elements(package))
+    projected: list[dict[str, Any]] = []
+    for row in rows:
+        projected.append({
+            key: value
+            for key, value in row.items()
+            if key not in {"states", "editability"}
+        })
+    return projected
 
 
-def _boundary_review(state: AgentState) -> dict[str, Any] | None:
-    fact = state.recovery_state.boundary_review
-    if fact is None:
-        return None
-    payload = fact.model_dump(
-        mode="json",
-        exclude_none=True,
-        exclude={"package_digest"},
-    )
-    return {
-        key: value
-        for key, value in payload.items()
-        if key in {"type", "source"} or value not in ("", [], {})
-    }
-
-
-def render_executor_task_anchor(state: AgentState) -> str:
-    payload = {
-        "original_instruction": state.instruction,
-        "task_contract": task_contract_projection(state),
-        "current_subgoal": state.current_subgoal,
-        **({"target_requirement_ref": (
-            state.active_completion_contract.target_requirement_ref
-        )} if state.active_completion_contract is not None
-        and state.active_completion_contract.target_requirement_ref else {}),
-        "active_subgoal_contract": _contract_body(
-            state.active_completion_contract,
-        ),
-        **({"last_reviewer_feedback": {
-            "verdict": state.recovery_state.last_reviewer_verdict.value,
-            "reason": state.recovery_state.last_reviewer_reason,
-        }} if state.recovery_state.last_reviewer_verdict is not None else {}),
-    }
-    return "TASK ANCHOR:\n" + _json(payload)
-
-
-def render_planner_task_anchor(
-    state: AgentState,
-    *,
-    deviation: str = "",
+def render_historical_intermediate_observation(
+    package: ObservationPackage,
 ) -> str:
-    active_attempts = planner_action_timeline_rows(state)
-    accepted_memory = _accepted_memory(state)
-    accepted_progress = list(accepted_memory.get("progress") or [])
-    accepted_knowledge = {
-        key: value
-        for key, value in accepted_memory.items()
-        if key == "remembered_facts"
-    }
-    payload = {
-        "original_instruction": state.instruction,
-        "task_contract": task_contract_projection(state),
-        **({"accepted_progress": accepted_progress} if accepted_progress else {}),
-        **accepted_knowledge,
-        **({"plan": state.plan} if state.plan else {}),
-        **({
-            "last_reviewed_subgoal": state.current_subgoal,
-        } if state.active_completion_contract is not None else {}),
-        **(
-            {
-                "last_reviewer_feedback": {
-                    "verdict": state.recovery_state.last_reviewer_verdict.value,
-                    "reason": (
-                        state.recovery_state.last_reviewer_reason
-                        or deviation.strip()
-                    ),
-                },
-            }
-            if state.recovery_state.last_reviewer_verdict is not None
-            else (
-                {"current_deviation_or_blocker": deviation.strip()}
-                if deviation.strip()
-                else {}
-            )
+    """Render non-actionable compound evidence with explicit temporal identity."""
+    metadata = {
+        "temporal_role": "historical_intermediate",
+        "actionable": False,
+        "observation_id": package.observation_id,
+        "foreground_package": package.ui.app_id.strip(),
+        "instruction": (
+            "Evidence for comparison only. Do not use this tree or image as an "
+            "action basis; ground subsequent actions only in the latest current state."
         ),
-        **({"active_action_timeline": active_attempts} if active_attempts else {}),
     }
-    return "PLANNER TASK ANCHOR:\n" + _json(payload)
+    tree = historical_intermediate_tree_projection(package)
+    return (
+        "HISTORICAL INTERMEDIATE — evidence only, not an action basis:\n"
+        + _json(_without_empty(metadata))
+        + ("\nTREE (non-actionable):\n" + _json(tree) if tree else "")
+    )
 
 
-def render_executor_history_v2(state: AgentState) -> str:
-    accepted_memory = _accepted_memory(state)
-    timeline = action_timeline_rows(state)
-    accepted_progress = list(accepted_memory.get("progress") or [])
-    remembered_facts = dict(accepted_memory.get("remembered_facts") or {})
-    payload = {
-        **({"accepted_progress": accepted_progress} if accepted_progress else {}),
-        **({"remembered_facts": remembered_facts} if remembered_facts else {}),
-        **({"active_action_timeline": timeline} if timeline else {}),
-    }
-    return "ACCEPTED RESULTS AND ACTIVE ATTEMPTS:\n" + _json(payload) if payload else ""
+def _coordinate_surface_image_bounds(
+    package: ObservationPackage, elements: Iterable[UIElement],
+) -> dict[int, list[int]]:
+    """Select a few current a11y surfaces and invert current frame geometry."""
+    if os.getenv(SURFACE_BOUNDS_ENV, "1").strip().lower() in {"0", "false", "no", "off"}:
+        return {}
+    model_w, model_h = package.model_image_width, package.model_image_height
+    frame_w, frame_h = package.frame_width, package.frame_height
+    if min(model_w, model_h, frame_w, frame_h) <= 0:
+        return {}
+    crop = package.crop_box or (0.0, 0.0, float(frame_w), float(frame_h))
+    left, top, right, bottom = crop
+    if right <= left or bottom <= top:
+        return {}
+
+    def point(x: float, y: float) -> tuple[float, float]:
+        su = (x - left) / (right - left)
+        sv = (y - top) / (bottom - top)
+        rotation = package.rotation_degrees % 360
+        if rotation == 0:
+            u, v = su, sv
+        elif rotation == 90:
+            u, v = 1.0 - sv, su
+        elif rotation == 180:
+            u, v = 1.0 - su, 1.0 - sv
+        elif rotation == 270:
+            u, v = sv, 1.0 - su
+        else:
+            return (-1.0, -1.0)
+        return (u * model_w, v * model_h)
+
+    selected: dict[int, list[int]] = {}
+    surface_terms = ("canvas", "drawing", "draw", "surface", "map", "chart", "image")
+    role_surface_terms = ("canvas", "drawing", "draw", "surface", "map", "chart")
+    for element in sorted(elements, key=lambda e: not e.interactable):
+        if len(selected) >= 4 or element.window_wrapper:
+            continue
+        if len(element.bounds) != 4:
+            continue
+        semantic = " ".join((element.resource_id, element.text, element.desc)).lower()
+        role = element.role.lower()
+        # A generic ImageView class is common chrome, not evidence of a
+        # coordinate target. "image" must come from authored semantics.
+        if not (
+            any(term in semantic for term in surface_terms)
+            or any(term in role for term in role_surface_terms)
+        ):
+            continue
+        x1, y1, x2, y2 = element.bounds
+        if x2 <= x1 or y2 <= y1:
+            continue
+        if (x2 - x1) * (y2 - y1) >= 0.90 * frame_w * frame_h:
+            continue
+        corners = [point(x, y) for x, y in ((x1, y1), (x2, y1), (x1, y2), (x2, y2))]
+        if any(x < 0 or y < 0 for x, y in corners):
+            continue
+        xs, ys = [p[0] for p in corners], [p[1] for p in corners]
+        bounds = [
+            max(0, round(min(xs))), max(0, round(min(ys))),
+            min(model_w, round(max(xs))), min(model_h, round(max(ys))),
+        ]
+        if bounds[2] > bounds[0] and bounds[3] > bounds[1]:
+            selected[id(element)] = bounds
+    return selected
 
 
-def render_executor_observation_v2(package: ObservationPackage) -> str:
+def render_executor_observation_v2(
+    package: ObservationPackage, *, include_surface_bounds: bool = False,
+) -> str:
     foreground = package.ui.app_id.strip()
     if not foreground:
         raise ValueError("exact foreground application is required for Executor input")
-    tree = package.text_for_llm
-    foreground_line = f"foreground_package={foreground}"
-    if tree == foreground_line:
-        tree = ""
-    elif tree.startswith(foreground_line + "\n"):
-        tree = tree[len(foreground_line) + 1:]
-    return "CURRENT OBSERVATION:\n" + _json({
+    metadata = _without_empty({
         "foreground_package": foreground,
         "capabilities": _observation_capabilities(package),
-        "focused_interaction": interaction_envelope(package.interaction_state),
-        "semantic_tree": tree,
+        "focused_interaction": _executor_interaction_state(package),
     })
+    # Same mechanical window selection as Planner/Reviewer: keep the exact
+    # foreground-App window plus active/focused overlays; omit inactive
+    # status/notification/navigation chrome from model input.
+    current_elements = _decision_tree_elements(package)
+    tree = render_role_tree(
+        current_elements,
+        include_action_indexes=bool(
+            package.actionable and package.index_actionable
+        ),
+        projected_focused_editable_identity=_focused_editable_identity(package),
+        image_bounds_by_identity=(
+            _coordinate_surface_image_bounds(package, current_elements)
+            if include_surface_bounds else None
+        ),
+    )
+    return (
+        "CURRENT OBSERVATION:\n" + _json(metadata)
+        + ("\nTREE:\n" + tree if tree else "")
+    )
 
 
 def render_planner_observation_v2(package: ObservationPackage) -> str:
     foreground = package.ui.app_id.strip()
     if not foreground:
         raise ValueError("exact foreground application is required for Planner input")
-    return "CURRENT OBSERVATION:\n" + _json({
+    metadata = _without_empty({
         "foreground_package": foreground,
         "capabilities": _decision_observation_capabilities(package),
         "focused_interaction": _semantic_interaction_state(package),
-        "semantic_tree": decision_semantic_tree_projection(package),
     })
-
-
-def _task_audit_required(state: AgentState, *, terminal_review: bool) -> bool:
-    if terminal_review:
-        return True
-    body = getattr(state.task_completion_contract, "body", None)
-    if body is None:
-        return False
-    return bool(
-        getattr(body, "disqualifying_clauses", [])
-        or getattr(body, "must_happen", [])
+    tree = render_role_tree(
+        _decision_tree_elements(package),
+        include_action_indexes=False,
+        projected_focused_editable_identity=_focused_editable_identity(package),
     )
-
-
-def task_action_timeline_rows(
-    state: AgentState,
-    *,
-    current_observation_id: str = "",
-) -> list[dict[str, Any]]:
-    """Project the one canonical task event stream in exact event order."""
-    indexed = [
-        (position, event)
-        for position, event in enumerate(ensure_memory(state).events)
-        if event.kind == "attempt"
-    ]
-    indexed.sort(key=lambda item: (int(item[1].step or 0), item[0]))
-    rows: list[dict[str, Any]] = []
-    for _position, event in indexed:
-        action = _semantic_action(event)
-        dispatched = event.dispatch_status or "not_dispatched"
-        if dispatched != "dispatched":
-            # Boundary requests are model reports, not device effects.
-            action = {"type": str(action.get("type") or event.action_type)}
-        row: dict[str, Any] = {
-            "subgoal": event.subgoal,
-            "submitted_action": action,
-            "dispatch": dispatched,
-            "post_action_capture": _post_action_capture(
-                event, current_observation_id,
-            ),
-        }
-        if dispatched == "dispatched":
-            row["intent"] = event.model_intent or event.summary or event.action_type
-        target = _semantic_target(event)
-        if target is not None:
-            row["target_at_submission"] = target
-        rows.append(row)
-    return rows
-
-
-def reviewer_packet_payload(
-    state: AgentState,
-    package: ObservationPackage,
-    *,
-    executor_report: str = "",
-    boundary_reason: str = "",
-    terminal_review: bool = False,
-    current_evidence: bool = True,
-    review_requirement_ref: str = "",
-) -> tuple[dict[str, Any], list[str]]:
-    """Build one exact Reviewer packet and its citeable evidence handles."""
-    foreground = package.ui.app_id.strip()
-    if not foreground:
-        raise ValueError("exact foreground application is required for Reviewer input")
-
-    observation_key = "current" if current_evidence else "pre_action_observation"
-    observation_handle = "current" if current_evidence else "before-action"
-    handles = [observation_handle]
-    if package.evidence_ref:
-        handles.append(package.evidence_ref)
-    audit_required = _task_audit_required(state, terminal_review=terminal_review)
-    result_observation_id = package.observation_id if current_evidence else ""
-    active_events = action_timeline_rows(
-        state,
-        current_observation_id=result_observation_id,
+    return (
+        "CURRENT OBSERVATION:\n" + _json(metadata)
+        + ("\nTREE:\n" + tree if tree else "")
     )
-    task_events = task_action_timeline_rows(
-        state,
-        current_observation_id=result_observation_id,
-    )
-    if audit_required:
-        for index, row in enumerate(task_events, start=1):
-            row["evidence_handle"] = f"task-action:{index}"
-            handles.append(row["evidence_handle"])
-    else:
-        for index, row in enumerate(active_events, start=1):
-            row["evidence_handle"] = f"action:{index}"
-            handles.append(row["evidence_handle"])
-
-    progress = accepted_progress_projection(state)
-    for index, row in enumerate(progress, start=1):
-        row["evidence_handle"] = f"progress:{index}"
-        handles.append(row["evidence_handle"])
-    accepted_knowledge, knowledge_handles = _reviewer_accepted_knowledge(state)
-    handles.extend(knowledge_handles)
-
-    candidate = _boundary_candidate(state, executor_report=executor_report.strip())
-    review = _boundary_review(state)
-    if candidate is not None:
-        handles.append("executor-report")
-    planner_current_review = boundary_reason.strip() == "planner_review_requested"
-    if (boundary_reason and not planner_current_review) or review is not None:
-        handles.append("boundary")
-
-    payload: dict[str, Any] = {
-        "original_instruction": state.instruction,
-        observation_key: {
-            "evidence_handle": observation_handle,
-            **(
-                {"observation_evidence_handle": package.evidence_ref}
-                if package.evidence_ref else {}
-            ),
-            "foreground_package": foreground,
-            "capabilities": _decision_observation_capabilities(package),
-            "focused_interaction": _semantic_interaction_state(package),
-            "semantic_tree": decision_semantic_tree_projection(package),
-        },
-        **({"accepted_progress": progress} if progress else {}),
-        **accepted_knowledge,
-        **({"task_action_audit": task_events} if audit_required else {
-            "active_subgoal_actions": active_events,
-        }),
-        **({"executor_report": {
-            "evidence_handle": "executor-report", **candidate,
-        }}
-           if candidate is not None else {}),
-        **({"review_trigger": {
-            "requirement_ref": review_requirement_ref,
-        }} if planner_current_review else {}),
-        **({"boundary": {
-            "evidence_handle": "boundary",
-            **({"reason": boundary_reason.strip()}
-               if boundary_reason.strip() and not planner_current_review else {}),
-            **({"runtime_fact": review} if review is not None else {}),
-        }} if (boundary_reason.strip() and not planner_current_review)
-        or review is not None else {}),
-        **({"active_subgoal_boundary": {
-            "current_subgoal": state.current_subgoal,
-            **({"target_requirement_ref": (
-                state.active_completion_contract.target_requirement_ref
-            )} if state.active_completion_contract.target_requirement_ref else {}),
-            "completion_contract": (
-                _contract_body(state.active_completion_contract) or {}
-            ),
-        }} if state.active_completion_contract is not None
-        and not planner_current_review else {}),
-        **({"last_reviewer_feedback": {
-            "verdict": state.recovery_state.last_reviewer_verdict.value,
-            "reason": state.recovery_state.last_reviewer_reason,
-        }} if state.recovery_state.last_reviewer_verdict is not None else {}),
-        "task_contract": task_contract_projection(state),
-    }
-    return payload, handles
-
-
-def reviewer_protocol_metadata(
-    state: AgentState,
-    *,
-    terminal_review: bool,
-) -> dict[str, Any]:
-    """Project only exact ref/source/dispatch facts used by submit validation."""
-    audit_required = _task_audit_required(state, terminal_review=terminal_review)
-    events = (
-        task_action_timeline_rows(state)
-        if audit_required
-        else action_timeline_rows(state)
-    )
-    prefix = "task-action" if audit_required else "action"
-    dispatched_handles = [
-        f"{prefix}:{index}"
-        for index, row in enumerate(events, start=1)
-        if row.get("dispatch") == "dispatched"
-    ]
-    categories = task_requirement_categories(state)
-    progress = accepted_progress_projection(state)
-    progress_bindings = [
-        {
-            "progress_id": row.get("progress_id", ""),
-            "evidence_handle": f"progress:{index}",
-            "requirement_ref": row.get("requirement_ref", ""),
-        }
-        for index, row in enumerate(progress, start=1)
-    ]
-    return {
-        "reviewer_requirement_categories": categories,
-        "reviewer_dispatched_action_handles": dispatched_handles,
-        "reviewer_progress_bindings": progress_bindings,
-        "reviewer_has_active_subgoal": state.active_completion_contract is not None,
-    }
-
-
-def render_reviewer_packet(
-    state: AgentState,
-    package: ObservationPackage,
-    *,
-    executor_report: str = "",
-    boundary_reason: str = "",
-    terminal_review: bool = False,
-    current_evidence: bool = True,
-    review_requirement_ref: str = "",
-) -> tuple[str, str, list[str]]:
-    """Render a Reviewer packet and retain its digest for internal binding."""
-    payload, handles = reviewer_packet_payload(
-        state,
-        package,
-        executor_report=executor_report,
-        boundary_reason=boundary_reason,
-        terminal_review=terminal_review,
-        current_evidence=current_evidence,
-        review_requirement_ref=review_requirement_ref,
-    )
-    digest = stable_hash({
-        "packet": payload,
-        "observation_id": package.observation_id,
-    })
-    return "REVIEW PACKET:\n" + _json(payload), digest, handles

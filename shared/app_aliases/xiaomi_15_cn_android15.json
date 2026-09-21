@@ -1,0 +1,47 @@
+{
+  "com.android.settings": {
+    "aliases": ["Settings", "System Settings", "设置", "系统设置"]
+  },
+  "com.android.deskclock": {
+    "aliases": ["Clock", "Desk Clock", "时钟", "闹钟"]
+  },
+  "com.android.contacts": {
+    "aliases": ["Contacts", "联系人", "通讯录"]
+  },
+  "com.android.camera": {
+    "aliases": ["Camera", "相机", "照相机"]
+  },
+  "com.miui.calculator": {
+    "aliases": ["Calculator", "计算器"]
+  },
+  "com.android.browser": {
+    "aliases": ["Browser", "系统浏览器", "浏览器"]
+  },
+  "com.android.chrome": {
+    "aliases": ["Chrome", "Google Chrome", "谷歌浏览器"]
+  },
+  "com.android.calendar": {
+    "aliases": ["Calendar", "日历"]
+  },
+  "com.miui.gallery": {
+    "aliases": ["Gallery", "相册", "图库"]
+  },
+  "com.android.soundrecorder": {
+    "aliases": ["Recorder", "Sound Recorder", "录音机"]
+  },
+  "com.android.fileexplorer": {
+    "aliases": ["File Manager", "文件管理"]
+  },
+  "com.google.android.documentsui": {
+    "aliases": ["Files", "系统文件", "文件选择器"]
+  },
+  "com.android.mms": {
+    "aliases": ["Messages", "SMS", "短信"]
+  },
+  "com.android.music": {
+    "aliases": ["Music", "音乐"]
+  },
+  "com.miui.notes": {
+    "aliases": ["Notes", "便签", "笔记"]
+  }
+}

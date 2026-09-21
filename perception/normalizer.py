@@ -519,6 +519,7 @@ def normalize_a11y_tree(
             clickable=bool(node.get("clickable", is_inter)),
             states={k: node.get(k) for k in _STATE_KEYS if k in node},
             resource_id=_resource_id_short(node),
+            node_handle=str(node.get("node_handle") or ""),
             depth=depth,
             interactable=is_inter,
             children=[],

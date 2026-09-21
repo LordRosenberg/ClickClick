@@ -1,1 +1,1 @@
-"""Agent process: Reviewer, Planner, Executor, orchestration, and tools."""
+"""Plan-driven agents and shared execution machinery."""

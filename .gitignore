@@ -55,3 +55,19 @@ skills/_pending/*
 **/evidence/**/*.jpg
 **/evidence/**/*.jpeg
 **/evidence/**/*.webp
+
+# APK distribution is through Releases; local builds/cache are ignored.
+/android/prebuilt/*.apk
+/evaluation/androidworld/oracle/*.jar
+/evaluation/androidworld/oracle/*.class
+
+# Machine-local SDK, credentials and launch configuration
+**/local.properties
+*.keystore
+*.jks
+*.pem
+*.key
+*.pfx
+*.p12
+/mobileworld-wsl.conf
+/.mobileworld-wsl.conf

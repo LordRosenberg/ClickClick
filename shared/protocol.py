@@ -50,12 +50,24 @@ class DeviceDriver(Protocol):
         proceed when the device is already awake)."""
         ...
 
+    async def begin_task_session(self, task_id: str) -> dict[str, Any]:
+        """Acquire task-scoped device resources such as a display lease."""
+        ...
+
+    async def end_task_session(self, task_id: str = "") -> dict[str, Any]:
+        """Release task-scoped device resources; implementations are idempotent."""
+        ...
+
     async def health(self) -> dict[str, Any]:
         """Return driver/process health information."""
         ...
 
     async def initialize_environment(self) -> dict[str, Any]:
         """Idempotently provision an explicitly bound device."""
+        ...
+
+    async def reconcile_environment(self) -> dict[str, Any]:
+        """Automatically install/upgrade required enabled device components."""
         ...
 
     async def readiness(self) -> dict[str, Any]:
@@ -79,11 +91,13 @@ class RpcRequest(dict):
 RPC_METHODS = frozenset({
     "get_ui_state", "screenshot", "get_frame", "capture_deadline_frame",
     "act", "health",
-    "wake_and_unlock", "current_activity", "current_foreground_identity",
+    "wake_and_unlock", "begin_task_session", "end_task_session",
+    "current_activity", "current_foreground_identity",
     "get_input_diagnostics",
+    "skill_profile_ids",
     "resolve_installed_app", "search_installed_apps", "validate_installed_app",
     "record_installed_app_selection",
-    "initialize_environment", "readiness",
+    "initialize_environment", "reconcile_environment", "readiness",
     # multi-device-concurrent: inventory behind CLICKCLICK_DRIVER_URL
     "list_devices",
 })

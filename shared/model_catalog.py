@@ -27,6 +27,7 @@ def build_model_catalog(settings: Settings) -> dict[str, Any]:
             "provider": str(cfg.get("provider") or ("chatgpt" if is_chatgpt_subscription_model(model_id, cfg) else "unknown")),
             "is_chatgpt": is_chatgpt_subscription_model(model_id, cfg),
             "reasoning_supported": bool(cfg.get("reasoning_supported", cfg.get("reasoning"))),
+            "stream": cfg.get("stream") is True,
         })
     models.sort(key=lambda m: m["id"])
     router = ModelRouter.from_settings(settings)

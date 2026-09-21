@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Action } from "@/api/types";
+import { artifactUrl } from "@/api/client";
 import { projectActionToFrame } from "@/lib/observationReplay";
 
 /**
@@ -9,11 +10,13 @@ import { projectActionToFrame } from "@/lib/observationReplay";
  */
 export function SomOverlay({
   somRef,
+  taskId,
   action,
   frameGeometry,
   onImageSize,
 }: {
   somRef: string | null | undefined;
+  taskId: string;
   action: Action | null | undefined;
   /** Device coordinate space used by the dispatched action. */
   frameGeometry?: number[] | null;
@@ -38,7 +41,7 @@ export function SomOverlay({
     );
   }
 
-  const src = `/api/artifacts/${somRef}`;
+  const src = artifactUrl(somRef, taskId);
   const { width, height } = size;
   const displayAction = projectActionToFrame(action, frameGeometry, { width, height });
   const hasCoords = displayAction && (

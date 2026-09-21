@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, field
 import time
 from typing import Callable
@@ -32,6 +33,7 @@ class ObservationStageError(RuntimeError):
         provider_attempts: list[dict[str, object]] | None = None,
         cancelled_tasks: list[str] | None = None,
         capture_attempt_count: int = 0,
+        stage_timings: list[dict[str, object]] | None = None,
     ) -> None:
         super().__init__(f"{stage}: {reason}")
         self.stage = stage
@@ -43,6 +45,20 @@ class ObservationStageError(RuntimeError):
         self.provider_attempts = list(provider_attempts or [])
         self.cancelled_tasks = list(cancelled_tasks or [])
         self.capture_attempt_count = max(0, int(capture_attempt_count))
+        self.stage_timings = list(stage_timings or [])
+
+    def diagnostics(self) -> dict[str, object]:
+        """Serializable failure evidence, including work cancelled by the fuse."""
+        return {
+            "stage": self.stage, "reason": self.reason,
+            "elapsed_ms": self.elapsed_ms, "budget_ms": self.budget_ms,
+            "timed_out": self.timed_out,
+            "fallback_edges": self.fallback_edges,
+            "provider_attempts": self.provider_attempts,
+            "cancelled_tasks": self.cancelled_tasks,
+            "capture_attempt_count": self.capture_attempt_count,
+            "stage_timings": self.stage_timings,
+        }
 
 
 @dataclass
@@ -70,7 +86,9 @@ class ObservationDeadline:
 
     @property
     def remaining_ms(self) -> float:
-        return max(0.0, (self.ends_at - self.clock()) * 1000.0)
+        # Subtract elapsed time, avoiding a rounded deadline briefly granting
+        # more than the original budget on coarse Windows monotonic clocks.
+        return max(0.0, self.budget_ms - self.elapsed_ms)
 
     def remaining_seconds(self, stage: str) -> float:
         """Return the outer-fuse remainder; reject only exhausted work."""
@@ -90,6 +108,19 @@ class ObservationDeadline:
                 timed_out=True,
             )
         return remaining / 1000.0
+
+    async def wait(self, delay_ms: float) -> bool:
+        """Wait on this clock, rechecking early wakeups within the same budget."""
+        ends_at = self.clock() + max(0.0, delay_ms) / 1000.0
+        resolution = time.get_clock_info("monotonic").resolution
+        while True:
+            remaining_s = self.remaining_ms / 1000.0
+            if remaining_s <= 0:
+                return False
+            delay_s = ends_at - self.clock()
+            if delay_s <= 0:
+                return True
+            await asyncio.sleep(min(max(delay_s, resolution), remaining_s))
 
     def record(
         self,

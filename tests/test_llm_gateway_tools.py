@@ -10,7 +10,7 @@ import pytest
 
 from shared.config import Settings
 from shared.llm_gateway import GatewayResponse, ToolCall, complete
-from shared.schemas import PlannerDecision
+from shared.revisable import PlannerDecision
 
 
 def _install_fake_litellm(monkeypatch, *, response):
@@ -80,8 +80,8 @@ async def test_complete_normalizes_tool_calls(monkeypatch):
 @pytest.mark.asyncio
 async def test_response_format_still_works_without_tools(monkeypatch):
     payload = {
-        "mode": "review",
-        "review_requirement_ref": "final_ui_state:1",
+        "decision": "review",
+        "reason": "Inspect the result",
     }
     raw = _Resp(_Msg(content=json.dumps(payload)), finish_reason="stop")
     calls = _install_fake_litellm(monkeypatch, response=raw)

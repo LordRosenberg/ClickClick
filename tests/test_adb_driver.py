@@ -2,6 +2,7 @@
 
 import asyncio
 from pathlib import Path
+from zipfile import ZipFile
 import time
 
 import pytest
@@ -39,6 +40,62 @@ def _async_returns(value):
         return value
 
     return _coro
+
+
+@pytest.mark.asyncio
+async def test_current_device_date_uses_android_clock(monkeypatch) -> None:
+    monkeypatch.setattr(adb, "shell_async", _async_returns(b"2023-10-15\n"))
+    driver = AndroidDriver(serial="emulator-5554", collector_enabled=False)
+
+    assert await driver.current_device_date() == "2023-10-15"
+
+
+@pytest.mark.asyncio
+async def test_current_device_date_rejects_non_date_output(monkeypatch) -> None:
+    monkeypatch.setattr(adb, "shell_async", _async_returns(b"device offline\n"))
+    driver = AndroidDriver(serial="emulator-5554", collector_enabled=False)
+
+    with pytest.raises(ValueError):
+        await driver.current_device_date()
+
+
+def test_adb_bin_prefers_path(monkeypatch, tmp_path: Path) -> None:
+    executable = str(tmp_path / "sdk" / "adb.exe")
+    monkeypatch.setattr(adb.shutil, "which", lambda _name: executable)
+
+    assert adb.adb_bin() == executable
+
+
+def test_adb_bin_uses_sdk_root_without_path(monkeypatch, tmp_path: Path) -> None:
+    executable = tmp_path / "sdk" / "platform-tools" / "adb.exe"
+    executable.parent.mkdir(parents=True)
+    executable.touch()
+    monkeypatch.setattr(adb.shutil, "which", lambda _name: None)
+    monkeypatch.setenv("ANDROID_SDK_ROOT", str(executable.parents[1]))
+    monkeypatch.delenv("CLICKCLICK_ADB_PATH", raising=False)
+
+    assert adb.adb_bin() == str(executable)
+
+
+def test_adb_bin_provisions_project_copy_when_windows_lookup_fails(monkeypatch, tmp_path: Path) -> None:
+    executable = tmp_path / "platform-tools" / "adb.exe"
+    executable.parent.mkdir()
+    executable.touch()
+    monkeypatch.setattr(adb.shutil, "which", lambda _name: None)
+    monkeypatch.setattr(adb, "_adb_candidates", lambda: [])
+    monkeypatch.setattr(adb.os, "name", "nt")
+    monkeypatch.setattr(adb, "_provision_project_adb", lambda: executable)
+
+    assert adb.adb_bin() == str(executable)
+
+
+def test_safe_extract_platform_tools_rejects_zip_slip(tmp_path: Path) -> None:
+    archive = tmp_path / "unsafe.zip"
+    with ZipFile(archive, "w") as zip_file:
+        zip_file.writestr("../outside.txt", "unsafe")
+
+    with pytest.raises(RuntimeError, match="unsafe path"):
+        adb._safe_extract_platform_tools(archive, tmp_path / "extract")
 
 
 def test_activity_identity_prefers_top_resumed_over_secondary_resumed() -> None:
@@ -352,6 +409,21 @@ async def test_wake_and_unlock_wakes_off_screen_without_touch_gesture(monkeypatc
         ("sleep", 0.4),
         ("dismiss", "serial-1"),
     ]
+
+
+@pytest.mark.asyncio
+async def test_wake_and_unlock_skips_key_path_with_active_task_lease(monkeypatch):
+    drv = AndroidDriver(serial="serial-1")
+    drv._task_power_lease._lease_id = "task-lease"
+    drv._task_power_lease._last_confirmed_at = time.monotonic()
+
+    async def forbidden(*_args, **_kwargs):
+        raise AssertionError("active screen lease must suppress key injection")
+
+    monkeypatch.setattr(adb, "screen_interactive_async", forbidden)
+    monkeypatch.setattr(adb, "input_keyevent_async", forbidden)
+
+    await drv.wake_and_unlock()
 
 
 def test_parse_uiautomator_xml_maps_fields():
@@ -1305,7 +1377,7 @@ def test_tree_timeout_preserves_pixels_captured_within_outer_fuse(monkeypatch):
     assert shot == content
     assert tree["_capture"]["complete"] is False
     assert tree["_capture"]["coordinate_compatible"] is False
-    assert 0.7 <= budgets["tree"] <= 0.8
+    assert 0.3 <= budgets["tree"] <= 0.4
     assert budgets["pixels"] > 0
 
 
@@ -1942,3 +2014,23 @@ def test_exact_forward_reconciliation_preserves_preexisting_port(monkeypatch):
 
     assert result == [43210]
     assert removed == [43210]
+
+
+def test_device_profile_reads_stable_selector_fields(monkeypatch):
+    values = {
+        "ro.product.manufacturer": "Xiaomi",
+        "ro.product.model": "24129PN74C",
+        "ro.build.version.sdk": "35",
+        "ro.build.version.release": "15",
+        "ro.build.version.incremental": "OS2.0.215.0.VOCCNXM",
+    }
+    monkeypatch.setattr(adb, "_getprop", lambda _serial, key: values[key])
+
+    assert adb.device_profile("device-1") == {
+        "serial": "device-1",
+        "manufacturer": "Xiaomi",
+        "model": "24129PN74C",
+        "sdk": "35",
+        "release": "15",
+        "build": "OS2.0.215.0.VOCCNXM",
+    }

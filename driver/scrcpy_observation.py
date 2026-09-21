@@ -11,6 +11,8 @@ from dataclasses import dataclass, field, replace
 import time
 from typing import Any, Callable, TYPE_CHECKING
 
+from driver.observation_deadline import SCRCPY_START_ATTEMPT_TIMEOUT_MS
+
 if TYPE_CHECKING:
     from driver.scrcpy_mirror import ConsumerLease, MirrorRegistry, MirrorSession
 
@@ -96,6 +98,11 @@ class FrameRing:
         self._trim(frame.timestamp)
         return frame
 
+    def clear(self) -> None:
+        """Discard retained pixels without reusing generation-local frame ids."""
+        self._frames.clear()
+        self._bytes = 0
+
     def _trim(self, now: float) -> None:
         while self._frames and (self._bytes > self.max_bytes or now - self._frames[0].timestamp > self.retention_seconds):
             self._bytes -= len(self._frames.popleft().data)
@@ -143,6 +150,7 @@ class PyAVDecoder:
         self.ring, self.geometry, self.max_fps = ring, geometry, max(0.1, max_fps)
         self._codec = None
         self._last_emit = 0.0
+        self._pending: tuple[Any, float, int] | None = None
         self.status = "unavailable"
         self.decode_errors = 0
         self.last_error: str | None = None
@@ -150,6 +158,7 @@ class PyAVDecoder:
     def reset(self) -> None:
         self._codec = None
         self._last_emit = 0.0
+        self.discard_pending()
         self.last_error = None
         self.status = "reset"
 
@@ -174,41 +183,50 @@ class PyAVDecoder:
             self.decode_errors += 1
             self.last_error = f"{type(exc).__name__}: {exc}"
             return 0
-        emitted = 0
-        for frame in decoded:
-            if now - self._last_emit < 1.0 / self.max_fps:
-                continue
-            try:
-                image = frame.to_image()
-                from io import BytesIO
-                out = BytesIO()
-                image.save(out, format="PNG", compress_level=1)
-                template = self.geometry()
-                device_width = template.device_width
-                device_height = template.device_height
-                stream_is_portrait = image.height >= image.width
-                device_is_portrait = device_height >= device_width
-                if stream_is_portrait != device_is_portrait:
-                    device_width, device_height = device_height, device_width
-                g = replace(
-                    template,
-                    stream_width=image.width,
-                    stream_height=image.height,
-                    device_width=device_width,
-                    device_height=device_height,
-                    timestamp=now,
-                    generation=generation,
-                )
-                self.ring.append(FrameHandle(out.getvalue(), now, generation, g))
-                self._last_emit = now
-                emitted += 1
-                bypass_throttle = False
-            except Exception:
-                self.status = "decode_error"
-                continue
         self.status = "healthy"
         self.last_error = None
-        return emitted
+        if decoded:
+            # Bound background PNG work, not the freshness of the current view.
+            # Keep only the newest raw frame, including a final static update.
+            self._pending = (decoded[-1], now, generation)
+        return self.publish_pending()
+
+    def discard_pending(self) -> None:
+        self._pending = None
+
+    def publish_pending(self, *, force: bool = False) -> int:
+        if self._pending is None:
+            return 0
+        now = time.monotonic()
+        if not force and now - self._last_emit < 1.0 / self.max_fps:
+            return 0
+        frame, decoded_at, generation = self._pending
+        self._pending = None
+        try:
+            image = frame.to_image()
+            from io import BytesIO
+            out = BytesIO()
+            image.save(out, format="PNG", compress_level=1)
+            template = self.geometry()
+            device_width = template.device_width
+            device_height = template.device_height
+            if (image.height >= image.width) != (device_height >= device_width):
+                device_width, device_height = device_height, device_width
+            geometry = replace(
+                template,
+                stream_width=image.width,
+                stream_height=image.height,
+                device_width=device_width,
+                device_height=device_height,
+                timestamp=decoded_at,
+                generation=generation,
+            )
+            self.ring.append(FrameHandle(out.getvalue(), decoded_at, generation, geometry))
+            self._last_emit = now
+            return 1
+        except Exception:
+            self.status = "decode_error"
+            return 0
 
 
 @dataclass(frozen=True)
@@ -243,6 +261,7 @@ class ScrcpyObservationProvider:
         self._device_size: tuple[int, int] | None = None
         self.ring = FrameRing(retention_seconds, max_bytes)
         self.decoder = PyAVDecoder(self.ring, self._geometry_template, max_fps)
+        self._decode_lock = asyncio.Lock()
         self._session: "MirrorSession | None" = None
         self._lease: "ConsumerLease | None" = None
         self._task = None
@@ -254,6 +273,20 @@ class ScrcpyObservationProvider:
     async def start(self) -> bool:
         if self._task and not self._task.done():
             return True
+        timeout_s = SCRCPY_START_ATTEMPT_TIMEOUT_MS / 1000.0
+        deadline = time.monotonic() + timeout_s
+        async with asyncio.timeout(timeout_s):
+            if not await self._start_decoder():
+                return False
+            # A connected socket is not capture readiness. Keep cold-frame
+            # acquisition in the existing startup budget, before the separate
+            # per-observation refresh budget and without an early RESET_VIDEO.
+            return await self._wait_for_frame(0, self.generation, deadline) is not None
+
+    async def _start_decoder(self) -> bool:
+        if not self.decoder_available():
+            self.status = "decoder_unavailable"
+            return False
         if self._device_size is None:
             try:
                 from driver import adb
@@ -292,6 +325,7 @@ class ScrcpyObservationProvider:
             try: await self._task
             except BaseException: pass
             self._task = None
+        self.decoder.discard_pending()
         if self._lease:
             await self.registry.release(self.device_key, self._lease)
             self._lease = None
@@ -303,7 +337,8 @@ class ScrcpyObservationProvider:
         assert self._session is not None
         try:
             async for unit in self._session.frames():
-                count = self.decoder.feed(unit, self._session.generation)
+                async with self._decode_lock:
+                    count = self.decoder.feed(unit, self._session.generation)
                 self.metrics["decoded_frames"] = int(self.metrics["decoded_frames"]) + count
                 self.metrics["decode_errors"] = self.decoder.decode_errors
                 self.status = self.decoder.status
@@ -314,7 +349,14 @@ class ScrcpyObservationProvider:
             if self.status not in {"disabled", "stopped"}:
                 self.status = "unavailable"
 
+    def _publish_pending(self) -> None:
+        count = self.decoder.publish_pending(force=True)
+        self.metrics["decoded_frames"] = int(self.metrics["decoded_frames"]) + count
+
     def current(self) -> CurrentFrameResult:
+        self._publish_pending()
+        if self.status == "decoder_unavailable":
+            return CurrentFrameResult("unavailable", detail="decoder_unavailable")
         source_alive = self._session is not None and self._session.is_alive()
         if not source_alive:
             return CurrentFrameResult("unavailable", detail="source_dead")
@@ -384,6 +426,9 @@ class ScrcpyObservationProvider:
 
     def frame_boundary(self) -> tuple[int, int] | None:
         """Snapshot the latest decoded-frame position before action dispatch."""
+        # A frame decoded before dispatch must not appear after its boundary
+        # merely because background PNG sampling had deferred its publication.
+        self._publish_pending()
         if self._session is None or not self._session.is_alive():
             return None
         generation = self.generation
@@ -396,16 +441,45 @@ class ScrcpyObservationProvider:
         after_id: int,
         timeout_s: float,
     ) -> FrameHandle | None:
-        """Restart encoding when possible and wait for a later decoded frame id."""
-        if timeout_s <= 0:
+        """Wait for new pixels; reset only if the live stream does not advance."""
+        if timeout_s <= 0 or self.status == "decoder_unavailable":
             return None
+        deadline = time.monotonic() + timeout_s
+        generation = self.generation
+        # Animated/active screens already produce new frames. Give that stream
+        # a short bounded opportunity before disrupting its encoder/decoder.
+        # No cached frame at or before the caller's boundary can satisfy this.
+        fresh = await self._wait_for_frame(
+            after_id, generation, min(deadline, time.monotonic() + 0.1),
+        )
+        if fresh is not None:
+            return fresh
+        # RESET_VIDEO before the first capture is initialized crashes scrcpy
+        # 3.3.1's controller (null CaptureListener). A decoded first frame is
+        # readiness evidence; wait within this capture's existing deadline.
+        if self.ring.latest(generation=generation) is None:
+            first = await self._wait_for_frame(0, generation, deadline)
+            if first is None:
+                return None
+            after_id = max(after_id, first.frame_id)
         source = self._session.source if self._session is not None else None
         reset = getattr(source, "reset_video", None)
         if callable(reset):
-            await reset()
-        deadline = time.monotonic() + timeout_s
-        generation = self.generation
+            # Serialize against decoder consumption so no already-decoded frame
+            # can cross the reset boundary. A successful RESET_VIDEO causes the
+            # server to emit a new codec bootstrap/IDR; resetting the decoder
+            # also prevents queued predictive frames from becoming candidates.
+            async with self._decode_lock:
+                if await reset():
+                    self.ring.clear()
+                    self.decoder.reset()
+        return await self._wait_for_frame(after_id, generation, deadline)
+
+    async def _wait_for_frame(
+        self, after_id: int, generation: int, deadline: float,
+    ) -> FrameHandle | None:
         while time.monotonic() < deadline:
+            self._publish_pending()
             frame = self.ring.latest(generation=generation, after_id=after_id)
             if frame is not None:
                 return frame
@@ -424,6 +498,7 @@ class ScrcpyObservationProvider:
             self._action_frame_boundary = None
 
     def temporal(self, start: float, end: float, count: int) -> TemporalResult:
+        self._publish_pending()
         if self.decoder.status != "healthy":
             lo, hi = self.ring.bounds
             return TemporalResult("unavailable", available_from=lo, available_to=hi, detail=self.decoder.status)

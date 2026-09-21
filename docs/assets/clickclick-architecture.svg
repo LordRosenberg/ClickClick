@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1270" viewBox="0 0 1600 1270" role="img" aria-labelledby="title description">
+<title id="title">ClickClick: revisable planning with grounded device feedback</title>
+<desc id="description">Separate model and agent harness. A prominent Session column stands beside the harness and retains history, note versions and observation artifacts. Context management stays in the harness. Device tools and the Android environment execute actions; Console and evaluation consume Session records.</desc>
+<defs>
+<marker id="control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 Z" fill="#263449"/></marker>
+<marker id="evidence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 Z" fill="#287568"/></marker>
+<marker id="review" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 Z" fill="#80618E"/></marker>
+</defs>
+<rect width="1600" height="1270" fill="white"/>
+<text x="40" y="42" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#263449" text-anchor="start"><tspan x="40" dy="0">CLICKCLICK</tspan></text>
+<text x="247" y="42" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" fill="#586575" text-anchor="start"><tspan x="247" dy="0">Model, harness and persistent Session</tspan></text>
+<text x="40" y="76" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#263449" text-anchor="start"><tspan x="40" dy="0">Context management in the harness  ·  durable records in Session  ·  device tools execute and observe</tspan></text>
+<rect x="40" y="105" width="1040" height="90" rx="5" fill="#F4EEF7" stroke="#80618E" stroke-width="1.6"/>
+<text x="60" y="137" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#80618E" text-anchor="start"><tspan x="60" dy="0">Model</tspan></text>
+<text x="60" y="166" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="60" dy="0">Interpret task and evidence · reason · choose actions · judge outcomes</tspan></text>
+<rect x="1140" y="105" width="420" height="90" rx="5" fill="white" stroke="#263449" stroke-width="1.6"/>
+<text x="1160" y="137" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#263449" text-anchor="start"><tspan x="1160" dy="0">Console</tspan></text>
+<text x="1160" y="166" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1160" dy="0">Tasks · devices · live view · trace inspection</tspan></text>
+<rect x="40" y="255" width="1040" height="570" rx="5" fill="#F7FAFE" stroke="#456B96" stroke-width="1.6"/>
+<text x="65" y="292" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700" fill="#456B96" text-anchor="start"><tspan x="65" dy="0">Agent harness</tspan></text>
+<path d="M 285 195 V 315" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)" marker-start="url(#control)"/>
+<text x="301" y="228" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="301" dy="0">model I/O</tspan></text>
+<path d="M 1200 195 V 225 H 820 V 315" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)" marker-start="url(#control)"/>
+<text x="834" y="216" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="834" dy="0">task / status</tspan></text>
+<rect x="70" y="315" width="430" height="85" rx="5" fill="white" stroke="#263449" stroke-width="1.6"/>
+<text x="90" y="347" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#263449" text-anchor="start"><tspan x="90" dy="0">Model gateway</tspan></text>
+<text x="90" y="376" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="90" dy="0">Role routing · provider protocol · call accounting</tspan></text>
+<path d="M 500 357 H 570" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)" marker-start="url(#control)"/>
+<rect x="70" y="445" width="430" height="190" rx="5" fill="#EEF7F3" stroke="#287568" stroke-width="1.6"/>
+<text x="90" y="477" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="90" dy="0">Context, memory access and skills</tspan></text>
+<text x="90" y="506" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="90" dy="0">Task + evidence · retrieve Session history</tspan><tspan x="90" dy="25">Context projection · compaction · note tools</tspan><tspan x="90" dy="25">App / workflow selection · role delivery</tspan><tspan x="90" dy="25">Source references · skill version checks</tspan></text>
+<path d="M 500 485 H 570" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="535" y="463" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="535" dy="0">context</tspan></text>
+<rect x="570" y="315" width="480" height="320" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.6"/>
+<text x="590" y="346" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#456B96" text-anchor="start"><tspan x="590" dy="0">Agent loop and role orchestration</tspan></text>
+<text x="590" y="373" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="590" dy="0">Role prompts / schemas · task and stage state</tspan></text>
+<rect x="590" y="401" width="180" height="60" rx="5" fill="white" stroke="#456B96" stroke-width="1.6"/>
+<text x="680" y="438" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#263449" text-anchor="middle"><tspan x="680" dy="0">Planner</tspan></text>
+<rect x="855" y="401" width="175" height="60" rx="5" fill="white" stroke="#456B96" stroke-width="1.6"/>
+<text x="942" y="438" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#263449" text-anchor="middle"><tspan x="942" dy="0">Executor</tspan></text>
+<path d="M 770 422 H 855" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)"/>
+<path d="M 855 446 H 770" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)"/>
+<text x="812" y="396" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="812" dy="0">execute</tspan></text>
+<rect x="675" y="511" width="270" height="56" rx="5" fill="#F4EEF7" stroke="#80618E" stroke-width="1.6" stroke-dasharray="7 5"/>
+<text x="810" y="546" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#80618E" text-anchor="middle"><tspan x="810" dy="0">Reviewer · on demand</tspan></text>
+<path d="M 680 461 V 485 H 735 V 511" fill="none" stroke="#80618E" stroke-width="2" stroke-linejoin="round" marker-end="url(#review)" stroke-dasharray="7 5"/>
+<path d="M 942 461 V 485 H 885 V 511" fill="none" stroke="#80618E" stroke-width="2" stroke-linejoin="round" marker-end="url(#review)" stroke-dasharray="7 5"/>
+<text x="590" y="594" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#263449" text-anchor="start"><tspan x="590" dy="0">Feedback → continue / replan / review / complete</tspan></text>
+<rect x="70" y="675" width="980" height="115" rx="5" fill="white" stroke="#263449" stroke-width="1.6"/>
+<text x="90" y="707" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#263449" text-anchor="start"><tspan x="90" dy="0">Tools and execution control</tspan></text>
+<text x="90" y="736" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="90" dy="0">Tool / read scope · schema validation · observation / target binding · action dispatch</tspan><tspan x="90" dy="25">Focus / input verification · budgets · cancellation · error feedback · repeat guards</tspan></text>
+<path d="M 810 635 V 675" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)" marker-start="url(#control)"/>
+<text x="827" y="660" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#263449" text-anchor="start"><tspan x="827" dy="0">tools / feedback</tspan></text>
+<text x="70" y="813" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#586575" text-anchor="start"><tspan x="70" dy="0">Read Session to build context; record events, evidence and state updates through the store.</tspan></text>
+<rect x="1140" y="255" width="420" height="570" rx="5" fill="#EEF7F3" stroke="#287568" stroke-width="1.6"/>
+<text x="1165" y="292" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1165" dy="0">Session</tspan></text>
+<text x="1165" y="321" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1165" dy="0">Persistent records, independent of</tspan><tspan x="1165" dy="25">the active model context window</tspan></text>
+<rect x="1170" y="375" width="360" height="95" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
+<text x="1190" y="407" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1190" dy="0">History and events</tspan></text>
+<text x="1190" y="436" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Model / tool calls · action receipts</tspan></text>
+<rect x="1170" y="500" width="360" height="95" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
+<text x="1190" y="532" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1190" dy="0">Task state and notes</tspan></text>
+<text x="1190" y="561" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Stage records · versioned notes</tspan></text>
+<rect x="1170" y="625" width="360" height="95" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
+<text x="1190" y="657" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1190" dy="0">Observations and artifacts</tspan></text>
+<text x="1190" y="686" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Screenshots · source references</tspan></text>
+<text x="1170" y="766" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1170" dy="0">SQLite records + artifact files</tspan></text>
+<text x="1170" y="796" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1170" dy="0">Shared by runtime, Console and audits</tspan></text>
+<path d="M 1140 485 H 1080" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="1110" y="471" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="1110" dy="0">read</tspan></text>
+<path d="M 1080 740 H 1140" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="1110" y="761" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="1110" dy="0">record</tspan></text>
+<path d="M 1350 255 V 195" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="1366" y="228" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="1366" dy="0">read traces</tspan></text>
+<rect x="40" y="890" width="1520" height="190" rx="5" fill="#F5F9F7" stroke="#287568" stroke-width="1.6"/>
+<text x="65" y="923" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#287568" text-anchor="start"><tspan x="65" dy="0">Device tools and environment</tspan></text>
+<rect x="80" y="945" width="430" height="110" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
+<text x="100" y="977" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="100" dy="0">Capture and perception</tspan></text>
+<text x="100" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="100" dy="0">scrcpy · Accessibility Collector · ADB</tspan><tspan x="100" dy="25">Pixels / tree / events → observation + SoM</tspan></text>
+<rect x="570" y="945" width="490" height="110" rx="5" fill="#EFF1F5" stroke="#263449" stroke-width="1.6"/>
+<text x="590" y="977" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#263449" text-anchor="start"><tspan x="590" dy="0">Android device / emulator</tspan></text>
+<text x="590" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="590" dy="0">Apps and OS · changing UI state</tspan><tspan x="590" dy="25">Execution environment</tspan></text>
+<rect x="1120" y="945" width="400" height="110" rx="5" fill="white" stroke="#263449" stroke-width="1.6"/>
+<text x="1140" y="977" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#263449" text-anchor="start"><tspan x="1140" dy="0">Device driver</tspan></text>
+<text x="1140" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1140" dy="0">ADB actions · IME input</tspan><tspan x="1140" dy="25">Local or remote host</tspan></text>
+<path d="M 570 1000 H 510" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<path d="M 1120 1000 H 1060" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)"/>
+<path d="M 480 945 V 825" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="496" y="851" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="start"><tspan x="496" dy="0">observations</tspan></text>
+<path d="M 1000 825 V 855 H 1300 V 945" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)"/>
+<text x="1030" y="846" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="1030" dy="0">actions</tspan></text>
+<path d="M 1450 945 V 872 H 900 V 825" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="1466" y="858" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="start"><tspan x="1466" dy="0">receipts</tspan></text>
+<rect x="40" y="1130" width="1520" height="80" rx="5" fill="#F5F6F8" stroke="#CCD3DC" stroke-width="1.6"/>
+<text x="65" y="1163" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#263449" text-anchor="start"><tspan x="65" dy="0">Evaluation</tspan></text>
+<text x="300" y="1163" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#263449" text-anchor="start"><tspan x="300" dy="0">Controlled setup + official oracle · trace audit · accuracy / reliability / latency / cost</tspan></text>
+<text x="300" y="1191" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="300" dy="0">Record fidelity · preservation of unrelated data · task completion · resource use</tspan></text>
+<path d="M 1560 550 H 1580 V 1170 H 1560" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<path d="M 815 1130 V 1080" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)"/>
+<text x="829" y="1111" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" fill="#263449" text-anchor="start"><tspan x="829" dy="0">fixture setup / scoring</tspan></text>
+<path d="M 44 1244 H 99" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)"/>
+<text x="112" y="1250" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="112" dy="0">Control / action</tspan></text>
+<path d="M 335 1244 H 390" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="402" y="1250" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="start"><tspan x="402" dy="0">Evidence / records</tspan></text>
+<path d="M 675 1244 H 730" fill="none" stroke="#80618E" stroke-width="2" stroke-linejoin="round" marker-end="url(#review)" stroke-dasharray="7 5"/>
+<text x="742" y="1250" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#80618E" text-anchor="start"><tspan x="742" dy="0">Optional review</tspan></text>
+<text x="1560" y="1250" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#586575" text-anchor="end"><tspan x="1560" dy="0">Logical modules, not separate processes</tspan></text>
+</svg>

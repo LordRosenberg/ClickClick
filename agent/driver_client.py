@@ -158,6 +158,19 @@ class DriverClient:
             # Best-effort: a remote wake failure must not abort the task.
             return
 
+    async def begin_task_session(self, task_id: str) -> dict[str, Any]:
+        result = await self._rpc("begin_task_session", {"task_id": task_id})
+        return result if isinstance(result, dict) else {
+            "status": "failed", "reason": "invalid driver response",
+        }
+
+    async def end_task_session(self, task_id: str = "") -> dict[str, Any]:
+        try:
+            result = await self._rpc("end_task_session", {"task_id": task_id})
+            return result if isinstance(result, dict) else {"status": "invalid_response"}
+        except Exception as exc:  # noqa: BLE001
+            return {"status": "release_deferred_to_ttl", "reason": str(exc)[:200]}
+
     async def current_activity(self) -> str:
         """Return the foreground activity component via Driver RPC."""
         try:
@@ -191,6 +204,10 @@ class DriverClient:
         result = await self._rpc("resolve_installed_app", {"app": app})
         return result if isinstance(result, dict) else {}
 
+    async def skill_profile_ids(self) -> list[str]:
+        result = await self._rpc("skill_profile_ids", {})
+        return result.get("profiles", []) if isinstance(result, dict) else []
+
     async def validate_installed_app(self, package: str) -> bool:
         result = await self._rpc("validate_installed_app", {"package": package})
         return bool(result.get("installed")) if isinstance(result, dict) else False
@@ -207,6 +224,10 @@ class DriverClient:
 
     async def initialize_environment(self) -> dict[str, Any]:
         result = await self._rpc("initialize_environment")
+        return result if isinstance(result, dict) else {"status": "failed"}
+
+    async def reconcile_environment(self) -> dict[str, Any]:
+        result = await self._rpc("reconcile_environment")
         return result if isinstance(result, dict) else {"status": "failed"}
 
     async def readiness(self) -> dict[str, Any]:
