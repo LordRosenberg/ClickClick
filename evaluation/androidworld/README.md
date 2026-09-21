@@ -2,7 +2,7 @@
 
 [中文](../../docs/evaluation.zh-CN.md) · [Evaluation report](../../docs/androidworld-results-20260921.md)
 
-Run the 116 published task instances with the full-episode ClickClick harness. The command downloads a pinned AndroidWorld revision, generates protobuf bindings, restores typed task parameters, freezes the agent and evaluation Skills, compiles the independent scoring observer, prepares app baselines, checks model access, and runs the suite.
+Run the 116 published task instances with the full-episode ClickClick harness. The command downloads a pinned AndroidWorld revision, generates protobuf bindings, restores typed task parameters, freezes the agent and evaluation Skills, compiles the independent scoring observer, checks model access, prepares the first task dependency window and runs the suite.
 
 ## Before the first run
 
@@ -36,6 +36,12 @@ python -m evaluation.androidworld.reproduce --install --resume
 The same `--resume` command skips completed attempts, including scored failures. It never silently replaces an interrupted attempt. For a batch explicitly paused because of model quota, use `--resume-after-quota`; the interrupted evidence is archived before retrying that case. Create a `STOP` file in the batch directory for cooperative cancellation, or `PAUSE_AFTER_EPISODE` to pause at the next clean episode boundary. Remove the marker before resuming. Other incomplete/infrastructure-failed attempts require inspection and a fresh output directory.
 
 Options include `--env-file`, `--agent-python`, `--eval-python`, `--adb`, and `--model`. A different model is a new experiment; resume must retain the original model. `--upstream` accepts a clean local checkout at the pinned revision for offline preparation. SDK/AVD installation is a prerequisite, not a hidden part of the command.
+
+## Startup and recovery
+
+Startup follows the successful September 21 v6 batch: probe the model first, determine the first hour of task dependencies, inspect emulator uptime, and initialize only that app scope. Restart the same AVD if the remaining uptime allowance is insufficient; recheck after setup and stop if the bounded recovery does not restore enough allowance. It does not initialize all 23 apps before starting the first task.
+
+`launch_full.py` implements this startup policy and is sealed with the batch. After execution has begun, resume delegates to `run_full.py` so interrupted-episode cleanup happens before the next app setup. Batches prepared before this launcher was included must be prepared again in a fresh output directory.
 
 ## Inputs and scoring
 

@@ -99,10 +99,11 @@ def test_seal_verification_rejects_drift_and_manifest_escape(tmp_path):
         reproduce.verify_batch(tmp_path)
 
 
-def test_resume_runs_setup_probe_and_runner_without_historical_directory(tmp_path, monkeypatch):
+def test_resume_delegates_to_frozen_v6_launcher_without_historical_directory(tmp_path, monkeypatch):
     import os
     batch = tmp_path / "batch"
     batch.mkdir()
+    (batch / "launch_full.py").write_text("# frozen launcher")
     reproduce.write_json(batch / "protocol.json", {"model": "custom/model"})
     reproduce.write_json(batch / "source-hashes.json", {"protocol.json": reproduce.digest(batch / "protocol.json")})
     monkeypatch.setattr(reproduce.os, "environ", dict(os.environ))
@@ -110,7 +111,7 @@ def test_resume_runs_setup_probe_and_runner_without_historical_directory(tmp_pat
     calls = []
     monkeypatch.setattr(reproduce.subprocess, "run", lambda command, **kw: calls.append((command, kw)))
     reproduce.main(["--output", str(batch), "--resume", "--model", "custom/model"])
-    assert [Path(command[1]).name for command, _ in calls] == ["setup_full.py", "probe_model.py", "run_full.py"]
+    assert [Path(command[1]).name for command, _ in calls] == ["launch_full.py"]
     assert all(options["env"]["CLICKCLICK_EVAL_MODEL"] == "custom/model" for _, options in calls)
     assert json.loads((batch / "summary.public.json").read_text())["evaluated"] == 0
     calls.clear()

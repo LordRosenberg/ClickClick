@@ -12,7 +12,9 @@
 python -m evaluation.androidworld.reproduce --install
 ```
 
-该命令安装独立评测环境、下载固定版本 AndroidWorld、恢复公开的 116 个冻结实例、编译评分采集器、初始化应用并开始全量评测。无需历史实验目录，也无需手工修改 AndroidWorld 的 `run.py`。完整前置条件、仅准备模式、恢复运行和脱敏结果导出见[一键评测指南](../evaluation/androidworld/README.md)。
+该命令安装独立评测环境、下载固定版本 AndroidWorld、恢复公开的 116 个冻结实例并编译评分采集器。启动采用 9 月 21 日 v6 全量评测的流程：先检查模型可用性，再按首小时任务依赖初始化应用，并在准备前后检查模拟器运行时长，按需重启同一 AVD。恢复运行时由全量 runner 先处理被中断任务的清理，再准备后续任务。
+
+无需历史实验目录，也无需手工修改 AndroidWorld 的 `run.py`。完整前置条件、仅准备模式、恢复运行和脱敏结果导出见[一键评测指南](../evaluation/androidworld/README.md)。已生成但不含 `launch_full.py` 的旧批次需要在新的输出目录重新准备。
 
 ## 验证自己的任务
 

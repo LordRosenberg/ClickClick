@@ -144,7 +144,7 @@ def prepare(project, output, upstream=None):
     for name in RUNNER_FILES:
         shutil.copy2(HERE / name, runner / name)
     shutil.copytree(HERE / "oracle", runner / "oracle", ignore=shutil.ignore_patterns("*.jar", "*.class"))
-    for name in ("run_full.py", "setup_full.py", "probe_model.py"):
+    for name in ("run_full.py", "setup_full.py", "probe_model.py", "launch_full.py"):
         shutil.copy2(HERE / name, output / name)
     snapshot_runtime(project, output / "runtime")
     contract = audit_observation_contract(official / "android_world", runner / "oracle/OracleDump.java")
@@ -155,6 +155,7 @@ def prepare(project, output, upstream=None):
         "seed": 20260914, "history_tokens": 16000, "architecture": "plan_executor",
         "profile": "androidworld", "model": os.environ.get("CLICKCLICK_EVAL_MODEL", "chatgpt/gpt-5.6-sol"),
         "scoring_policy": POLICY, "setup_repair": "preserve unrelated SQLite databases",
+        "startup_policy": "v6-first-dependency-window-uptime-check",
         "runtime": "runtime", "instances": "frozen-params.pkl", "official_submission": False,
     })
     write_json(output / "scoring-policy.json", {"policy": POLICY, "predicate": "Unmodified official task.is_successful"})
@@ -266,11 +267,9 @@ def main(argv=None):
     from evaluation.androidworld.portable import adb_executable
     environment["CLICKCLICK_EVAL_ADB"] = adb_executable()
     environment["CLICKCLICK_EVAL_MODEL"] = args.model
-    if not (batch / "setup-complete.json").is_file():
-        subprocess.run([sys.executable, str(batch / "setup_full.py"), "--root", str(batch),
-                        "--adb", environment["CLICKCLICK_EVAL_ADB"]], env=environment, check=True)
-    subprocess.run([str(args.agent_python.resolve()), str(batch / "probe_model.py")], env=environment, check=True)
-    command = [sys.executable, str(batch / "run_full.py")]
+    if not (batch / "launch_full.py").is_file():
+        parser.error("This batch predates the v6 startup entry point; prepare a fresh output directory")
+    command = [sys.executable, str(batch / "launch_full.py")]
     if args.resume_after_quota:
         command.append("--resume-after-quota")
     subprocess.run(command, env=environment, check=True)
