@@ -4,6 +4,16 @@
 
 There are two useful starting points: run your own task through Console, or connect ClickClick to AndroidWorld for state-based scoring. The published 115/116 result uses a separately frozen full-suite protocol described in the result report.
 
+## Run the full suite
+
+After configuring ClickClick, model access, and the dedicated API 33 emulator with Collector, run from the project directory:
+
+```bash
+python -m evaluation.androidworld.reproduce --install
+```
+
+The command installs an isolated evaluation environment, downloads pinned AndroidWorld, restores the 116 public instances, builds the scoring observer, initializes apps and runs the full suite. No historical batch or manual `run.py` registration is needed. See the [full-suite guide](../evaluation/androidworld/README.md) for prerequisites, preparation-only mode, resume and sanitized result export.
+
 ## Evaluate your own task
 
 1. Complete [deployment](deployment.md) and describe a task in natural language. See [task examples](task-examples.md) for ideas.
@@ -32,7 +42,7 @@ Run this command from the AndroidWorld checkout after registration. `--perform_e
 
 ## Reproduce the reported experiment
 
-The [September 21 report](androidworld-results-20260921.md) specifies the frozen runtime, model, Collector digest, skills, seeds, budgets, action space and episode selection. Exact reproduction requires those frozen fixtures, skill overlay and full-suite runner; they are not currently distributed with the public source mirror. The public step-oriented adapter supports new evaluations but is not the identical runner used for that experiment.
+The [September 21 report](androidworld-results-20260921.md) specifies the frozen runtime, model, Collector digest, skills, seeds, budgets, action space and episode selection. The public full-suite entry point now provides those task instances, evaluation Skills and runner. It runs the checked-out source with the current pinned Collector release; model-service changes and stochastic behavior can affect results. The step-oriented adapter remains a separate integration path with different outer-step accounting.
 
 Preserve configuration alongside results: app and Android versions, model settings, runtime and skill revisions, task parameters, retry/selection policy, initialization and scoring implementation. Compound actions must retain both submitted-action and physical-subaction accounting.
 

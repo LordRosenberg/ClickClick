@@ -4,6 +4,16 @@
 
 可以从两条路径开始：通过 Console 验证自己的任务，或将 ClickClick 接入 AndroidWorld，使用应用状态评分。公布的 115/116 使用单独冻结的全量协议，具体条件见评测报告。
 
+## 一键全量评测
+
+完成项目部署、模型配置以及 API 33 专用模拟器和 Collector 准备后，在项目目录执行：
+
+```bash
+python -m evaluation.androidworld.reproduce --install
+```
+
+该命令安装独立评测环境、下载固定版本 AndroidWorld、恢复公开的 116 个冻结实例、编译评分采集器、初始化应用并开始全量评测。无需历史实验目录，也无需手工修改 AndroidWorld 的 `run.py`。完整前置条件、仅准备模式、恢复运行和脱敏结果导出见[一键评测指南](../evaluation/androidworld/README.md)。
+
 ## 验证自己的任务
 
 1. 完成[部署](deployment.zh-CN.md)，用自然语言描述要完成的任务；[任务实例](task-examples.zh-CN.md)可供参考。
@@ -32,7 +42,7 @@ python run.py \
 
 ## 复现报告中的实验
 
-[9 月 21 日评测报告](androidworld-results-20260921.md)列出冻结运行时、模型、Collector 摘要、技能、种子、预算、动作空间和结果选择。精确复现需要对应冻结 fixture、技能 overlay 与全量 runner；这些材料目前未随 public 源码镜像提供。公开的逐步适配器可用于开展新评测，但与该次实验的 runner 不完全相同。
+[9 月 21 日评测报告](androidworld-results-20260921.md)列出冻结运行时、模型、Collector 摘要、技能、种子、预算、动作空间和结果选择。公开入口现已提供冻结任务实例、评测 Skills 和全量 runner。它运行当前检出的代码；模型服务变化和随机性仍可能影响结果。下方逐步适配器是另一条接入路径，与全量 runner 的外层步数计数不同。
 
 结果应附带应用和 Android 版本、模型设置、运行时与技能版本、任务参数、重试/选择规则，以及初始化与评分实现。复合动作同时保留提交动作和物理子动作计数。
 

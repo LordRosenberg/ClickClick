@@ -40,6 +40,6 @@ The PKL-only delivery archive has SHA-256:
 2562515e78a99de2b102e5ba668a09696fc5d158ef3665c45337a7f338036854
 ```
 
-Exact reproduction requires the frozen fixtures, evaluation runner, skill overlay and runtime. The public source distribution includes the agent and an optional AndroidWorld adapter; the frozen evaluation materials and delivery archive are not bundled. This is a local evaluation result, not an accepted leaderboard submission.
+The [public full-suite entry point](../evaluation/androidworld/README.md) includes the frozen task instances, evaluation runner and skill overlay. It runs the checked-out runtime with the current pinned Collector release. Historical raw episode evidence and the delivery archive remain local; a new run preserves all completed outcomes without automatic result replacement. Model-service changes and stochastic behavior can affect reproduced scores. This is a local evaluation result, not an accepted leaderboard submission.
 
 The [optional AndroidWorld adapter](androidworld-benchmark.md) documents a separate integration path. Its step-oriented runner semantics should not be substituted for the full-suite protocol reported here.

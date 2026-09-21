@@ -144,6 +144,14 @@ Put the current goal and data in the task request, and reusable app knowledge in
 
 ## Evaluation and reproduction
 
+With model access and the AndroidWorld emulator ready, run all 116 published instances:
+
+```bash
+python -m evaluation.androidworld.reproduce --install
+```
+
+[Setup, execution and resume guide](evaluation/androidworld/README.md).
+
 For AndroidWorld, the [evaluation report](docs/androidworld-results-20260921.md) specifies the model, environment, task selection and action accounting behind 115/116. The [evaluation guide](docs/evaluation.md) explains initialization, scoring and reproducibility; the [AndroidWorld adapter](docs/androidworld-benchmark.md) describes how to connect the agent to the benchmark.
 
 ## Documentation

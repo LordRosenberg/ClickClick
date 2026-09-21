@@ -144,6 +144,14 @@ ClickClick 自动检测设备并部署 Accessibility Collector。保持设备解
 
 ## 评测与复现
 
+准备好模型与 AndroidWorld 模拟器后，可一键运行公开的 116 个任务实例：
+
+```bash
+python -m evaluation.androidworld.reproduce --install
+```
+
+[完整准备、运行与恢复指南](evaluation/androidworld/README.md)。
+
 AndroidWorld 的[评测报告](docs/androidworld-results-20260921.md)说明 115/116 对应的模型、环境、任务选择和动作计数；[评测指南](docs/evaluation.zh-CN.md)介绍初始化、评分和复现条件，[AndroidWorld 适配器](docs/androidworld-benchmark.md)说明基准接入方法。
 
 ## 文档导航
