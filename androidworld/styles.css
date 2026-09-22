@@ -67,3 +67,7 @@ body{background:#101b29;color:#edf4f3}
 .method-strip h2{color:#f3f8f5}
 .method-strip p{color:#b4c9c9}
 @media(max-width:680px){.task-sidebar{border-color:#344858}.task-item{border-color:#344858}}
+.decision-label{font-size:11px;font-weight:700;color:#a9c9b3;margin:-4px 0 7px}
+.step-list button{padding:11px 7px}
+.step-list .frame-entry b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:5px}
+.step-list .frame-entry small{color:#b6e99a;font-family:'DM Mono',monospace;font-size:10px}

@@ -29,7 +29,6 @@ function buildTimeline(item) {
     summary: step.summary,
     kind: step.kind || 'Act',
     act: step.act || step.action,
-    label: `Before step ${String(step.number).padStart(2, '0')} · next act / decision`,
     screenshot,
   });
   const frames = [upcoming(item.steps[0], item.initialScreenshot)];
@@ -38,16 +37,15 @@ function buildTimeline(item) {
     captures.forEach((capture, captureIndex) => {
       if (captureIndex < captures.length - 1) {
         frames.push({
-          summary: `Continue compound action: ${step.summary}`,
+          summary: capture.nextAct?.startsWith('back(') ? 'Return to the previous screen.' : 'Pause video playback.',
           kind: capture.nextKind || 'Subaction',
           act: capture.nextAct || 'continue',
-          label: `Within step ${String(step.number).padStart(2, '0')} · ${capture.label.toLowerCase()}`,
           screenshot: capture.screenshot,
         });
       } else if (item.steps[index + 1]) {
         frames.push(upcoming(item.steps[index + 1], capture.screenshot));
       } else {
-        frames.push({summary: 'Final device state', kind: 'Observation', act: '', label: 'Final observation', screenshot: capture.screenshot});
+        frames.push({summary: 'Final device state', kind: 'Observation', act: '', screenshot: capture.screenshot});
       }
     });
   });
@@ -66,9 +64,9 @@ function renderDetail(preserveFrameScroll = false) {
     <p class="task-instruction">${escapeHtml(item.instruction)}</p>
     <div class="metadata"><span>SCORE <strong>${item.score.toFixed(1)}</strong></span><span>STEPS <strong>${item.steps.length}</strong></span><span>FRAMES <strong>${frames.length}</strong></span><span>ELAPSED <strong>${item.seconds.toFixed(1)}s</strong></span><span>MODEL <strong>GPT-5.6-SOL</strong></span></div>
     <div class="viewer"><div class="screen-stage">${frame.screenshot ? `<img src="${encodeURI(frame.screenshot)}" alt="${escapeHtml(item.id)} screenshot at frame ${stepIndex}" loading="eager">` : '<div class="no-image">No screenshot captured for this observation.</div>'}</div>
-      <div class="step-panel"><div class="step-kicker">FRAME ${String(frame.number).padStart(2, '0')} / ${String(frames.length - 1).padStart(2, '0')}</div><h4 title="${escapeHtml(frame.summary)}">${escapeHtml(frame.summary)}</h4>${frame.summary.length > 100 ? `<details class="full-summary"><summary>Read full step note</summary><p>${escapeHtml(frame.summary)}</p></details>` : ''}<div class="step-action"><span>${escapeHtml(frame.label)}</span>${frame.act ? `<code>Next ${escapeHtml(frame.kind.toLowerCase())} · ${escapeHtml(frame.act)}</code>` : ''}</div>
+      <div class="step-panel"><div class="step-kicker">SCREEN ${String(frame.number).padStart(2, '0')} / ${String(frames.length - 1).padStart(2, '0')}</div>${frame.act ? '<div class="decision-label">ClickClick chose to</div>' : ''}<h4 title="${escapeHtml(frame.summary)}">${escapeHtml(frame.summary)}</h4>${frame.summary.length > 100 ? `<details class="full-summary"><summary>Read full step note</summary><p>${escapeHtml(frame.summary)}</p></details>` : ''}${frame.act ? `<div class="step-action"><code>${frame.kind === 'Decision' ? 'Decision' : 'Action'}: ${escapeHtml(frame.act)}</code></div>` : ''}
         <div class="step-controls"><button id="prev" ${stepIndex === 0 ? 'disabled' : ''} aria-label="Previous screenshot">← Previous</button><button id="next" ${stepIndex === frames.length - 1 ? 'disabled' : ''} aria-label="Next screenshot">Next →</button></div>
-        <div class="step-list" aria-label="Recorded frames">${frames.map((entry, index) => `<button data-step="${index}" class="${index === stepIndex ? 'active' : ''}" aria-current="${index === stepIndex ? 'step' : 'false'}"><span class="frame-no">${String(entry.number).padStart(2, '0')}</span><span class="frame-entry">${entry.act ? `<strong title="${escapeHtml(entry.act)}">Next ${escapeHtml(entry.kind.toLowerCase())} · ${escapeHtml(entry.act)}</strong>` : ''}<b title="${escapeHtml(entry.summary)}">${escapeHtml(entry.summary)}</b><small>${escapeHtml(entry.label)}</small></span></button>`).join('')}</div>
+        <div class="step-list" aria-label="Recorded screens">${frames.map((entry, index) => `<button data-step="${index}" class="${index === stepIndex ? 'active' : ''}" aria-current="${index === stepIndex ? 'step' : 'false'}"><span class="frame-no">${String(entry.number).padStart(2, '0')}</span><span class="frame-entry"><b title="${escapeHtml(entry.summary)}">${escapeHtml(entry.summary)}</b>${entry.act ? `<small title="${escapeHtml(entry.act)}">${entry.kind === 'Decision' ? 'Decision' : 'Action'}: ${escapeHtml(entry.act)}</small>` : ''}</span></button>`).join('')}</div>
       </div></div>`;
   const frameList = detail.querySelector('.step-list');
   frameList.scrollTop = frameScroll;
