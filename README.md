@@ -6,9 +6,9 @@
 
 Cross-app tasks · Reliable device interaction · Reusable skills · Full execution visibility
 
-[中文](README.zh-CN.md) · [Demos](#see-it-in-action) · [Quick Start](#deployment) · [Architecture](docs/architecture.md) · [Docs](#documentation)
+[中文](README.zh-CN.md) · [Benchmark results](https://lordrosenberg.github.io/ClickClick/androidworld/) · [Demos](#see-it-in-action) · [Quick Start](#deployment) · [Architecture](docs/architecture.md) · [Docs](#documentation)
 
-[![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](docs/androidworld-results-20260921.md)
+[![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-3DDC84?logo=android&logoColor=white)](docs/deployment.md)
@@ -19,7 +19,9 @@ ClickClick is an open-source Android agent platform. Give it a goal in natural l
 
 ## 99.14% on AndroidWorld
 
-**115 of 116 tasks passed**, covering multi-step tasks across Android apps. Evaluated with `chatgpt/gpt-5.6-sol` (high) on Android API 33 using AndroidWorld's official success checks. [Evaluation report →](docs/androidworld-results-20260921.md)
+**115 of 116 tasks passed**, covering multi-step tasks across Android apps. Evaluated with `chatgpt/gpt-5.6-sol` (high) on Android API 33 using AndroidWorld's official success checks.
+
+**[Explore the results and execution traces →](https://lordrosenberg.github.io/ClickClick/androidworld/)** Browse all 116 tasks, filter by outcome, and inspect scores, actions and recorded screen states. [Evaluation methodology](docs/androidworld-results-20260921.md).
 
 ## See it in action
 
@@ -152,7 +154,7 @@ python -m evaluation.androidworld.reproduce --install
 
 [Setup, execution and resume guide](evaluation/androidworld/README.md).
 
-For AndroidWorld, the [evaluation report](docs/androidworld-results-20260921.md) specifies the model, environment, task selection and action accounting behind 115/116. The [evaluation guide](docs/evaluation.md) explains initialization, scoring and reproducibility; the [AndroidWorld adapter](docs/androidworld-benchmark.md) describes how to connect the agent to the benchmark.
+Explore per-task scores and execution traces on the [AndroidWorld results site](https://lordrosenberg.github.io/ClickClick/androidworld/). The [evaluation report](docs/androidworld-results-20260921.md) specifies the model, environment, task selection and action accounting behind 115/116. The [evaluation guide](docs/evaluation.md) explains initialization, scoring and reproducibility; the [AndroidWorld adapter](docs/androidworld-benchmark.md) describes how to connect the agent to the benchmark.
 
 ## Documentation
 

@@ -6,9 +6,9 @@
 
 跨应用任务 · 可靠设备交互 · 可复用技能 · 完整执行可观测性
 
-[English](README.md) · [效果演示](#效果演示) · [快速开始](#部署) · [架构](docs/architecture.zh-CN.md) · [文档](#文档导航)
+[English](README.md) · [评测成绩](https://lordrosenberg.github.io/ClickClick/androidworld/) · [效果演示](#效果演示) · [快速开始](#部署) · [架构](docs/architecture.zh-CN.md) · [文档](#文档导航)
 
-[![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](docs/androidworld-results-20260921.md)
+[![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-3DDC84?logo=android&logoColor=white)](docs/deployment.zh-CN.md)
@@ -19,7 +19,9 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## AndroidWorld：99.14%
 
-**116 个任务通过 115 个**，覆盖多个 Android 应用中的多步骤任务。使用 `chatgpt/gpt-5.6-sol`（high）在 Android API 33 上运行，由 AndroidWorld 官方成功判定函数评分。[查看评测报告 →](docs/androidworld-results-20260921.md)
+**116 个任务通过 115 个**，覆盖多个 Android 应用中的多步骤任务。使用 `chatgpt/gpt-5.6-sol`（high）在 Android API 33 上运行，由 AndroidWorld 官方成功判定函数评分。
+
+**[查看成绩与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/androidworld/)** 浏览全部 116 个任务，按成功或失败筛选，逐步查看评分、动作和屏幕截图。[评测方法与配置](docs/androidworld-results-20260921.md)。
 
 ## 效果演示
 
@@ -152,7 +154,7 @@ python -m evaluation.androidworld.reproduce --install
 
 [完整准备、运行与恢复指南](evaluation/androidworld/README.md)。
 
-AndroidWorld 的[评测报告](docs/androidworld-results-20260921.md)说明 115/116 对应的模型、环境、任务选择和动作计数；[评测指南](docs/evaluation.zh-CN.md)介绍初始化、评分和复现条件，[AndroidWorld 适配器](docs/androidworld-benchmark.md)说明基准接入方法。
+在 [AndroidWorld 成绩页](https://lordrosenberg.github.io/ClickClick/androidworld/)查看逐项评分与执行轨迹。[评测报告](docs/androidworld-results-20260921.md)说明 115/116 对应的模型、环境、任务选择和动作计数；[评测指南](docs/evaluation.zh-CN.md)介绍初始化、评分和复现条件，[AndroidWorld 适配器](docs/androidworld-benchmark.md)说明基准接入方法。
 
 ## 文档导航
 
