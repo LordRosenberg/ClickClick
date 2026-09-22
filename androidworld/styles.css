@@ -71,17 +71,11 @@ body{background:#101b29;color:#edf4f3}
 .step-list button{padding:11px 7px}
 .step-list .frame-entry b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;font-size:12px;font-weight:700;line-height:1.35;margin-bottom:5px}
 .step-list .frame-entry small{color:#b6e99a;font-family:'DM Mono',monospace;font-size:10px}
-.role-badges{display:flex;flex-wrap:wrap;gap:5px;margin:1px 0 8px}
-.role-badge{display:inline-block;border:1px solid;border-radius:4px;padding:3px 6px;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.03em;line-height:1.1}
+.role-badge{display:inline-block;width:max-content;border:1px solid;border-radius:4px;padding:3px 6px;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.03em;line-height:1.1;margin:0 0 9px}
 .role-executor{color:#c7fb5f;border-color:#678b44;background:#263f32}
 .role-planner{color:#acd4ff;border-color:#4e7296;background:#24394d}
 .role-reviewer{color:#ffd5a2;border-color:#94734e;background:#473a30}
-.step-list .role-badges{margin:0 0 6px}
-.step-list .role-badge{font-size:8px;padding:2px 5px}
-.role-decision{border-left:2px solid #54789a;padding:0 0 0 10px;margin:0 0 13px;color:#d4e4e9;font-size:11px;line-height:1.45}
-.role-decision:has(.role-reviewer){border-color:#b08a56}
-.role-decision>div{display:flex;align-items:center;gap:8px}
-.role-decision strong{text-transform:capitalize;font-size:11px}
-.role-decision p{margin:5px 0 0;overflow-wrap:anywhere}
-.role-decision details{margin-top:4px;color:#aec2ca}
-.role-decision summary{cursor:pointer}
+.step-list .role-badge{font-size:8px;padding:2px 5px;margin:0 0 6px}
+.role-reason{font-size:11px;line-height:1.5;color:#aec2ca;margin-top:10px}
+.role-reason summary{cursor:pointer}
+.role-reason p{margin:6px 0 0;overflow-wrap:anywhere}

@@ -26,61 +26,74 @@ function renderList() {
 
 function buildTimeline(item) {
   const eventsAt = (afterStep) => (item.roleEvents || []).filter((event) => event.afterStep === afterStep);
-  const upcoming = (step, screenshot, afterStep) => ({
-    summary: step.summary,
-    kind: step.kind || 'Act',
-    act: step.act || step.action,
-    role: 'Executor',
-    roleEvents: eventsAt(afterStep),
-    screenshot,
-  });
-  const frames = [upcoming(item.steps[0], item.initialScreenshot, 0)];
+  const frames = [];
+  let screenNumber = 0;
+  const decisionSummary = {execute: 'Plan the next stage', complete: 'Complete the task', inconclusive: 'Mark the outcome inconclusive', review: 'Request a review', replan: 'Revise the plan'};
+  const addBoundary = (afterStep, screenshot, nextStep) => {
+    const decisions = eventsAt(afterStep);
+    decisions.forEach((event) => frames.push({
+      role: event.role,
+      kind: 'Decision',
+      act: event.decision,
+      summary: event.goal || decisionSummary[event.decision] || event.decision,
+      goal: event.goal,
+      reason: event.reason,
+      screenshot,
+      screenNumber,
+    }));
+    if (nextStep) frames.push({
+      role: 'Executor',
+      kind: nextStep.kind || 'Act',
+      act: nextStep.act || nextStep.action,
+      summary: nextStep.summary,
+      screenshot,
+      screenNumber,
+    });
+    if (!decisions.length && !nextStep) frames.push({
+      role: '', kind: 'Observation', act: '', summary: 'Final device state', screenshot, screenNumber,
+    });
+  };
+  addBoundary(0, item.initialScreenshot, item.steps[0]);
   item.steps.forEach((step, index) => {
     const captures = step.frames || [{screenshot: step.screenshot}];
     captures.forEach((capture, captureIndex) => {
+      screenNumber += 1;
       if (captureIndex < captures.length - 1) {
         frames.push({
           summary: capture.nextAct?.startsWith('back(') ? 'Return to the previous screen.' : 'Pause video playback.',
           kind: capture.nextKind || 'Subaction',
           act: capture.nextAct || 'continue',
           role: 'Executor',
-          roleEvents: [],
           screenshot: capture.screenshot,
+          screenNumber,
         });
-      } else if (item.steps[index + 1]) {
-        frames.push(upcoming(item.steps[index + 1], capture.screenshot, index + 1));
       } else {
-        frames.push({summary: 'Final device state', kind: 'Observation', act: '', role: '', roleEvents: eventsAt(index + 1), screenshot: capture.screenshot});
+        addBoundary(index + 1, capture.screenshot, item.steps[index + 1]);
       }
     });
   });
-  return frames.map((frame, number) => ({...frame, number}));
+  return {events: frames, screenCount: screenNumber + 1};
 }
 
 function roleBadges(frame) {
-  const roles = [...(frame.roleEvents || []).map((event) => event.role), ...(frame.role ? [frame.role] : [])];
-  return `<div class="role-badges">${roles.map((role) => `<span class="role-badge role-${role.toLowerCase()}">${role}</span>`).join('')}</div>`;
-}
-
-function roleDecisions(frame) {
-  return (frame.roleEvents || []).map((event) => `<div class="role-decision"><div><span class="role-badge role-${event.role.toLowerCase()}">${event.role}</span><strong>${escapeHtml(event.decision)}</strong></div>${event.goal ? `<p>${escapeHtml(event.goal)}</p>` : ''}${event.reason ? `<details><summary>Why</summary><p>${escapeHtml(event.reason)}</p></details>` : ''}</div>`).join('');
+  return frame.role ? `<span class="role-badge role-${frame.role.toLowerCase()}">${frame.role}</span>` : '';
 }
 
 function renderDetail(preserveFrameScroll = false) {
   if (!selected) return;
   const frameScroll = preserveFrameScroll ? detail.querySelector('.step-list')?.scrollTop || 0 : 0;
   const item = selected;
-  const frames = buildTimeline(item);
+  const {events: frames, screenCount} = buildTimeline(item);
   stepIndex = Math.max(0, Math.min(stepIndex, frames.length - 1));
   const frame = frames[stepIndex];
   detail.innerHTML = `
     <div class="detail-top"><div><div class="case-label">ANDROIDWORLD / TASK ${String(cases.indexOf(item) + 1).padStart(3, '0')}</div><h3>${escapeHtml(pretty(item.id))}</h3></div><span class="result-badge ${success(item) ? '' : 'fail'}">${success(item) ? '✓ PASS' : '× FAIL'}</span></div>
     <p class="task-instruction">${escapeHtml(item.instruction)}</p>
-    <div class="metadata"><span>SCORE <strong>${item.score.toFixed(1)}</strong></span><span>STEPS <strong>${item.steps.length}</strong></span><span>FRAMES <strong>${frames.length}</strong></span><span>ELAPSED <strong>${item.seconds.toFixed(1)}s</strong></span><span>MODEL <strong>GPT-5.6-SOL</strong></span></div>
-    <div class="viewer"><div class="screen-stage">${frame.screenshot ? `<img src="${encodeURI(frame.screenshot)}" alt="${escapeHtml(item.id)} screenshot at frame ${stepIndex}" loading="eager">` : '<div class="no-image">No screenshot captured for this observation.</div>'}</div>
-      <div class="step-panel"><div class="step-kicker">SCREEN ${String(frame.number).padStart(2, '0')} / ${String(frames.length - 1).padStart(2, '0')}</div>${roleBadges(frame)}${roleDecisions(frame)}${frame.act ? '<div class="decision-label">ClickClick chose to</div>' : ''}<h4 title="${escapeHtml(frame.summary)}">${escapeHtml(frame.summary)}</h4>${frame.summary.length > 100 ? `<details class="full-summary"><summary>Read full step note</summary><p>${escapeHtml(frame.summary)}</p></details>` : ''}${frame.act ? `<div class="step-action"><code>${frame.kind === 'Decision' ? 'Decision' : 'Action'}: ${escapeHtml(frame.act)}</code></div>` : ''}
-        <div class="step-controls"><button id="prev" ${stepIndex === 0 ? 'disabled' : ''} aria-label="Previous screenshot">← Previous</button><button id="next" ${stepIndex === frames.length - 1 ? 'disabled' : ''} aria-label="Next screenshot">Next →</button></div>
-        <div class="step-list" aria-label="Recorded screens">${frames.map((entry, index) => `<button data-step="${index}" class="${index === stepIndex ? 'active' : ''}" aria-current="${index === stepIndex ? 'step' : 'false'}"><span class="frame-no">${String(entry.number).padStart(2, '0')}</span><span class="frame-entry">${roleBadges(entry)}<b title="${escapeHtml(entry.summary)}">${escapeHtml(entry.summary)}</b>${entry.act ? `<small title="${escapeHtml(entry.act)}">${entry.kind === 'Decision' ? 'Decision' : 'Action'}: ${escapeHtml(entry.act)}</small>` : ''}</span></button>`).join('')}</div>
+    <div class="metadata"><span>SCORE <strong>${item.score.toFixed(1)}</strong></span><span>STEPS <strong>${item.steps.length}</strong></span><span>SCREENS <strong>${screenCount}</strong></span><span>ELAPSED <strong>${item.seconds.toFixed(1)}s</strong></span><span>MODEL <strong>GPT-5.6-SOL</strong></span></div>
+    <div class="viewer"><div class="screen-stage">${frame.screenshot ? `<img src="${encodeURI(frame.screenshot)}" alt="${escapeHtml(item.id)} screenshot ${frame.screenNumber}" loading="eager">` : '<div class="no-image">No screenshot captured for this observation.</div>'}</div>
+      <div class="step-panel"><div class="step-kicker">SCREEN ${String(frame.screenNumber).padStart(2, '0')} / ${String(screenCount - 1).padStart(2, '0')} · EVENT ${stepIndex + 1} / ${frames.length}</div>${roleBadges(frame)}${frame.role === 'Executor' ? '<div class="decision-label">ClickClick chose to</div>' : ''}<h4 title="${escapeHtml(frame.summary)}">${escapeHtml(frame.summary)}</h4>${frame.summary.length > 100 ? `<details class="full-summary"><summary>Read full step note</summary><p>${escapeHtml(frame.summary)}</p></details>` : ''}${frame.act ? `<div class="step-action"><code>${frame.role === 'Executor' && frame.kind !== 'Decision' ? 'Action' : 'Decision'}: ${escapeHtml(frame.act)}</code></div>` : ''}${frame.reason ? `<details class="role-reason"><summary>Why</summary><p>${escapeHtml(frame.reason)}</p></details>` : ''}
+        <div class="step-controls"><button id="prev" ${stepIndex === 0 ? 'disabled' : ''} aria-label="Previous event">← Previous</button><button id="next" ${stepIndex === frames.length - 1 ? 'disabled' : ''} aria-label="Next event">Next →</button></div>
+        <div class="step-list" aria-label="Run events">${frames.map((entry, index) => `<button data-step="${index}" class="${index === stepIndex ? 'active' : ''}" aria-current="${index === stepIndex ? 'step' : 'false'}"><span class="frame-no">${String(entry.screenNumber).padStart(2, '0')}</span><span class="frame-entry">${roleBadges(entry)}<b title="${escapeHtml(entry.summary)}">${escapeHtml(entry.summary)}</b>${entry.act ? `<small title="${escapeHtml(entry.act)}">${entry.role === 'Executor' && entry.kind !== 'Decision' ? 'Action' : 'Decision'}: ${escapeHtml(entry.act)}</small>` : ''}</span></button>`).join('')}</div>
       </div></div>`;
   const frameList = detail.querySelector('.step-list');
   frameList.scrollTop = frameScroll;
@@ -114,7 +127,7 @@ document.querySelectorAll('[data-filter]').forEach((button) => button.addEventLi
 }));
 window.addEventListener('keydown', (event) => {
   if (document.activeElement === search || !selected) return;
-  if (event.key === 'ArrowRight' && stepIndex < selected.steps.reduce((total, step) => total + (step.frames?.length || 1), 0)) selectStep(stepIndex + 1);
+  if (event.key === 'ArrowRight' && stepIndex < buildTimeline(selected).events.length - 1) selectStep(stepIndex + 1);
   if (event.key === 'ArrowLeft' && stepIndex > 0) selectStep(stepIndex - 1);
 });
 window.addEventListener('hashchange', () => {
