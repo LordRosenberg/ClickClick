@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b29">
+  <meta name="description" content="ClickClick's AndroidWorld 115/116 result with per-step screenshot evidence.">
+  <title>AndroidWorld 115/116 · ClickClick</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../" aria-label="ClickClick home"><span class="brand-mark">C<span>↗</span></span><span>ClickClick <b>/ AndroidWorld</b></span></a>
+    <nav aria-label="External links"><a href="../">Home</a><a href="https://github.com/LordRosenberg/ClickClick" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="methodology.html">Methodology ↗</a></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span> FULL-SUITE EVALUATION <span class="dot">·</span> 21 SEP 2026</div>
+        <h1>Every task.<br><em>Every step.</em></h1>
+        <p>Explore ClickClick’s AndroidWorld run with official task scores and screenshots from each recorded step.</p>
+        <div class="hero-actions"><a class="primary-button" href="#explore">Explore trajectories <span>↓</span></a><a class="text-button" href="methodology.html">Read evaluation notes ↗</a></div>
+      </div>
+      <div class="score-card" aria-label="Evaluation score">
+        <div class="score-heading">ANDROIDWORLD <span>·</span> OFFICIAL PREDICATE</div>
+        <div class="score-number"><strong>115</strong><span>/ 116</span></div>
+        <div class="score-percent">99.14% <span>task success</span></div>
+        <div class="score-rule"></div>
+        <div class="score-meta"><div><span>MODEL</span><strong>GPT-5.6-SOL</strong></div><div><span>REASONING</span><strong>HIGH</strong></div><div><span>ENVIRONMENT</span><strong>ANDROID 13</strong></div></div>
+      </div>
+    </section>
+
+    <section class="context" aria-label="Result context"><span class="context-icon">i</span><p>These 116 task results are scored by AndroidWorld’s official predicates. This is a skill-adapted system result; the evaluation notes describe its protocol and scope. Screenshots replace video because the run was not recorded.</p></section>
+
+    <section class="explorer" id="explore">
+      <div class="section-title"><div><span class="section-index">01 / EVIDENCE BROWSER</span><h2>Explore the run</h2></div><span id="taskCount" class="task-count">Loading tasks…</span></div>
+      <div class="explorer-shell">
+        <aside class="task-sidebar" aria-label="Task list">
+          <label class="search-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.4"></circle><path d="m16 16 5 5"></path></svg><input id="search" type="search" placeholder="Search tasks or instructions" autocomplete="off" aria-label="Search tasks"></label>
+          <div class="filters" role="group" aria-label="Filter by result"><button class="active" data-filter="all">All <span id="allCount">116</span></button><button data-filter="passed">Passed <span>115</span></button><button data-filter="failed">Failed <span>1</span></button></div>
+          <div id="taskList" class="task-list" role="listbox" aria-label="AndroidWorld tasks"></div>
+        </aside>
+        <div class="detail" id="detail" aria-live="polite"><div class="loading">Loading selected task evidence…</div></div>
+      </div>
+    </section>
+    <section class="method-strip"><div><span>02 / HOW TO READ THIS</span><h2>What the screenshots show</h2></div><p>Frames show saved device observations after each step and, for compound actions, an available intermediate state. The step summary comes from the preserved run. The green or red task result is the AndroidWorld scoring predicate, independent of the agent’s own statement.</p></section>
+  </main>
+  <footer><span>ClickClick <b>×</b> AndroidWorld</span><span>Source: evaluation batch <code>androidworld-sol-full-v6-20260921</code></span></footer>
+  <script src="app.js" defer></script>
+</body>
+</html>
