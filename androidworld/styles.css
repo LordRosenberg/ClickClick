@@ -12,3 +12,58 @@
 .step-list b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 @media(max-width:980px){.detail{padding:25px 21px}.viewer{grid-template-columns:minmax(190px,45%) minmax(0,1fr);gap:14px}.screen-stage{min-height:0}.step-list{max-height:300px}}
 @media(max-width:730px){.viewer{grid-template-columns:1fr}.screen-stage{width:fit-content;max-width:100%;margin:auto;background:transparent;padding:0}.screen-stage img{max-height:590px}}
+
+/* Keep the evidence browser in the same dark palette as the score hero. */
+body{background:#101b29;color:#edf4f3}
+.context{background:#192737;border-color:#344858;color:#b7c9d0}
+.context-icon{border-color:#83a68a;color:#c7fb5f}
+.explorer{background:#101b29}
+.section-index{color:#a5cf98}
+.section-title h2{color:#f3f8f5}
+.task-count{color:#9db2bf}
+.explorer-shell{background:#192737;border-color:#344858;box-shadow:0 18px 56px #06121b40}
+.task-sidebar{border-color:#344858}
+.search-wrap{background:#12212f;border-color:#3b5361}
+.search-wrap:focus-within{border-color:#c7fb5f}
+.search-wrap svg{stroke:#9ab5b9}
+.search-wrap input{color:#f3f8f5}
+.search-wrap input::placeholder{color:#91a8b3}
+.filters{border-color:#344858}
+.filters button{color:#b4c6c8}
+.filters button.active{background:#c7fb5f;color:#14231d}
+.task-list{scrollbar-color:#56717d transparent}
+.task-item{background:#192737;border-color:#344858}
+.task-item:hover{background:#213548}
+.task-item.selected{background:#294438;border-left-color:#c7fb5f}
+.task-item strong{color:#edf5f2}
+.task-item small,.task-item .chevron{color:#a2b9bc}
+.status-dot{background:#8ddc8a}
+.empty,.loading{color:#b0c4c7}
+.detail h3,.step-panel h4{color:#f4f8f6}
+.case-label,.task-instruction,.metadata,.step-action{color:#b0c5c9}
+.result-badge{background:#2f5b40;color:#dcffcb}
+.result-badge.fail{background:#623943;color:#ffceca}
+.metadata{border-color:#3b5361}
+.metadata strong{color:#edf4f3}
+.screen-stage{background:#263a48}
+.step-kicker{color:#b6e99a}
+.step-action{display:flex;flex-direction:column;gap:6px;overflow-wrap:anywhere}
+.step-action code{color:#e8f3e3;font-size:11px;line-height:1.5}
+.step-controls button{background:#213547;border-color:#4a6570;color:#edf5f1}
+.step-controls button:hover:not(:disabled){background:#355548}
+.step-list{border-color:#3b5361;scrollbar-color:#63818b transparent}
+.step-list button{align-items:flex-start;color:#b1c6c7}
+.step-list button.active{background:#30533e;color:#eeffe6}
+.step-list button:hover{background:#2a4350}
+.step-list .frame-no{padding-top:2px}
+.step-list .frame-entry{min-width:0;flex:1;display:block}
+.step-list .frame-entry strong,.step-list .frame-entry b,.step-list .frame-entry small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.step-list .frame-entry strong{font-family:'DM Mono',monospace;font-size:10px;color:#c7fb5f;font-weight:500;margin-bottom:3px;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}
+.step-list .frame-entry b{font-size:11px;color:#e1eeeb;font-weight:500}
+.step-list .frame-entry small{font-size:10px;color:#9cb6ba;margin-top:3px}
+.full-summary,.full-summary summary{color:#b6d1bd}
+.method-strip{background:#142334}
+.method-strip span{color:#a5cf98}
+.method-strip h2{color:#f3f8f5}
+.method-strip p{color:#b4c9c9}
+@media(max-width:680px){.task-sidebar{border-color:#344858}.task-item{border-color:#344858}}

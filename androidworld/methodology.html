@@ -7,15 +7,15 @@
   <title>Evaluation methodology · ClickClick</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .report { max-width: 840px; margin: 48px auto 100px; padding: 0 28px; color: #243347; line-height: 1.75; }
+    .report { max-width: 840px; margin: 48px auto 100px; padding: 0 28px; color: #e4efec; line-height: 1.75; }
     .report h1 { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.1; letter-spacing: -.04em; margin: 12px 0 20px; }
     .report h2 { font-size: 1.4rem; margin: 48px 0 12px; }
     .report p, .report li { font-size: 1rem; }
     .report ul { padding-left: 1.25rem; }
-    .report .lead { font-size: 1.2rem; color: #466077; }
-    .report .metric { background: #edf9e9; border: 1px solid #cae6c2; border-radius: 16px; padding: 24px; display: flex; align-items: baseline; gap: 16px; margin: 28px 0; }
-    .report .metric strong { font-size: 2.2rem; color: #20763c; }
-    .report .eyebrow { color: #467b55; font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; }
+    .report .lead { font-size: 1.2rem; color: #b6cbd0; }
+    .report .metric { background: #192737; border: 1px solid #3d5361; border-radius: 16px; padding: 24px; display: flex; align-items: baseline; gap: 16px; margin: 28px 0; }
+    .report .metric strong { font-size: 2.2rem; color: #c7fb5f; }
+    .report .eyebrow { color: #b6e99a; font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -36,7 +36,7 @@
       <li>Per-task limits: <code>int(complexity × 10)</code> submitted action units, <code>int(complexity × 60)</code> model requests, and 900 seconds.</li>
     </ul>
     <h2>Scoring and evidence</h2>
-    <p>The score uses the official <code>task.is_successful</code> predicates. The task detail pages show saved device observations after each step. When a compound action recorded an intermediate state, that screenshot is available within its step.</p>
+    <p>The score uses the official <code>task.is_successful</code> predicates. In the task viewer, each screenshot is paired with the next act or decision made from that screen. The following frame shows the resulting device state. Compound actions can also include an intermediate screen and its next subaction.</p>
     <p>A compound action can contain multiple physical taps or key presses while consuming one submitted action unit. The screenshots and action descriptions provide context for inspecting each outcome.</p>
     <h2>Scope</h2>
     <p>This is a local evaluation of the stated model, runtime, skills, environment, and task instances. It is not an accepted leaderboard submission. Model-service changes and stochastic behavior may affect reproduction. The one unsuccessful task is <code>RecipeDeleteDuplicateRecipes3</code>.</p>
