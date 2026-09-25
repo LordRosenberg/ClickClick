@@ -6,6 +6,7 @@ from typing import Any
 
 from agent.revisable.history import note_directory, page, stage_directory
 from agent.revisable.recall import source_id
+from agent.revisable.summary import project_summary
 from perception.observation import ObservationPackage
 from shared.artifacts import ArtifactStore
 from shared.db import Database
@@ -100,19 +101,41 @@ class TaskStore:
 
     def unresolved_notes(self) -> list[dict]:
         return [{"note_key": row["key"], "source": source_id("note", row),
-                 "question": row["payload"]["unresolved"],
-                 "observation_ids": row["payload"].get("observation_ids", []),
-                 "source_refs": row["payload"].get("source_refs", [])}
+                 "question": row["payload"]["unresolved"]}
                 for row in self.records("note") if row["payload"].get("unresolved")]
 
     def note_index(self) -> list[dict]:
         return note_directory(self)
 
+    def retained_notes(self, character_budget: int = 3000) -> dict:
+        """Restore selected text, not a model-generated summary or truth verdict."""
+        rows = [row for row in reversed(self.records("note")) if row["payload"].get("retained")]
+        # Optional automatic memory must not displace executor-written facts.
+        rows.sort(key=lambda row: row["payload"].get("origin") == "compaction_attempt")
+        packet = {
+            "items": [], "omitted_count": len(rows),
+            "policy": "Model-written working memory, not independent verification. Check original sources only for a material conflict or missing detail. Omitted entries: note directory/read_history.",
+        }
+        for row in rows:
+            note = row["payload"]
+            item = {"note_key": row["key"], "source": source_id("note", row),
+                    "text": note["retained"], "written_step": note.get("written_step")}
+            candidate = {**packet, "items": [*packet["items"], item],
+                         "omitted_count": packet["omitted_count"] - 1}
+            if len(json.dumps(candidate, ensure_ascii=False)) <= character_budget:
+                packet = candidate
+        return packet
+
     def context(
         self, state: AgentState, observation_id: str, role: str = "executor"
     ) -> dict[str, Any]:
         runtime = state.revisable
-        notes = page(self.note_index(), "notes", character_budget=2400)
+        # Internal directories retain versions for review/digests. Only the model
+        # projection omits redundant fields; canonical source includes the version.
+        note_rows = [{key: value for key, value in note.items()
+                      if key not in {"version", "observation_ids", "omitted_source_count", "stage_id"}}
+                     for note in self.note_index()]
+        notes = page(note_rows, "notes", character_budget=2400)
         context = {
             "original_instruction": state.instruction,
             "current_device_date": state.current_device_date or None,
@@ -134,6 +157,18 @@ class TaskStore:
         }
         if self.budget_snapshot is not None:
             context["remaining_budget"] = self.budget_snapshot()
+        retained = self.retained_notes()
+        supplied = {item["source"] for item in retained["items"]}
+        # The retained body owns the read/update handles; avoid a second preview.
+        context["notes"] = [{"title": note["title"], "note_key": note["note_key"],
+                             "body_in_retained_notes": True}
+                            if note["source"] in supplied else note for note in context["notes"]]
+        compactions = self.records("compaction")
+        if compactions and runtime.summary:
+            context["summary_source"] = source_id("compaction", compactions[-1])
+        if retained["items"] or retained["omitted_count"] or "retained_notes" in runtime.delivered_context:
+            # Send an explicit empty packet after clearing the last retained note.
+            context["retained_notes"] = retained
         if role != "executor":
             context["tool_measurements"] = self.measurements()
             context["evidence_policy"] = "Measurements establish only their recorded source/target/property. Notes, summaries and plans are model interpretations, not independent verification. Historical indices never ground current actions."
@@ -155,7 +190,7 @@ class TaskStore:
                 return [compact(item) for item in value]
             return value
 
-        earlier_summary = state.revisable.summary
+        earlier_summary = project_summary(state.revisable.summary, self.retained_notes())
         summary_included = len(earlier_summary) <= character_budget
         if summary_included:
             character_budget -= len(earlier_summary)

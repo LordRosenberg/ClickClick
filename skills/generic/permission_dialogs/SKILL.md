@@ -2,7 +2,8 @@
 name: permission_dialogs
 description: >-
   系统/厂商权限与同意弹窗。出现允许、拒绝、仅在使用中允许、去设置等遮罩时使用。
-version: 0.1.0
+version: 0.1.1
+interface_scope: generic
 kind: generic
 tags: [popup, permission, system]
 triggers:
@@ -32,5 +33,5 @@ source: authored
 
 ## Executor notes
 
-- 树里看不到弹窗铬时，调用 `observe_screen(mode=current)`，勿猜 index。
+- 树里看不到弹窗控件时，调用 `observe_screen(mode=snapshot)`，勿猜 index。
 - 弹窗已消失则忽略本 skill，以当前屏幕为准。

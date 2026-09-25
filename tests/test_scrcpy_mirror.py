@@ -467,7 +467,7 @@ def test_static_screen_change_decodes_without_a_following_packet(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_late_subscriber_receives_cached_decoder_bootstrap():
+async def test_late_subscriber_skips_cached_idr_and_waits_for_new_bootstrap():
     source = _PushSource("S1")
     session = MirrorSession(device_key="S1", source=source)
     lease = await session.acquire("console")
@@ -487,8 +487,24 @@ async def test_late_subscriber_receives_cached_decoder_bootstrap():
     assert b"\x65idr" in bootstrap
 
     late_frames = session.frames()
-    late_bootstrap = await asyncio.wait_for(anext(late_frames), timeout=0.05)
-    assert late_bootstrap == bootstrap
+    reset_calls = []
+
+    async def reset_video():
+        reset_calls.append(True)
+        return True
+
+    source.reset_video = reset_video
+    pending = asyncio.create_task(anext(late_frames))
+    await asyncio.sleep(0)
+    assert reset_calls == [True]
+    await source.queue.put(b"\0\0\0\x01\x41gap-p\0\0\0\x01\x41next-p")
+    await asyncio.sleep(0.02)
+    assert not pending.done()  # Neither stale IDR nor an undecodable live P frame.
+    await source.queue.put(b"\0\0\0\x01\x65fresh-idr\0\0\0\x01\x41after")
+    late_bootstrap = await asyncio.wait_for(pending, timeout=0.2)
+    assert b"\x65fresh-idr" in late_bootstrap
+    assert b"\x67sps" in late_bootstrap and b"\x68pps" in late_bootstrap
+    assert late_bootstrap != bootstrap
     assert session.metrics()["bootstrap_cached"] is True
 
     await late_frames.aclose()

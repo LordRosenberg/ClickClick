@@ -5,6 +5,7 @@ version: 1.0.1
 app_aliases: [OsmAnd, OsmAnd Maps]
 role_sections: true
 app: net.osmand
+interface_scope: app
 kind: app_core
 capability: manage_routes_tracks_and_markers
 source: authored

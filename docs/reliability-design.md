@@ -1,59 +1,46 @@
-# ClickClick: an agent harness for complex mobile tasks
+# Technical overview
 
-[README](../README.md) · [中文](reliability-design.zh-CN.md) · [Architecture](architecture.md) · [Design decisions](design-decisions.md)
+[README](../README.md) · [中文](reliability-design.zh-CN.md) · [Architecture](architecture.md)
 
-## Abstract
+ClickClick lets multimodal models complete Android workflows through the screen. This overview explains **the main task challenges, core design choices and their purpose**. Module interfaces and runtime flow belong in the [architecture guide](architecture.md).
 
-ClickClick connects general-purpose multimodal models to Android through revisable stage planning, persistent task memory, application skills and device feedback. Models make semantic decisions; the harness manages context, skill scope, action binding and execution records. The system passes 115 of 116 AndroidWorld task instances, a success rate of 99.14%. The [evaluation report](androidworld-results-20260921.md) specifies the experimental conditions.
+## Why an agent harness is needed
 
-## 1. Problem and design objectives
+A cross-app task involves more than consecutive taps. Transferring recipes requires remembering source fields, understanding the destination app, entering several records and judging which were saved. A changed page or a failed input can alter the next operation.
 
-Mobile workflows must preserve goals, data and target identity across changing interfaces. Transferring recipes can involve reading a long note, switching apps, filling several forms and inspecting saved records. Correct individual taps are insufficient if source fields disappear from context, observations become stale or records are processed twice.
+The agent harness supplies context, tools and feedback for sustained execution. **Models interpret the task and choose a path; runtime records, validates and executes their submissions.**
 
-ClickClick addresses four connected requirements: revise plans from new evidence, preserve retrievable information across stages, apply relevant app knowledge, and feed device results into subsequent decisions. Observability connects each result to the model input and device operation that produced it.
+## Four core mechanisms
 
-## 2. Revisable stage planning
+| Task challenge | Design | Purpose |
+| --- | --- | --- |
+| Future screens cannot all be predicted | Revisable stage planning | Specify the current outcome and adapt the remaining route to new observations |
+| Details can be lost across pages and apps | Independent notes, structured summaries and source retrieval | Preserve important data, bound context and retrieve missing detail |
+| Apps have non-obvious, reusable operating conventions | App- and device-scoped skills | Reuse established knowledge and reduce repeated exploration |
+| Dispatch does not establish an application outcome | Current-observation binding and execution feedback | Check targets and input, then bring actual results into the next decision |
 
-Planner specifies one current stage as an outcome and maintains a tentative roadmap. Executor chooses the local interaction path. It can request replanning when observations contradict the stage, or return to Planner when the stage is complete.
+Together they support a loop: **choose a stage → act and observe → update memory → continue or revise the plan**. Planner or Executor can request Reviewer when independent judgment is needed.
 
-This division keeps future plans provisional while allowing local adaptation. The original instruction remains authoritative for create/update intent, source fields, counts, ordering and preservation requirements. Intermediate plans do not replace it.
+## How they work together across apps
 
-The default loop uses Planner and Executor. Either can request Reviewer for independent judgment; mandatory final review is also configurable. The runtime enforces transitions and limits while models interpret task meaning. See the [role protocol](../shared/revisable.py) and [orchestrator](../agent/revisable/orchestrator.py).
+| Stage | Model judgment | System support |
+| --- | --- | --- |
+| Read the source | Which fields will be needed later? | Notes hold data; source records support retrieval |
+| Open the destination | How should this page be operated? | Current observation and applicable skills |
+| Enter each record | Did the input take effect, and which records are complete? | Action receipts, input readback and task progress |
+| Deliver the result | Does the outcome satisfy the original request? | Post-save observations and independent review when needed |
 
-## 3. Persistent memory and task continuity
+## Inspectable outcomes and practical limits
 
-Session stores observations, action events, stages, dialogue and versioned notes outside the active model context. The harness selects relevant material and provides source-reading tools. Specific missing facts can be retrieved from text or historical screenshots without revisiting the app.
+Console connects model inputs, decisions, actions and observations so outcomes and failures can be inspected. Benchmark evaluators independently check final task state; the [evaluation report](androidworld-results-20260921.md) describes the conditions.
 
-Compaction operates on complete execution steps and retains recent steps. Original evidence and unresolved questions remain separately available. Summaries reduce active context; source records provide a path back to detail. Historical images support fact checking, while the current observation supplies action targets.
+Traceable sources do not guarantee correct interpretation, successful input does not establish that a record was saved, and skills cannot cover every app version. The system preserves evidence and feedback for subsequent judgment.
 
-Long-list work also requires progress state: processed records, pending rows and remaining scope. Shared traversal guidance adjusts scrolling to visible anchors. Ambiguous or identical-looking rows use a cursor and smaller forward reveals; clearly anchored lists permit larger moves. Stopping conditions distinguish target lookup, group processing and full collection coverage. This is a task-execution strategy within the memory and skill layers.
+## Continue reading
 
-Implementation: [records](../agent/revisable/store.py), [retrieval](../agent/revisable/recall.py), [compaction](../agent/revisable/dialogue.py), [list traversal](../skills/generic/adaptive-list-traversal/SKILL.md).
-
-## 4. Application skills and bounded compound actions
-
-App cores contain stable conventions, workflows describe specific procedures, and generic skills provide methods shared across apps. Planner selects stage guidance. Device profiles, target and foreground app identity, and role projection determine delivery. Skill IDs, versions and content hashes make that delivery inspectable.
-
-Skills may also declare supported compound actions. An inspect-and-return operation, for example, must retain the detail screen as evidence and re-establish the returned screen as the next action basis. The harness executes a closed recipe, records each subaction and observation, and exposes the latest actionable state. Stage selection, active skill and foreground identity constrain availability.
-
-This connects operating knowledge to execution without exposing arbitrary scripts or model-authored action sequences. One submitted action can contain multiple physical inputs; both levels are recorded. See the [skills guide](../skills/README.md) for authoring, role sections and reviewed candidate updates.
-
-## 5. Observation-bound device execution
-
-Observations combine scrcpy pixels with Accessibility Collector structure and events; ADB supplies fallback pixels. Acquisition uses request boundaries, window-state checks and bounded resampling. Role handoffs refresh the observation before execution resumes.
-
-Executor actions reference the current observation ID. For supported local native clicks, the harness retains the observed node, refreshes and checks its identity, and calls Android `ACTION_CLICK` once. Invalid or uncertain native actions return feedback without silently replaying old coordinates. Coordinate actions remain available for visual controls and unsupported paths.
-
-Supported text entry checks a structurally identifiable field, focus, replacement and readback, reporting the operations that actually occurred. Successful input and a saved application result are separate judgments. See [action/observation transactions](../agent/action_observation.py), [input control](../agent/targeted_input.py) and [native node storage](../android/accessibility-collector/app/src/main/java/ai/clickclick/collector/NodeClickStore.kt).
-
-## 6. Observability and evaluation
-
-Console connects tasks, role calls, model inputs and outputs, skills, tools, receipts and observations. Developers can inspect live and historical screens, diagnose plan or input failures, and analyze latency and usage. The [observability guide](observability.md) explains the interface.
-
-Evaluation is separate from the agent harness. AndroidWorld initializes tasks and checks their final state; the runtime records execution and resource use. The 115/116 result measures the complete system, rather than the isolated gain of an individual mechanism. The [evaluation report](androidworld-results-20260921.md) defines its protocol and action space. [Demo recordings](demos.md) illustrate individual workflows.
-
-## 7. Scope
-
-ClickClick targets Android workflows requiring information transfer, multi-field entry, record management and inspectable execution. Source retrieval does not guarantee lossless summaries; native binding checks mechanical identity rather than all business meaning; traversal guidance is not a formal coverage proof. Application outcomes still require observation or external evaluation.
-
-The contribution is the working combination of these mechanisms.
+| Question | Guide |
+| --- | --- |
+| How do modules connect and roles transition? | [System architecture](architecture.md) |
+| How are memory, context and skills organized? | [The architecture's memory and skills section](architecture.md#context-memory-and-skills), with links to subsystem designs |
+| Why were particular approaches chosen? | [Design decisions](design-decisions.md) |
+| How can an execution be inspected? | [Console guide](observability.md) |

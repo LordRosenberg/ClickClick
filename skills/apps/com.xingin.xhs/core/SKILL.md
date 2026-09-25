@@ -3,6 +3,7 @@ name: xiaohongshu-core
 description: 小红书稳定的页面结构、导航与遮罩处理常识。
 version: 1.0.0
 app: com.xingin.xhs
+interface_scope: app
 kind: app_core
 capability: app_navigation
 tags: [xiaohongshu, navigation]

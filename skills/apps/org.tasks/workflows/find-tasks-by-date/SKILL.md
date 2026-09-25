@@ -4,6 +4,7 @@ description: Find Tasks.org items by due date or completion state in My Tasks. P
 version: 1.3.2
 app: org.tasks
 device_profiles: [androidworld_api33]
+interface_scope: app
 kind: workflow
 capability: find_tasks_by_date
 tags: [tasks, due-date, completed, incomplete, next-week, information-retrieval]

@@ -2,7 +2,7 @@
 
 [README](../README.md) · [中文](architecture.zh-CN.md) · [Technical overview](reliability-design.md) · [Design decisions](design-decisions.md)
 
-ClickClick separates task reasoning, runtime control, persistent evidence and Android interaction. This document describes their interfaces and the path of a task through the system.
+This guide describes **module boundaries, interfaces and task execution flow**, with links to detailed subsystem designs. The [technical overview](reliability-design.md) explains the goals behind the core mechanisms.
 
 ![System architecture](assets/clickclick-architecture.svg)
 
@@ -74,13 +74,31 @@ Freshness checks use capture request boundaries and window generations. Bounded 
 
 ## Context, memory and skills
 
-The harness restores dialogue, selects source records and compacts older complete steps when the configured history threshold is exceeded. Session retains original artifacts and versioned notes. Unresolved questions remain available outside the summary; read tools retrieve detailed sources when needed.
+Memory has three layers: original records preserve sources, versioned notes retain information needed later, and process summaries connect earlier execution history. Models receive a bounded context and retrieve missing details by source.
+
+![Memory layers and context flow](assets/memory-overview.svg)
+
+Compaction keeps the newest two execution steps; notes, unresolved questions and measurements are restored separately. Summaries cannot edit notes, and retained content is not verified truth. See [Memory and context design](memory-and-context.md) for lifecycles, fields, budgets and risks.
 
 Planner selects stage skills from the catalog. Device profiles filter system-specific guidance; target and observed foreground identities determine applicable app knowledge. Role sections tailor the delivered body, with skill IDs, versions and content hashes recorded. App-owned compound recipes additionally require matching active stage and foreground scope. See the [skill authoring guide](../skills/README.md).
 
 ## Operational boundaries
 
 Cancellation and task limits stop further work at runtime boundaries. A receipt identifies what the device path reported; models and external evaluators determine semantic success. Persistent history supports inspection and continuation but does not provide arbitrary crash recovery, transactional rollback or exactly-once device input. Deployment access and Android authorization are separate from tool validity checks.
+
+## Module design guides
+
+| Module | Design and documentation | Coverage |
+| --- | --- | --- |
+| Task orchestration and roles | [Roles and transitions](#roles-and-transitions), [Role policy](design-decisions.md#role-policy) | Stage progression, replanning, on-demand review and completion |
+| Memory and context | [Memory and context design](memory-and-context.md) | Notes, structured summaries, source retrieval and storage |
+| Skill management | [Skills guide](../skills/README.md), [Role-specific delivery](design-decisions.md#role-specific-skills) | Skill organization, app/device scope and role delivery |
+| Observation and mirroring | [scrcpy observation](scrcpy-observation.md), [Collector setup](accessibility-collector-setup.md) | Shared video, frame freshness, UI structure and fallback |
+| Actions and input | [Native node binding](design-decisions.md#native-node-binding), [Targeted text replacement](design-decisions.md#targeted-text-replacement) | Target validation, focus, replacement and readback |
+| Model integration | [Model routing](deployment.md#model-routing), [Prompt-cache continuity](design-decisions.md#prompt-cache-continuity) | Model configuration, role routing and request-context reuse |
+| Console and observability | [Observability design](observability.md) | Event records, timelines, model calls and artifact inspection |
+| Processes and device deployment | [Process topology](processes.md), [Deployment](deployment.md) | Local/remote Drivers, service boundaries and startup configuration |
+| Evaluation integration | [Evaluation and reproduction](evaluation.md), [AndroidWorld adapter](androidworld-benchmark.md) | Task initialization, action accounting and independent scoring |
 
 ## Code map
 

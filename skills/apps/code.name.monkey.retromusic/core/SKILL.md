@@ -5,6 +5,7 @@ version: 1.4.1
 app_aliases: [Retro Music, Retro, Retro Player]
 role_sections: true
 app: code.name.monkey.retromusic
+interface_scope: app
 kind: app_core
 capability: manage_playlists_and_queue
 source: authored

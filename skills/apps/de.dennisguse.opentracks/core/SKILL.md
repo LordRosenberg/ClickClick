@@ -5,6 +5,7 @@ version: 1.2.0
 app_aliases: [OpenTracks, Open Tracks, OpenTracks Sports Tracker]
 role_sections: true
 app: de.dennisguse.opentracks
+interface_scope: app
 kind: app_core
 capability: manage_and_query_activities
 source: authored

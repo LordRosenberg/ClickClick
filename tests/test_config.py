@@ -16,6 +16,7 @@ def test_settings_contains_only_operator_controlled_fields():
         "accessibility_collector_enabled", "accessibility_collector_apk_path",
         "device_stay_awake_while_plugged", "task_cancel_hard_timeout_s",
         "app_resolver_cache_path", "agent_architecture", "executor_context_tokens",
+        "compaction_attempt_notes", "chatgpt_history_tokens", "screen_detail", "double_tap",
     }
 
 

@@ -620,6 +620,10 @@ class AndroidDriver:
         if isinstance(capture, dict):
             capture["stage_timings"] = list(deadline.stage_timings)
 
+    async def capture_native_frame(self, deadline: ObservationDeadline):
+        """Fresh native pixels and tree under the same existing capture fences."""
+        return await self.capture_deadline_frame(deadline, prefer_stream=False)
+
     async def capture_deadline_frame(
         self, deadline: ObservationDeadline, *, prefer_stream: bool = True
     ) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
@@ -1491,6 +1495,12 @@ class AndroidDriver:
             before_dispatch()
             await adb.input_tap_async(self._serial, action.x, action.y)
             return ActionResult(success=True, message="tap_xy", detail={"x": action.x, "y": action.y})
+        if atype == "double_tap":
+            if action.x is None or action.y is None:
+                return ActionResult(success=False, message="double_tap missing x/y")
+            before_dispatch()
+            await adb.input_double_tap_async(self._serial, action.x, action.y)
+            return ActionResult(success=True, message="double_tap dispatched; zoom depends on app", detail={"x": action.x, "y": action.y})
         if atype == "long_press":
             x, y = self._resolve_xy(action)
             if x is None or y is None:

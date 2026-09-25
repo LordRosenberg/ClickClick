@@ -43,17 +43,13 @@ Provider call counts and input volume help compare resource demand when billing 
 | Repeated tap or scroll | Compare observation IDs, targets and resulting content. The same coordinates can act on different records or reveal new rows. |
 | Repeated replan/review | Inspect stage changes and evidence available to each call. Determine whether a new fact appeared or the same question was repeated. |
 | Expensive history | Inspect actual request sections, retrieved history, image sends and compaction events. A shorter summary does not by itself imply fewer total calls or lower cost. |
-| UI and action mismatch | Check frame/tree timing and source metadata, target binding and device receipts before interpreting it as a semantic planning failure. |
+| UI and action mismatch | Use Frame to see the screenshot supplied to the model, compare the action target and result, then check Trace 流 for capture failures or retries. Live shows the screen now, so it cannot reconstruct what the model saw earlier. |
 
 The general method is to separate model choice, tool validation, actual dispatch, observed effect and saved task result. This supports diagnosis; it does not automatically classify every error or prove causal explanations.
 
-For Collector 0.4.4, compare `window_generation`, `window_quiet_ms`, `window_fence`,
-`content_changed_during_capture` and `observation_capture_attempt_count`. Health
-reports `filtered_window_events`; it counts excluded metadata events, not dropped
-trees. `collector_elapsed_ms` describes the final Collector exchange, while
-`provider_attempts` and `stage_timings` retain earlier attempts. Do not report only
-the accepted attempt as total latency. `observation_capture_failed` and an action
-receipt's `observation_failure` preserve deadline/cancellation details.
+For slow captures, check the full duration, including waits and retries. For
+deeper investigation of screenshot/control mismatches or capture timeouts, see
+the [capture diagnostic field reference](scrcpy-observation.md#capture-diagnostic-fields).
 
 ## Programmatic access
 

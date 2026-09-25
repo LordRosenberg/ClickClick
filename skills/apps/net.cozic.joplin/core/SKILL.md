@@ -5,6 +5,7 @@ version: 1.0.0
 app_aliases: [Joplin]
 role_sections: true
 app: net.cozic.joplin
+interface_scope: app
 kind: app_core
 capability: navigate_notebooks
 source: authored

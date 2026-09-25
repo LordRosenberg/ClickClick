@@ -5,6 +5,7 @@ version: 1.3.2
 app_aliases: [Camera, 相机]
 app: com.android.camera2
 device_profiles: [androidworld_api33]
+interface_scope: system
 kind: app_core
 capability: camera_controls
 source: authored

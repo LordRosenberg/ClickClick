@@ -664,3 +664,35 @@ def test_list_traversal_is_selected_cross_app_and_retired_with_stage(app, workfl
                for message in session._k_wire())
     session.set_stage_skills(app, [workflow] if workflow else [])
     assert generic.id not in {p["skill_id"] for p in session.active_skill_metadata}
+
+
+@pytest.mark.parametrize("skill_id", [
+    "exploratory-information-retrieval",
+    "search-engine-recovery",
+])
+@pytest.mark.parametrize("role", ["planner", "executor", "reviewer"])
+def test_retrieval_skills_are_discoverable_scoped_and_retired(skill_id, role):
+    library = SkillLibrary(Path(__file__).resolve().parents[1] / "skills")
+    skill = library.get(skill_id)
+    assert skill is not None and skill.kind == "generic" and not skill.app
+    assert not skill.verified_actions
+    assert skill.frontmatter["role_sections"] is True
+    assert "## Shared" in skill.section_for("planner")
+    assert "## Execution" not in skill.section_for("planner")
+    assert "## Execution" in skill.section_for("executor")
+    assert skill_id in library.index_summaries(allow_dirs=["generic"])
+    assert not [
+        error for error in library.lint_authored_modules() if skill_id in error
+    ]
+
+    session = AgentSession(role, "m", library=library)
+    session.reset_lifecycle("task:retrieval-scope")
+    session.freeze_allow_dirs(["generic"])
+    session.set_stage_skills("com.android.chrome", [skill_id])
+    assert skill_id in {p["skill_id"] for p in session.active_skill_metadata}
+    assert any(
+        skill.section_for(role).strip() in message.get("content", "")
+        for message in session._k_wire()
+    )
+    session.set_stage_skills("com.android.chrome", [])
+    assert skill_id not in {p["skill_id"] for p in session.active_skill_metadata}

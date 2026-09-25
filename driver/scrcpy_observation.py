@@ -302,6 +302,7 @@ class ScrcpyObservationProvider:
         # A newly acquired source generation begins at its own codec bootstrap;
         # never carry prediction state across generations.
         self.decoder.reset()
+        self.ring.clear()
         self._task = __import__("asyncio").create_task(self._consume(), name=f"scrcpy-decode-{self.device_key}")
         self.status = "starting"
         return True

@@ -47,9 +47,9 @@ class ExecutorSubmission(Arguments):
         return self
 
 
-def executor_submission_schema():
+def executor_submission_schema(*, double_tap=False):
     schema = tool_schema(ExecutorSubmission)
-    schema["$defs"]["Action"] = executor_action_variants_schema()
+    schema["$defs"]["Action"] = executor_action_variants_schema(double_tap=double_tap)
     return schema
 
 
@@ -185,7 +185,7 @@ class ExecutionSession(AgentSession):
                 description="Act, advance, replan, review, or finish. Include notes to save before the decision; a failed save prevents the action.",
                 category=ToolCategory.TERMINAL,
                 roles=(AgentRole.EXECUTOR,),
-                parameters=executor_submission_schema(),
+                parameters=executor_submission_schema(double_tap=self.settings.double_tap),
             ),
             submit,
         )

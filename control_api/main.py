@@ -61,6 +61,8 @@ class SkillUpsertBody(BaseModel):
     tags: list[str] = Field(default_factory=list)
     triggers: list[str] = Field(default_factory=list)
     body: str = ""
+    interface_scope: Literal["generic", "app", "system"] | None = None
+    device_profiles: list[str] | None = None
 
 
 class SkillUpdateBody(BaseModel):
@@ -72,6 +74,8 @@ class SkillUpdateBody(BaseModel):
     description: str | None = None
     version: str | None = None
     body: str | None = None
+    interface_scope: Literal["generic", "app", "system"] | None = None
+    device_profiles: list[str] | None = None
 
 
 class DraftRejectBody(BaseModel):
@@ -448,6 +452,27 @@ def create_app(
             for task, source in data_sources.list_tasks(st, include_state=not summary)
         ]
 
+    @app.get("/api/tasks/page")
+    async def task_page(
+        page: int = Query(default=1, ge=1),
+        page_size: int = Query(default=10, ge=10, le=20),
+        status: TaskStatus | None = None,
+    ) -> dict[str, Any]:
+        if page_size not in (10, 20):
+            raise HTTPException(status_code=422, detail="page_size must be 10 or 20")
+        tasks, total, actual_page = data_sources.task_page(
+            page=page, page_size=page_size, status=status, background=True,
+        )
+        return {
+            "items": [data_sources.decorate({
+                **task.model_dump(exclude={"state", "plan"}),
+                "execution_elapsed_ms": task_execution_elapsed_ms(task),
+            }, source) for task, source in tasks],
+            "total": total, "page": actual_page, "page_size": page_size,
+            "indexing": data_sources.indexing and not data_sources.index_ready,
+            "index_error": data_sources.index_failed,
+        }
+
     @app.get("/api/tasks/failed/list")
     async def failed_list() -> list[dict[str, Any]]:
         return [
@@ -675,6 +700,8 @@ def create_app(
             "app_name": p.app or "",
             "app": p.app or "",
             "kind": p.kind,
+            "interface_scope": p.interface_scope,
+            "device_profiles": p.device_profiles,
             "capability": getattr(p, "capability", ""),
             "intent_tags": list(p.tags),
             "tags": list(p.tags),
@@ -722,6 +749,8 @@ def create_app(
                 tags=body.tags,
                 triggers=body.triggers,
                 body=body.body,
+                interface_scope=body.interface_scope,
+                device_profiles=body.device_profiles,
             )
         except SkillConflictError as exc:
             raise HTTPException(409, str(exc)) from exc
@@ -817,6 +846,12 @@ def create_app(
                 description=body.description,
                 version=body.version,
                 body=body.body,
+                extra_frontmatter={
+                    key: value for key, value in {
+                        "interface_scope": body.interface_scope,
+                        "device_profiles": body.device_profiles,
+                    }.items() if value is not None
+                },
             )
         except SkillNotFoundError as exc:
             raise HTTPException(404, str(exc)) from exc

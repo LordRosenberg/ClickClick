@@ -1,10 +1,12 @@
 ---
 name: documentsui-location-evidence
 description: DocumentsUI navigation and directory-membership evidence, including the non-directory-scoped behavior of file search.
-version: 1.0.0
+version: 1.0.1
 app_aliases: [Files, DocumentsUI]
 role_sections: true
 app: com.google.android.documentsui
+interface_scope: system
+device_profiles: [androidworld_api33]
 kind: app_core
 capability: navigate_and_verify_file_locations
 source: authored

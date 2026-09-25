@@ -14,12 +14,11 @@ import {
   deviceLabel,
   getModelCatalog,
   listDevices,
-  listFailedTasks,
-  listTasks,
+  getTaskPage,
 } from "@/api/client";
 import { ChatGPTLoginCard } from "@/components/ChatGPTLoginCard";
 import { cn, formatMs } from "@/lib/utils";
-import type { ModelCatalogEntry, Task, TaskStatus } from "@/api/types";
+import type { ModelCatalogEntry, TaskStatus } from "@/api/types";
 
 const NO_MODELS: ModelCatalogEntry[] = [];
 
@@ -471,55 +470,45 @@ function SubmitForm() {
   );
 }
 
-function TaskList() {
-  const [visibleCount, setVisibleCount] = useState(50);
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: listTasks,
-    refetchInterval: 5000,
+function TaskList({ status }: { status?: "failed" }) {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<10 | 20>(10);
+  const { data, isLoading, isFetching, error } = useQuery({
+    queryKey: ["tasks", "page", status ?? "all", page, pageSize],
+    queryFn: () => getTaskPage(page, pageSize, status),
+    refetchInterval: (query) => query.state.data?.indexing ? 1000 : page === 1 ? 5000 : false,
   });
-  if (isLoading)
-    return <div className="font-mono text-xs text-text-mute">loading tasks…</div>;
-  if (error)
-    return <div className="font-mono text-xs text-err">load failed</div>;
-  if (!data || data.length === 0)
-    return <div className="font-mono text-xs text-text-mute">— no tasks</div>;
+  useEffect(() => {
+    if (data && data.page !== page) setPage(data.page);
+  }, [data, page]);
+  const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / pageSize));
   return (
-    <div className="space-y-2">
-      {data.slice(0, visibleCount).map((t: Task) => (
-        <TaskRow key={t.id} task={t} />
-      ))}
-      {visibleCount < data.length && (
-        <Button variant="outline" onClick={() => setVisibleCount((n) => n + 50)}>
-          加载更多（已显示 {visibleCount} / {data.length}）
-        </Button>
-      )}
-    </div>
-  );
-}
-
-function FailedList() {
-  const [visibleCount, setVisibleCount] = useState(50);
-  const { data, isLoading } = useQuery({
-    queryKey: ["tasks", "failed"],
-    queryFn: listFailedTasks,
-  });
-  return (
-    <div className="space-y-2">
-      {isLoading && (
-        <div className="font-mono text-xs text-text-mute">loading…</div>
-      )}
-      {!isLoading && (!data || data.length === 0) && (
-        <div className="font-mono text-xs text-text-mute">— no failed tasks</div>
-      )}
-      {data?.slice(0, visibleCount).map((t) => (
-        <TaskRow key={t.id} task={{ ...t, status: "failed" }} />
-      ))}
-      {data && visibleCount < data.length && (
-        <Button variant="outline" onClick={() => setVisibleCount((n) => n + 50)}>
-          加载更多（已显示 {visibleCount} / {data.length}）
-        </Button>
-      )}
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
+        <label className="flex items-center gap-2 text-text-mute">
+          每页
+          <select aria-label="每页任务数" value={pageSize}
+            className="rounded border border-border bg-bg-2 px-2 py-1 text-text"
+            onChange={(e) => { setPageSize(Number(e.target.value) as 10 | 20); setPage(1); }}>
+            <option value={10}>10 条</option>
+            <option value={20}>20 条</option>
+          </select>
+        </label>
+        <Button variant="outline" disabled={page <= 1 || isFetching}
+          onClick={() => setPage((n) => n - 1)}>上一页</Button>
+        <span aria-live="polite" className="text-text-mute">
+          {data?.indexing
+            ? `正在索引历史任务 · 已发现 ${data.total} 条`
+            : data ? `第 ${data.page} / ${totalPages} 页 · 共 ${data.total} 条` : `第 ${page} 页`}
+        </span>
+        <Button variant="outline" disabled={!data || data.indexing || page >= totalPages || isFetching}
+          onClick={() => setPage((n) => n + 1)}>下一页</Button>
+      </div>
+      {isLoading && <div className="font-mono text-xs text-text-mute">loading tasks…</div>}
+      {error && <div className="font-mono text-xs text-err">load failed</div>}
+      {data?.index_error && <div className="font-mono text-xs text-err">历史任务索引暂不可用，稍后重试。</div>}
+      {data?.total === 0 && !data.indexing && !data.index_error && <div className="font-mono text-xs text-text-mute">— no tasks</div>}
+      {data?.items.map((task) => <TaskRow key={task.id} task={task} />)}
     </div>
   );
 }
@@ -556,7 +545,7 @@ export function TaskListView() {
           </button>
         </div>
         <Separator className="bg-border" />
-        {tab === "all" ? <TaskList /> : <FailedList />}
+        <TaskList key={tab} status={tab === "failed" ? "failed" : undefined} />
       </div>
       <div className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
         <SubmitForm />

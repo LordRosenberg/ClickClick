@@ -855,11 +855,22 @@ async def _stream_temporal(
 def make_observe_screen_handler(
     *, driver: Any, builder: ObservationBuilder, artifacts: Any | None,
     baseline_package: ObservationPackage,
+    detail_enabled: bool = False,
 ):
     async def observe_screen(args: dict[str, Any], context: ToolExecutionContext) -> AgentToolResult:
         mode = str(args.get("mode") or "")
-        extras = set(args) - {"mode", "frames", "duration_ms"}
-        if mode not in {"snapshot", "sequence"} or extras:
+        detail = mode == "detail" and detail_enabled
+        extras = set(args) - ({"mode", "region"} if detail else {"mode", "frames", "duration_ms"})
+        region = None
+        if detail:
+            from agent.screen_detail import NativeCaptureDriver, validate_region
+            try:
+                region = validate_region(args.get("region"))
+            except ValueError as exc:
+                return AgentToolResult(status=ToolStatus.INVALID_ARGUMENTS, summary=str(exc))
+            if not callable(getattr(driver, "capture_native_frame", None)):
+                return AgentToolResult(status=ToolStatus.UNAVAILABLE, summary="Native detail capture is unavailable on this driver; use snapshot or device zoom.")
+        if (mode not in {"snapshot", "sequence"} and not detail) or extras:
             return AgentToolResult(
                 status=ToolStatus.INVALID_ARGUMENTS,
                 summary="mode must be snapshot|sequence and only documented global arguments are allowed",
@@ -875,12 +886,12 @@ def make_observe_screen_handler(
         ) + 1
         attempt_number = int(context.state["_observe_attempt_count"])
         evidence_ref = f"evidence_{uuid.uuid4().hex}"
-        if mode == "snapshot":
+        if mode == "snapshot" or detail:
             initial_provider_state = _provider_state(driver, "current")
             baseline_reused = False
             try:
                 transaction = ActionObservationTransaction(
-                    driver, builder, current_deadline_ms=CURRENT_DEADLINE_MS,
+                    NativeCaptureDriver(driver) if detail else driver, builder, current_deadline_ms=CURRENT_DEADLINE_MS,
                 )
                 package = await transaction.observe_current(
                     deadline_ms=CURRENT_DEADLINE_MS,
@@ -952,6 +963,11 @@ def make_observe_screen_handler(
                     content=package.text_for_llm, artifact_ref=package.tree_ref,
                     actionable=bool(package.accepted and package.actionable),
                 ))
+            reading_attachments = []
+            if detail and package.accepted and package.clean_png:
+                from agent.screen_detail import detail_attachments
+                reading_attachments = detail_attachments(package, region, artifacts)
+                refs.extend(a.artifact_ref for a in reading_attachments if a.artifact_ref)
             return AgentToolResult(
                 status=(ToolStatus.SUCCEEDED if package.accepted else ToolStatus.UNAVAILABLE),
                 summary=(
@@ -964,7 +980,7 @@ def make_observe_screen_handler(
                     else f"fresh snapshot was not actionable: {package.acceptance_reason}"
                 ),
                 data={
-                    "mode": "snapshot",
+                    "mode": "detail" if detail else "snapshot",
                     "status": (
                         "complete"
                         if package.accepted and package.mode != ObservationMode.IMAGE_ONLY
@@ -991,8 +1007,8 @@ def make_observe_screen_handler(
                     ),
                     "coordinate_reference": "end",
                 },
-                attachments=attachments,
-                replacement_attachments=(attachments if package.accepted else []),
+                attachments=attachments + reading_attachments,
+                replacement_attachments=((reading_attachments if detail else attachments) if package.accepted else []),
                 evidence=EvidenceRecord(
                     evidence_ref=evidence_ref, observation_id=package.observation_id,
                     artifact_refs=refs,

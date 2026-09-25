@@ -5,6 +5,7 @@ version: 1.4.2
 app_aliases: [Broccoli]
 role_sections: true
 app: com.flauschcode.broccoli
+interface_scope: app
 kind: app_core
 capability: recipe_search
 source: authored

@@ -42,9 +42,9 @@ Real recordings of successful tasks. Click a preview to open the complete video 
 ## Built for complex tasks
 
 - **Plan, act and adapt.** Break a goal into meaningful stages, change course when the screen reveals new information, and continue from completed work. Independent review is available when a task needs another judgment.
-- **Carry information across apps.** Keep source facts, progress and task notes throughout long tasks. Retrieve earlier screenshots and records when details need checking, even after context compression.
+- **Carry information across apps.** Keep task notes independently of conversation summaries, with short selected facts available throughout long tasks. Retrieve complete notes, earlier screenshots and source records when details need checking. [Memory and context](docs/architecture.md#context-memory-and-skills)
 - **Interact reliably with real interfaces.** Combine screenshots and accessibility structure to locate controls. Bind supported clicks to observed native nodes, verify text entry, and feed action results back into the next decision.
-- **Teach reusable app skills.** Add application knowledge without retraining the model. Skills guide planning, execution and verification; supported compound actions can inspect a detail page and return while preserving what was read.
+- **Teach reusable app skills.** Add application knowledge without retraining the model. Share app-owned interface knowledge across devices, bind system-interface guidance to device profiles, and reuse general skills across apps. Supported compound actions can inspect a detail page and return while preserving what was read.
 - **Choose your model and device.** Configure models for planning and execution, connect local phones or emulators, or host devices behind a remote Driver.
 
 The agent harness brings these capabilities together: **revisable plans + persistent memory + scoped skills + device feedback**. [Technical overview](docs/reliability-design.md)
@@ -54,6 +54,7 @@ The agent harness brings these capabilities together: **revisable plans + persis
 The Console puts the live device and the agent's execution history in one workspace.
 
 - **Watch progress:** follow the live screen, current stage and streaming model responses.
+- **Browse past runs:** page through task summaries, filter failures and open execution details on demand.
 - **Inspect decisions:** open a Timeline call to see the actual model input, returned decision, active skills, tool calls and associated screenshot.
 - **Diagnose failures:** trace an action to its target, receipt and resulting observation; revisit earlier screens without losing the current device view.
 - **Understand resource use:** inspect task and model latency, call counts and reported input, output and cache usage.
@@ -160,8 +161,8 @@ Explore per-task scores and execution traces on the [AndroidWorld results site](
 
 | Guide | What you will learn | 中文 |
 | --- | --- | --- |
-| [Technical overview](docs/reliability-design.md) | How planning, memory, skills and device feedback work together. | [中文](docs/reliability-design.zh-CN.md) |
-| [Architecture](docs/architecture.md) | Runtime roles, module boundaries and code entry points. | [中文](docs/architecture.zh-CN.md) |
+| [Technical overview](docs/reliability-design.md) | Design goals and the reasoning behind the core mechanisms. | [中文](docs/reliability-design.zh-CN.md) |
+| [Architecture](docs/architecture.md) | Modules, interfaces, execution flow and detailed subsystem designs. | [中文](docs/architecture.zh-CN.md) |
 | [Design decisions](docs/design-decisions.md) | Trade-offs in review, context, capture and input. | [中文](docs/design-decisions.zh-CN.md) |
 | [Deployment](docs/deployment.md) | Models, devices, installation and remote operation. | [中文](docs/deployment.zh-CN.md) |
 | [Observability](docs/observability.md) | Console navigation, traces and performance analysis. | [中文](docs/observability.zh-CN.md) |

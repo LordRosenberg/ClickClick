@@ -71,7 +71,11 @@ async def test_material_question_survives_replacement_plan_and_missing_dialogue(
     for role in ['executor', 'planner', 'reviewer']:
         packet = store.context(state, 'after', role)
         assert packet['unresolved_questions'][0]['note_key'] == 'effect'
-        assert packet['unresolved_questions'][0]['observation_ids'] == ['before']
+    question = packet['unresolved_questions'][0]
+    # Compact context keeps the read handle; full provenance stays in storage.
+    kind, note, _ = resolve_source(store, question['source'])
+    assert kind == 'note'
+    assert note['payload']['observation_ids'] == ['before']
     with pytest.raises(ValueError, match='referenced'):
         save_note(store, WriteNote(note_key='effect', content='Done', resolution='Assumed done'), state)
     with pytest.raises(ValueError, match='Unknown'):
@@ -264,7 +268,7 @@ async def test_surface_rejection_is_returned_without_dispatch_or_pipeline_crash(
 def test_non_planner_terminal_sessions_cannot_load_skills(role):
     from agent.session import AgentSession
     from agent.revisable.session import terminal_registry
-    from agent.revisable.dialogue import Summary
+    from agent.revisable.summary import StructuredSummary
     async def submit(args, ctx): pass
-    registry = terminal_registry(AgentSession(role, "unused"), Summary, "save_summary", "Summarize", submit)
+    registry = terminal_registry(AgentSession(role, "unused"), StructuredSummary, "save_summary", "Summarize", submit)
     assert "load_skill" not in {spec.name for spec in registry.specs_for_role(role)}

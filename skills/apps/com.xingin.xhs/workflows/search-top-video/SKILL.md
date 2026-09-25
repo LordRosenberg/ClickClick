@@ -3,6 +3,7 @@ name: xiaohongshu-search-and-sort
 description: 对小红书的搜索结果按照热度/类型/时间/距离等过滤/排序。
 version: 1.0.0
 app: com.xingin.xhs
+interface_scope: app
 kind: workflow
 capability: search_and_sort
 tags: [search, video, likes, filter]

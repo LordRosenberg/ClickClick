@@ -3,6 +3,7 @@ name: broccoli-deduplicate-recipes
 description: Compare same-title recipe groups in Broccoli and remove exact duplicates. Pair with adaptive-list-traversal for multi-screen group coverage.
 version: 0.3.5
 app: com.flauschcode.broccoli
+interface_scope: app
 kind: workflow
 capability: recipe_deduplication
 tags: [recipes, deduplication]

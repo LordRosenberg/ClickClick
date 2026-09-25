@@ -4,6 +4,7 @@ description: 在小米系统时钟的计时页设置时分秒，处理滚轮数�
 version: 0.2.0
 app: com.android.deskclock
 device_profiles: [xiaomi_15_cn_android15]
+interface_scope: system
 kind: workflow
 capability: timer_entry
 tags: [clock, timer, wheel]

@@ -1,10 +1,11 @@
 ---
 name: markor-file-management
 description: Markor note save, rename, and delete workflow.
-version: 1.1.8
+version: 1.1.9
 app_aliases: [Markor]
 role_sections: true
 app: net.gsantner.markor
+interface_scope: app
 kind: app_core
 capability: manage_notes
 source: authored
@@ -29,21 +30,18 @@ source: authored
 
 - When editing or reusing document text, preserve observed whitespace and line
   breaks outside the requested changes, including trailing newlines.
-- When the requested filename includes a suffix, enter its base name in the left
-  Name field and the suffix in the right Name field. Markor then recognizes the
-  file type automatically; do not also change `Type`.
-- When the requested filename has no suffix, leave the right Name field without
-  an actual suffix and set `Type` to `None`. A light-gray default suffix is only
-  a placeholder and can be ignored; a dark suffix is actual input and must be
-  cleared, or `None` will not produce a suffixless file.
+- When the requested filename includes a suffix, enter the base name in the left
+  Name field and the suffix in the right Name field; do not also change `Type`.
+- For a suffixless filename, enter the name and set `Type` to `None`. Do not
+  clear the suffix first; ignore the light-gray suffix placeholder afterward.
 - When a task requires clipboard content, paste it at the intended insertion point.
   Do not type temporary content and then try to select or overwrite it to perform
   the paste.
-- After creating or editing a document, explicitly save its content; visible
-  editor text alone does not confirm that it reached the file. A creation-only
-  task can finish in the editor after saving; returning to the list is not an
-  extra requirement. For renaming, save and return to the file list: Rename is
-  not in the editor title, overflow menu, or File settings.
+- After creating or editing a document, confirm the intended editor content and
+  explicitly Save. With the filename and location already established and no
+  save error, finish that work in the editor; reopening adds no required check.
+  For renaming, save and return to the file list: Rename is not in the editor
+  title, overflow menu, or File settings.
 - In the file list, long-press the exact filename, confirm its selection, choose
   top-toolbar Rename, enter the exact requested name, and confirm.
 - Delete from the file list. For multiple target files in one folder, long-press

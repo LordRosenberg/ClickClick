@@ -404,12 +404,14 @@ async def test_compression_keeps_notes_and_raw_history_and_restores_state(setup,
     )
     for index in range(6):
         state.step_number = index
-        store.save_dialogue([{"role": "user", "content": str(index) * 1000}], state)
+        store.save_dialogue([{"role": "user", "content": str(index) * 2000}], state)
     original_refs = list(state.revisable.dialogue_refs)
 
     async def complete(*args, **kwargs):
         return response(
-            ("save_summary", {"text": "Collected several values; consult numbers note."})
+            ("save_summary", {"results": [{"text": "Collected several values; consult numbers note.",
+                                          "sources": ["R1"]}],
+                              "decisions_and_attempts": [], "critical_context": []})
         )
 
     monkeypatch.setattr("agent.session.complete", complete)
@@ -433,8 +435,10 @@ async def test_compression_keeps_notes_and_raw_history_and_restores_state(setup,
 
 
 @pytest.mark.parametrize("architecture", ["plan_reviewer", "plan_executor"])
+@pytest.mark.parametrize("boundary,zero_units", [("max_device_actions", False), ("max_action_attempts", False), ("max_action_attempts", True), ("prediction_rounds", True)])
+@pytest.mark.parametrize("continuous", [False, True])
 async def test_task_dialogue_survives_pause_resume_and_stage_change(
-    tmp_path, monkeypatch, architecture
+    tmp_path, monkeypatch, architecture, boundary, zero_units, continuous
 ):
     from agent.runtime import create_orchestrator
     from agent.traces import TraceWriter
@@ -452,6 +456,12 @@ async def test_task_dialogue_survives_pause_resume_and_stage_change(
     db = Database(settings.db_path)
     artifacts = ArtifactStore(settings.artifacts_dir)
     driver = FixtureDriver()
+    closes = []
+
+    async def close_observation_provider():
+        closes.append(True)
+
+    driver.close_observation_provider = close_observation_provider
     runtime = create_orchestrator(
         db, TraceWriter(db, artifacts), settings=settings, artifacts=artifacts, driver=driver
     )
@@ -460,7 +470,10 @@ async def test_task_dialogue_survives_pause_resume_and_stage_change(
 
     async def act_after_note(action):
         assert db.get_agent_record(record.id, "note", "handoff") is not None
-        return await original_act(action)
+        result = await original_act(action)
+        if zero_units:
+            result.detail["device_action_units"] = 0
+        return result
 
     driver.act = act_after_note
     calls = []
@@ -542,9 +555,28 @@ async def test_task_dialogue_survives_pause_resume_and_stage_change(
         return response(("submit_executor_step", args))
 
     monkeypatch.setattr("agent.session.complete", complete)
-    assert await runtime.run_task(record.id, max_device_actions=1) == TaskStatus.RUNNING
-    # A new Executor object and fresh observation are created by run_task.
-    assert await runtime.run_task(record.id) == TaskStatus.SUCCEEDED
+    async def run_with_budget(limit):
+        if boundary == "prediction_rounds":
+            task = db.get_task(record.id)
+            task.state.revisable.limits.prediction_rounds = limit
+            db.update_task(record.id, state=task.state)
+            return await runtime.run_task(record.id)
+        return await runtime.run_task(record.id, **{boundary: limit})
+
+    if continuous:
+        assert await run_with_budget(2) == TaskStatus.SUCCEEDED
+        assert len(closes) == 1
+    else:
+        assert await run_with_budget(1) == TaskStatus.RUNNING
+        if boundary == "prediction_rounds":
+            task = db.get_task(record.id)
+            assert task.state.revisable.prediction_round_count == 1
+            assert runtime._remaining_budget(task.state)["prediction_rounds"] == 0
+            task.state.revisable.limits.prediction_rounds = 2
+            db.update_task(record.id, state=task.state)
+        # A new Executor object and fresh observation are created by run_task.
+        assert await runtime.run_task(record.id) == TaskStatus.SUCCEEDED
+        assert len(closes) == 2
     assert calls.count("planner") == (3 if architecture == "plan_executor" else 2)
     assert calls.count("reviewer") == (architecture == "plan_reviewer")
     assert db.get_task(record.id).state.revisable.completed_stage_ids == ["plan_1_stage_1"]
@@ -752,7 +784,7 @@ def test_action_receipt_keeps_device_coordinates_out_of_dialogue_and_review(setu
         success=True,
         message="Tapped (600,1783)",
         detail={"x": 600, "y": 1783, "dispatched_coordinates": {"x": 600, "y": 1783}},
-        receipt=ActionReceipt(dispatch_succeeded=True),
+        receipt=ActionReceipt(dispatch_succeeded=True, transaction_id="txn_internal_trace"),
     )
     step = ExecutorStep(
         summary="Open control",
@@ -763,6 +795,8 @@ def test_action_receipt_keeps_device_coordinates_out_of_dialogue_and_review(setu
     visible = store.read_dialogue(state.revisable.dialogue_refs)
     review = store.context(state, "obs_2", "reviewer")
     assert "1783" not in json.dumps([visible, review])
+    assert "txn_internal_trace" not in json.dumps(visible)
+    assert store.records("event")[0]["payload"]["action_result"]["receipt"]["transaction_id"] == "txn_internal_trace"
     assert review["operation_summary"]["events"][0]["submitted_action"]["index"] == 6
     assert result.detail["dispatched_coordinates"]["y"] == 1783
 
@@ -1222,12 +1256,14 @@ async def test_note_directory_is_bounded_searchable_and_preserves_full_versioned
     packet = store.context(state, "obs_3")
     assert packet["omitted_note_count"] > 0
     assert sum(len(json.dumps(row, ensure_ascii=False)) for row in packet["notes"]) <= 2400
-    assert packet["notes"][0]["omitted_source_count"] == 18
+    assert "observation_ids" not in packet["notes"][0]
+    assert "source" in packet["notes"][0]
     found = await registry.execute("read_history", {"query": "needle_0_end"}, context())
     assert len(found.data["items"]) == 1
     assert found.data["items"][0]["note_key"] == "note_0"
     assert "needle_0_end" in found.data["items"][0]["text"]
     full = await registry.execute("read_history", {"source": "note_0", "full": True}, context())
+    assert full.data["items"][0]["observation_ids"] == sources
     assert full.data["items"][0]["text"].endswith("needle_0_end")
     assert store.get("note", "note_0")["payload"]["observation_ids"] == sources
     save_note(store, WriteNote(note_key="note_0", content="Correction"), state)
@@ -1266,11 +1302,12 @@ async def test_compaction_excludes_recent_whole_steps_and_accumulates_again(setu
             for message in messages
             if isinstance(message.get("content"), str)
             and message["content"].startswith('{')
-            and "previous_summary" in json.loads(message["content"])
+            and "previous_items" in json.loads(message["content"])
         )
         summaries.append(payload)
         assert payload["original_instruction"] == state.instruction
-        return response(("save_summary", {"text": f"Summary {len(summaries)}"}))
+        return response(("save_summary", {"results": [{"text": f"Summary {len(summaries)}",
+            "sources": [payload["records"][0]["source"]]}], "decisions_and_attempts": [], "critical_context": []}))
 
     monkeypatch.setattr("agent.session.complete", complete)
 
@@ -1300,7 +1337,7 @@ async def test_compaction_excludes_recent_whole_steps_and_accumulates_again(setu
         store.save_dialogue([{"role": "user", "content": "identical receipt"}], state)
     second_retained = store.read_dialogue(state.revisable.dialogue_refs[-4:])
     restored = await restore()
-    assert summaries[1]["previous_summary"] == "Summary 1"
+    assert summaries[1]["previous_items"][0]["text"] == "Summary 1"
     assert "DECISION_2" in json.dumps(summaries[1])
     assert "DECISION_4" not in json.dumps(summaries[1])
     assert restored[1:] == second_retained

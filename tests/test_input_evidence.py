@@ -706,7 +706,8 @@ def test_executor_prompt_reconciles_current_source_typed_focus_with_history():
     normalized_system = " ".join(system.lower().split())
 
     assert "match the intended effect" in normalized_system
-    assert "latest runtime state overrides older records" in normalized_system
+    assert "in the latest runtime state" in normalized_system
+    assert "historical indices cannot ground current actions" in normalized_system
     assert "repeated attempts without relevant progress" in normalized_system
     assert "supported change of target or method" in normalized_system
     assert "`type` inserts at the cursor" in normalized_system

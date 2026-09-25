@@ -5,6 +5,7 @@ version: 1.0.1
 app_aliases: [Simple Calendar Pro, Simple Calendar]
 role_sections: true
 app: com.simplemobiletools.calendar.pro
+interface_scope: app
 kind: app_core
 capability: read_calendar_events
 source: authored

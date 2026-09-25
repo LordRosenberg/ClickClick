@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="505" viewBox="0 0 1120 505" role="img" aria-labelledby="title desc">
+<title id="title">From earlier history to the next decision</title><desc id="desc">Compact when history exceeds its budget and replacement is expected to release space</desc>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L6 3.5L0 7" fill="none" stroke="#8292A4" stroke-width="1.3"/></marker></defs>
+<rect width="1120" height="505" rx="12" fill="#FFFFFF"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="650" fill="#203247">From earlier history to the next decision</text>
+<text x="40" y="73" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Compact when history exceeds its budget and replacement is expected to release space</text>
+<path d="M40 95 L1080 95" fill="none" stroke="#DCE3EA" stroke-width="1.5"/>
+<text x="40" y="126" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="650" fill="#657487">01  INPUT</text>
+<text x="408" y="126" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="650" fill="#657487">02  SUMMARIZE</text>
+<text x="810" y="126" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="650" fill="#657487">03  VALIDATE</text>
+<rect x="40" y="144" width="302" height="190" rx="8" fill="#EEF3FA" stroke="none"/>
+<text x="60" y="179" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="600" fill="#203247">History to summarize</text>
+<text x="60" y="217" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Older dialogue text</text>
+<text x="60" y="250" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Previous items and sources</text>
+<text x="60" y="290" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Retained notes as reference</text>
+<path d="M355 240 L393 240" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="408" y="144" width="348" height="190" rx="8" fill="#F8F4EA" stroke="none"/>
+<text x="428" y="179" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="600" fill="#203247">Compaction session</text>
+<text x="428" y="217" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="17" font-weight="400" fill="#9C732F">results</text>
+<text x="428" y="250" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="17" font-weight="400" fill="#9C732F">decisions_and_attempts</text>
+<text x="428" y="283" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="17" font-weight="400" fill="#9C732F">critical_context</text>
+<path d="M769 240 L795 240" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="810" y="144" width="270" height="190" rx="8" fill="#F5F7FA" stroke="#DCE3EA"/>
+<text x="830" y="179" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="20" font-weight="600" fill="#203247">Runtime checks</text>
+<text x="830" y="217" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Shape / resolvable sources</text>
+<text x="830" y="250" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Exact note copies</text>
+<text x="830" y="283" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Rendered text ≤ 4,000 chars</text>
+<text x="40" y="366" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Invalid submission → correction; active history stays intact</text>
+<path d="M945 341 L945 386" fill="none" stroke="#24786E" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="965" y="367" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="600" fill="#24786E">Valid</text>
+<rect x="40" y="395" width="1040" height="67" rx="8" fill="#EDF6F3" stroke="none"/>
+<text x="60" y="421" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="650" fill="#24786E">NEXT DECISION</text>
+<text x="60" y="448" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">Structured summary  +  latest two complete steps  +  independent notes  +  current state</text>
+<text x="40" y="491" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">Original records remain readable. Validation checks format and references, not factual truth.</text>
+</svg>

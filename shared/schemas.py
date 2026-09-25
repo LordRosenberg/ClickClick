@@ -274,6 +274,7 @@ class Action(BaseModel):
     type: Literal[
         "tap",
         "tap_xy",
+        "double_tap",
         "skill_authorized_action",
         "type",
         "replace_text",

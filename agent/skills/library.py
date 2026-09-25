@@ -17,7 +17,28 @@ import yaml
 Role = Literal["decision", "planner", "reviewer", "executor"]
 RuleCategory = Literal["constraint", "hint", "fallback", "anti_pattern"]
 SkillKind = Literal["generic", "app_core", "workflow", "candidate"]
+InterfaceScope = Literal["generic", "app", "system"]
 VerifiedActionTemplate = Literal["tap_capture_key", "tap_then_key"]
+# Exact known system components, not a package-prefix heuristic. App-owned
+# content (including Chrome pages) is shared even when an OEM preinstalls it.
+SYSTEM_INTERFACE_APPS = frozenset({
+    "com.android.settings", "com.android.camera2", "com.android.deskclock",
+    "com.google.android.deskclock", "com.android.documentsui",
+    "com.google.android.documentsui",
+})
+
+
+def _interface_scope(frontmatter: dict[str, Any], app: str | None) -> InterfaceScope:
+    value = frontmatter.get("interface_scope")
+    if value is None:
+        value = "system" if app in SYSTEM_INTERFACE_APPS else "app" if app else "generic"
+    if not isinstance(value, str) or value not in {"generic", "app", "system"}:
+        raise ValueError("interface_scope must be generic, app or system")
+    if value == "app" and not app:
+        raise ValueError("app interface_scope requires an app package")
+    if app in SYSTEM_INTERFACE_APPS and value != "system":
+        raise ValueError("known system interfaces require system interface_scope")
+    return value
 
 _SKILL_FILENAMES = frozenset({"skill.md", "SKILL.md"})
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n?(.*)\Z", re.DOTALL)
@@ -125,6 +146,10 @@ class SkillPack:
     @property
     def device_profiles(self) -> list[str]:
         return list(self.frontmatter.get("device_profiles") or [])
+
+    @property
+    def interface_scope(self) -> InterfaceScope:
+        return _interface_scope(self.frontmatter, self.app)
 
     @property
     def verified_actions(self) -> list[VerifiedAction]:
@@ -389,6 +414,10 @@ def parse_skill_markdown(text: str, *, path: Path | None = None) -> SkillPack:
         not isinstance(value, str) or not value.strip() for value in profiles
     ):
         raise ValueError("device_profiles must be a list of nonempty profile IDs")
+    interface_scope = _interface_scope(fm, app)
+    if interface_scope == "system" and not profiles:
+        raise ValueError("system interface_scope requires explicit device_profiles")
+    fm["interface_scope"] = interface_scope
     version = str(fm.get("version") or "0.1.0").strip() or "0.1.0"
 
     pack = SkillPack(
@@ -449,6 +478,8 @@ def serialize_skill_markdown(
             if k in ("name", "id"):
                 continue
             fm[k] = v
+
+    fm["interface_scope"] = _interface_scope(fm, fm.get("app"))
 
     return (
         "---\n"
@@ -806,6 +837,8 @@ class SkillLibrary:
         source: str = "authored",
         kind: SkillKind = "generic",
         capability: str = "",
+        interface_scope: InterfaceScope | None = None,
+        device_profiles: list[str] | None = None,
     ) -> SkillPack:
         sid = (name or skill_id or "").strip()
         if not sid:
@@ -826,10 +859,15 @@ class SkillLibrary:
             tags=tags,
             triggers=triggers,
             body=body,
-            extra_frontmatter={"source": source},
+            extra_frontmatter={
+                "source": source,
+                **({"interface_scope": interface_scope} if interface_scope is not None else {}),
+                **({"device_profiles": device_profiles} if device_profiles is not None else {}),
+            },
         )
+        pack = parse_skill_markdown(text, path=dest)
         dest.write_text(text, encoding="utf-8")
-        return parse_skill_markdown(text, path=dest)
+        return pack
 
     def update_skill(
         self,
@@ -893,6 +931,8 @@ class SkillLibrary:
         new_app = None if fm.get("app") in (None, "", "null") else str(fm.get("app"))
         new_kind = str(fm.get("kind") or "generic")
         new_dest = self._canonical_dest(pack.name, new_app, new_kind)  # type: ignore[arg-type]
+        # Invalid scope edits must not overwrite a valid skill or move its file.
+        parse_skill_markdown(text, path=new_dest)
         if new_dest != path:
             if new_dest.exists() and new_dest.resolve() != path.resolve():
                 raise SkillConflictError(f"destination occupied: {new_dest}")

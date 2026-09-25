@@ -1,7 +1,7 @@
 ---
 name: androidworld-markor-output-directory
 description: Place unspecified AndroidWorld Markor outputs in the benchmark's expected default notes directory.
-version: 1.0.0
+version: 1.0.1
 app: net.gsantner.markor
 kind: workflow
 capability: androidworld_output_path
@@ -24,5 +24,6 @@ source: authored
 
 ## Verification
 
-- For an unspecified "in Markor" output, verify the file in
-  `Documents/Markor`, which is the directory evaluated by AndroidWorld.
+- Establish the output path from the current folder and entered filename.
+  When these already identify `Documents/Markor`, no extra return to the list
+  or reopening is needed to establish the location.

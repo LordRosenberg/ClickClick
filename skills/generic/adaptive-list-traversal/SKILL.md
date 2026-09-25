@@ -2,6 +2,7 @@
 name: adaptive-list-traversal
 description: Traverse multi-screen lists to find, read, count or process records. Adapt scrolling to visible anchors and preserve coverage; use the bottom-complete-row cycle only for suitable single-column lists.
 version: 1.0.12
+interface_scope: generic
 kind: generic
 tags: [list, traversal, scrolling, coverage]
 source: authored

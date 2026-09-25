@@ -309,6 +309,7 @@ def _delivered_text(content: Any) -> str:
 _ACTION_REQUIRED_PARAMS: dict[str, tuple[str, ...]] = {
     "tap": ("index",),
     "tap_xy": ("x", "y"),
+    "double_tap": ("x", "y"),
     "skill_authorized_action": ("skill_action_id",),
     "type": ("text",),
     "replace_text": ("text",),
@@ -354,7 +355,8 @@ _ACTION_FIELD_SCHEMAS: dict[str, dict[str, Any]] = {
         "enum": ["up", "down", "left", "right"],
         "description": (
             "Content direction: down reveals content below; up above; right "
-            "to the right; left to the left. Use swipe for finger direction."
+            "to the right; left to the left. Scroll uses a fixed short gesture; "
+            "duration changes its speed, not distance. Use swipe to specify finger travel."
         ),
     },
     "duration_ms": {"type": "integer", "minimum": 0},
@@ -387,13 +389,13 @@ def _executor_action_schema() -> dict[str, Any]:
         + (
             ",".join(required) if required else "no additional required fields"
         )
-        for action_type, required in _ACTION_REQUIRED_PARAMS.items()
+        for action_type, required in _ACTION_REQUIRED_PARAMS.items() if action_type != "double_tap"
     )
     return {
         "type": "object",
         "additionalProperties": False,
         "description": (
-            "Use index for indexed taps, skill_authorized_action, long presses and targeted text replacement. Coordinate clicks "
+            "Use index for indexed taps, skill_authorized_action, long presses and supported targeted text replacement. Coordinate clicks "
             "are only for targets without a current usable index. "
             "One action request. Required fields by type: " + requirements + ". "
             "long_press and skill_authorized_action require index or x,y. "
@@ -408,7 +410,7 @@ def _executor_action_schema() -> dict[str, Any]:
         "properties": {
             "type": {
                 "type": "string",
-                "enum": list(_ACTION_REQUIRED_PARAMS),
+                "enum": [kind for kind in _ACTION_REQUIRED_PARAMS if kind != "double_tap"],
             },
             **{name: dict(schema) for name, schema in _ACTION_FIELD_SCHEMAS.items()},
         },
@@ -416,10 +418,12 @@ def _executor_action_schema() -> dict[str, Any]:
     }
 
 
-def executor_action_variants_schema() -> dict[str, Any]:
+def executor_action_variants_schema(*, double_tap=False) -> dict[str, Any]:
     """Publish the same per-action field sets used by dispatch validation."""
     variants = []
     for kind, required in _ACTION_REQUIRED_PARAMS.items():
+        if kind == "double_tap" and not double_tap:
+            continue
         optional = _ACTION_OPTIONAL_PARAMS.get(kind, ())
         variant = {
             "type": "object",
@@ -430,6 +434,8 @@ def executor_action_variants_schema() -> dict[str, Any]:
             },
             "required": ["type", *required],
         }
+        if kind == "double_tap":
+            variant["description"] = "Double-tap current image coordinates, e.g. to toggle zoom on a document/image. Changes the device and consumes one action; app support varies. Use the resulting fresh observation. Do not use for repeated button activation."
         if kind == "tap_xy":
             variant["description"] = "Only for a target without a current usable index. Otherwise use tap(index)."
         if kind == "skill_authorized_action":
@@ -450,11 +456,18 @@ def executor_action_variants_schema() -> dict[str, Any]:
         if kind == "type":
             variant["description"] = "Enter text in the focused editable; focus it with a separate tap first."
         if kind == "replace_text":
-            variant["description"] = "Replace the full field value. Supply index to focus a normal indexed editable and enter text in one decision; without index, the field must already be focused. Unsupported targets require separate focus and input."
+            variant["description"] = "Replace the full field value. With index, requires an editable with a unique resource id that remains the same after focus. Without index, replaces the already-focused field. If indexed replacement is unsupported, focus the intended field separately, confirm focus, then omit index; tapping does not make an unsupported index valid."
         if kind == "sleep":
             variant["description"] = "Wait for a required elapsed duration, such as recording time. Consumes a device-action unit and acquires no evidence. Use observe_screen to determine whether loading or a UI transition has completed."
         variants.append(variant)
-    return {"anyOf": variants}
+    return {
+        "type": "object",
+        "properties": {"type": {"type": "string", "enum": [
+            kind for kind in _ACTION_REQUIRED_PARAMS if kind != "double_tap" or double_tap
+        ]}},
+        "required": ["type"],
+        "anyOf": variants,
+    }
 
 
 OBSERVE_SCREEN_TOOL: dict[str, Any] = {
@@ -462,8 +475,9 @@ OBSERVE_SCREEN_TOOL: dict[str, Any] = {
     "function": {
         "name": "observe_screen",
         "description": (
-            "Acquire globally aligned snapshot or sequence screen evidence inside this invocation. "
-            "Use snapshot for a fresh frame/tree and sequence when change over time matters."
+            "Acquire snapshot or sequence screen evidence inside this invocation. "
+            "Window and coordinate checks do not guarantee that tree and pixels show the same content during transitions. "
+            "Use snapshot to recheck conflicting evidence and sequence when change over time matters."
         ),
         "parameters": {
             "type": "object",
@@ -1028,6 +1042,7 @@ class AgentSession:
             "rule_categories": pack.rule_categories(),
             "verified_action_ids": [action.id for action in pack.verified_actions],
             "device_profiles": pack.device_profiles,
+            "interface_scope": pack.interface_scope,
             "selected_device_profiles": sorted(self.library.device_profiles or []),
         }
 
@@ -1108,6 +1123,7 @@ class AgentSession:
         tool_registry: AgentToolRegistry | None = None,
         retain_observations: bool = False,
         reserve_terminal_round: bool = False,
+        terminal_submission_instruction: str | None = None,
         context_state: dict[str, Any] | None = None,
         event_sink: Callable[[str, dict[str, Any]], Any] | None = None,
         model_call_meter: Callable[[str, dict[str, Any]], Any] | None = None,
@@ -1183,7 +1199,7 @@ class AgentSession:
         invocation_id = uuid.uuid4().hex
         context = ToolExecutionContext(
             role=AgentRole(self.role), invocation_id=invocation_id,
-            state=dict(context_state or {}),
+            state={**dict(context_state or {}), "double_tap_enabled": self.settings.double_tap},
         )
         registry = tool_registry or self._build_registry(handlers or {})
         tools = registry.catalog_for_role(context.role)
@@ -1247,7 +1263,7 @@ class AgentSession:
             if submitting:
                 messages.append({
                     "role": "user",
-                    "content": (
+                    "content": terminal_submission_instruction or (
                         "Evidence gathering for this invocation has ended. Submit your decision "
                         "now using the available terminal tool and the evidence already supplied. "
                         "If facts remain unknown, state the gap and the supported next step in "
@@ -1858,6 +1874,20 @@ class AgentSession:
             "submit_executor_step": submit,
         }
         for spec in _catalog_specs(self.role):
+            if spec.name == "submit_executor_step":
+                import copy
+                parameters = copy.deepcopy(spec.parameters)
+                action_schema = parameters.get("properties", {}).get("action", {})
+                if self.settings.double_tap:
+                    action_schema["properties"]["type"]["enum"].append("double_tap")
+                    action_schema["description"] += " double_tap requires x,y; changes document/image zoom when supported and consumes one action. Use fresh image coordinates."
+                spec = spec.model_copy(update={"parameters": parameters})
+            if spec.name == "observe_screen" and self.role == "executor" and self.settings.screen_detail:
+                from agent.screen_detail import detail_parameters
+                spec = spec.model_copy(update={
+                    "parameters": detail_parameters(spec.parameters),
+                    "description": spec.description + " Use detail only for unreadable small text: fresh native-resolution crops plus a global screen; optional region, otherwise four overlapping tiles. Crops are read-only; act using the fresh global observation. It cannot recover off-screen or unrendered detail.",
+                })
             registry.register(spec, external_handlers.get(spec.name) or internal.get(spec.name) or unavailable)
         return registry
 
@@ -2166,6 +2196,11 @@ class AgentSession:
                         ),
                     })
                     attachment_entries.append(("observation_sequence_history", sequence_message))
+                if result.data.get("mode") == "detail":
+                    detail_message = _attachments_message(tc.name, replacement_attachments, contact_sheet=False)
+                    if detail_message is not None:
+                        projected_messages.append(detail_message)
+                        projected_names.append("observation_detail")
                 for index, projected_message in enumerate(projected_messages):
                     projected_name = (
                         projected_names[index]
@@ -2329,6 +2364,8 @@ def _executor_submission_error(
                 + ", ".join(sorted(allowed_fields)),
             )
 
+    if action.type == "double_tap" and context is not None and not context.state.get("double_tap_enabled"):
+        return _invalid_executor_action(["type"], "double_tap is unavailable in this session")
     missing_params = _missing_action_params(action)
     if missing_params:
         return _invalid_executor_action(

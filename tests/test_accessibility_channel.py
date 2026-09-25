@@ -295,7 +295,8 @@ async def test_snapshot_failure_cleans_once_and_returns_typed_failure(monkeypatc
 
     assert attempts == 1
     assert len(connect_timeouts) == 1
-    assert 0 < connect_timeouts[0] <= 0.2
+    # Subtracting monotonic timestamps can round just above the requested budget.
+    assert 0 < connect_timeouts[0] <= 0.2 + 1e-9
     assert removed == [41001]
     assert raised.value.failure_class == "connection_reset"
     assert raised.value.stage == "snapshot_exchange"

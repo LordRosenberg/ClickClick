@@ -191,7 +191,7 @@ def make_registry_entry(
     )
 
 
-COORDINATE_ACTION_TYPES = frozenset({"tap_xy", "swipe", "drag"})
+COORDINATE_ACTION_TYPES = frozenset({"tap_xy", "double_tap", "swipe", "drag"})
 INDEX_ACTION_TYPES = frozenset({"tap"})
 
 

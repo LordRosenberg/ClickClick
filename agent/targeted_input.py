@@ -3,7 +3,7 @@
 import asyncio
 from collections.abc import Callable
 
-from perception.input_evidence import is_editable
+from perception.input_evidence import editability_evidence, is_editable
 from perception.observation import ObservationPackage
 from shared.schemas import Action, ActionResult, ActionTargetSnapshot, CanonicalUI, UIElement, EffectOutcome
 
@@ -49,7 +49,14 @@ def focused_same_target(before: ObservationPackage, target: UIElement, after: Ob
     candidate = supported_target(after, candidates[0].index)
     if candidate is None or not candidate.states.get("focused"):
         return None
-    focused = [node for node in after.ui.elements if node.states.get("focused") and not node.window_wrapper]
+    # Input-method controls have their own window-local focus (e.g. the IME
+    # Back button). They do not compete with the app's focused text field.
+    # Keep IME editors, unknown windows and other competing focus fail-closed.
+    focused = [node for node in after.ui.elements
+               if node.states.get("focused") and not node.window_wrapper
+               and not (editability_evidence(node) == "not_editable"
+                        and node.window_type == 2 and node.window_id is not None
+                        and node.window_id != candidate.window_id)]
     if len(focused) != 1 or _ancestors(before.ui, target) != _ancestors(after.ui, candidate):
         return None
     return candidate
@@ -96,7 +103,7 @@ async def replace_target_text(transaction, action: Action, before: ObservationPa
         return result, package
 
     if target is None:
-        return stopped("targeted_input_unsupported: use separate focus and input", before)
+        return stopped("targeted_input_unsupported: focus the intended field separately, confirm focus, then use replace_text without index", before)
     if remaining_actions is not None and remaining_actions < required_actions(before, action):
         return stopped("insufficient_budget_for_focus_and_input", before)
     if cancel_requested():

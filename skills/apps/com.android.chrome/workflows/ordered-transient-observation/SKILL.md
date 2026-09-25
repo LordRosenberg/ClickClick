@@ -3,6 +3,7 @@ name: chrome-ordered-transient-observation
 description: 在网页中通过重复交互逐项读取短暂显示的信息，保留相同值的独立出现次数与顺序。
 version: 0.1.1
 app: com.android.chrome
+interface_scope: app
 kind: workflow
 capability: ordered_transient_observation
 tags: [browser, sequence, repeated, transient]

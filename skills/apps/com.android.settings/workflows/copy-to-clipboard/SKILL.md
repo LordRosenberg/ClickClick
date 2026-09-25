@@ -4,6 +4,7 @@ description: Copy exact text to the clipboard via Settings search when the task 
 version: 1.0.0
 app: com.android.settings
 device_profiles: [androidworld_api33]
+interface_scope: system
 kind: workflow
 capability: copy_text_to_clipboard
 tags: [settings, search, clipboard, copy, text-selection]

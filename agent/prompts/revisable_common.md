@@ -25,8 +25,8 @@ otherwise use a targeted alternative and report unchecked scope.
 
 `remaining_budget` separately counts device actions, Executor decisions, model calls
 and seconds; null means no configured limit. Choose feasible stages with room to
-save and verify. Targeted replacement counts one replacement plus a focus tap
-when needed. Complete verified independent targets within the stage as encountered;
+save and verify. A submitted targeted replacement counts as one device action,
+including its internal focus tap when needed. Complete verified independent targets within the stage as encountered;
 defer for a full scan only when later findings can change the action or the
 instruction requires it. Limits never relax requirements;
 report completed work and remaining uncertainty when the rest cannot fit.

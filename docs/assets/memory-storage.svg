@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="460" viewBox="0 0 1120 460" role="img" aria-labelledby="title desc">
+<title id="title">Storage and context have different jobs</title><desc id="desc">Database and files persist; memory runs the task; context is the selected model input</desc>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L6 3.5L0 7" fill="none" stroke="#8292A4" stroke-width="1.3"/></marker></defs>
+<rect width="1120" height="460" rx="12" fill="#FFFFFF"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="650" fill="#203247">Storage and context have different jobs</text>
+<text x="40" y="73" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Database and files persist; memory runs the task; context is the selected model input</text>
+<path d="M40 95 L1080 95" fill="none" stroke="#DCE3EA" stroke-width="1.5"/>
+<rect x="40" y="120" width="480" height="118" rx="8" fill="#EEF3FA" stroke="none"/>
+<text x="60" y="152" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="600" fill="#203247">SQLite database</text>
+<text x="60" y="180" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#3D68A0">&lt;data_dir&gt;/clickclick.db</text>
+<text x="60" y="211" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Task state · note versions · records and file references</text>
+<rect x="600" y="120" width="480" height="118" rx="8" fill="#EEF3FA" stroke="none"/>
+<text x="620" y="152" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="600" fill="#203247">Artifact files</text>
+<text x="620" y="180" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#3D68A0">&lt;data_dir&gt;/artifacts/</text>
+<text x="620" y="211" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Images · full dialogue JSON · request snapshots</text>
+<path d="M525 178 L592 178" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="535" y="163" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="400" fill="#657487">refs</text>
+<path d="M280 243 L280 298" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M840 243 L540 298" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="62" y="276" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">Read as needed</text>
+<rect x="40" y="306" width="670" height="102" rx="8" fill="#EDF6F3" stroke="none"/>
+<text x="60" y="340" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="600" fill="#203247">Python runtime memory</text>
+<text x="60" y="376" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Working state · loaded records · assembled messages · temporary caches</text>
+<path d="M722 355 L813 355" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="733" y="339" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#24786E">Select</text>
+<rect x="825" y="306" width="255" height="102" rx="8" fill="#F5F7FA" stroke="#DCE3EA"/>
+<text x="845" y="340" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="600" fill="#203247">Model context</text>
+<text x="845" y="376" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Input for this request</text>
+<text x="40" y="440" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">Runtime saves results to the database and files; temporary caches are not durable memory.</text>
+</svg>

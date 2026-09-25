@@ -277,7 +277,7 @@ def effect_class_for(action: Action) -> EffectClass:
     """Map actions to a small app-independent completion policy."""
     if action.type in {"type", "replace_text"}:
         return EffectClass.TEXT_INPUT
-    if action.type in {"swipe", "scroll", "drag", "long_press"}:
+    if action.type in {"swipe", "scroll", "drag", "long_press", "double_tap"}:
         return EffectClass.GESTURE
     if action.type in {"tap", "tap_xy", "key", "launch", "back", "home"}:
         return EffectClass.UI_TRANSITION

@@ -3,6 +3,7 @@ name: bilibili-search-open-video
 description: 在B站搜索指定视频并从真实结果列表打开匹配内容。
 version: 1.0.0
 app: tv.danmaku.bili
+interface_scope: app
 kind: workflow
 capability: search_open_video
 tags: [search, video]

@@ -355,9 +355,11 @@ export interface ExecutorTick extends BaseTick {
 }
 export interface RuntimeBudget {
     device_actions: number | null;
-    executor_decisions: number;
-    model_calls: number;
+    executor_decisions: number | null;
+    model_calls: number | null;
     seconds: number | null;
+    prediction_rounds?: number | null;
+    prediction_round_accounting?: string;
 }
 export interface ActiveSkillMetadata {
     skill_id: string;

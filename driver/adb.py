@@ -1271,3 +1271,10 @@ async def input_method_diagnostics_async(
     serial: str | None = None, *, timeout: float = 0.35
 ) -> dict:
     return await asyncio.to_thread(input_method_diagnostics, serial, timeout=timeout)
+
+
+async def input_double_tap_async(serial: str | None, x: float, y: float) -> None:
+    """Dispatch a double tap in one device shell, without inter-host round trips."""
+    # Only validated integer coordinates enter the shell program.
+    px, py = int(round(x)), int(round(y))
+    await shell_async(serial, [f"input tap {px} {py}; sleep 0.08; input tap {px} {py}"], timeout=5.0)

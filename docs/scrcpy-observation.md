@@ -131,6 +131,19 @@ The output records provider, generation, stage timings, validation class,
 visual age, scrcpy selection count, ADB fallback count, and fallback edges so
 stream and ADB samples are not mixed accidentally.
 
+## Capture diagnostic fields
+
+The following fields support detailed investigation of Collector 0.4.4 capture
+records. For the Console workflow, see the [observability guide](observability.md).
+
+| Investigation | Fields | Interpretation |
+| --- | --- | --- |
+| Window stability during capture | `window_generation`, `window_quiet_ms`, `window_fence`, `content_changed_during_capture` | Read together to investigate window changes and capture boundaries. They do not by themselves prove screenshot/tree content agreement. |
+| Repeated capture | `observation_capture_attempt_count` | Shows the number of capture attempts. |
+| Filtered events | Health field `filtered_window_events` | Counts excluded metadata events, not dropped UI trees. |
+| Capture latency | `collector_elapsed_ms`, `provider_attempts`, `stage_timings` | Collector elapsed time covers the final exchange only. Include earlier attempts and stage timings when investigating total latency. |
+| Timeout or cancellation | `observation_capture_failed`, action receipt `observation_failure` | Retain failure details for the capture and affected action. |
+
 ## Runtime fallback
 
 Monitor per-device dependency availability, source/consumer health, generation,

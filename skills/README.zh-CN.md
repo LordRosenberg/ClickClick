@@ -45,17 +45,21 @@ Executor 不能加载或替换 skills。Planner 可从索引按精确 ID 加载 
 
 每个阶段最多选择四个 generic/workflow ID，其中应用 workflow 最多两个。跨屏记录列表可将 `adaptive-list-traversal` 与相应 App workflow 一起选择：通用技能维护按锚点调整滚动幅度和遍历覆盖规则，App 技能保留排序、字段比较及控件知识。App 正文提到通用技能不代表它已自动加载，需验证实际阶段交付。
 
-## 按手机系统分类
+## 界面归属与系统绑定
 
-系统专用 skill 在 frontmatter 中声明 `device_profiles`：
+每份 skill 声明 `interface_scope`：
 
-- `device_profiles: [androidworld_api33]`：AndroidWorld 的 Android 13 模拟器，例如 Files。
-- `device_profiles: [xiaomi_15_cn_android15]`：已验证的小米 15 / Android 15 系统界面，例如小米时钟。
-- 不声明此字段：跨系统共享的应用知识，不应包含某个系统独有的按钮、滚轮或布局假设。
+- `generic`：不依赖具体界面的通用方法，跨 App、跨系统共享。通用权限判断属于此类，固定权限页操作流程不属于此类。
+- `app`：三方 App 自己实现的功能，按精确包名匹配，默认跨系统共享。预装不等于系统专属，例如 Chrome 网页内容仍属于 App。
+- `system`：系统 App 或系统提供的权限页、文件/照片选择器、分享面板。即使从三方 App 进入，也必须绑定非空 `device_profiles`；缺失则拒绝加载。
 
-配置 ID 来自 `shared/app_alias_profiles.json`，依据绑定手机的制造商、型号及系统版本匹配。相同包名不代表界面相同。运行时在 Planner 候选目录、精确 ID 加载和各角色正文交付前统一筛选；无法识别系统时只提供共享 skill。后台编辑视图仍可查看所有分类，更新 skill 保留其分类，交付轨迹记录声明及实际匹配的系统配置。
+`device_profiles` 对三类都有效，可保留已有系统例外。默认共享不代表所有 App 版本均验证过；已知版本条件仍保留在正文，当前运行时不校验 App 版本。相同包名只用于匹配 App，不会让不同包名的克隆应用自动继承 skill。
 
-新增其他系统时先登记设备匹配配置，再给对应 skill 声明配置 ID；不同系统版本使用独立 skill ID。现有目录继续按应用组织，系统分类由元数据表达。
+混合流程应拆开 App 内操作和具体系统界面步骤。仅要求按当前可见弹窗判断的通用方法不必拆成多个系统版本。DocumentsUI core 当前限定到已验证的 `androidworld_api33`，不直接推断兼容 API 34。
+
+profile ID 来自 `shared/app_alias_profiles.json`，依据设备指纹匹配。目录、精确 ID 读取和角色正文统一过滤；设备未知时仅提供没有 profile 限制的 skill，切换设备会清除旧范围。交付轨迹记录界面归属和声明/实际匹配的 profile。创建和更新 API 接受这些字段，写文件前验证。
+
+兼容旧文件时，已登记的系统组件包名默认 `system`，其他 App 默认 `app`，无 App 默认 `generic`；不按包名前缀或是否预装猜测。新 skill 应明确标记归属，尤其是新系统组件及从三方 App 进入的系统界面。
 
 ## 目录结构
 

@@ -70,6 +70,7 @@ class TaskLimits(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     device_actions: int | None = Field(default=None, ge=0)
+    prediction_rounds: int | None = Field(default=None, ge=1)
     deadline_at: float | None = Field(default=None, gt=0, allow_inf_nan=False)
 
     def expired(self) -> bool:
@@ -89,6 +90,7 @@ class PlanRuntime(BaseModel):
     dialogue_refs: list[str] = Field(default_factory=list)
     summary: str = ""
     execution_count: int = 0
+    prediction_round_count: int = Field(default=0, ge=0)
     limits: TaskLimits = Field(default_factory=TaskLimits)
     last_review_signature: str = ""
     completed_stage_ids: list[str] = Field(default_factory=list)

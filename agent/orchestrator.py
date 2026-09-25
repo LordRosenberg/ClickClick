@@ -62,8 +62,8 @@ class Orchestrator:
         driver: DeviceDriver | None = None,
         *,
         driver_pool: "DriverPool | None" = None,
-        max_steps: int = DEFAULT_MAX_STEPS,
-        max_role_invocations: int = DEFAULT_MAX_ROLE_INVOCATIONS,
+        max_steps: int | None = DEFAULT_MAX_STEPS,
+        max_role_invocations: int | None = DEFAULT_MAX_ROLE_INVOCATIONS,
         role_call_retry_n: int = DEFAULT_ROLE_CALL_RETRY_N,
         executor_grounding_retry_n: int = DEFAULT_EXECUTOR_GROUNDING_RETRY_N,
         artifacts: ArtifactStore | None = None,
@@ -76,8 +76,8 @@ class Orchestrator:
         self.executor_factory = executor_factory
         self.driver = driver
         self.driver_pool = driver_pool
-        self.max_steps = max(1, int(max_steps))
-        self.max_role_invocations = max(1, int(max_role_invocations))
+        self.max_steps = None if max_steps is None else max(1, int(max_steps))
+        self.max_role_invocations = None if max_role_invocations is None else max(1, int(max_role_invocations))
         self.role_call_retry_n = max(0, int(role_call_retry_n))
         self.executor_grounding_retry_n = max(
             0, int(executor_grounding_retry_n),
@@ -120,6 +120,7 @@ class Orchestrator:
         task_id: str,
         *,
         max_device_actions: int | None = None,
+        max_action_attempts: int | None = None,
     ) -> TaskStatus:
         """Run or resume a task.
 
@@ -129,9 +130,15 @@ class Orchestrator:
         terminal state. A positive value permits any number of cognitive or
         non-action boundary decisions but returns ``RUNNING`` before another
         Executor ``act`` could be dispatched.
+
+        ``max_action_attempts`` instead counts every submitted ``act``, including
+        rejected attempts that dispatch zero device actions. MobileWorld uses
+        this boundary to implement one external prediction round.
         """
         if max_device_actions is not None:
             max_device_actions = max(1, int(max_device_actions))
+        if max_action_attempts is not None:
+            max_action_attempts = max(1, int(max_action_attempts))
         task = self.db.get_task(task_id)
         if task is None or task.state is None:
             raise KeyError(task_id)
@@ -152,6 +159,7 @@ class Orchestrator:
                 state,
                 serial,
                 max_device_actions=max_device_actions,
+                max_action_attempts=max_action_attempts,
             )
 
         try:
@@ -169,6 +177,7 @@ class Orchestrator:
         serial: str | None,
         *,
         max_device_actions: int | None = None,
+        max_action_attempts: int | None = None,
     ) -> TaskStatus:
         try:
             # Driver construction may sync-connect ADB; keep it off the loop.
@@ -288,6 +297,7 @@ class Orchestrator:
                 executor,
                 provider_warm_task=warm_task,
                 max_device_actions=max_device_actions,
+                max_action_attempts=max_action_attempts,
             )
         except asyncio.CancelledError:
             return self._cancel(task_id, state, mode="hard")
@@ -386,7 +396,7 @@ class Orchestrator:
     ) -> Callable[[str, dict[str, Any]], None]:
         """Persist one count immediately before each actual provider request."""
         def record(_kind: str, payload: dict[str, Any]) -> None:
-            if state.role_invocation_count >= self.max_role_invocations:
+            if self.max_role_invocations is not None and state.role_invocation_count >= self.max_role_invocations:
                 raise RoleInvocationLimitExceeded(
                     "role_invocation_limit_exhausted:"
                     f"{state.role_invocation_count}/{self.max_role_invocations}"

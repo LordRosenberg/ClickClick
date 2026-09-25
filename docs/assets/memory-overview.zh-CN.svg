@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="425" viewBox="0 0 1120 425" role="img" aria-labelledby="title desc">
+<title id="title">保存完整，使用有界</title><desc id="desc">三条信息通路分别负责可追溯、记忆与过程衔接</desc>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L6 3.5L0 7" fill="none" stroke="#8292A4" stroke-width="1.3"/></marker></defs>
+<rect width="1120" height="425" rx="12" fill="#FFFFFF"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="650" fill="#203247">保存完整，使用有界</text>
+<text x="40" y="73" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">三条信息通路分别负责可追溯、记忆与过程衔接</text>
+<path d="M40 95 L1080 95" fill="none" stroke="#DCE3EA" stroke-width="1.5"/>
+<text x="40" y="125" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="600" fill="#657487">持久保存</text>
+<text x="407" y="125" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="600" fill="#657487">如何进入上下文</text>
+<text x="834" y="125" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="600" fill="#657487">当前决策</text>
+<rect x="40" y="145" width="310" height="64" rx="8" fill="#EEF3FA" stroke="none"/>
+<rect x="40" y="157" width="3" height="40" rx="1" fill="#3D68A0" stroke="none"/>
+<text x="58" y="171" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">原始记录</text>
+<text x="58" y="194" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">观测 · 动作 · 对话</text>
+<path d="M362 177 L393 177" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="407" y="183" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">最近步骤 / 按来源回读</text>
+<path d="M726 177 L809 177" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="222" width="310" height="64" rx="8" fill="#EDF6F3" stroke="none"/>
+<rect x="40" y="234" width="3" height="40" rx="1" fill="#24786E" stroke="none"/>
+<text x="58" y="248" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">工作笔记</text>
+<text x="58" y="271" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">模型选择 · 版本留存</text>
+<path d="M362 254 L393 254" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="407" y="260" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">目录 / 关键内容原样恢复</text>
+<path d="M726 254 L809 254" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="299" width="310" height="64" rx="8" fill="#F8F4EA" stroke="none"/>
+<rect x="40" y="311" width="3" height="40" rx="1" fill="#9C732F" stroke="none"/>
+<text x="58" y="325" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">结构化摘要</text>
+<text x="58" y="348" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">较早历史的关键结果</text>
+<path d="M362 331 L393 331" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="407" y="337" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">三栏摘要 / 来源按需读取</text>
+<path d="M726 331 L809 331" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="823" y="145" width="257" height="218" rx="8" fill="#F5F7FA" stroke="#DCE3EA"/>
+<text x="844" y="179" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="400" fill="#203247">模型上下文</text>
+<text x="844" y="217" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">最新状态 + 相关信息</text>
+<text x="844" y="261" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#203247">不必重读全部历史</text>
+<text x="844" y="300" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">存在关键缺口时回源</text>
+<text x="40" y="397" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">设计边界：摘要不改写笔记；保留内容不等于已验证事实。</text>
+</svg>

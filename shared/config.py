@@ -55,6 +55,10 @@ class Settings(BaseSettings):
 
     agent_architecture: Literal["plan_reviewer", "plan_executor"] = "plan_executor"
     executor_context_tokens: int = Field(default=16000, ge=1)
+    compaction_attempt_notes: bool = False
+    chatgpt_history_tokens: int | None = Field(default=None, ge=1)
+    screen_detail: bool = False
+    double_tap: bool = False
 
     # Storage and process bindings.
     data_dir: Path = Path("./data")
@@ -147,7 +151,9 @@ class Settings(BaseSettings):
         values = {key: value for key, value in raw.items() if key in {"history_tokens", "max_input_tokens"}}
         values.update(role_policy)
         if role == "executor":
-            values.setdefault("history_tokens", self.executor_context_tokens)
+            fallback = (self.chatgpt_history_tokens if model_id.startswith("chatgpt/")
+                        and self.chatgpt_history_tokens is not None else self.executor_context_tokens)
+            values.setdefault("history_tokens", fallback)
         for key, value in values.items():
             if key not in {"history_tokens", "max_input_tokens"} or type(value) is not int or value < 1:
                 raise ValueError(f"Invalid context setting: {key}")

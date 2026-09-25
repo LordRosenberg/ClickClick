@@ -85,6 +85,14 @@ export function ExecutorPanel({
   )?.arguments.decision;
   const decision = typeof submitted === "string" ? submitted : tick.decision;
   const subgoal = (tick.subgoal_at_tick || "").trim();
+  const budget = tick.runtime_budget;
+  const budgetLabel = budget?.prediction_rounds != null
+    ? `${budget.prediction_rounds} prediction rounds left`
+    : budget?.device_actions != null
+      ? `${budget.device_actions} actions left`
+      : budget?.executor_decisions != null
+        ? `${budget.executor_decisions} decisions left`
+        : null;
   const visualBasisAction = tick.action != null && [
     "tap", "tap_xy", "swipe", "long_press", "drag",
   ].includes(tick.action.type);
@@ -103,15 +111,15 @@ export function ExecutorPanel({
               {decision}
             </Badge>
           )}
-          {tick.runtime_budget && (
+          {budgetLabel && (
             <Badge
               variant="outline"
               className="font-mono text-[10px] text-text-mute"
-              title="deterministic runtime capacity; not a semantic completion signal"
+              title={budget?.prediction_rounds != null
+                ? budget.prediction_round_accounting || "Remaining prediction rounds"
+                : "deterministic runtime capacity; not a semantic completion signal"}
             >
-              {tick.runtime_budget.device_actions == null
-                ? `${tick.runtime_budget.executor_decisions} decisions left`
-                : `${tick.runtime_budget.device_actions} actions left`}
+              {budgetLabel}
             </Badge>
           )}
         </div>

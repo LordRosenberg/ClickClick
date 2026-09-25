@@ -75,6 +75,7 @@ def note_directory(store, query: str = "") -> list[dict]:
                 "version": row["version"],
                 "title": note["title"],
                 "preview": preview(note["content"], query),
+                **({"has_retained_content": True} if note.get("retained") else {}),
                 "observation_ids": sources[-2:],
                 "omitted_source_count": max(0, len(sources) - 2),
                 **{key: note[key] for key in ("written_step", "stage_id") if key in note},

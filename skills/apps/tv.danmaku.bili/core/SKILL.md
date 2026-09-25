@@ -3,6 +3,7 @@ name: bilibili-core
 description: B站稳定的主要表面、搜索入口与常见遮罩处理常识。
 version: 1.0.3
 app: tv.danmaku.bili
+interface_scope: app
 kind: app_core
 capability: app_navigation
 tags: [bilibili, navigation]

@@ -3,6 +3,7 @@ name: xiaohongshu-post-comment
 description: 在小红书帖子中发表评论。
 version: 1.0.0
 app: com.xingin.xhs
+interface_scope: app
 kind: workflow
 capability: post_comment
 tags: [comment, input, submit]

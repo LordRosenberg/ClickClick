@@ -43,11 +43,11 @@
 | 重复点击或滚动 | 比较观测 ID、目标和结果内容。相同坐标可能操作不同记录或显示新行。 |
 | 重复重规划／审核 | 检查阶段变化和每次调用可用证据，判断是否出现新事实，还是重复同一问题。 |
 | 历史开销高 | 检查实际请求各部分、历史检索、图片发送和压缩事件。摘要变短不自动意味着总调用或成本下降。 |
-| 页面与动作不匹配 | 归因于语义规划前，检查帧／树时间、来源元数据、目标绑定及设备回执。 |
+| 页面与动作不匹配 | 在 Frame 中查看模型当时收到的截图，对照操作目标和执行结果，再到 Trace 流检查是否有采集失败或重试。Live 展示的是当前屏幕，不能用来还原当时的画面。 |
 
 通用方法是区分模型选择、工具校验、实际派发、观测效果和保存的任务结果。这能支持诊断，但不会自动分类所有错误，也不直接证明因果解释。
 
-Collector 0.4.4 可对照 `window_generation`、`window_quiet_ms`、`window_fence`、`content_changed_during_capture` 和 `observation_capture_attempt_count`。健康接口的 `filtered_window_events` 是被过滤的元数据事件数，不是丢树数。`collector_elapsed_ms` 描述最终一次 Collector 交换，前序尝试见 `provider_attempts` 和 `stage_timings`；不要把最终接受尝试的耗时当作总延迟。`observation_capture_failed` 和动作回执中的 `observation_failure` 保留超时／取消细节。
+采集变慢时，应查看包含等待和重试的完整耗时。需要进一步排查画面与控件不一致、采集超时等问题时，可参考[采集诊断字段说明](scrcpy-observation.md#capture-diagnostic-fields)。
 
 ## 程序化访问
 

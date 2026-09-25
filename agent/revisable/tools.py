@@ -45,6 +45,8 @@ class WriteNote(Arguments):
     )
     title: str = Field(default="", max_length=160)
     content: str = Field(min_length=1, max_length=6000)
+    retained: str | None = Field(default=None, max_length=600,
+        description="Optional short content needed after context loss; retain scope, sources and uncertainty. Omit/null preserves text and references; empty string clears it. No verification verdict or completion gate.")
     observation_ids: list[str] = Field(default_factory=list, max_length=20)
     append: bool = False
     source_refs: list[str] = Field(default_factory=list, max_length=8,
@@ -91,10 +93,13 @@ def save_note(store: TaskStore, args: WriteNote, state: AgentState) -> ReadResul
     if previous is None and len(store.records("note")) >= 64:
         raise ValueError("Note directory full; update an existing note")
     payload = args.model_dump(exclude={"note_key", "append"})
-    if old_question and not args.resolution:
-        if not args.unresolved:
+    preserved_retained = args.retained is None and previous and previous["payload"].get("retained")
+    if preserved_retained:
+        payload["retained"] = previous["payload"]["retained"]
+    if (old_question and not args.resolution) or preserved_retained:
+        if old_question and not args.resolution and not args.unresolved:
             payload["unresolved"] = old_question
-        # Replacing prose must not detach the still-open question from its basis.
+        # Replacing prose must not detach preserved memory from its sources.
         for key in ("observation_ids", "source_refs"):
             payload[key] = list(dict.fromkeys([*previous["payload"].get(key, []), *payload.get(key, [])]))
         WriteNote.model_validate({"note_key": args.note_key, **payload})
@@ -113,9 +118,14 @@ def save_note(store: TaskStore, args: WriteNote, state: AgentState) -> ReadResul
             *previous["payload"].get("source_refs", []), *args.source_refs,
         ]))
         WriteNote.model_validate({"note_key": args.note_key, **payload})
-    for key in ("unresolved", "resolution", "source_refs"):
+    for key in ("unresolved", "resolution", "source_refs", "retained"):
         if not payload.get(key):
             payload.pop(key, None)
+    if previous and not args.append:
+        old_payload = {key: value for key, value in previous["payload"].items()
+                       if key not in {"written_step", "stage_id"}}
+        if payload == old_payload:
+            return ReadResult(data={"note_key": args.note_key, "version": previous["version"], "unchanged": True})
     payload.update(written_step=state.step_number, stage_id=state.revisable.stage_id)
     record = store.put("note", args.note_key, payload)
     return ReadResult(data={"note_key": args.note_key, "version": record["version"]})

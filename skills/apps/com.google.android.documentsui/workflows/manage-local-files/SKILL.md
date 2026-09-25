@@ -4,6 +4,7 @@ description: 在 AndroidWorld API 33 的 Files/DocumentsUI 中打开和管理本
 version: 0.5.1
 app: com.google.android.documentsui
 device_profiles: [androidworld_api33]
+interface_scope: system
 kind: workflow
 capability: manage_local_files
 tags: [files, open, html, txt, chrome, move, copy, sort, delete, directory]

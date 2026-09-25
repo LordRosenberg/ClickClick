@@ -4,6 +4,7 @@ description: Set AndroidWorld API 33 display brightness to an exact minimum or m
 version: 1.0.0
 app: com.android.settings
 device_profiles: [androidworld_api33]
+interface_scope: system
 kind: workflow
 capability: set_brightness_endpoint
 tags: [settings, display, brightness, slider]

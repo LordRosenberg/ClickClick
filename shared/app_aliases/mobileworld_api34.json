@@ -1,0 +1,47 @@
+{
+  "com.android.settings": {
+    "aliases": ["Settings", "System Settings", "设置", "系统设置"]
+  },
+  "com.google.android.deskclock": {
+    "aliases": ["Clock", "Desk Clock", "时钟", "闹钟"]
+  },
+  "com.google.android.contacts": {
+    "aliases": ["Contacts", "联系人", "通讯录"]
+  },
+  "com.android.camera2": {
+    "aliases": ["Camera", "相机", "照相机"]
+  },
+  "com.android.chrome": {
+    "aliases": ["Chrome", "Google Chrome", "谷歌浏览器", "浏览器"]
+  },
+  "org.fossify.calendar": {
+    "aliases": ["Calendar", "Fossify Calendar", "日历"]
+  },
+  "com.google.android.documentsui": {
+    "aliases": ["Files", "File Manager", "文件", "文件管理", "文件选择器"]
+  },
+  "gallery.photomanager.picturegalleryapp.imagegallery": {
+    "aliases": ["Gallery", "Photo Gallery", "相册", "图库"]
+  },
+  "com.testmall.app": {
+    "aliases": ["Taodian", "淘店", "Mall", "商城"]
+  },
+  "com.mattermost.rnbeta": {
+    "aliases": ["Mattermost"]
+  },
+  "org.joinmastodon.android.mastodon": {
+    "aliases": ["Mastodon"]
+  },
+  "com.gmailclone": {
+    "aliases": ["Mail", "Gmail", "Email", "邮件", "邮箱"]
+  },
+  "com.google.android.apps.messaging": {
+    "aliases": ["Messages", "SMS", "Messaging", "短信", "信息"]
+  },
+  "com.google.android.apps.maps": {
+    "aliases": ["Maps", "Google Maps", "地图", "谷歌地图"]
+  },
+  "at.tomtasche.reader": {
+    "aliases": ["Docreader", "Document Reader", "OpenDocument Reader", "文档阅读器"]
+  }
+}

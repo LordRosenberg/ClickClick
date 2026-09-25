@@ -2,7 +2,7 @@
 
 [首页](../README.zh-CN.md) · [English](architecture.md) · [技术概览](reliability-design.zh-CN.md) · [设计取舍](design-decisions.zh-CN.md)
 
-ClickClick 将任务推理、运行时控制、持久证据与 Android 交互分开组织。本文说明模块接口，以及一个任务如何通过这些模块完成执行。
+本文说明 ClickClick 的**模块边界、接口和任务执行流程**，并提供各模块详细设计的入口。核心机制的设计目标见[技术概览](reliability-design.zh-CN.md)。
 
 ![系统架构](assets/clickclick-architecture.svg)
 
@@ -75,13 +75,31 @@ ClickClick 将任务推理、运行时控制、持久证据与 Android 交互分
 
 ## 上下文、记忆与技能
 
-Harness 恢复对话、选择来源记录，并在历史阈值触发后压缩较旧的完整步骤。Session 保留原始产物和版本化笔记；未解决问题在摘要之外保持可用，读取工具用于取得详细来源。
+记忆分三层：原始记录保留来源，版本化笔记保存后续所需信息，过程摘要衔接较早的执行历史。模型获得有界上下文，缺失细节时按来源回读。
+
+![记忆分层与上下文流向](assets/memory-overview.zh-CN.svg)
+
+压缩保留最近两个执行步骤；笔记、未解决问题和测量独立恢复。摘要不能改写笔记，保留内容也不代表事实已验证。字段、生命周期、限额和风险边界见[记忆与上下文详设](memory-and-context.zh-CN.md)。
 
 Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，目标应用与实际前台身份决定适用的应用知识。角色分区调整正文交付范围，技能 ID、版本和内容哈希随调用记录。应用声明的复合动作还需满足当前阶段及前台作用域。参见[技能编写指南](../skills/README.zh-CN.md)。
 
 ## 运行边界
 
 取消和任务预算在运行时边界阻止后续工作。动作回执记录设备通路的返回情况，语义成功由模型和外部评测判断。持久历史支持检查与继续执行，但不提供任意崩溃恢复、设备操作回滚或恰好一次输入保证。部署访问和 Android 授权独立于工具有效性检查。
+
+## 模块设计文档
+
+| 模块 | 设计与说明 | 主要内容 |
+| --- | --- | --- |
+| 任务编排与角色 | [角色与转换](#角色与转换)、[角色策略](design-decisions.zh-CN.md#角色策略) | 阶段推进、重规划、按需审核与完成判定 |
+| 记忆与上下文 | [记忆与上下文详设](memory-and-context.zh-CN.md) | 笔记、结构化摘要、来源回查与存储 |
+| 技能管理 | [Skills 指南](../skills/README.zh-CN.md)、[按角色交付](design-decisions.zh-CN.md#按角色交付-skills) | 技能组织、应用与设备作用域、角色交付 |
+| 观测与投屏 | [scrcpy 观测通路](scrcpy-observation.md)、[Collector 接入](accessibility-collector-setup.zh-CN.md) | 共享视频流、帧新鲜度、UI 结构采集与回退 |
+| 动作与输入 | [原生节点绑定](design-decisions.zh-CN.md#原生节点绑定)、[定向文本替换](design-decisions.zh-CN.md#定向文本替换) | 动作目标校验、聚焦、替换与读回 |
+| 模型接入 | [模型路由](deployment.zh-CN.md#model-routing)、[Prompt cache 连续性](design-decisions.zh-CN.md#prompt-cache-连续性) | 模型配置、角色路由与请求上下文复用 |
+| Console 与可观测性 | [可观测性设计](observability.zh-CN.md) | 事件记录、时间线、模型调用与产物查看 |
+| 进程与设备部署 | [进程拓扑](processes.zh-CN.md)、[部署指南](deployment.zh-CN.md) | 本地与远程 Driver、服务关系及启动配置 |
+| 评测接入 | [评测与复现](evaluation.zh-CN.md)、[AndroidWorld 适配器](androidworld-benchmark.md) | 任务初始化、动作计数与独立评分 |
 
 ## 代码映射
 

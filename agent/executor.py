@@ -37,6 +37,7 @@ from shared.schemas import Action, ActionPipeline, ActionPipelineStage, ActionRe
 _REQUIRED_PARAMS: dict[str, tuple[str, ...]] = {
     "tap": ("index",),
     "tap_xy": ("x", "y"),
+    "double_tap": ("x", "y"),
     "skill_authorized_action": ("skill_action_id",),
     "type": ("text",),
     "replace_text": ("text",),
@@ -822,7 +823,7 @@ class Executor:
         handlers = {
             "observe_screen": make_observe_screen_handler(
                 driver=self.driver, builder=ObservationBuilder(), artifacts=self.artifacts,
-                baseline_package=package,
+                baseline_package=package, detail_enabled=self.settings.screen_detail,
             ),
             "search_installed_apps": make_search_installed_apps_handler(
                 driver=self.driver, ticket_store=self._ticket_store,

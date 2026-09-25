@@ -27,12 +27,21 @@ class PlanOrchestrator(Orchestrator):
     def _remaining_budget(self, state):
         runtime = state.revisable
         limits = runtime.limits
-        return {
+        remaining = {
             "device_actions": None if limits.device_actions is None else max(0, limits.device_actions - runtime.execution_count),
-            "executor_decisions": max(0, self.max_steps - state.step_number),
-            "model_calls": max(0, self.max_role_invocations - state.role_invocation_count),
+            "executor_decisions": None if self.max_steps is None else max(0, self.max_steps - state.step_number),
+            "model_calls": None if self.max_role_invocations is None else max(0, self.max_role_invocations - state.role_invocation_count),
             "seconds": None if limits.deadline_at is None else max(0, int(limits.deadline_at - time.time())),
         }
+        if limits.prediction_rounds is not None:
+            remaining["prediction_rounds"] = max(0, limits.prediction_rounds - runtime.prediction_round_count)
+            remaining["prediction_round_accounting"] = (
+                "Each submitted act consumes one round, including rejected actions. "
+                "The final task answer or terminal verdict also consumes one round. "
+                "Internal planning, observations and tool calls do not consume prediction rounds. "
+                "No extra final-answer round is available after the limit."
+            )
+        return remaining
 
     def _model_call_meter(self, task_id, state, phase):
         record = super()._model_call_meter(task_id, state, phase)
@@ -54,6 +63,7 @@ class PlanOrchestrator(Orchestrator):
         *,
         provider_warm_task=None,
         max_device_actions=None,
+        max_action_attempts=None,
     ):
         if provider_warm_task is not None:
             await asyncio.gather(provider_warm_task, return_exceptions=True)
@@ -72,12 +82,18 @@ class PlanOrchestrator(Orchestrator):
         # A resumed Executor also prepares history before its handoff capture.
         refresh_before_executor = runtime.next_role == "executor"
         device_actions = 0
+        action_attempts = 0
         while True:
             if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
                 return cancelled
+            if (runtime.limits.prediction_rounds is not None
+                    and runtime.prediction_round_count >= runtime.limits.prediction_rounds):
+                return TaskStatus.RUNNING
             if max_device_actions is not None and device_actions >= max_device_actions:
                 return TaskStatus.RUNNING
-            if state.step_number >= self.max_steps:
+            if max_action_attempts is not None and action_attempts >= max_action_attempts:
+                return TaskStatus.RUNNING
+            if self.max_steps is not None and state.step_number >= self.max_steps:
                 return self._fail(task_id, state, "step_limit_exhausted")
             try:
                 package = carried or await self._observe(will_send_image=True)
@@ -236,6 +252,8 @@ class PlanOrchestrator(Orchestrator):
                 )
                 if step.decision == ExecutorDecisionKind.ACT:
                     runtime.execution_count += result.detail.get("device_action_units", 1)
+                    if runtime.limits.prediction_rounds is not None:
+                        runtime.prediction_round_count += 1
                 directive = executor.directive
                 runtime.feedback = step.summary if directive != "act" else ""
                 active_stage_id = runtime.stage_id
@@ -265,6 +283,7 @@ class PlanOrchestrator(Orchestrator):
                 self._trace_executor_step(task_id, state, step, result, ui, mode, refs, package)
                 if step.decision == ExecutorDecisionKind.ACT:
                     device_actions += result.detail.get("device_action_units", 1)
+                    action_attempts += 1
             except asyncio.CancelledError:
                 raise
             except GatewayError as exc:

@@ -53,16 +53,43 @@ instead of silently hiding a foreground workflow. Delivery is traced through
 the common active-skill metadata: id, version, content hash, scope, activation
 source, and rule categories.
 
-System-specific instructions declare `device_profiles: [androidworld_api33]`
-or `device_profiles: [xiaomi_15_cn_android15]` in frontmatter. These IDs come
-from `shared/app_alias_profiles.json`, selected from the bound device's
-manufacturer, model and Android version. Runtime filters both catalog cards and
-exact-ID body loading before role delivery. Unknown devices receive only shared
-skills (no `device_profiles` field); they never inherit another system's UI.
-The authoring/API library still lists all profiles. Profile metadata is retained
-when editing a skill and included in delivery traces. Keep genuinely shared app
-guidance unscoped; use unique IDs for different system variants. Do not infer
-compatibility from a shared package name or from the model's task description.
+### Interface ownership and system compatibility
+
+Every authored skill declares `interface_scope`:
+
+- `generic`: methods independent of a particular interface, shared across apps
+  and systems. General permission reasoning belongs here; fixed permission-page
+  sequences do not.
+- `app`: third-party app-owned behavior, shared across systems by default and
+  matched by exact package. Preinstallation does not make Chrome page content or
+  a third-party app's own controls system-specific.
+- `system`: system apps or system-owned surfaces (permission pages, document/photo
+  pickers, share sheets), even when entered from a third-party app. Requires a
+  nonempty `device_profiles` list; missing scope never enables these skills.
+
+`device_profiles` still restricts **any** category when a known exception needs
+it. App sharing means permission to reuse, not certification of every app version.
+Keep known version conditions in the body; runtime does not enforce app versions.
+Package identity alone does not transfer a skill to a clone or another package.
+Split app-owned procedures and fixed system-surface procedures into separate
+skills rather than sharing the whole mixed flow. A general instruction to inspect
+whatever dialog is actually visible need not become a system-specific recipe.
+
+Examples: `interface_scope: app` for Retro Music; `interface_scope: system` with
+`device_profiles: [androidworld_api33]` for that system's Files workflow;
+`interface_scope: generic` for search recovery. DocumentsUI core is currently
+limited to its validated API 33 environment; do not infer API 34 compatibility.
+
+Profile IDs come from `shared/app_alias_profiles.json`. Catalog, exact-ID reads,
+and role delivery use the same profile filter; unknown devices get only skills
+without profile restrictions. Device switches clear prior scoped delivery.
+Traces include interface ownership and declared/selected device profiles. Create
+and update APIs accept these fields and validate them before writing a file.
+
+For legacy files, known system-component packages default to `system`, other app
+packages to `app`, and app-independent skills to `generic`. This is not a package-
+prefix or APK-preinstalled classifier. New skills must explicitly identify their
+interface owner, especially new system components and cross-app system surfaces.
 
 Executor cannot load or replace Skills. Planner may load an exact generic Skill
 id from its index, but workflow selection uses the supplied cards rather than

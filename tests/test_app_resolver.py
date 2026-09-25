@@ -33,6 +33,16 @@ def _xiaomi_profile() -> dict[str, str]:
     }
 
 
+def _mobileworld_profile() -> dict[str, str]:
+    return {
+        "manufacturer": "Google",
+        "model": "sdk_gphone64_x86_64",
+        "sdk": "34",
+        "release": "14",
+        "build": "12077443",
+    }
+
+
 def _resolver(tmp_path: Path, packages: list[str], *, seed: dict | None = None) -> NameResolver:
     seed_path = tmp_path / "seed.json"
     seed_path.write_text(json.dumps(seed or {}, ensure_ascii=False), encoding="utf-8")
@@ -206,6 +216,43 @@ def test_default_seed_covers_all_androidworld_environment_apps(tmp_path: Path):
     for alias, package in expected.items():
         assert asyncio.run(resolver.resolve(alias.swapcase(), "emulator")) == package
     assert asyncio.run(resolver.selected_profile_ids("emulator")) == ["androidworld_api33"]
+
+
+def test_mobileworld_profile_covers_all_gui_task_apps(tmp_path: Path):
+    expected = {
+        "Settings": "com.android.settings",
+        "Clock": "com.google.android.deskclock",
+        "Contacts": "com.google.android.contacts",
+        "Camera": "com.android.camera2",
+        "Chrome": "com.android.chrome",
+        "Calendar": "org.fossify.calendar",
+        "Files": "com.google.android.documentsui",
+        "Gallery": "gallery.photomanager.picturegalleryapp.imagegallery",
+        "Taodian": "com.testmall.app",
+        "Mattermost": "com.mattermost.rnbeta",
+        "Mastodon": "org.joinmastodon.android.mastodon",
+        "Mail": "com.gmailclone",
+        "Messages": "com.google.android.apps.messaging",
+        "Maps": "com.google.android.apps.maps",
+        "Docreader": "at.tomtasche.reader",
+    }
+
+    async def packages(_serial):
+        return list(expected.values())
+
+    async def describe_device(_serial):
+        return _mobileworld_profile()
+
+    resolver = NameResolver(
+        list_packages=packages,
+        seed_path=Path("shared/app_aliases.json"),
+        cache_path=tmp_path / "mobileworld-all-apps-cache.json",
+        profile_index_path=PROFILE_INDEX,
+        describe_device=describe_device,
+    )
+    for alias, package in expected.items():
+        assert asyncio.run(resolver.resolve(alias.swapcase(), "mobileworld")) == package
+    assert asyncio.run(resolver.selected_profile_ids("mobileworld")) == ["mobileworld_api34"]
 
 
 def test_unmatched_device_does_not_receive_system_profile_aliases(tmp_path: Path):

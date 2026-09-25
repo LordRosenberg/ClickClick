@@ -3,6 +3,7 @@ name: xiaohongshu-video-playback
 description: 打开小红书视频并用有序多帧证据判断是否真实播放。
 version: 1.0.0
 app: com.xingin.xhs
+interface_scope: app
 kind: workflow
 capability: verify_video_playback
 tags: [video, playback, temporal]

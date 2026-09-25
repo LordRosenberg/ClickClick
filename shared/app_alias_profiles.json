@@ -12,6 +12,17 @@
       "aliases": "app_aliases/androidworld_api33.json"
     },
     {
+      "id": "mobileworld_api34",
+      "match": {
+        "manufacturer": "Google",
+        "model_regex": "sdk_gphone64_x86_64",
+        "sdk": "34",
+        "release": "14",
+        "build": "12077443"
+      },
+      "aliases": "app_aliases/mobileworld_api34.json"
+    },
+    {
       "id": "xiaomi_15_cn_android15",
       "match": {
         "manufacturer": "Xiaomi",

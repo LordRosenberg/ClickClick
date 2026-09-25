@@ -26,6 +26,19 @@ async function sendJson<T>(path: string, method: string, body?: unknown): Promis
 export async function listTasks(): Promise<Task[]> {
     return getJson<Task[]>("/api/tasks?summary=true");
 }
+export interface TaskPage {
+    items: Task[];
+    total: number;
+    page: number;
+    page_size: number;
+    indexing?: boolean;
+    index_error?: boolean;
+}
+export async function getTaskPage(page: number, pageSize: 10 | 20, status?: "failed"): Promise<TaskPage> {
+    const query = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+    if (status) query.set("status", status);
+    return getJson<TaskPage>(`/api/tasks/page?${query}`);
+}
 export async function getTask(id: string): Promise<Task> {
     return getJson<Task>(`/api/tasks/${id}`);
 }

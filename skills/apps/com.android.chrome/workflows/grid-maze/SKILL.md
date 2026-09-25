@@ -3,6 +3,7 @@ name: chrome-grid-maze
 description: 在浏览器网格迷宫中识别当前位置、目标和障碍，分析最短可达路径与动作预算，使用方向按钮逐步到达目标。
 version: 0.2.0
 app: com.android.chrome
+interface_scope: app
 kind: workflow
 capability: grid_maze_navigation
 tags: [browser, maze, grid, navigation]

@@ -4,6 +4,7 @@ description: 在小米系统时钟的秒表页运行、暂停或确认秒表状�
 version: 0.2.0
 app: com.android.deskclock
 device_profiles: [xiaomi_15_cn_android15]
+interface_scope: system
 kind: workflow
 capability: stopwatch_control
 tags: [clock, stopwatch]

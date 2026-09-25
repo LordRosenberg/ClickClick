@@ -213,6 +213,17 @@ class Database:
             rows = self._conn.execute("SELECT * FROM tasks ORDER BY created_at DESC").fetchall()
         return [self._row_to_task(r, include_state=include_state) for r in rows]
 
+    def task_headers(self) -> list[dict]:
+        """Small cross-run listing index; never read execution-state blobs."""
+        return [dict(row) for row in self._conn.execute(
+            "SELECT id, status, created_at FROM tasks"
+        ).fetchall()]
+
+    def get_task_summary(self, task_id: str) -> TaskRecord | None:
+        """Materialize list metadata only for a selected page member."""
+        row = self._conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+        return self._row_to_task(row, include_state=False) if row else None
+
     def busy_serials(self) -> dict[str, str]:
         """Map device_serial → task_id for non-terminal tasks with a binding."""
         rows = self._conn.execute(

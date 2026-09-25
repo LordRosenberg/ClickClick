@@ -3,6 +3,7 @@ name: broccoli-delete-recipes-by-condition
 description: Delete recipes matching field conditions using search and detail checks; not deduplication.
 version: 1.1.1
 app: com.flauschcode.broccoli
+interface_scope: app
 kind: workflow
 capability: recipe_condition_deletion
 source: authored

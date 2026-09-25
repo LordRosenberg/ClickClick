@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="425" viewBox="0 0 1120 425" role="img" aria-labelledby="title desc">
+<title id="title">Preserve the record. Bound the context.</title><desc id="desc">Three information paths for traceability, working memory and continuity</desc>
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L6 3.5L0 7" fill="none" stroke="#8292A4" stroke-width="1.3"/></marker></defs>
+<rect width="1120" height="425" rx="12" fill="#FFFFFF"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="25" font-weight="650" fill="#203247">Preserve the record. Bound the context.</text>
+<text x="40" y="73" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Three information paths for traceability, working memory and continuity</text>
+<path d="M40 95 L1080 95" fill="none" stroke="#DCE3EA" stroke-width="1.5"/>
+<text x="40" y="125" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="600" fill="#657487">PERSISTENT STORAGE</text>
+<text x="407" y="125" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="600" fill="#657487">CONTEXT PROJECTION</text>
+<text x="834" y="125" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="13" font-weight="600" fill="#657487">CURRENT DECISION</text>
+<rect x="40" y="145" width="310" height="64" rx="8" fill="#EEF3FA" stroke="none"/>
+<rect x="40" y="157" width="3" height="40" rx="1" fill="#3D68A0" stroke="none"/>
+<text x="58" y="171" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">Original records</text>
+<text x="58" y="194" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">Observations · actions · dialogue</text>
+<path d="M362 177 L393 177" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="407" y="183" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Recent steps / source retrieval</text>
+<path d="M726 177 L809 177" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="222" width="310" height="64" rx="8" fill="#EDF6F3" stroke="none"/>
+<rect x="40" y="234" width="3" height="40" rx="1" fill="#24786E" stroke="none"/>
+<text x="58" y="248" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">Working notes</text>
+<text x="58" y="271" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">Model-selected · versioned</text>
+<path d="M362 254 L393 254" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="407" y="260" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Index / exact retained text</text>
+<path d="M726 254 L809 254" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="299" width="310" height="64" rx="8" fill="#F8F4EA" stroke="none"/>
+<rect x="40" y="311" width="3" height="40" rx="1" fill="#9C732F" stroke="none"/>
+<text x="58" y="325" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="18" font-weight="600" fill="#203247">Structured summary</text>
+<text x="58" y="348" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="14" font-weight="400" fill="#657487">Consequential earlier outcomes</text>
+<path d="M362 331 L393 331" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="407" y="337" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#657487">Three sections / source retrieval</text>
+<path d="M726 331 L809 331" fill="none" stroke="#DCE3EA" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="823" y="145" width="257" height="218" rx="8" fill="#F5F7FA" stroke="#DCE3EA"/>
+<text x="844" y="179" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="400" fill="#203247">Model context</text>
+<text x="844" y="217" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Latest state + relevant detail</text>
+<text x="844" y="261" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="16" font-weight="400" fill="#203247">No full-history reread</text>
+<text x="844" y="300" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Retrieve material gaps</text>
+<text x="40" y="397" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="15" font-weight="400" fill="#657487">Boundary: summaries cannot edit notes; retained content is not verified truth.</text>
+</svg>

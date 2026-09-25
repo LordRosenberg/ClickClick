@@ -67,6 +67,55 @@ def test_same_index_is_not_identity_and_other_focus_cannot_authorize_input():
     assert focused_same_target(package(target), target, package(field(focused=True), field(2, focused=True))) is None
 
 
+@pytest.mark.parametrize("window_type,window_id,allowed", [
+    (2, 9, True), (2, 7, False), (2, None, False),
+    (1, 9, False), (None, 9, False), (3, 9, False),
+])
+def test_input_focus_distinguishes_ime_from_competing_windows(window_type, window_id, allowed):
+    target = field()
+    focused = field(focused=True)
+    other = UIElement(index=5, role="android.widget.ImageView", window_id=window_id,
+                      window_type=window_type, states={"focused": True, "editable": False})
+    actual = focused_same_target(package(target), target, package(focused, other))
+    assert (actual is focused) is allowed
+
+
+@pytest.mark.parametrize("role,editable", [
+    ("android.widget.EditText", True), ("android.widget.EditText", False),
+    ("android.widget.ImageView", None),
+])
+def test_ime_editors_and_unknown_editability_cannot_authorize_replacement(role, editable):
+    target = field()
+    states = {"focused": True}
+    if editable is not None:
+        states["editable"] = editable
+    ime_control = UIElement(index=4, role=role, window_id=9, window_type=2, states=states)
+    assert focused_same_target(package(target), target, package(field(focused=True), ime_control)) is None
+
+
+@pytest.mark.asyncio
+async def test_ime_navigation_focus_does_not_split_one_targeted_replacement():
+    target = field()
+    calls = []
+    ime_back = UIElement(index=0, role="android.widget.ImageView", window_id=9,
+                         window_type=2, resource_id="input_method_nav_back",
+                         states={"focused": True, "editable": False})
+
+    async def act(action, current, **kwargs):
+        calls.append(action.type)
+        return ActionResult(success=True), package(
+            field(index=8, focused=True, text="final" if action.type == "replace_text" else "old"),
+            ime_back, ime=True,
+        )
+
+    result, _ = await replace_target_text(SimpleNamespace(act_and_observe=act),
+        Action(type="replace_text", index=1, text="final"), package(target),
+        target_snapshot=None, cancel_requested=lambda: False, remaining_actions=1)
+    assert calls == ["tap_xy", "replace_text"]
+    assert result.success and result.detail["input_steps"]["readback"] == "exact_match"
+    assert result.detail["device_action_units"] == 1
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("already_focused", [False, True])
 async def test_merged_input_single_submission_counts_one_androidworld_step(already_focused):

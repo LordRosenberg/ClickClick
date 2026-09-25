@@ -5,7 +5,8 @@ import time
 
 import pytest
 
-from agent.revisable.dialogue import compaction_history, Summary
+from agent.revisable.dialogue import compaction_history
+from agent.revisable.summary import StructuredSummary
 from agent.revisable.roles import prompt
 from agent.runtime import create_orchestrator
 from agent.traces import TraceWriter
@@ -164,7 +165,7 @@ def test_plan_correction_survives_compaction_filter():
     assert corrected in result[0]["content"]
     assert "remaining_budget" not in result[0]["content"]
     with pytest.raises(ValueError):
-        Summary(text="x" * 3001)
+        StructuredSummary(results=[{"text": "x" * 4000}], decisions_and_attempts=[], critical_context=[])
 
 
 def test_shared_rules_are_injected_once_without_benchmark_specifics():

@@ -2,6 +2,7 @@
 name: canvas-drawing
 description: 在画布或绘图应用中设置画笔与颜色、绘制或修改内容，并按要求保存；依据当前画布范围和实际笔迹工作。
 version: 0.2.0
+interface_scope: generic
 kind: generic
 tags: [canvas, drawing, editing]
 source: authored

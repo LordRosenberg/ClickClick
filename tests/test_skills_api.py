@@ -7,6 +7,28 @@ from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.asyncio
+async def test_system_scope_api_validation_preserves_valid_file(tmp_path, monkeypatch):
+    monkeypatch.setenv('CLICKCLICK_DATA_DIR', str(tmp_path/'data'))
+    monkeypatch.setenv('CLICKCLICK_SKILLS_DIR', str(tmp_path/'skills'))
+    from control_api.main import create_app
+    async with AsyncClient(transport=ASGITransport(app=create_app()), base_url='http://test') as client:
+        payload = {'id': 'system-picker', 'kind': 'workflow', 'app': 'com.example.mail',
+                   'description': 'Attach using system picker', 'capability': 'attach_file',
+                   'interface_scope': 'system',
+                   'body': '## Procedure\nInspect the picker.\n## Verification\nCheck the attachment.'}
+        assert (await client.post('/api/skills', json=payload)).status_code == 400
+        payload['device_profiles'] = ['mobileworld_api34']
+        created = await client.post('/api/skills', json=payload)
+        assert created.status_code == 200
+        invalid = await client.put('/api/skills/system-picker', json={'device_profiles': []})
+        assert invalid.status_code == 400
+        updated = await client.put('/api/skills/system-picker', json={'description': 'Updated'})
+        assert updated.status_code == 200
+        assert updated.json()['frontmatter']['interface_scope'] == 'system'
+        assert updated.json()['frontmatter']['device_profiles'] == ['mobileworld_api34']
+
+
+@pytest.mark.asyncio
 async def test_skill_filesystem_list_and_get(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(tmp_path / "data"))
     monkeypatch.setenv("CLICKCLICK_ENABLE_SKILL_MINER", "false")

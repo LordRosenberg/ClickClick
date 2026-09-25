@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,6 +53,15 @@ class ConsoleDataSources:
         self._external: dict[Path, ConsoleDataSource] = {}
         self._task_sources: dict[str, ConsoleDataSource] = {}
         self._next_discovery_at = 0.0
+        # The web listing publishes immutable header snapshots. Its worker owns
+        # separate short-lived read-only connections, never runtime connections.
+        self._index_thread: threading.Thread | None = None
+        self._index_stop = threading.Event()
+        self._index_headers: dict[Path, tuple[dict, ...]] = {}
+        self._index_cache: dict[Path, tuple[tuple, tuple[dict, ...]]] = {}
+        self._index_ready = False
+        self._index_failed = False
+        self._next_index_at = 0.0
 
     def _accept(self, path: Path, root: Path) -> Path | None:
         try:
@@ -82,10 +92,21 @@ class ConsoleDataSources:
             return set()
         paths: set[Path] = set()
         for current, dirnames, filenames in os.walk(root, topdown=True):
+            if self._index_stop.is_set():
+                break
+            # Installed Python environments are dependencies, not run stores.
+            if "pyvenv.cfg" in filenames:
+                dirnames[:] = []
+                continue
             # Evaluation layouts vary in depth. Prune artifact stores and hidden
             # metadata directories before descending so discovery stays cheap.
             dirnames[:] = [
-                name for name in dirnames if name != "artifacts" and not name.startswith(".")
+                name for name in dirnames
+                if name not in {
+                    "artifacts", "node_modules", "site-packages", "__pycache__",
+                    "latest-shallow", "skills-profile", "skills", "openspec",
+                }
+                and not name.startswith(".")
             ]
             if "clickclick.db" not in filenames:
                 continue
@@ -125,7 +146,7 @@ class ConsoleDataSources:
             try:
                 db = Database(path, read_only=True)
                 # Fail closed on unrelated/corrupt SQLite files before cataloging.
-                tasks = db.list_tasks(include_state=False)
+                tasks = db.task_headers()
             except Exception as exc:  # noqa: BLE001
                 logger.debug("skip unreadable eval run DB %s: %s", path, exc)
                 try:
@@ -142,7 +163,7 @@ class ConsoleDataSources:
             )
             self._external[path] = source
             for task in tasks:
-                self._task_sources.setdefault(task.id, source)
+                self._task_sources.setdefault(task["id"], source)
         self._next_discovery_at = time.monotonic() + 15.0
 
     def sources(self) -> list[ConsoleDataSource]:
@@ -172,7 +193,152 @@ class ConsoleDataSources:
                 out.append((task, source))
         return sorted(out, key=lambda pair: pair[0].created_at, reverse=True)
 
+    @property
+    def indexing(self) -> bool:
+        return self._index_thread is not None and self._index_thread.is_alive()
+
+    @property
+    def index_failed(self) -> bool:
+        return self._index_failed
+
+    @property
+    def index_ready(self) -> bool:
+        return self._index_ready
+
+    @staticmethod
+    def _index_signature(path: Path) -> tuple:
+        # WAL writes may not touch the main database. Both files are needed.
+        signature = []
+        for candidate in (path, Path(str(path) + "-wal")):
+            try:
+                stat = candidate.stat()
+                signature.append((stat.st_mtime_ns, stat.st_size))
+            except FileNotFoundError:
+                signature.append((0, 0))
+        return tuple(signature)
+
+    def _update_index(self) -> None:
+        try:
+            paths = self._discover_paths()
+            signatures = {}
+            for path in paths:
+                try:
+                    signatures[path] = self._index_signature(path)
+                except OSError:
+                    continue
+            # Newest-written runs appear first while a cold index is incomplete.
+            ordered = sorted(signatures, key=lambda p: (max(signatures[p]), str(p)), reverse=True)
+            cache = {}
+            headers = {}
+            for index, path in enumerate(ordered):
+                if self._index_stop.is_set():
+                    return
+                signature = signatures[path]
+                previous = self._index_cache.get(path)
+                if previous and previous[0] == signature:
+                    rows = previous[1]
+                else:
+                    reader = None
+                    try:
+                        reader = Database(path, read_only=True)
+                        rows = tuple(reader.task_headers())
+                    except Exception as exc:  # noqa: BLE001
+                        logger.debug("skip index source %s: %s", path, exc)
+                        continue
+                    finally:
+                        if reader is not None:
+                            reader.close()
+                cache[path] = (signature, rows)
+                headers[path] = rows
+                # Publish copies: API readers never iterate a mutating mapping.
+                # A refresh keeps the previous complete view until replacement.
+                if not self._index_ready and (index == 0 or index % 25 == 0):
+                    self._index_headers = dict(headers)
+            if not self._index_stop.is_set():
+                self._index_headers = headers
+                self._index_cache = cache
+                self._index_ready = True
+                self._index_failed = False
+        except Exception:  # noqa: BLE001
+            self._index_failed = True
+            logger.exception("Console task index refresh failed")
+        finally:
+            self._next_index_at = time.monotonic() + 15.0
+
+    def _start_index(self) -> None:
+        if self._index_stop.is_set() or self.indexing or time.monotonic() < self._next_index_at:
+            return
+        self._index_thread = threading.Thread(
+            target=self._update_index, name="console-task-index", daemon=True,
+        )
+        self._index_thread.start()
+
+    def _indexed_source(self, path: Path) -> ConsoleDataSource:
+        source = self._external.get(path)
+        if source is None:
+            source = ConsoleDataSource(
+                db=Database(path, read_only=True),
+                artifacts=ArtifactStore(path.parent / "artifacts", create=False),
+                label=self._label_for(path), read_only=True,
+            )
+            self._external[path] = source
+        return source
+
+    def _retire_index_sources(self) -> None:
+        if not self._index_ready:
+            return
+        for path in set(self._external) - self._index_headers.keys():
+            source = self._external.pop(path)
+            self._task_sources = {key: value for key, value in self._task_sources.items()
+                                  if value is not source}
+            source.db.close()
+
+    def task_page(self, *, page: int, page_size: int, status: TaskStatus | None = None,
+                  background: bool = False):
+        """Merge lightweight IDs globally, then load only the selected page.
+
+        Resolve collisions before filtering: an external stale failure must not
+        replace a primary task that has since succeeded.
+        """
+        catalog = {}
+        if background:
+            self._start_index()
+            self._retire_index_sources()
+            for header in self.primary.db.task_headers():
+                catalog[header["id"]] = (header, self.primary)
+            for path, headers in sorted(self._index_headers.items()):
+                for header in headers:
+                    catalog.setdefault(header["id"], (header, path))
+        else:
+            for source in self.sources():
+                try:
+                    for header in source.db.task_headers():
+                        catalog.setdefault(header["id"], (header, source))
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("skip unreadable Console source %s: %s", source.label, exc)
+        ordered = sorted(
+            (pair for pair in catalog.values() if status is None or pair[0]["status"] == status.value),
+            key=lambda pair: (pair[0]["created_at"], pair[0]["id"]), reverse=True,
+        )
+        total = len(ordered)
+        page = min(page, max(1, (total + page_size - 1) // page_size))
+        selected = ordered[(page - 1) * page_size:page * page_size]
+        items = []
+        for header, source in selected:
+            try:
+                if isinstance(source, Path):
+                    source = self._indexed_source(source)
+                task = source.db.get_task_summary(header["id"])
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("skip unreadable task %s: %s", header["id"], exc)
+                continue
+            if task is not None:
+                self._task_sources[task.id] = source
+                items.append((task, source))
+        return items, total, page
+
     def locate(self, task_id: str) -> tuple[TaskRecord, ConsoleDataSource] | None:
+        self._retire_index_sources()
         # The primary database always wins UUID collisions and can gain tasks
         # after startup, so check it before consulting the external-source cache.
         try:
@@ -193,6 +359,19 @@ class ConsoleDataSources:
                 if task is not None:
                     return task, cached
             self._task_sources.pop(task_id, None)
+        for path, headers in self._index_headers.items():
+            if any(header["id"] == task_id for header in headers):
+                try:
+                    source = self._indexed_source(path)
+                    task = source.db.get_task(task_id)
+                except Exception:  # noqa: BLE001
+                    continue
+                if task is not None:
+                    self._task_sources[task_id] = source
+                    return task, source
+        if self._index_ready:
+            # A missing/deleted task must not trigger another synchronous scan.
+            return None
         for source in self.sources()[1:]:
             try:
                 task = source.db.get_task(task_id)
@@ -228,6 +407,9 @@ class ConsoleDataSources:
         return None
 
     def close(self) -> None:
+        self._index_stop.set()
+        if self._index_thread is not None:
+            self._index_thread.join(timeout=1)
         for source in self._external.values():
             source.db.close()
         self._external.clear()

@@ -12,20 +12,24 @@ def source_id(kind, row):
     return f"{kind}:{quote(row['key'], safe='')}@{row['version']}"
 
 
-def record_text(kind, row):
+def record_text(kind, row, store=None):
     payload = row["payload"]
+    if kind == "dialogue":
+        if store is None:
+            raise ValueError("Dialogue recall requires task storage")
+        return store.artifacts.read_text(payload["ref"])
     if kind == "observation":
         return payload["text"]
     if kind == "note":
         text = payload["title"] + "\n" + payload["content"]
-        extra = {k: payload[k] for k in ("unresolved", "resolution", "source_refs") if payload.get(k)}
+        extra = {k: payload[k] for k in ("retained", "unresolved", "resolution", "source_refs") if payload.get(k)}
         return text + ("\n" + json.dumps(extra, ensure_ascii=False) if extra else "")
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
 
 
 def resolve_source(store, source):
     # A model-written note key must never shadow a program-assigned source ID.
-    canonical = re.fullmatch(r"(note|event|observation|stage|measurement):([^@#]+)@([1-9][0-9]*)(?:#([0-9]+))?", source)
+    canonical = re.fullmatch(r"(note|event|observation|stage|measurement|dialogue|compaction):([^@#]+)@([1-9][0-9]*)(?:#([0-9]+))?", source)
     if canonical:
         kind, key, version, offset = canonical.groups()
         return kind, store.get(kind, unquote(key), int(version)), int(offset or 0)
@@ -45,7 +49,7 @@ def resolve_source(store, source):
             raise ValueError("Invalid continuation source")
     if ":" in source:
         kind, key = source.split(":", 1)
-        if kind not in {"note", "event", "observation", "stage", "measurement"}:
+        if kind not in {"note", "event", "observation", "stage", "measurement", "dialogue", "compaction"}:
             raise ValueError("Unknown history source; copy a returned source, note_key or observation_id, or query keywords")
         version = None
         if "@" in key:
@@ -117,7 +121,7 @@ def read_history(store, args, ctx, initial_records):
                 seen.add(signature)
             items.append(item)
             continue
-        text = record_text(kind, row)
+        text = record_text(kind, row, store)
         whole = hashlib.sha256(text.encode()).hexdigest()
         if (source, whole) in supplied and not args.full:
             item["already_supplied"] = True

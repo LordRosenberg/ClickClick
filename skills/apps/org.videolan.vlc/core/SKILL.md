@@ -5,6 +5,7 @@ version: 1.3.3
 app_aliases: [VLC, VLC App, VLC Player]
 role_sections: true
 app: org.videolan.vlc
+interface_scope: app
 kind: app_core
 capability: manage_playlists_and_player_controls
 source: authored

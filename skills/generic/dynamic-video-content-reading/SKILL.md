@@ -2,6 +2,7 @@
 name: dynamic-video-content-reading
 description: Sample a video timeline to read changing visual content or its order. Use for transcription and scene/event sequencing, not static metadata or a single visible frame.
 version: 1.0.9
+interface_scope: generic
 kind: generic
 tags: [video, temporal, transcription, sampling]
 triggers: [transcribe video, read video content, ordered video frames, scene sequence]

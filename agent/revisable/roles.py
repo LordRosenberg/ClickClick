@@ -292,7 +292,10 @@ class PlanExecutor(Executor):
         }
         self.store.put("event", str(state.step_number), event)
         outcome_json = json.dumps(
-            {"action_result": action_result, "step": state.step_number},
+            {"action_result": {**action_result, "receipt": {
+                key: value for key, value in (action_result["receipt"] or {}).items()
+                if key != "transaction_id" and value not in (None, "")
+            } if action_result["receipt"] else None}, "step": state.step_number},
             ensure_ascii=False,
         )
         outcome = {"role": "user", "content": outcome_json}

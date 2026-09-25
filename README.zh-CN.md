@@ -19,9 +19,9 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## AndroidWorld：99.14%
 
-**116 个任务通过 115 个**，覆盖多个 Android 应用中的多步骤任务。使用 `chatgpt/gpt-5.6-sol`（high）在 Android API 33 上运行，由 AndroidWorld 官方成功判定函数评分。
+使用 `chatgpt/gpt-5.6-sol`（high）在 Android API 33 上完成评测，**115/116 个任务通过官方评分**。
 
-**[查看成绩与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/androidworld/)** 浏览全部 116 个任务，按成功或失败筛选，逐步查看评分、动作和屏幕截图。[评测方法与配置](docs/androidworld-results-20260921.md)。
+[成绩与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/androidworld/) · [评测方法与配置](docs/androidworld-results-20260921.md)
 
 ## 效果演示
 
@@ -42,9 +42,9 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 ## 为复杂任务而构建
 
 - **自主规划，随执行调整。** 将目标拆成有意义的阶段，根据实际页面修订后续路线，延续已完成的工作；需要独立判断时调用 Reviewer。
-- **跨应用记住关键信息。** 在长流程中保留来源事实、任务笔记和处理进度。即使上下文已经压缩，也能回查早先的截图和记录，核对需要填写的细节。
+- **跨应用记住关键信息。** 任务笔记独立于对话摘要保存，选出的简短事实可在长流程中持续可见。需要细节时，可回读完整笔记、早先的截图和来源记录。[记忆与上下文管理](docs/architecture.zh-CN.md#上下文记忆与技能)
 - **可靠操作真实界面。** 结合截图与无障碍结构定位控件，将支持的点击绑定到被观察的原生节点，检查文本输入，并根据动作反馈决定下一步。
-- **把应用经验变成可复用技能。** 无需重新训练模型即可扩展应用知识。Skills 指导规划、操作与验证；受支持的复合动作可完成详情读取和返回，同时保留中间证据。
+- **把应用经验变成可复用技能。** 无需重新训练模型即可扩展应用知识。应用自身的界面经验可跨设备共享，系统界面知识按设备配置匹配，通用技能可跨应用复用；受支持的复合动作可完成详情读取和返回，同时保留中间证据。
 - **自由选择模型与设备。** 为规划和执行配置模型，连接本地真机或模拟器，也可通过远程 Driver 管理设备。
 
 Agent Harness 将 **可修订规划、持久记忆、作用域技能和设备反馈** 组织成完整执行流程。[技术概览](docs/reliability-design.zh-CN.md)
@@ -54,6 +54,7 @@ Agent Harness 将 **可修订规划、持久记忆、作用域技能和设备反
 Console 将实时设备画面与 Agent 执行历史放在同一个工作区。
 
 - **跟随进度：** 查看实时投屏、当前阶段和流式模型响应。
+- **浏览历史任务：** 分页查看任务概览，筛选失败任务，按需打开执行详情。
 - **检查决策：** 打开 Timeline 调用，查看实际模型输入、返回决策、激活技能、工具调用和关联截图。
 - **定位问题：** 沿动作追查目标、回执和结果观测，回看历史页面，并随时切回设备当前画面。
 - **分析开销：** 查看任务与模型耗时、调用次数，以及提供方返回的输入、输出和缓存用量。
@@ -160,8 +161,8 @@ python -m evaluation.androidworld.reproduce --install
 
 | 文档 | 内容 | English |
 | --- | --- | --- |
-| [技术概览](docs/reliability-design.zh-CN.md) | 规划、记忆、技能与设备反馈如何协同。 | [English](docs/reliability-design.md) |
-| [架构详解](docs/architecture.zh-CN.md) | 运行时角色、模块边界和代码入口。 | [English](docs/architecture.md) |
+| [技术概览](docs/reliability-design.zh-CN.md) | 设计目标与核心机制：为什么这样组织 Agent。 | [English](docs/reliability-design.md) |
+| [架构详解](docs/architecture.zh-CN.md) | 模块、接口与执行流程，以及各模块的详细设计。 | [English](docs/architecture.md) |
 | [设计取舍](docs/design-decisions.zh-CN.md) | 审核、上下文、采集与输入的设计选择。 | [English](docs/design-decisions.md) |
 | [部署指南](docs/deployment.zh-CN.md) | 模型、设备、安装与远程运行。 | [English](docs/deployment.md) |
 | [可观测性](docs/observability.zh-CN.md) | Console 操作、轨迹检查与性能分析。 | [English](docs/observability.md) |

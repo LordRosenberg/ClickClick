@@ -880,10 +880,15 @@ class MirrorSession:
         sub = _Subscriber(asyncio.Queue(maxsize=32))
         async with self._lock:
             self._subscribers.append(sub)
-            if self._latest_bootstrap is not None:
-                sub.queue.put_nowait(self._latest_bootstrap)
-                sub.bootstrap = False
+            capture_started = self._latest_bootstrap is not None
         try:
+            # A cached IDR without every intervening predictive frame is not a
+            # valid starting point for the live stream. Wait for a new bootstrap
+            # instead; request one when the source supports capture reset.
+            # Register first so the resulting IDR cannot race past this consumer.
+            reset = getattr(self.source, "reset_video", None)
+            if capture_started and callable(reset):
+                await reset()
             while True:
                 item = await sub.queue.get()
                 if item is None:

@@ -22,6 +22,30 @@ def _provider():
     return provider
 
 
+@pytest.mark.asyncio
+async def test_decoder_reopen_discards_previous_pixels_even_in_same_generation(monkeypatch):
+    provider = _provider()
+    provider._device_size = (64, 64)
+    provider._task = None
+    provider.ring.append(FrameHandle(b"old", 1000, 3, FrameGeometry(64, 64, 64, 64)))
+
+    async def acquire(*_):
+        return SimpleNamespace(generation=3), object()
+
+    async def consume():
+        await asyncio.Event().wait()
+
+    provider.registry = SimpleNamespace(acquire=acquire)
+    monkeypatch.setattr(provider, "decoder_available", lambda: True)
+    monkeypatch.setattr(provider, "_consume", consume)
+    await provider._start_decoder()
+    try:
+        assert not provider.ring._frames
+    finally:
+        provider._task.cancel()
+        await asyncio.gather(provider._task, return_exceptions=True)
+
+
 def _feed_fast_colors(provider, monkeypatch):
     av = pytest.importorskip("av")
     encoder = av.CodecContext.create("libx264", "w")
