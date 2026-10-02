@@ -31,14 +31,40 @@ function renderList() {
   $('taskCount').textContent = `${rows.length} / 117 ${t('TASKS', '题')}`;
   $('taskList').innerHTML = rows.length ? rows.map((item) => `<button class="task-item ${item.id === selected?.id ? 'selected' : ''}" data-id="${esc(item.id)}" aria-pressed="${item.id === selected?.id}"><span class="status-dot ${passed(item[variant].score) ? '' : 'fail'}"></span><span><strong>${esc(pretty(item.id))}</strong><small>${item[variant].actions} ${t('actions', '动作')} · ${result(item[variant].score)}${item.changed ? ` · ${t('variant', '澄清项')}` : ''}</small></span></button>`).join('') : `<p class="muted">${t('No matching tasks.', '没有匹配任务。')}</p>`;
 }
+function renderTrajectory(demo, preserveScroll = false) {
+  const host = $('trajectory');
+  if (!host || !demo?.steps.length) return;
+  const scroll = preserveScroll ? host.querySelector('.step-list')?.scrollTop || 0 : 0;
+  const step = demo.steps[stepIndex];
+  const badge = `<span class="role-badge role-executor">Executor</span>`;
+  const action = (entry) => entry.action ? `${t('Action', '动作')}: ${esc(entry.action)}` : t('Read the current screen', '读取当前屏幕');
+  host.innerHTML = `<div class="viewer"><div class="screen-stage"><img src="${media(step.screenshot)}" alt="${esc(selected.id)} ${t('screen before decision', '决策前屏幕')} ${step.sequence}"></div><div class="step-panel"><div class="step-kicker">${t('SCREEN', '屏幕')} ${String(stepIndex).padStart(2, '0')} / ${String(demo.steps.length - 1).padStart(2, '0')} · ${t('EVENT', '步骤')} ${stepIndex + 1} / ${demo.steps.length}</div>${badge}<div class="decision-label">${t('ClickClick chose to', 'ClickClick 选择')}</div><h4 title="${esc(step.summary)}">${esc(step.summary)}</h4>${step.summary.length > 100 ? `<details class="full-summary"><summary>${t('Read full step note', '查看完整步骤说明')}</summary><p>${esc(step.summary)}</p></details>` : ''}<div class="step-action"><code>${action(step)}</code></div><div class="step-controls"><button id="prevStep" ${stepIndex === 0 ? 'disabled' : ''}>← ${t('Previous', '上一步')}</button><button id="nextStep" ${stepIndex === demo.steps.length - 1 ? 'disabled' : ''}>${t('Next', '下一步')} →</button></div><div class="step-list" aria-label="${t('Run events', '运行步骤')}">${demo.steps.map((entry, index) => `<button data-step="${index}" class="${index === stepIndex ? 'active' : ''}" aria-current="${index === stepIndex ? 'step' : 'false'}"><span class="frame-no">${String(index).padStart(2, '0')}</span><span class="frame-entry">${badge}<b title="${esc(entry.summary)}">${esc(entry.summary)}</b><small>${action(entry)}</small></span></button>`).join('')}</div></div></div>`;
+  const list = host.querySelector('.step-list');
+  list.scrollTop = scroll;
+  const active = list.querySelector('.active');
+  const bounds = list.getBoundingClientRect(), row = active.getBoundingClientRect();
+  if (row.top < bounds.top) list.scrollTop -= bounds.top - row.top;
+  if (row.bottom > bounds.bottom) list.scrollTop += row.bottom - bounds.bottom;
+  const select = (index) => { stepIndex = index; renderTrajectory(demo, true); };
+  $('prevStep').addEventListener('click', () => select(stepIndex - 1));
+  $('nextStep').addEventListener('click', () => select(stepIndex + 1));
+  host.querySelectorAll('[data-step]').forEach((button) => button.addEventListener('click', () => select(Number(button.dataset.step))));
+}
 function renderDetail() {
   if (!selected) return;
   const item = selected, arm = item[variant], demo = data.demos.find((x) => x.task === item.id && (x.variant === variant || !item.changed));
   const change = data.clarifications.find((x) => x.id === item.id);
-  const step = demo?.steps[stepIndex];
-  $('detail').innerHTML = `<div class="detail-top"><div><div class="case-label">MOBILEWORLD / ${String(item.ordinal).padStart(3, '0')}</div><h3>${esc(pretty(item.id))}</h3></div><span class="result-badge ${passed(arm.score) ? '' : 'fail'}">${result(arm.score)}</span></div><div class="paired-score"><span>${t('Clarified', '澄清版')}: <b>${result(item.clarified.score)}</b></span><span>${t('Original wording', '原题措辞版')}: <b>${result(item.original.score)}</b></span></div><p class="task-instruction">${esc(arm.goal)}</p><div class="metadata"><span>${t('ACTIONS', '动作')} <strong>${arm.actions}</strong></span><span>${t('ROUNDS', '回合')} <strong>${arm.rounds}/${arm.budget}</strong></span><span>${t('TIME', '用时')} <strong>${arm.seconds}s</strong></span><span>${esc(arm.apps.join(' → '))}</span></div>${change ? `<p class="notice">${esc(t(change.clarification, change.clarificationZh))}</p>` : ''}${demo ? `<div class="recording"><video controls preload="none" poster="${media(demo.poster)}" src="${media(demo.video)}" aria-label="${esc(t(demo.title, demo.titleZh))}"></video><p class="muted">${t('Full recording · 3× speed · synthetic benchmark data', '完整录像 · 3 倍速 · 合成测试数据')}</p></div>${step ? `<div class="demo-steps"><img src="${media(step.screenshot)}" alt="${esc(item.id)} ${t('screen before decision', '决策前屏幕')} ${step.sequence}"><div><span class="eyebrow">${t('EXECUTOR / PRE-DECISION SCREEN', '执行器 / 决策前屏幕')} ${stepIndex + 1}/${demo.steps.length}</span><h4>${esc(step.summary)}</h4><code>${esc(step.action)}</code><div class="step-controls"><button id="prevStep" ${stepIndex === 0 ? 'disabled' : ''}>← ${t('Previous', '上一步')}</button><button id="nextStep" ${stepIndex === demo.steps.length - 1 ? 'disabled' : ''}>${t('Next', '下一步')} →</button></div></div></div>` : ''}` : `<p class="notice">${t('Both scores and task instructions are available above. Recorded video and step screenshots are published for the six selected complex successes.', '上方提供两版成绩与题目指令。六个精选复杂成功用例另有完整录像及逐步截图。')}</p>`}`;
-  $('prevStep')?.addEventListener('click', () => { stepIndex--; renderDetail(); });
-  $('nextStep')?.addEventListener('click', () => { stepIndex++; renderDetail(); });
+  $('detail').innerHTML = `<div class="detail-top"><div><div class="case-label">MOBILEWORLD / ${String(item.ordinal).padStart(3, '0')}</div><h3>${esc(pretty(item.id))}</h3></div><span class="result-badge ${passed(arm.score) ? '' : 'fail'}">${result(arm.score)}</span></div><div class="paired-score"><span>${t('Clarified', '澄清版')}: <b>${result(item.clarified.score)}</b></span><span>${t('Original wording', '原题措辞版')}: <b>${result(item.original.score)}</b></span></div><p class="task-instruction">${esc(arm.goal)}</p><div class="metadata"><span>${t('ACTIONS', '动作')} <strong>${arm.actions}</strong></span><span>${t('ROUNDS', '回合')} <strong>${arm.rounds}/${arm.budget}</strong></span><span>${t('TIME', '用时')} <strong>${arm.seconds}s</strong></span><span>${esc(arm.apps.join(' → '))}</span></div>${change ? `<p class="notice">${esc(t(change.clarification, change.clarificationZh))}</p>` : ''}${demo ? `<div class="recording"><video controls controlslist="noplaybackrate" preload="none" poster="${media(demo.poster)}" src="${media(demo.video)}" aria-label="${esc(t(demo.title, demo.titleZh))}"></video><div class="recording-controls"><p class="muted">${t('Full recording · synthetic benchmark data', '完整录像 · 合成测试数据')}</p><label for="playbackSpeed">${t('Playback speed', '播放速度')} <select id="playbackSpeed" aria-label="${t('Playback speed', '播放速度')}">${[1, 2, 3, 4].map((speed) => `<option value="${speed}" ${speed === 3 ? 'selected' : ''}>${speed}×</option>`).join('')}</select></label></div></div><div id="trajectory"></div>` : `<p class="notice">${t('Both scores and task instructions are available above. Recorded video and step screenshots are published for the six selected complex successes.', '上方提供两版成绩与题目指令。六个精选复杂成功用例另有完整录像及逐步截图。')}</p>`}`;
+  if (demo) {
+    const video = $('detail').querySelector('video');
+    // Media already preserves source frames at the declared encoded speed.
+    // Convert the user-facing speed relative to the original recording.
+    const setSpeed = () => { video.defaultPlaybackRate = video.playbackRate = Number($('playbackSpeed').value) / demo.playback_speed; };
+    setSpeed();
+    video.addEventListener('loadedmetadata', setSpeed);
+    $('playbackSpeed').addEventListener('change', setSpeed);
+    renderTrajectory(demo);
+  }
 }
 function selectTask(id) {
   selected = data.cases.find((x) => x.id === id) || data.cases.find((x) => x.id === data.demos[0].task);
