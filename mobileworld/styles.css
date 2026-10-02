@@ -6,3 +6,5 @@ main>section:not(.hero){max-width:1400px;margin-left:auto;margin-right:auto;padd
 
 /* Match the AndroidWorld screenshot / event panel and scrollable event list. */
 #trajectory{margin-top:25px}.recording-controls{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.recording-controls .muted{margin:12px 0}.recording-controls label{display:flex;gap:10px;align-items:center;color:#b8c9de;font-size:13px}.recording-controls select{font:inherit;background:#223249;color:#ecf2f8;border:1px solid #456078;border-radius:6px;padding:7px 10px}.step-list .frame-entry{flex:1;min-width:0}.step-panel h4{font-size:16px;line-height:1.35}.step-controls{margin-top:23px}@media(max-width:730px){#trajectory .viewer{grid-template-columns:1fr}}
+
+.architecture-figure{margin:2rem 0}.architecture-figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px}
