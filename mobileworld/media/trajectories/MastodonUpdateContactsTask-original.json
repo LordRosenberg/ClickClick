@@ -1,0 +1,344 @@
+{
+  "task": "MastodonUpdateContactsTask",
+  "variant": "original",
+  "screenCount": 32,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 33
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, find Olivia's latest post and record the new phone number and email address exactly, without changing any account or post state.",
+      "action": "execute",
+      "reason": "First obtain Olivia's latest phone and email details from her latest Mastodon post; these values are required before the contact can be updated or messaged.",
+      "screenshot": "screens/4b3251890dab505c6bc35243c5670cfb6c7dec0574b07ec950ded4faefc7ed3a.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon directly to locate Olivia's latest post and retrieve the updated contact details.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/4b3251890dab505c6bc35243c5670cfb6c7dec0574b07ec950ded4faefc7ed3a.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon Explore to search for Olivia's account or posts.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/c42cb225ab33870e69aef5c1a2de7c1419e08e159ffab6aa4d6e82d8b863ed26.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Mastodon search editor so Olivia can be searched.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/9d4c5ef4a178e17b54044497722683726bac9a255f4a6de2a5b40bc066225fab.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mastodon for Olivia.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/a88f3e4bc4aaabd70ae25b6edb8894a00a2fb8e0e5ca83eac7c8740300399173.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visible @olivia account search result to inspect her latest post.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/e78e095d30dbfd89ed9d272893ef6f00afb900113b9f700fee997c8ed94a5788.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found Olivia's latest Mastodon post (4d ago, newer than the next visible post at 7d). It states new phone number (555) 123-4567 and new work email olivia@gmail.com. No account or post state was changed.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/9b26db1d39f247a918130466aff4f5fb80c585d6ca9a0e08762df8d0f28930b2.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Update the existing Olivia contact with phone number (555) 123-4567 and email olivia@gmail.com, set that email's label to exactly internet, and preserve all unrelated contact data.",
+      "action": "execute",
+      "reason": "Proceed with updating Olivia's existing contact using the retrieved latest details, including the required custom email label.",
+      "screenshot": "screens/bb21af05e0d1e8a814abc62a9c85adff218726f6404a89783a1fe5148977fab3.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the resolved Google Contacts package to update Olivia.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/bb21af05e0d1e8a814abc62a9c85adff218726f6404a89783a1fe5148977fab3.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google sign-in so the existing local contact can be updated without adding an unrelated account.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/ee7a8c028750862cbce9a026b012f5fda6ce3ef526d74b0d51cf7555bbf6b280.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the informational tooltip blocking the contacts list, then locate Olivia.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d576ff65069208ee45941d11fd39cbd4fa26b6a994452e888d80e37c56b61bbf.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the still-visible onboarding tooltip with Back before searching for Olivia.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/d63cf51c1f3705606ec367c9e134c84e440a9e72bb72a3a9d2821ad1bcb9bdee.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return directly to Google Contacts to update Olivia's existing record.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/46674173292fc7ddfc58fa8f0ff309c702705ceff22ae1f6c8da2d5898a97e31.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Decline the unrelated Contacts notification permission so contact editing can continue.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/b5bee55dadbd30c22227a0a5b394eb12ed589bc1accc386294a5b84343a88043.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Contacts search field to locate the existing Olivia contact.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/3ea6fd2e92b9157e2b6eb0ebc0e91b684187937a9b76350312238b52294cb321.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for the existing Olivia contact.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/080d0b4c37f96c31517e2e81a4d6a2bd3ea2ef500c7274657ab7cc5e67488be6.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the existing Olivia Taylor contact from the search result.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/d1f30166fcd27eff129ad96923b863246d2268448bfb932ca8e21248dd1bc2ba.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open edit mode for Olivia Taylor while preserving unrelated contact fields.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/9db15efcd4facc2ce95c2f950366a0cd6e56bd2c681337f79b21a98bedc19661.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace Olivia's old phone number with the new number from her latest post.",
+      "action": "replace_text(index=11)",
+      "reason": "",
+      "screenshot": "screens/8adf227347058cd968e83a55137ad2b91cfa25e2c2c57c0c6851f26e990d4a05.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Olivia's existing phone field so its value can be replaced.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/8adf227347058cd968e83a55137ad2b91cfa25e2c2c57c0c6851f26e990d4a05.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused old phone value with Olivia's new phone number.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/3528b4f1bc0182e9e9934bcca2cbb1126e48c27e44e0162b6b73389b339baa65.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the contact editor to the email fields after updating the phone number.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/20842c26f44c5b72f0fea9d1cac7905bc53e444223754b05ac4055aa168d977b.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Olivia's existing email field so it can be replaced without changing unrelated fields.",
+      "action": "tap(index=19)",
+      "reason": "",
+      "screenshot": "screens/78e0dbc088e2355a8215464849418c6e8164130f09d23bd3e7573b6550631106.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused existing email with Olivia's latest email address while retaining its INTERNET label.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/19d8cb37c865414d301604061eaeba6f0914c6e172a9b243e88c617b063eff7c.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the email label selector to ensure the updated email's label is set exactly to internet.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/a00a28693f73ac51bc317f240da8f7b6a2cc9ae9015feb50b7ad5b6780bbe446.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the checked INTERNET email label for Olivia's updated email.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/ec6cd117dadc87462228533e1b58de96e913101fd3f2bcdc2dfd7de12cc10db1.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save Olivia's updated phone, email, and INTERNET email label while preserving the other contact fields.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/f9e02144b9603ae105e94425181d10c6f0720be51799eacbff355013ee2460a2.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Olivia Taylor was saved with mobile phone (555) 123-4567 and email olivia@gmail.com labeled INTERNET. The contact detail view confirms the saved values, and unrelated organization/title/address data remains present.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f3320980067d67101d8f2efcdf3e67370104d4dabcda15b28370bb6f1bbb3580.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send Olivia at the updated number (555) 123-4567 a text message with the exact content 'Hello, how are you'.",
+      "action": "execute",
+      "reason": "The contact update is confirmed. The remaining requirement is to send Olivia the exact SMS.",
+      "screenshot": "screens/02ef2104ee0ea65b84fac436c88327228f11698af69a33c80773f3f897acfe41.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the resolved installed Messages package to compose Olivia's SMS.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/02ef2104ee0ea65b84fac436c88327228f11698af69a33c80773f3f897acfe41.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Start chat to begin a new SMS to Olivia.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/9a95f8282cb3bf17dcd2b19f7da988d4e37245a0ca494ad5a1300473456cb6b0.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Olivia's updated phone number as the SMS recipient.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/7875cb7838b317baae4c13737789fe03c588eec53c85d586c746b94800177d46.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Olivia Taylor at the matching updated mobile number as the recipient.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/c725db467dad1162084b3be3e93fdf401d3582865b7b84e8687aee7b47d8b83f.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested SMS text in Olivia's conversation.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/6032e2a9973da270fac9328aff39c1e8af2052411d32b568a695aee065536a46.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact SMS 'Hello, how are you' to Olivia Taylor.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/0ab395d08093f71e91dccfe01a08e694628fc5451a37371c6f55f2d4935fdc58.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the request: Olivia Taylor's contact was updated to phone (555) 123-4567 and email olivia@gmail.com with the INTERNET label, and the exact SMS 'Hello, how are you' is visibly present as a sent SMS in her conversation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/12b56cdc4ee1dafae6177691eef48764272e65aede22d67ffd1f1f32b3f86d7f.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Olivia Taylor’s contact was updated with phone (555) 123-4567 and email olivia@gmail.com labeled INTERNET, and the exact SMS “Hello, how are you” was sent to her.",
+      "action": "complete",
+      "reason": "Olivia Taylor’s contact was updated with phone (555) 123-4567 and email olivia@gmail.com labeled INTERNET, and the exact SMS “Hello, how are you” was sent to her.",
+      "screenshot": "screens/12b56cdc4ee1dafae6177691eef48764272e65aede22d67ffd1f1f32b3f86d7f.webp",
+      "screenNumber": 31
+    }
+  ]
+}

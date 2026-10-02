@@ -1,0 +1,182 @@
+{
+  "task": "MastodonAddFeaturedHashtagsTask",
+  "variant": "original",
+  "screenCount": 17,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 17
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon account settings for the user's signed-in account, add `summerrain`, `nature`, and `photography` as featured hashtags, preserving any existing featured hashtags and confirming each requested hashtag is present.",
+      "action": "execute",
+      "reason": "Add the three requested featured hashtags through Mastodon's account web settings and retain each as a distinct featured hashtag.",
+      "screenshot": "screens/e6cbab7a131a08f3576423849823d80e559191311f8483c6225c76da80cbc9ce.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to identify the active signed-in account and reach its account web settings.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/e6cbab7a131a08f3576423849823d80e559191311f8483c6225c76da80cbc9ce.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon settings for the active account.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/c3ffb0eaa98d27e5702abfe032db06f6d0c5b95db912b3bde45858dfb3276c40.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open account-specific settings for the active @test@10.0.2.2 account.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/c9177c93a3a779bc01675c7046522ba41bd6c1d9634fcaccce14203118002401.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's web account settings, where featured hashtags are managed.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/137c96513f6a5da0157b029f9fb79619265b6e4da2e2ac2046b2a96b9a6e74db.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome directly to access the instance web settings after the unindexed Account settings row did not open from Mastodon.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/2ac9e46b54792f4e30ce99de82fbd588e6f071d8996572f278e1112b7fb25467.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to the Mastodon instance's featured hashtags settings page.",
+      "action": "replace_text(index=16)",
+      "reason": "",
+      "screenshot": "screens/ed8f98166c7bf609ae3cebd57c70a9b7e9681517554c97ae88becda491f16117.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the direct featured hashtags settings URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/43ea220f2a8c44fc2d7aef079223ecbf230ac21a97b4215086d339b414995d8a.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Retry the featured hashtags settings route over HTTPS, matching the previously working Mastodon web session.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/b14b20498d4f80ae7ac29253ac163f25578ada97cff2822e4bbeeaac93e706b7.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the HTTPS featured hashtags settings URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/f59eaf25ca35b10515a640800092c5a3b0b487f7b698ea8c9e4dfc9df68d86ff.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the first requested featured hashtag, `summerrain`.",
+      "action": "replace_text(index=6)",
+      "reason": "",
+      "screenshot": "screens/d498a684636c4058ef5d0238e6c3334b8adccada7a455326b5cd03308bbc06ef.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add `summerrain` as a featured hashtag.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/e6708bed977c661a88a37ec9e71ffd9f21a843574bef01b3d0816de36f75cf00.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the second requested featured hashtag, `nature`, while preserving `summerrain`.",
+      "action": "replace_text(index=6)",
+      "reason": "",
+      "screenshot": "screens/ab18d8cee77209f11e2f38ac56d2d0c31f1a390a80bb0e1d7b1891ed39565794.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add `nature` as a featured hashtag.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/49960d3cc4be07ee3a4cf1baf3419b3e1d2e537a5e0eafca8e9c24a919016c77.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the third requested featured hashtag, `photography`, while preserving the two already-added hashtags.",
+      "action": "replace_text(index=6)",
+      "reason": "",
+      "screenshot": "screens/02accc8e53c209bf14210b6576621ef150243f70af4b7ff0552da293c3b2270c.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add `photography` as the third featured hashtag.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/0ce65f182fb4718af8f801a8229cdfafa6b20777f04cb1a253914953c04c0d36.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the featured-hashtag list to confirm `nature` and `photography` are both present after the add.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/7caaa005c5205d8774880a0dcc78aaee2cf5dc9002805c9a815b7578d6ff36d2.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Confirmed the Mastodon Featured hashtags settings page lists all three requested distinct hashtags: `summerrain`, `nature`, and `photography`, each with its own Delete control. The form reset after saving, confirming the final addition.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/a180bba171ec51a71373641b1bcbe24381051e0bbc32f23f009cad5cfd6df485.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Added `summerrain`, `nature`, and `photography` as distinct featured hashtags on the signed-in Mastodon account; all three are confirmed present on the Featured hashtags settings page.",
+      "action": "complete",
+      "reason": "Added `summerrain`, `nature`, and `photography` as distinct featured hashtags on the signed-in Mastodon account; all three are confirmed present on the Featured hashtags settings page.",
+      "screenshot": "screens/a180bba171ec51a71373641b1bcbe24381051e0bbc32f23f009cad5cfd6df485.webp",
+      "screenNumber": 16
+    }
+  ]
+}

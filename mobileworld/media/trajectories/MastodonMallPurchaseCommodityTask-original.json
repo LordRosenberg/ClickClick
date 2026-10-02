@@ -1,0 +1,362 @@
+{
+  "task": "MastodonMallPurchaseCommodityTask",
+  "variant": "original",
+  "screenCount": 33,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 35
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Mastodon 中找到我关注的 jack 分享的商品，并记录足以在淘店中准确识别同款的信息（包括商品名称及可见的款式、规格或链接）；不得发布、转发或修改 Mastodon 内容。",
+      "action": "execute",
+      "reason": "必须先从 jack 的分享中确定具体商品，之后才能在淘店准确选择同款并购买2双。",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Mastodon，查找所关注的 jack 分享的商品信息。",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Mastodon 搜索页，查找 jack 的账号或分享内容。",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/852e68ee47da57e30dc0cad253a00d602a3ec44adecfac9151710b224c6b761a.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点按“Search Mastodon”入口以打开搜索输入框。",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/6326d75931e6c47c5006cd0150c4d87b2da7a1c4e543056ef4bbc667a20b9703.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在 Mastodon 搜索框中输入 jack。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/aef0a255c104a8dd43cf3c01e73de1c2ba812b1038bc5ae14dadaa74eb39c380.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开搜索结果中的 jack（@jack）个人资料，以查看其分享内容并确认是已关注账号。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/0bfceb5a2ab0f6770c11b6464e7b0c7956c36c4e874b9ab4b40e5c173851101f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已确认这是当前账号关注的 jack（资料页按钮显示“Following”）。jack 的唯一一条分享明确说在淘店直接搜索“休闲鞋”，并指定购买图片所示款式。图片中的同款特征为：棕色低帮系带休闲鞋、白色厚底/外底、黑色鞋口与黑色后侧拼接、棕色侧面标志。未见链接、尺码或其他规格。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/a005f5d5dd775dc45d628078ab8649e46a370e2a62052d6ba1d107d3101f13c3.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在淘店搜索“休闲鞋”，依据 jack 图片中的棕色低帮系带、白色厚底/外底、黑色鞋口与黑色后侧拼接、棕色侧面标志定位同款商品，并确认商品详情及购买2双所需的可选规格；暂不提交订单。",
+      "action": "execute",
+      "reason": "先在淘店按 jack 提供的搜索词和图片特征准确定位同款，并查明是否有必须选择但尚未提供的规格，之后才能安全下单2双。",
+      "screenshot": "screens/12be01358e1e4ff835a03ab7f6b3d7bd8402ae1f23c3a77b89e7e98271a46ae5.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开淘店，准备按“休闲鞋”搜索并依据 jack 分享图片特征定位同款。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/12be01358e1e4ff835a03ab7f6b3d7bd8402ae1f23c3a77b89e7e98271a46ae5.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击首页搜索输入区域，准备输入“休闲鞋”。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/1b750a9e80f9e47a21bf57a8e756e84780fbe4b4c06ff0bf26616a6ee0eca6fd.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在淘店搜索框输入“休闲鞋”。",
+      "action": "replace_text(index=22)",
+      "reason": "",
+      "screenshot": "screens/652c61228bec45b5c8916c379b837db7fc6d07cc68e191f888012cc969a1b8e8.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "先单独聚焦淘店搜索输入框，以便随后替换输入“休闲鞋”。",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/652c61228bec45b5c8916c379b837db7fc6d07cc68e191f888012cc969a1b8e8.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "搜索框已聚焦且为空，输入“休闲鞋”。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/c05ddea3bd14c7f60e69ebd4259ca919288a9323da8fe9b1b9de94dcaf53c7f1.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "提交“休闲鞋”搜索，进入结果页以定位 jack 分享的同款。",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/101f87dcada7635c94cd9cdf0aae8fb96ba3c949d15a8be56a6adf9850024ea7.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "搜索结果首项“运动休闲鞋”的图片符合 jack 分享的棕色低帮、白色厚底、黑色鞋口/后侧拼接等特征，打开商品详情确认规格。",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/fcacd9f829f7a567fd9312e5f17bb5e5c27f1484d43220d6aa3edfe3bf7b913c.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已确认商品图片与 jack 分享特征一致；打开“已选 1件”规格面板，检查购买2双所需的必选规格与数量控制。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/6a7e6461fc43c526c0c3aa6a9705f466058045ae44527afee640d75f2ba458e6.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在淘店定位并打开与 jack 配图一致的“运动休闲鞋”，单价￥299.00。规格面板显示必选规格只有唯一选项：尺码40、颜色黑色；数量当前为1，可通过加号调至2。由于 jack 分享及用户指令均未提供尺码，而页面唯一可选尺码为40，已确认购买2双所需全部规格，尚未提交订单。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f1d318378d9c6e950d8f089d2ee00637b703dabeb8a2e3c076624f0373284c55.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在已确认的同款“运动休闲鞋”规格面板中保持唯一规格尺码40、颜色黑色，将数量设为2，并使用收货人李四、电话13800139999、地址“广东省广州市天河区华景新城”提交购买订单；不得改动其他商品或收货信息。",
+      "action": "execute",
+      "reason": "同款商品及唯一规格已确认，下一步可直接完成数量、收货信息和订单提交。",
+      "screenshot": "screens/3e1e3618b7c78aba03bd6cdcfe442a564e45e4f586babf6b2052aca10550cdd2.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击规格面板数量加号，将“运动休闲鞋”数量从1调整为2，同时保持唯一规格尺码40、颜色黑色。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/3e1e3618b7c78aba03bd6cdcfe442a564e45e4f586babf6b2052aca10550cdd2.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "数量已确认显示2件；点击规格面板底部右侧红色购买按钮，进入订单确认流程。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/4124b181aeacba2609002946742ca1fa255a5d5c8ba5c087ee5758a68d08d144.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "订单页已确认商品为运动休闲鞋、40码黑色、数量2、合计598元；打开“新增收货地址”以填写指定收货信息。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/90cca59b8468206b093c6aa5c26b5cadeea18b69720c2a1144f5a522e3b96404.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收货地址列表明确显示尚无地址；点击“新增收货地址”进入地址表单。",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/0f3a3a44399f388cc593d80efdcb9bfb4702cea9e1d84a953d446fd952037f6b.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在新增收货地址表单中填写指定收货人“李四”。",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/e5614a041201f76597c5467bd5a984c7fe7973f73db2d8c3f0f0ec0d2764c84f.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "带索引替换不受支持且未执行任何输入；先聚焦“姓名”输入框，随后再填写李四。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/e5614a041201f76597c5467bd5a984c7fe7973f73db2d8c3f0f0ec0d2764c84f.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "姓名输入框已聚焦且为空；填写指定收货人“李四”。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/cb7bc4bb4674beab41a9aadebab3a54979ec4f179b0a02df46ffe4781d0cbf61.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收货人“李四”已准确填写；下一步聚焦手机号码输入框以填写指定电话。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/e1efcafb8ca99bb62be49cbfb558fabebe98cc9ad29c65207b601ba957745b58.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "手机号码输入框已聚焦且为空；填写指定的11位收货电话。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/230aae410ee3061d6a373717518a7115890a92e4d8e4dc4cb7e122f593d81aa8.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收货人和手机号均已准确填写；打开“所在地区”选择器，将默认天津地址改为广东省广州市天河区。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/794dea6571099e741107c47559355270c3beb66fb478945719823bf9c80c0cc2.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地区三级选择器已打开；点击左列可见的“广东省”，以更新后续市、区选项。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/97f019275d88a613af27658aef382e08b2518b3a7cd2b50130cb077cce55d645.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "省份已更新为广东省；点击第二列可见的“广州市”，以载入广州辖区。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/57807089c88c2c92e2eec6cf4379cc2db467cec86e6d35edb85cf6a10a324c09.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "广州市已选中，第三列当前显示荔湾区等前几个辖区；向上滑动第三列以查找“天河区”。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/f4561567ebf53cc7e6bd69a97618d7359b66942a55aa6de1c2a47d1895cc0a7f.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地区已显示“广东省 广州市 天河区”；点击“确定”关闭地区选择器并保留该选择。",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/4a004d384d8103d8dfa27972a4809ab9925cf059b155d4940f147b2013a3d4e5.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地区已确认无误；聚焦“详细地址”输入框，准备填写“华景新城”。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/87b2c084ca14eaed09349f869df9a5bfb0ad2abcb0ebb3098cbf29d822a06d3a.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "详细地址输入框已聚焦且为空；输入“华景新城”。",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/21ee7c16da854a941e4412dc9d3be1f5e302db86477099eef5865f1d62e9300d.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "姓名、电话、广东省广州市天河区及详细地址“华景新城”均已填写；点击“保存收货地址”。",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/06d0b010c718ca77695ed0b957a44e0700c5d8e4a67bba1e8eaa8cc9199c9989.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地址列表已显示李四、13800139999、广东省广州市天河区华景新城；选择该地址返回订单确认页。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/9e41b880a0455ba7a9674fbee08586dc2489d256b2cf6e29ea4b08fe1868cfb5.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "订单确认页信息完全匹配：运动休闲鞋40码黑色2双，李四、13800139999、广东省广州市天河区华景新城，总额￥598.00；点击“提交订单”。",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/dd317b4751946f2e6a1aca4ec52644e96045acef2e160b335e3422275d017408.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "点击“提交订单”后出现支付宝支付弹窗，金额￥598.00，要求输入6位支付密码。当前没有支付密码，无法自主完成付款；订单信息此前已核实为运动休闲鞋40码黑色x2，收货人李四、13800139999、广东省广州市天河区华景新城。需将支付凭证缺失作为阻塞处理，且不得猜测或绕过支付密码。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/14f314adaf8d3db1f221deaf0606bbbd1538d39c04dc9fe3d5b41f841894a351.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已按要求确认并提交“运动休闲鞋”40码黑色2双的订单信息，收货人为李四、电话13800139999、地址广东省广州市天河区华景新城，总额￥598.00；但当前支付宝支付弹窗要求输入6位支付密码，现有信息未提供该凭证，不能猜测或绕过，因此无法完成付款购买。",
+      "action": "inconclusive",
+      "reason": "已按要求确认并提交“运动休闲鞋”40码黑色2双的订单信息，收货人为李四、电话13800139999、地址广东省广州市天河区华景新城，总额￥598.00；但当前支付宝支付弹窗要求输入6位支付密码，现有信息未提供该凭证，不能猜测或绕过，因此无法完成付款购买。",
+      "screenshot": "screens/14f314adaf8d3db1f221deaf0606bbbd1538d39c04dc9fe3d5b41f841894a351.webp",
+      "screenNumber": 32
+    }
+  ]
+}

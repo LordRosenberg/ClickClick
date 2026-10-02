@@ -1,0 +1,497 @@
+{
+  "task": "MastodonMultiInviteTask",
+  "variant": "original",
+  "screenCount": 50,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 50
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, generate a distinct invite link valid for 1 day with a maximum of 1 use, retain that exact generated link, and send it by SMS to Leonard.",
+      "action": "execute",
+      "reason": "Proceed with the first invite-link-and-SMS outcome; the second distinct invite remains contingent on completing and retaining the first link.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to begin creating the first invite link.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon settings to locate invite management.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/a6a7cfcc8be785458fb76cb9554dc085a01e6f5f4fdbdc8ec44d5fb45365e002.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the Home screen; invite management is not present in Settings.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/c20f7dded113bec31269ae661a49cc72995928c28b5f134e90a0552404ba302e.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the main overflow menu to look for invite-link management.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/2673a05a0a351d81dd2b540064e314174d249c32a4e6aafee33e57be2208d001.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the unrelated overflow menu and continue locating invite management via the profile area.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/227514b5c525b9d15e883f953fef7bd57eac8e3408ec402cab24925c25e3dffc.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account profile to locate profile-level invite controls.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/f20db776333480d7389623843b25a1e0f7bd779b2aeace12926af81970fa452f.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Home so the timeline selector can be checked for invite management.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/152fafb75ad3c539ec4c86bd9a090c13d9d53557bce5384d76fe60fef570d747.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home section selector to look for an invite-management destination.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/9222d799999e3dc6e10ceded17f8a9043912173063b3b47111cd2a0eae18b272.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the timeline selector after confirming it has no invite destination.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/020780135d81b4560ea149b018696eca09e715335004b69e4750a5fa724a7f41.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Settings and inspect the Accounts section for server-side invite controls.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e419f08d1c244f66afe62aa849db2595a9870d55926f364cc4a9e3958d0e2a87.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active test account entry to inspect its account-specific settings for invite management.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/df99cedd32ac2edfafea1544e5f99b61cbeb872a9145d412f41175342a0dfb41.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open About this server to inspect server-level actions for invitation management.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/e84fd662928b43e9a60bda23e4a0a83079d35711547332a837fb44da6967cf0c.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from server information to continue searching account-level navigation for invite management.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/752ee4d09eed89908042401c3f82a624c087e50a7656e33fbf83f4b9ebe65886.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the broader Settings screen so I can leave settings and inspect the main account navigation for invite controls.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/aa56e8ca5c4c80f58eb20871799f070565abf788f419129c8fb7f29764722d04.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit Settings to inspect the main Mastodon interface for an invite or administration entry point.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/a181dbc095e5c96891235ec43daa0d7e0982fe0d5ade2fc36ecc11b78dcd0f74.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the account switcher to inspect whether the owner account exposes invitation controls not available on the active test account.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/7cb6ac4546ad2df8bb3edbb77378c2cfc604534a30c6faabac66dea89838c4de.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch to the owner account, which may have server invitation privileges.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/0bc8e28ce5e5479342ccc8f94dad1b738ab188a5564c859087943286d7ac9220.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect the owner account settings for invitation management controls.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/6b8c99bd931f27e4616b2a01606df5795bf40ff006e530c13fc3ffca2f3db108.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the owner account-specific settings to look for invite administration.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/e6cbff584e3c12d30a57cf99a5ab5def0dcaceb74c02c04f70795ee029097605.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect the owner-visible server overview for administrative invitation controls.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/9487eed2786e0f2a97bc6ff9b0f9e2e864dc41e820edb985040d33d8a6715b24.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave the server overview and inspect owner-specific profile actions, the remaining plausible in-app route to invite generation.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/9354e005c6a4bb790a37c1570e03b5512d0f0ee319def524e0ded03f783a6eaf.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the top-level settings so the owner profile actions can be inspected.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/9487eed2786e0f2a97bc6ff9b0f9e2e864dc41e820edb985040d33d8a6715b24.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Mastodon's main navigation to inspect the active owner's profile actions for invite-link management.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/00ce3482f1596e2d0eca6327e1eae974e4e245fe4ce0ed495d6f357e28c4acf4.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active owner's profile and inspect its profile-level actions for invite management.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/7bc87a93195d26adbe011292b7765417d0c8a0c0d53ddb4ec5827f4a7680fa59.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open owner profile editing to inspect its account-management links for invite generation.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/87386a64b7b56b1c2bcf3fa0e8687e890136d72fb04bd2694def0a9caf5aac76.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit profile editing without changes, then use the profile's server link as the remaining route toward web-based invite management.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/a38520ffbbe2d6f2a66574e7c79e038361267d105eef82cf5d9f5fa11ad1f966.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the owner profile's server entry to look for a server web/settings route that exposes invite management.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/a2e5187c4db97975ec63621b9872f3c29c7d9095c786273ba9f8770b89136071.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Mastodon Android exposes only a handle-information sheet from the server text; profile editing, account settings, Home overflow, About-server pages, and profile controls have no invite-management UI. Generating condition-specific invite links therefore requires a different capability/target, likely the server's web interface (for example its invite settings page) in a browser, before returning to SMS sharing.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/168abe0d1ed9b6fe7831639d90dabefd455096f9968c1ab8e137faf8a29a79b0.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Chrome, access the signed-in owner account's Mastodon server web interface, generate a distinct invite link valid for 1 day with a maximum of 1 use, retain that exact generated link, and send it by SMS to Leonard.",
+      "action": "execute",
+      "reason": "The native app route is exhausted; use the signed-in server web interface in Chrome to create the first conditioned invite before its required SMS delivery.",
+      "screenshot": "screens/b3e06109026144e8093f7cee89f0b02976093b52ba6187c2de2303855482f01a.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch Chrome to access the owner account's Mastodon server web invite interface.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/b3e06109026144e8093f7cee89f0b02976093b52ba6187c2de2303855482f01a.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to the signed-in Mastodon invite-management settings page.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/4bc1c76692fcf115750f329bcc0917a494323270ebee9a0d75a41b5263ac9ef1.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the direct Mastodon invite-management URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/7652dfba7051095cd27603c1e5c38d4b678cb86b3ce3fd1022dbd3d2ded2ab55.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Retry the previously reachable local Mastodon server once because Chrome now reports a potentially transient connection refusal.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/3e9c028c4abcdb239e9cdf3935166535273d380edc3a2402fbdc07e6db5fc1e8.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the previously loaded signed-in Mastodon settings page, which may remain usable from Chrome history despite the direct route's connection refusal.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/945b4b6cbe8b1d0487da875935f491f3e386a068d97a42add381d63bdff7adc0.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Try Mastodon's signed-in user invite page over the HTTPS origin used by the working settings page.",
+      "action": "replace_text(index=16)",
+      "reason": "",
+      "screenshot": "screens/a732a0dd88d8e08a27c74a89b878ba9df9b15004d8b32cb5495db40cf8c16ace.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate to the HTTPS invite-management route entered in Chrome.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/188364ac19823836a47cc90432e35aaeed98f7090be6216c43e2b8dbb0c30fec.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the maximum-uses selector to choose the required single use.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/f04586a44013d6a4d8700ba609cbeb5c6c55eedd0a6532fb6f42aac993d4e81c.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the invite's maximum number of uses to 1.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/127811a5f201f00f6c5160ec7497b828e024cf85b4f2c85485bc7a7de967ae15.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the expiration selector to set the required 1-day validity.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/0374233cfc27f9b282dd3f7862bd547c0fac5ba09e832ae29e9ab3901f533c52.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the invite expiration to 1 day.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/d48a4f5638427b1be0453f4b2e78a2fd6d0c0e2c5de9837b8d38cb38a4ab114a.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Generate the first invite with 1 use, 1-day expiration, and auto-follow disabled.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/7d69fb27d6105b459aeeb0240a3e5cfe2835abec6d5181c20aa9d991a643e73d.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Copy the exact newly generated 1-day, 1-use invite link for SMS delivery to Leonard.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/71579e88825b5eed349f242bc850a7c31cc28d917dd446113d67dfa2986afef0.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the SMS app to send the copied first invite link to Leonard.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/293759d1ebd36c430e1022f95f61270037e2d0fca65a3f5fdb50a6f35864d458.webp",
+      "screenNumber": 41
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search SMS conversations for Leonard.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/7cb5cbe46c74b9041b7f54b1d7d03f2e08f1727ca237df3d22c1230b2bd74d24.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search messages and contacts for Leonard.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/fea9217a58adfabdf7c582783a029921bbd4ea19dbf814dfe7d09e762e9273a8.webp",
+      "screenNumber": 43
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Leonard Hofstadter SMS conversation.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/329b7be1bcec87676053908415db93977b164fe749e4fbd94c43f00f829f478d.webp",
+      "screenNumber": 44
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Leonard's exact 1-day, 1-use invite link in the SMS composer.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/c52c8df458d07e6d72b6b37343858b6472fc454d49676080be28a753e01639b8.webp",
+      "screenNumber": 45
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send Leonard the exact generated 1-day, 1-use invite link by SMS.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/1a28510b9d7cdc5a678cd16ea6081734dd92fe33b10024c175c50792adf9bddb.webp",
+      "screenNumber": 46
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Generated the distinct 1-day, maximum-1-use invite https://10.0.2.2/invite/tSb6VFJp and sent it by SMS in the Leonard Hofstadter conversation; the sent message is visible with SMS metadata.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/83bbfde7fe0b702f02d78529fe9316e8c846fcffd0ebae2b0d6ceed60b830238.webp",
+      "screenNumber": 47
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Chrome, return to the signed-in Mastodon invite page, generate a new distinct invite link valid for 7 days with auto-follow enabled, retain its exact URL, and send that link by SMS to Ella.",
+      "action": "execute",
+      "reason": "Leonard's 1-day, single-use invite is confirmed sent. The remaining work is to create and send Ella's separate invite with the required conditions.",
+      "screenshot": "screens/11bf6daef4d86b009e0969728a876470fb455566e2b21c1df5903e5b56947ee3.webp",
+      "screenNumber": 48
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Chrome to create Ella's separate 7-day auto-follow invite.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/11bf6daef4d86b009e0969728a876470fb455566e2b21c1df5903e5b56947ee3.webp",
+      "screenNumber": 48
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The current stage requires at least configuring the Expire after dropdown to 7 days, enabling auto-follow, generating the distinct link, then composing and sending SMS to Ella. Only 3 act prediction rounds remain, and no current stage-authorized compound action is available. The current form is reset to Never/no-limit/unchecked, so the goal cannot fit through ordinary atomic actions. Please provide a compound-capable route/action or otherwise revise execution support without changing the required outcome.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/54a9e58df03aaad4240b6dfe21d0d3e1f1133103906610e39415b9b65bb5b380.webp",
+      "screenNumber": 49
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Leonard’s distinct 1-day, single-use invite was generated and sent by SMS. Ella’s required distinct 7-day, auto-follow invite remains incomplete: the form is currently reset to Never/no-limit/unchecked, and the remaining 3 prediction rounds cannot cover configuring 7 days, enabling auto-follow, generating the link, and sending it by SMS without a supported compound action.",
+      "action": "inconclusive",
+      "reason": "Leonard’s distinct 1-day, single-use invite was generated and sent by SMS. Ella’s required distinct 7-day, auto-follow invite remains incomplete: the form is currently reset to Never/no-limit/unchecked, and the remaining 3 prediction rounds cannot cover configuring 7 days, enabling auto-follow, generating the link, and sending it by SMS without a supported compound action.",
+      "screenshot": "screens/54a9e58df03aaad4240b6dfe21d0d3e1f1133103906610e39415b9b65bb5b380.webp",
+      "screenNumber": 49
+    }
+  ]
+}

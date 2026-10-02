@@ -1,0 +1,479 @@
+{
+  "task": "MattermostProjectStatusReportTask",
+  "variant": "clarified",
+  "screenCount": 46,
+  "roleCounts": {
+    "Planner": 6,
+    "Executor": 46
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the full relevant status-update scope in Mattermost channels 'backend-team', 'frontend-team', and 'qa-team'. Record every item marked 'blocked', 'at-risk', or 'on-track', preserving its team, exact item name, explicit status, and stated completion/target date; report any item whose required date is absent or ambiguous.",
+      "action": "execute",
+      "reason": "First collect the complete set of project items, explicit statuses, and stated completion/target dates from the three requested Mattermost channels; those facts determine all later calendar checks and actions.",
+      "screenshot": "screens/eb92ca2161fbf61e2d6cd784d9843e45b729b312e64d490f989df08ee8453f22.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to inspect the requested team status updates.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/eb92ca2161fbf61e2d6cd784d9843e45b729b312e64d490f989df08ee8453f22.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Backend Team to collect all relevant status items and target dates.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/1e8440bcc0e0773f451109b8ec366cfecc986765b2d5a3a5a693c19a899969db.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Backend Team scope shows Authentication Module (on-track, expected completion 2026-10-09) and Payment Integration (blocked, no completion/target date stated). Return to channel list to inspect the remaining teams.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/c111d78bb536076e1b6097395c45c4befe55c6dc5b3fc08ba1e1b77b70de42b4.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Frontend Team to collect its complete status-update scope.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/821f395e709845057ff7d96b31ebcba3255dfd76b76435ff6608a12ad9fb3a38.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Frontend Team scope shows Dashboard UI (at-risk, original target 2026-10-12) and API Gateway Setup (on-track, completion target 2026-10-09). Return to inspect QA Team.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/639af22fb2199e0b58609834abda5b1d4cf8e4ed40123d133dfd53656a116cfe.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open QA Team to collect its full status-update scope.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/a2c4677a248ae5c0cb79f8473033aac54278697b3697d0fc783c934364fbec12.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed requested Mattermost scope: six items collected. Authentication Module (on-track, 2026-10-09), Payment Integration (blocked, no date), API Gateway Setup (on-track, 2026-10-09), Dashboard UI (at-risk, 2026-10-12), Performance Testing (at-risk, no date and explicitly no milestone), Security Audit (blocked, no date).",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/04e9aa1a3ff5dca82fa15e1a3c7d98e065b22c7385f0f50ed721018b72c87036.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Cross-reference Calendar milestones for Authentication Module and API Gateway Setup against their October 9, 2026 target dates (inclusive window October 6-12), and Dashboard UI against its October 12, 2026 target date (inclusive window October 9-15). Record each matching milestone's title and date, or establish no match only after adequately covering its full window; remember Performance Testing explicitly says no milestone exists, while the two blocked items have no date and need no computed window for classification.",
+      "action": "execute",
+      "reason": "The Mattermost collection is complete. The next dependency is checking the three dated claims against their own inclusive ±3-calendar-day windows in Calendar, not against today.",
+      "screenshot": "screens/efaeafb781510a443d41e37177696b83d9fe7ad5c0e981dc58f4cda902cdafbe.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch Fossify Calendar to verify dated milestone claims in their item-relative windows.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/efaeafb781510a443d41e37177696b83d9fe7ad5c0e981dc58f4cda902cdafbe.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Calendar search to verify the Authentication Module milestone title and date.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/2242415be1a94c7d9e6583385bf9fba1e9a395c2cd6481f750db502448dfdcec.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Calendar for the Authentication Module milestone.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/f8953b7017017c02bf9f112bdc27cee42d4ee8a247c8a530be0aa65604227263.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Authentication Module has an in-window milestone on October 9; now search for API Gateway Setup.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/28851406849a09bad415e87276ad721d8abde1e6f1f6117c2ab02c87f9b72fbb.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The full-title search returned no exact match, but the month view previously showed a clipped API Gateway entry on October 9; broaden the search to identify its full title and confirm the date.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/ee756876c2d60ab701f8bb74951b8f32dcbcf61e4f8a1d5a446e259531dc1e76.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "API Gateway Setup matches the October 9 milestone \"API Gateway Launch\"; now search for Dashboard UI.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/39a8dd8cc0d32b5868767872a556de9395276a0d256abcac72900d609e54a49b.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The exact Dashboard UI search had no match; broaden to the distinctive term Dashboard before considering a date-range list check.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/48ffae5a35f70d8d944b181dd83705df994b7f3348c820a649d1645dc8320c24.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Calendar cross-check complete: Authentication Module and API Gateway Setup each have matching October 9 milestones within their ±3-day windows; Dashboard UI has no matching calendar entry after exact and broadened global searches, and Performance Testing explicitly reports no milestone. The two blocked items have no target dates and require no window calculation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4b7158d1b06104b8e432c0d3998c71531d82d911e98ab4b04a257f2c503b40bc.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create two distinct Calendar events on the next business day, Monday, October 5, 2026, each from 10:00 to 10:30: '[ESCALATION] Payment Integration' and '[ESCALATION] Security Audit'. Preserve both records even though their times coincide; create the first and duplicate it for the second if appropriate.",
+      "action": "execute",
+      "reason": "The loaded workflow supports creating the first timed event and duplicating it because both escalation events share the same date and time.",
+      "screenshot": "screens/24d92d509816758b76098c48beab3269d2af987036d6ebe9a8ac1e402e095188.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close Calendar search so the October month view can be used to create the first escalation event.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/24d92d509816758b76098c48beab3269d2af987036d6ebe9a8ac1e402e095188.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the October 5 context menu to create the first escalation event on the requested date.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/485e9cc32b4a7dc59854b39d1edc8fc815e0d90c045d346c9151755062e5f313.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event for the October 5 calendar entry.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/63f13197d01da8aa22d1eaefbf1e1173ab148397738a6fe1c800dea1d49af9f8.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the first escalation event title.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/962feb24e6f080de677c19d15f5de335ccabfcc06bd903e9332dc497ca1bbb09.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-time picker to set the event to 10:00 AM.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/d676c0a7d5d4aecc29bc247e87f2e21722ee4f7cdb5582b4ae477f514dfe6461.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 10 o'clock for the event start time.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/1d4462b55381c18a1c4774274b9a08b240444815d2744527e4bf2b780c396a0b.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the 10:00 AM start time.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/631f32504dc43eba0b88129ad8986fd8e31f66a09a400b98941db342f0f36560.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the event end-time picker to set the required 10:30 AM end.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/e089a1d5e20d69150f2138cdba8c933e3393e86e0392591ca2605c3233b3376f.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Keep the end hour at 10 and advance to minute selection.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/df1cc1034acca658376d8359167caa59f2dc7cfbad634df3f5245ae8283a1230.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 30 minutes for the event end time.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/74597394bbab1cb5a0d5ac7e750158db44e9f85c30df67c643e92e102546ca96.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the 10:30 AM end time.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/f3481e1ead3048285d2c74ad27d0b619ceb8540d687a3a047878139a97be4ef4.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the first escalation event with the verified October 5, 2026, 10:00-10:30 AM schedule.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/c65aa8207f4ec418332c7c1a1e0dd583a76e719f6ee54a1a0e028fb1e8d7527e.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open October 5 to access the saved Payment Integration event for duplication.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/94d67ef7643aa69bdcb32d0ff68e4e2b8ee231a5c00bb7206901153a90979373.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the saved Payment Integration event so it can be duplicated for Security Audit.",
+      "action": "tap(index=56)",
+      "reason": "",
+      "screenshot": "screens/4f223a8a386a1dcece5c393a4ef1b89864f017558d27d2d64e10bfefab9a4713.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Duplicate the verified Payment Integration event to preserve the same date and 10:00-10:30 AM schedule for the Security Audit escalation.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/a23b4b1f2e740d0c9b9f76885a3dea7adb52788034c0ea162c10534720b0585c.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Rename the duplicated event to the Security Audit escalation while preserving October 5 and 10:00-10:30 AM.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/de5e9b32c58cbe795cefe0173b70b5eb0ad525454934b3476735e462c571b132.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the Security Audit escalation event with the verified October 5, 2026, 10:00-10:30 AM schedule.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/443cb13bd2a41e2e299bc804c1dada5f3ccf5984688f16bb547521b4cce4ade0.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and visibly verified two distinct events on Monday, October 5, 2026: '[ESCALATION] Payment Integration' and '[ESCALATION] Security Audit', each scheduled 10:00-10:30 AM.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/7fa496024856222e91418c50c9c7b1a041d9d0f2d7f6f7a63e19a555213c0c82.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Email pm@company.com with subject 'Sprint Status Risk Matrix' and body exactly in the requested three-line format: 'On Track (status=on-track AND milestone exists within 3 days): Authentication Module, API Gateway Setup'; 'At Risk (status=at-risk OR no milestone found): Dashboard UI, Performance Testing'; 'Blocked (explicitly marked blocked): Payment Integration, Security Audit'.",
+      "action": "execute",
+      "reason": "The two required escalation events are now visibly present and correctly scheduled, so the next remaining deliverable is the risk-matrix email.",
+      "screenshot": "screens/e553918187ee15427d9f191f9cf6badcf470627204f843da66a66972cef87137.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the mail app to compose the required risk-matrix email.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/e553918187ee15427d9f191f9cf6badcf470627204f843da66a66972cef87137.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start composing the risk-matrix email.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/4dbe98293a1cee857909764cbca3004c0b318b2f0a2a7a74949da72e44925d6c.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the email to pm@company.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/92afd45540544cd1acd1baba9d7518af0280681c44cb264fa910ee59b2b4d839.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the required email subject.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/8f11d28aad4c5d2d0227b5121c240888341c9da35005feb56434cc3469ea496b.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact three-line risk matrix in the email body.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/7437707688c568831e0e8d7419a6c19d7b80ec24579c14ef38976b1fb1bdb4e0.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed risk-matrix email to pm@company.com.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/be51e2c573f7203b9d86eb04a846bf2100db05aab6d9dbad4aa84abb129cea44.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to pm@company.com with subject 'Sprint Status Risk Matrix' and the exact requested three-line report. The app displayed 'Email Sent'.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1b34013c4f62ba0d104f9a2a0499d1719a6a776d3a8a279205cf5a1bad11dcfb.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Post exactly '2 on-track, 2 at-risk, 2 blocked' in the Mattermost channel 'project-sync'.",
+      "action": "execute",
+      "reason": "The risk-matrix email is confirmed sent, and the only remaining deliverable is the Mattermost summary post.",
+      "screenshot": "screens/ef7c76fb51a94a1eacbfed6564feb961ef45e05bb97acee4d1fbf7cd61b658d2.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to post the required project-sync summary.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/ef7c76fb51a94a1eacbfed6564feb961ef45e05bb97acee4d1fbf7cd61b658d2.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost channel navigation to select project-sync.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/389307be9242843da2dbe8368a0c741467b0ddd6abbf8f292b6421f63ce1a0f3.webp",
+      "screenNumber": 41
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Project Sync channel.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/dc27d79687f1f156cf41297adf1b6c2d89299518ea26c4bb76ced1ff4287ca10.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact required status-count summary in Project Sync.",
+      "action": "replace_text(index=7)",
+      "reason": "",
+      "screenshot": "screens/d4c5d0562dcb2094408310b518a8a1a7b33e9b7f0adf86c6194ec99e5e3ee74b.webp",
+      "screenNumber": 43
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact status-count summary to Project Sync.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/eb9081964cd160942cce0219d0d4a3645a1ed2093758ea330645decd3e0b3db6.webp",
+      "screenNumber": 44
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Posted exactly `2 on-track, 2 at-risk, 2 blocked` in the Mattermost Project Sync channel; the sent post is visibly present.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/b2b0a6556a9003dc6755a4ed03d254b621c761e6a18e37fed376bac3a22fb46b.webp",
+      "screenNumber": 45
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed the project status workflow. Risk matrix: On Track — Authentication Module, API Gateway Setup; At Risk — Dashboard UI, Performance Testing; Blocked — Payment Integration, Security Audit. The report was emailed to pm@company.com with subject 'Sprint Status Risk Matrix'; escalation events for Payment Integration and Security Audit were created for Monday, October 5, 2026, 10:00–10:30; and '2 on-track, 2 at-risk, 2 blocked' was posted in Project Sync. Payment Integration, Performance Testing, and Security Audit had no stated target date, so no item-relative ±3-day window could be calculated; their explicit blocked/at-risk statuses determine classification, and Performance Testing explicitly had no milestone.",
+      "action": "complete",
+      "reason": "Completed the project status workflow. Risk matrix: On Track — Authentication Module, API Gateway Setup; At Risk — Dashboard UI, Performance Testing; Blocked — Payment Integration, Security Audit. The report was emailed to pm@company.com with subject 'Sprint Status Risk Matrix'; escalation events for Payment Integration and Security Audit were created for Monday, October 5, 2026, 10:00–10:30; and '2 on-track, 2 at-risk, 2 blocked' was posted in Project Sync. Payment Integration, Performance Testing, and Security Audit had no stated target date, so no item-relative ±3-day window could be calculated; their explicit blocked/at-risk statuses determine classification, and Performance Testing explicitly had no milestone.",
+      "screenshot": "screens/b2b0a6556a9003dc6755a4ed03d254b621c761e6a18e37fed376bac3a22fb46b.webp",
+      "screenNumber": 45
+    }
+  ]
+}

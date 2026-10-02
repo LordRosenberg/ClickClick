@@ -1,0 +1,56 @@
+{
+  "task": "CheckInvoiceTask1",
+  "variant": "original",
+  "screenCount": 3,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 3
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Locate the invoice PDF in the Download directory and read the exact original total, due date, and every stated late-payment interest, fee, grace-period, compounding, and rounding rule needed for payment 45 days after the due date; preserve the displayed currency and precision.",
+      "action": "execute",
+      "reason": "The invoice contents and late-payment terms must be read before calculating the requested total.",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to locate the invoice PDF in the Download directory.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open invoice.pdf to read the invoice amount, due date, and late-payment terms.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/8b84032e1134e53b8a7964ca7fe34a8b5af1856f33b20c064f437a09fad33a26.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Read invoice.pdf completely. Exact original total is $102,120.00; due date is October 4, 2025; the sole late-payment rule states, “Late payments will incur interest at 1.5% per month.” No late fee, grace period, compounding method, day-count convention, or rounding rule is stated. Currency is dollars and displayed precision is two decimals.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/cff4a6ac2090d841876fe1a946817accd56ec413e128bb43d2219120bd101af7.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "104417.70",
+      "action": "complete",
+      "reason": "104417.70",
+      "screenshot": "screens/cff4a6ac2090d841876fe1a946817accd56ec413e128bb43d2219120bd101af7.webp",
+      "screenNumber": 2
+    }
+  ]
+}

@@ -1,0 +1,380 @@
+{
+  "task": "MattermostTechnicalDebtTriageTask",
+  "variant": "original",
+  "screenCount": 36,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 36
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Review the full relevant technical-debt discussion in the `tech-debt-review` Mattermost channel, identify every module and its stated LaTeX formula result, and retain the exact module-score pairs plus the highest-scoring module for later actions.",
+      "action": "execute",
+      "reason": "First collect the module names and formula-result complexity scores from the specified Mattermost channel; these facts determine both the SMS and the sorted channel summary.",
+      "screenshot": "screens/7cb6472fbb26d2552cc2930995ea31739dd8d394f39a48e9a9112063ba15c6e7.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to review the specified channel discussion and collect exact module-score pairs.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/7cb6472fbb26d2552cc2930995ea31739dd8d394f39a48e9a9112063ba15c6e7.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Tech Debt Review channel to inspect the full complexity discussion.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/bebc544d492b43405f966bf574d91d3b6f8146d5b28486356402f87aaa426a60.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll upward through earlier channel posts to identify the module associated with the visible 8400.0 result and collect all remaining module-score pairs.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/e5debcff6abb923634b68fe53dcbd87dea8fdf5b59b353e287d5aca6d14fd160.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward through earlier posts to collect every remaining module name and exact LaTeX complexity result.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/41f2e48696006813db6f9b126b742aff7dfacbff0d358f9489358f3e95d4c3f0.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward to identify the module tied to complexity 13440.0 and inspect any earlier complexity posts.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/ee3e1727f5b28c36ac606ab663e3a6ecb5d384375094a800fa172888d2a8eb70.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward through the channel to collect all earlier module names and exact displayed complexity results.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/0961cfa484defc8253f9145fadfea0d96d40b09b2ff64aa5055d14793b12ad91.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll slightly upward to reveal the heading and metrics of the 47880.0 critical module, then continue checking for earlier modules.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/6d8b4ee05ae4f25226870e5d46bcb98641b3af09640922c1ef0130158a2218a8.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward past PaymentProcessor to inspect earlier module posts and collect their exact displayed formula results.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/2f2efe8bc2c99f8ec05b749f8ab301b34ec621903920da0b99500163d4176fc8.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward to reveal the low-priority module's heading and then inspect all remaining earlier module posts.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/44e21d8c168753cfd7994ee299e08c35b9972b4f31c49b6e36a0e081b18634d9.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the channel to reveal the remaining module posts and their exact rendered complexity results.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/170e49cef26af6658731db038ff84a7e36a1e5d4167c2e8e3cdf81550fe077a8.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move back through the remaining module posts to capture the exact rendered LaTeX results for AuthenticationService, NotificationEngine, and ReportGenerator.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/9eb766994014643cbeb03ee430cc2d9db6a295e16ecf51ec86c09c9b49e0c53e.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue toward the earlier posts; DataExporter is now confirmed at 2160.0 and PaymentProcessor at 47880.0.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/ed6b54d1e32524d298708bfc4a7f5bf14550370f7c58260bf1889f5281c42e1b.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reveal the posts beyond PaymentProcessor to capture the remaining exact formula results.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/9fd89cdbc66eed79c330397b5bb73e6c587849290c403261993ec2c4eb5f95e8.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Expose AuthenticationService's rendered complexity result and continue to the remaining module posts.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/c183072995cde65ef38a96fa69e079211f2f65ded3b1fd2cfd1cd8346059943a.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the channel to capture ReportGenerator's exact rendered formula result and confirm the complete module set.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/a632cd67ce025967257d2ae2e922500f7cb79491aaaed53f9b3304a9cfeb0555.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed full review of the relevant Tech Debt Review discussion. Exact rendered LaTeX results, sorted descending: PaymentProcessor 47880.0; AuthenticationService 13440.0; NotificationEngine 8400.0; ReportGenerator 4180.0; DataExporter 2160.0. Highest is PaymentProcessor at 47880.0. The common rendered formula is Cyclomatic × Cognitive × (LOC/100).",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/14ca12f82e5ec3cc22010f95263b6b3dbee5cefbe0971a0193f45e00b8b92f51.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send Sarah an SMS stating that the highest-priority module is PaymentProcessor and its complexity score is 47880.0.",
+      "action": "execute",
+      "reason": "The Mattermost review is complete and establishes PaymentProcessor as the highest-scoring module at 47880.0; proceed with the dependent SMS task.",
+      "screenshot": "screens/f9145c1f453ded42d87d50d5b875909ce242093e8ed81f0071f30d37fe4b12df.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Messages to send Sarah the required highest-priority module and score.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/f9145c1f453ded42d87d50d5b875909ce242093e8ed81f0071f30d37fe4b12df.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new SMS conversation so Sarah can be selected as the recipient.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/64e582a6e7bae7d112adb62eb6342480ff755a9372bff57511a8a428f4da8a8e.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipient list for Sarah.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/b9057c2d76b4e692777b722742f40697c8c36eab4ae5c022313ef7ecacbeda53.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the matching Sarah Martinez contact as the SMS recipient.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e56c268f9ebd22eac74f06cb7ad854f6dc2f6e82479c01d2cd02923ee6b3c2c7.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the required PaymentProcessor priority and complexity score in Sarah's SMS draft.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/c38a32c9bd70f5238056d9a5c0a634b7b291ca7d2c6e2e08780c947b29d6dbb2.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the composed SMS to Sarah Martinez.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/c5274afcea07dec67cf0250bb1c12f518b3ebd81b543f9ef36f5b9b4dd55197a.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "SMS sent to Sarah Martinez with: Highest-priority module: PaymentProcessor. Complexity score: 47880.0. The sent message is visible in the conversation with SMS metadata.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/cd2e938bff0954309429f3368109b25d61c28b9ca758a7c341a7d9900527d134.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct new contact named `Refactoring Team` with phone number `15559876543` and company `TechDebt Solutions Inc`, preserving all three fields exactly.",
+      "action": "execute",
+      "reason": "The SMS is confirmed sent. The next independent required outcome is creating the requested contact before returning to Mattermost for the summary post.",
+      "screenshot": "screens/24a068e920e24ac9905e0c58d2ed7b7e8e55799f8f454c894547e2ec4e3dc0ae.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the resolved Google Contacts package.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/24a068e920e24ac9905e0c58d2ed7b7e8e55799f8f454c894547e2ec4e3dc0ae.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google account sign-in and continue to the local Contacts app.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/d3c3cdc672727488bcbff529e457b528e681254403f755f160ab51aea7483648.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the onboarding tooltip so the Create contact control is usable.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/502d3276b6bf852c5538b4b0bd51cdafa65e56fb627263c797485660cad58ce2.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Create contact; the control remains visible despite the onboarding tooltip.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/2557af1dc1f216ab5802b9b13a25949550670097ab1c6ac28cf002cd31d361d2.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested contact name in the first-name field.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/f2027d38c20f5af066561dde93ea91507cab5980c4f0733492283d7c6627f90d.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested company name.",
+      "action": "replace_text(index=10)",
+      "reason": "",
+      "screenshot": "screens/5787823ab54ba8b6d9d509a37df293c8ae6c2b3db9bc72ddd77bdd0c31b0311c.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested phone number.",
+      "action": "replace_text(index=12)",
+      "reason": "",
+      "screenshot": "screens/af613fb7f9aba3cbcd49a60f7010c76952f9b1e41c9f87043d46df437a065d5d.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the new contact; the name and company match exactly, and Contacts displays the requested phone digits using standard formatting.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/434b0ef788421a0bc210829b1aaa85fcbccf4cfe9089654e9a39b7f2426e7301.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved a distinct contact named `Refactoring Team`. The contact detail view confirms company `TechDebt Solutions Inc` and mobile number `1 (555) 987-6543`, the app-formatted display of the requested digits `15559876543`.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/3a7468e6e29d34824f0c24157cd99bc01fe2841008d74b0ebdd6d4e4aa6a140d.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Post a summary in the `tech-debt-review` Mattermost channel as a markdown table listing every reviewed module in descending complexity order: PaymentProcessor 47880.0, AuthenticationService 13440.0, NotificationEngine 8400.0, ReportGenerator 4180.0, and DataExporter 2160.0.",
+      "action": "execute",
+      "reason": "The contact is confirmed saved with the requested name, company, and phone digits. The remaining task is to post the sorted markdown summary in Mattermost.",
+      "screenshot": "screens/d8fd96ad53df0554761da88cda2b70ed8399f81b465639d977d9506862363519.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to post the required sorted markdown summary in the target channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/d8fd96ad53df0554761da88cda2b70ed8399f81b465639d977d9506862363519.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the complete descending-complexity markdown table in the Tech Debt Review channel composer.",
+      "action": "replace_text(index=15)",
+      "reason": "",
+      "screenshot": "screens/bbce7b087618265cad90208e5231afd6ef0e5fc0163e0895c6783b3c60798e3c.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the fully entered markdown table to the Tech Debt Review channel.",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/0e5cd43acad8664bff9c6139b930097caeb971240c9fbc5f3f8420b5dd6952b0.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed all requested work. The highest-complexity module is PaymentProcessor at 47880.0; Sarah was sent an SMS with that priority and score; the `Refactoring Team` contact was saved with phone `15559876543` and company `TechDebt Solutions Inc`; and the Tech Debt Review Mattermost channel now contains the requested markdown table in descending order: PaymentProcessor 47880.0, AuthenticationService 13440.0, NotificationEngine 8400.0, ReportGenerator 4180.0, DataExporter 2160.0.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1ee336eebf4a851ffa4982f50f30bfbca92a45854682b738feb4e04be368690c.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed the technical-debt review workflow. PaymentProcessor has the highest complexity score at 47880.0. Sarah received the SMS with that module and score, the new `Refactoring Team` contact was saved with phone `15559876543` and company `TechDebt Solutions Inc`, and the `tech-debt-review` channel contains the requested descending markdown table for all five modules.",
+      "action": "complete",
+      "reason": "Completed the technical-debt review workflow. PaymentProcessor has the highest complexity score at 47880.0. Sarah received the SMS with that module and score, the new `Refactoring Team` contact was saved with phone `15559876543` and company `TechDebt Solutions Inc`, and the `tech-debt-review` channel contains the requested descending markdown table for all five modules.",
+      "screenshot": "screens/1ee336eebf4a851ffa4982f50f30bfbca92a45854682b738feb4e04be368690c.webp",
+      "screenNumber": 35
+    }
+  ]
+}

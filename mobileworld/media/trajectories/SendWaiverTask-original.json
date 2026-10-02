@@ -1,0 +1,110 @@
+{
+  "task": "SendWaiverTask",
+  "variant": "original",
+  "screenCount": 9,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 9
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and send a new email to bob@gmail.com with subject exactly 'Updated waiver' and attach the existing file 'waiver.jpg'; preserve the file unchanged.",
+      "action": "execute",
+      "reason": "The requested email has not yet been composed or sent; Mail and Files are available from the current home screen.",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the target mail app to begin composing the requested email.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new email composer.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/70ebd7657c04f580605d49dd5750dbd6a04189d519d798a30a36ddcf673bb350.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the recipient exactly to bob@gmail.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/a55df2e661048601239f77f31392313f736b2efab425678cf841aafe500ed5d2.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the email subject exactly to Updated waiver.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/7dcfdbbccd3f1c69af76788b39c2bccd2cc8cf30c3aa4e4eca6f54440b3bcafa.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker to select the existing waiver.jpg file.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/4867343b194f6ff256afdaacaaf014a4cac99260ff0c75399747739da8a34bb1.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Files to locate and attach waiver.jpg.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e2d2a098981287808d991913138ce29ae92560182398a95e7a377ebfdddf7e2d.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the visible existing file waiver.jpg for attachment.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/5e10641d874eb3c055a1c204f4f036f3fd4f1ea1c72a63eb2ea2f34438be084f.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the composed email now that recipient, exact subject, and waiver.jpg attachment are visibly confirmed.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d716ce2260a95f4647232f769125d12df65bf027d48404c57febcdea710f641f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to bob@gmail.com with subject 'Updated waiver' and the existing waiver.jpg attached.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8acbf239c477d58ef1e23b0b56466fb2777d7717288d9f3000d4ea83a6fccec5.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Email sent successfully to bob@gmail.com with subject 'Updated waiver' and the existing file 'waiver.jpg' attached.",
+      "action": "complete",
+      "reason": "Email sent successfully to bob@gmail.com with subject 'Updated waiver' and the existing file 'waiver.jpg' attached.",
+      "screenshot": "screens/8acbf239c477d58ef1e23b0b56466fb2777d7717288d9f3000d4ea83a6fccec5.webp",
+      "screenNumber": 8
+    }
+  ]
+}

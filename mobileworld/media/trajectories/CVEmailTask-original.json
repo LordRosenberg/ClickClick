@@ -1,0 +1,137 @@
+{
+  "task": "CVEmailTask",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Files 的 Download 文件夹中，按显示的 Modified 日期查找最近一个月（相对 2026-10-01，即 2026-09-01 至 2026-10-01）内下载的简历文件；确定应发送的文件并保留准确文件名与附件选择上下文，供后续邮件发送。",
+      "action": "execute",
+      "reason": "先确定 Download 中符合最近一个月范围的简历文件，再进入邮件发送。",
+      "screenshot": "screens/be397f180a9088b4f2f6229a090452a1c5d7e27cb52927f8db7ccbf13d01f116.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files 以在 Download 中查找最近一个月的简历文件。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/be397f180a9088b4f2f6229a090452a1c5d7e27cb52927f8db7ccbf13d01f116.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "最近一个月范围内可见三份 CV；先选择 Anthony_Wilson_CV.pdf，准备建立多选附件上下文。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/3a3e812f62df1dfd4d4cfce47746dca73490956f0571a3f7c528618607de8449.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将同一日期范围内的 Richard_Lopez_CV.pdf 加入多选。",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/d6e2f86ea13d7475ce46a40c5c35f9d02dffbe7e1577e565fd441bd2b93ca381.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将最近一个月内第三份简历 James_Lee_CV.pdf 加入多选。",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/f52281be3cf4b4d4598295e49c48e2b011186c81d5dfaf3021751178bddd6cab.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在 Downloads 按 Modified 日期确认 2026-09-01 至 2026-10-01 范围：三份简历为 Anthony_Wilson_CV.pdf（Sep 26）、Richard_Lopez_CV.pdf（Sep 16）、James_Lee_CV.pdf（Sep 6），均已选中；下一条可见较早记录为 Aug 27，支持已越过范围下界。当前 Files 保持“3 selected”，可从 Share 继续邮件发送。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8307c9c1bc8f76434681ccf1e2321a3482a9f83ff4d20bdbd8817c23dfc1b4da.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "从当前 Files 的 3 个已选附件发起分享，在可用邮件应用中创建并发送邮件给 HR_chen@gmail.com；附件必须保留 Anthony_Wilson_CV.pdf、Richard_Lopez_CV.pdf、James_Lee_CV.pdf，主题严格为 candidates_cv。",
+      "action": "execute",
+      "reason": "三份符合日期范围的简历已选中，下一阶段完成邮件发送。",
+      "screenshot": "screens/619c12ff9b8929ffa0ff5444b405b8b2459f2774893be244b49bca4c2a6ab9cf.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击 Share，为当前已选中的三份简历发起分享。",
+      "action": "tap(index=19)",
+      "reason": "",
+      "screenshot": "screens/619c12ff9b8929ffa0ff5444b405b8b2459f2774893be244b49bca4c2a6ab9cf.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Mail 应用以撰写带三份附件的邮件。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/7f3758770dd54c19458d7d062a3cb9894ec9bdcb0a6d61b176b033353ac0a678.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "填写收件人 HR_chen@gmail.com，保留当前三份简历附件。",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/7ec8521a4b29575c847d975e7e7419ad8f1cfcb8d7aace4cb1d1effc17fb21e9.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将主题严格填写为 candidates_cv，保持收件人与三份附件不变。",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/db0119d9a02831dbbfbb1f62545e2460c877d8a300f7fb90782465a12f0be9af.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击发送：收件人为 HR_chen@gmail.com，主题为 candidates_cv，且三份指定简历附件均在邮件中。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/0f53e571315f379d06f4f965448a419884547a5b00982b013a31798b5932d39f.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "邮件已成功发送给 HR_chen@gmail.com，主题为 candidates_cv，附件包含 Anthony_Wilson_CV.pdf、Richard_Lopez_CV.pdf 和 James_Lee_CV.pdf；当前界面明确显示“Email Sent”。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/76879aa2ca14deb0ce5d93c0280ba1869d185a9db3cda1cc5cef1d4697fdfd47.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：已将最近一个月下载的 3 份简历（Anthony_Wilson_CV.pdf、Richard_Lopez_CV.pdf、James_Lee_CV.pdf）发送至 HR_chen@gmail.com，邮件主题为 candidates_cv；界面已明确显示“Email Sent”。",
+      "action": "complete",
+      "reason": "已完成：已将最近一个月下载的 3 份简历（Anthony_Wilson_CV.pdf、Richard_Lopez_CV.pdf、James_Lee_CV.pdf）发送至 HR_chen@gmail.com，邮件主题为 candidates_cv；界面已明确显示“Email Sent”。",
+      "screenshot": "screens/76879aa2ca14deb0ce5d93c0280ba1869d185a9db3cda1cc5cef1d4697fdfd47.webp",
+      "screenNumber": 10
+    }
+  ]
+}

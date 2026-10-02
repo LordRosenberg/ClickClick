@@ -1,0 +1,137 @@
+{
+  "task": "MastodonUnfollowTask",
+  "variant": "original",
+  "screenCount": 12,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 12
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, manage the signed-in account's Following list using its newest-to-oldest ordering: keep the latest three distinct users followed and unfollow every other user, without changing followers or unrelated account settings.",
+      "action": "execute",
+      "reason": "The task requires traversing the Mastodon following list in its displayed recency order, preserving the newest three distinct accounts and removing every older followed account.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to access the signed-in account's Following list.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's profile to reach its Following list.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/e1c156af69d8076aa42fc9bc3c7c7f43ee8445735670e090b37921e203e5bf4f.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the account's Following list, which currently contains 11 users.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/3a50f394795a5c03080c67d068d2c8e843e9cd29b232ea90543b22cba3cfd872.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Keep the first three newest users and begin unfollowing older users from the bottom of the complete 11-user list, starting with @alex.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/9beba1ec97a23539bc0dd568a7199dc11c40984fd330747e219947f7d60f4df4.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the next older account, @emma; the newest three remain untouched.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/ec79a3f840cc85dc868849be8c8c9548ebab871329396034c2bbd7db9fb49d8b.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the next older account, @jack, while preserving the first three newest accounts.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/1caeb7f9b696a32cf69ea1ef74d7e441584919f216cbfcc47a7c77803d4ba092.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the next older account, @frank, leaving the three newest users followed.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/efdf0ec85426451ff39280ad2880c2b9464650ec55d9a25ab15e2e9c2fe21902.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the next older account, @openUniversity; keep the first three newest accounts unchanged.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/a0492f8f320b132146c93205ffc37c501ff1a7720a98a0b62553fc16339c1473.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the next older account, @pupper, while preserving the newest three accounts.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/0a3e258d3a403af12a271074a44505c353d7675b19f85be63eb397548231623e.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the next older account, @alice, while leaving the newest three followed.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/89380fbe5da4f0a2a01943b1d2bfd63a63754966804713322561d697c9b7ffb7.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow @olivia, the final account outside the newest three; preserve @openCompany, @gourmet, and @kitty.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/c1a6b5344dbb2fe1c667ec5fe5fe79ff2e0d744d890e9be9466e8da07601ed8d.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the Mastodon Following-list cleanup. The full newest-to-oldest list is visible through its end: only the latest three users—@openCompany, @gourmet, and @kitty—remain marked Following, while all eight older users are marked Follow (unfollowed). No follower or unrelated account settings were changed.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/e35024c44411016080a72faa2f7e2ed8c19f22193a822515b51b04ea685b0637.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Mastodon following cleanup is complete: the three newest users—@openCompany, @gourmet, and @kitty—remain followed, and all eight older users are unfollowed.",
+      "action": "complete",
+      "reason": "Mastodon following cleanup is complete: the three newest users—@openCompany, @gourmet, and @kitty—remain followed, and all eight older users are unfollowed.",
+      "screenshot": "screens/e35024c44411016080a72faa2f7e2ed8c19f22193a822515b51b04ea685b0637.webp",
+      "screenNumber": 11
+    }
+  ]
+}

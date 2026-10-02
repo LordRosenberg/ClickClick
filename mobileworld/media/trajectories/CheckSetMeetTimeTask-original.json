@@ -1,0 +1,209 @@
+{
+  "task": "CheckSetMeetTimeTask",
+  "variant": "original",
+  "screenCount": 19,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 19
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find the email concerning the meeting with Carl and determine its exact meeting date and start time, retaining the source wording and any timezone shown for later event creation.",
+      "action": "execute",
+      "reason": "First obtain the meeting date and time from email; those values are required before the calendar event can be created.",
+      "screenshot": "screens/5e060a8be4c8d146a820a3462df0cccceb5edbf6782e5af379ac33178f727bbf.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the specified email app to search for the meeting with Carl.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/5e060a8be4c8d146a820a3462df0cccceb5edbf6782e5af379ac33178f727bbf.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Carl's Board Meeting email to confirm the full meeting wording, date, time, and any timezone details.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/5c434dcc1fcafdd0f0d285f0d64402067af8d72a51aaf0b001f5e4e9f78b2ec9.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened Carl's email titled 'Board Meeting'. The exact body says: 'The annual board meeting will be held on November 15 at 3 pm in our New York office'. No timezone is shown. With the device date Oct 16, 2025 and no year stated, the upcoming date is November 15, 2025 at 3:00 PM.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/ff60b6b4fa84d0f3aaa01ca602f93f14e36a3dcf086ece798719c19f7148b88d.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save a distinct one-hour calendar event titled exactly 'Board Meeting' on November 15, 2025 from 3:00 PM to 4:00 PM, using the calendar's default timezone because the email shows none; preserve unrelated events.",
+      "action": "execute",
+      "reason": "The email establishes November 15, 2025 at 3:00 PM; create the requested one-hour event as a new calendar record.",
+      "screenshot": "screens/5d5eaf5bf6e2921ef7011db1f25b1a3af982d5715777a6132a177fb2fe88042a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to create the new one-hour Board Meeting event.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/5d5eaf5bf6e2921ef7011db1f25b1a3af982d5715777a6132a177fb2fe88042a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-event editor for the single November 15 event.",
+      "action": "tap(index=51)",
+      "reason": "",
+      "screenshot": "screens/f8d3ffbfe4c86e1dc5537777cc4b96accce7554fc70b65e63c6a7e023c983f25.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event from the expanded new-item menu.",
+      "action": "tap(index=54)",
+      "reason": "",
+      "screenshot": "screens/1c40483548f810deafe3d65e85d045856967cee17f5d2e42240836d0d376a318.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the event title exactly to Board Meeting.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/f65c8189389cf2fb76813ebd2f329784a2f00494a1490a5f72ffc8952e18b57c.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-date picker to set November 15, 2025.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/4875e3d8a16e8eefc9887e97c6785958271ac5b4e29605802b11a14d969e8d0e.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move the date picker from October to November 2025.",
+      "action": "tap(index=34)",
+      "reason": "",
+      "screenshot": "screens/76cc9e71f9c9ecc34d58b168b8a4d36b88d25b17d44e2fcee0fa3726397e94cd.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select November 15, 2025 as the event start date.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/53272d3ac981563ec965bbc2b1679c3c9746e77a28a47448eba34f60d46a013f.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm November 15, 2025 as the start date.",
+      "action": "tap(index=35)",
+      "reason": "",
+      "screenshot": "screens/a20775902024567e596eba3ba5391387d252bb4fd040340a4a3dae66e24ee421.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-time picker to set 3:00 PM.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/bb7641703e7cbe58ea580e45d18166de1726aa6115647a046cbadabfd5cba141.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 3 o'clock for the 3:00 PM start time.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/edb646be1e8f36f5ae90cb2066fd8d046f9f39a7b822f88aa76e555c1b08041f.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected 3:00 PM start time.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/ebb272a842426069ac1b40d1f8058e70b19e5bb4bab5a53ff9b3ac484982483e.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the end-time picker to set the one-hour event end at 4:00 PM.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/1494da0795eddc9952453d771045404cdbdf90cbdd77295a27a9f1a769daaaed.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 4 o'clock for the 4:00 PM end time.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/0d8bf692aee97f0fd2acf290fc0ea9cff2a7c79f793e8a8790a38b707ddbf910.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected 4:00 PM end time.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/445a36c4792f01733969ea027ebdf0a884fdce4812378d29bdb23253508072ea.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the new Board Meeting event with the confirmed November 15, 2025, 3:00–4:00 PM schedule.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/3160811246c0e3b12461aca499e2daf6628f41f8c84c25160e1a8c129211134a.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved a distinct event titled exactly 'Board Meeting' for November 15, 2025 from 3:00 PM to 4:00 PM. The editor closed to the calendar after saving; unrelated events were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c50bda0f95e53662459ff1494074facb3cedc1c8ef5f4d8e034f829bda546c2a.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found Carl's meeting in the email for November 15, 2025 at 3:00 PM, then created and saved a distinct one-hour calendar event titled 'Board Meeting' for 3:00–4:00 PM that day.",
+      "action": "complete",
+      "reason": "Found Carl's meeting in the email for November 15, 2025 at 3:00 PM, then created and saved a distinct one-hour calendar event titled 'Board Meeting' for 3:00–4:00 PM that day.",
+      "screenshot": "screens/c50bda0f95e53662459ff1494074facb3cedc1c8ef5f4d8e034f829bda546c2a.webp",
+      "screenNumber": 18
+    }
+  ]
+}

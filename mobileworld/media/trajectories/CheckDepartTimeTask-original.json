@@ -1,0 +1,146 @@
+{
+  "task": "CheckDepartTimeTask",
+  "variant": "original",
+  "screenCount": 12,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 12
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Search received email for messages about the CoolHacks hackathon and determine whether any provides the departure/leaving time, retaining the stated time and message context if found.",
+      "action": "execute",
+      "reason": "First determine whether any received email contains the CoolHacks hackathon departure time; the SMS is conditional on no such email being found.",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Mail app to search received messages for CoolHacks departure information.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the mail search field to search for all CoolHacks-related received messages.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/77b275b367436bc4e12b69b10bc54d626c413ffd1efafe55cd2c65e1f0d43d78.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter CoolHacks in the focused mail search field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/c31190b1f64bb7423a8cd7d599889e9c9bc5e204afc1dac905e9ee3f0d38b8da.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the sole CoolHacks search result to inspect the full message for any separate departure or leaving time.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/f53a8c451c71e8b4d339ef3c9b3104484f8becc66f435ef24b5e47047a85468a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Mail search for “CoolHacks” returned one received message, “CoolHacks Registration” from CoolHacks. Its full body says only that the hackathon takes place November 10th at 9:00 AM; it does not state a departure or leaving time. Therefore the conditional text to Carl is needed.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1d2916f9f771942fb31bc4b58ad5f833f34a54a85709420d1c288cc543078829.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a new text message to Carl at 345 6784 3456 with exactly: Do you know what time we're leaving tomorrow? Preserve any unrelated conversations and do not alter the wording.",
+      "action": "execute",
+      "reason": "The received CoolHacks email gives only the hackathon start time, not a departure time, so the conditional SMS must now be sent.",
+      "screenshot": "screens/73c6c9af7fdc34da56da1ab088dedd5a83f6962c4ebea38a684411e43cbfd6ea.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to send the required exact text to Carl at the specified number.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/73c6c9af7fdc34da56da1ab088dedd5a83f6962c4ebea38a684411e43cbfd6ea.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new conversation so the specified phone number can be entered without altering existing chats.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/9d72bfc785703f9f1a803b129b2ec3898c00382aa84596a5513eade31896125e.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Carl's exact specified phone number as the recipient.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/ddd2f92981ed6f1a894653c6f9e03f72dd3ff68d331007f775c4975ce918706a.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact entered number 34567843456 as the new-message recipient.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/d30cd823d02fc95c7f018bb93bbbef8f375ab13c24f90db5240ab88efef6f724.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested message in the SMS compose field.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/4b1344b9452905ad6186bef2e017086b44c38c0ae93e14594aae213e3defccf2.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact composed SMS to 34567843456.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/a979c393d1fb0f955c13f67105c00f587b5c4a9d17c92e02be8c77db59386081.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent the exact SMS \"Do you know what time we're leaving tomorrow?\" to 34567843456. The conversation shows the outgoing message at 12:03 PM as SMS.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8a920fcc4d625cb67fd50305f6ec59dab4f8c82e5a13bf853da04b74e39ad94b.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "No received CoolHacks email provided a departure/leaving time, so the exact requested SMS was sent to Carl at 345 6784 3456: “Do you know what time we're leaving tomorrow?”",
+      "action": "complete",
+      "reason": "No received CoolHacks email provided a departure/leaving time, so the exact requested SMS was sent to Carl at 345 6784 3456: “Do you know what time we're leaving tomorrow?”",
+      "screenshot": "screens/8a920fcc4d625cb67fd50305f6ec59dab4f8c82e5a13bf853da04b74e39ad94b.webp",
+      "screenNumber": 11
+    }
+  ]
+}

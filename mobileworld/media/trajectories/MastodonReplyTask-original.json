@@ -1,0 +1,200 @@
+{
+  "task": "MastodonReplyTask",
+  "variant": "original",
+  "screenCount": 19,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 19
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, locate the gourmet user's toot about the Greek food Moussaka and post a reply whose content is exactly `Nice sharing, i love it`. Preserve unrelated posts and interactions.",
+      "action": "execute",
+      "reason": "Use Mastodon navigation and targeted retrieval to find the specified toot and submit the exact reply.",
+      "screenshot": "screens/c12cf4c0897f0b25d799267984fa67dc4577c5a1a11f4e6311ff209746a4d23e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon directly to locate the specified toot.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/c12cf4c0897f0b25d799267984fa67dc4577c5a1a11f4e6311ff209746a4d23e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Explore to search for the gourmet user's Moussaka toot.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/82830b1f0e6d37d37d9fb652676f301dd1f1f498d7ec841732d9bb38d42cd6b3.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Mastodon search field.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/43b9869274921929a0cfee9a62a8051e212b4a60d6102123ccd86db919bf546c.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mastodon posts for the distinctive term Moussaka.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/4fb2225da0f7cce0d06c83bf07d2bd3bba96f034890a52088cb3ea3a3685ce9e.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the post search results for Moussaka.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/53079dd928009eefaf4763d98c1273ff71c563a2b956d5c777a5364946fa079b.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Refine the search by looking up the specified gourmet user directly.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/e34547a1d9ee4fa16dffc58b683dc31516963d4da4b02d8c87e7be01e1938543.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for the specified gourmet account so its Moussaka toot can be located.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/39b66797f9d5c903a9cceed72112c8e6f95b8e4ffc96ef2128c48d3bf03dcf27.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the matching @gourmet profile to locate its Moussaka toot.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/d5dcf44e0bc9505e9c7da11e0aa8cef7d576ed9cb2a84acf88b1f90343eca886.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll through @gourmet's timeline to locate the Moussaka post.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/d9d84eb19c7975d0cb9e16cd6e039ac4f5816cc325d86e4a71e23a056b296aa3.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down @gourmet's short timeline to find the Greek Moussaka toot.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/d220ad78dd6fcb7bf2e85a89bde3addc8fc842efd745480939b9114668aba99d.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scrolling through @gourmet's 10-post timeline to locate the Moussaka toot.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/165c8fc4643ff4de87e9669b788c14c69aeb45412be84fe9eda77c61fe03a013.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through @gourmet's timeline; the visible posts are Paella and Hummus, not Moussaka.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/3888d7ab9a4056b0ac89e89fbeb18ea12ddbaf309750d632911ff76921867837.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the gourmet timeline beyond Paella and Hummus to locate the specified Moussaka post.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/3f51808ff7e5435d1efa0623aed20cbc3b2189075501f4e00484fdcce863b9b4.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down @gourmet's 10-post timeline; Hummus is visible and the next post is beginning below it, while Moussaka is not yet visible.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/6f459047ff291788bdcf76be098a9793c312c0ab028bd786c294ef3120c224cc.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The target Moussaka toot by @gourmet is now identified. Scroll slightly further to expose its Reply control.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/8b2cfb72dd9a1ba4b6a1542db8a6fafe707c3fa71d2cf80fc1fed34ceab7ee90.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the reply composer for @gourmet's identified Moussaka toot.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/999e80069ce34f2bf5a6c8f3287c7c7730bba8958b6e79f3af0655562f6bd125.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested reply text after Mastodon's automatic @gourmet reply mention.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/a0ea211f259db150d9274fa96ad4a4068b2eb4a7bd3be9008302e4b678c4eaf1.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Publish the reply containing the exact requested text to @gourmet's Moussaka toot.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/69d7f891e42b5785ad384fd3bca7f327a8cf05b0fa1a29ef766538cd156d45df.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Published the reply `Nice sharing, i love it` to @gourmet's Moussaka toot. The composer closed and the toot's reply count now shows 1, confirming the reply was posted.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/6f5401bf52989f0b93024b66a72e46179b0775aea7cc3669c7f5408de2efea70.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Replied to @gourmet's Moussaka toot with exactly `Nice sharing, i love it`. The composer closed and the toot now shows a reply count of 1, confirming publication.",
+      "action": "complete",
+      "reason": "Replied to @gourmet's Moussaka toot with exactly `Nice sharing, i love it`. The composer closed and the toot now shows a reply count of 1, confirming publication.",
+      "screenshot": "screens/6f5401bf52989f0b93024b66a72e46179b0775aea7cc3669c7f5408de2efea70.webp",
+      "screenNumber": 18
+    }
+  ]
+}

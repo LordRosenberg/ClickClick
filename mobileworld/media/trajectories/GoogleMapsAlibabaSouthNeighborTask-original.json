@@ -1,0 +1,137 @@
+{
+  "task": "GoogleMapsAlibabaSouthNeighborTask",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 12
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Google Maps, locate Alibaba Hangzhou headquarters in Binjiang District and determine which company is directly south of it; retain the company's English name exactly enough for the required answer.",
+      "action": "execute",
+      "reason": "Use Google Maps to identify the labeled company immediately/directly south of Alibaba Hangzhou headquarters in Binjiang District, then return its English company name.",
+      "screenshot": "screens/dc9a04e788f92adb8d5c648c579cf5ed102401bb2c9d4cbd9a43f1fecb61ef85.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps directly to begin locating Alibaba Hangzhou headquarters and the company immediately south of it.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/dc9a04e788f92adb8d5c648c579cf5ed102401bb2c9d4cbd9a43f1fecb61ef85.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional sign-in to reach the Google Maps interface.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/50655b29b4e8ced1bdd9655be3d3059d907e0ff71ed7b17e2d95081384a44d20.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Google Maps for Alibaba Hangzhou headquarters in Binjiang District.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/32753f7214f043628af4099235bdba0b04c9cdb4ed7460dc1bf0bbccc30d437f.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Google Maps search field before entering the headquarters query.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/32753f7214f043628af4099235bdba0b04c9cdb4ed7460dc1bf0bbccc30d437f.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the full headquarters query in the focused Google Maps search field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/bd17704424498e5da11e5bf8c7b23d6f260caebb47fe299c8333a4ba2423926a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact Alibaba Hangzhou Headquarters result on Wangshang Road.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/d232a379a38a9bffe73fe323b7f2a7c6e5dfe6facdf5c5c9dac2f49c358516ef.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Follow the Google Maps prompt to expose the full map around Alibaba Hangzhou Headquarters.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/66b91958c0430d3a4bfd43e15178eeb563ce84ba847abaf1c3085e624442e2fc.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Collapse the place card to reveal more of the map directly south of the headquarters.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/a73309ad6038fa704eec447abe378c45101db227b8caaf061120ec03ba8aef34.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the company POI directly south of Alibaba Hangzhou Headquarters to read its English name.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/2766616b4fe3fc9f3d9f548ed6074ec849bde2063667ff522c8e1897b6cd2fac.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Google Maps search to look up the selected company's English listing/name.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/a76bf5b0f2ccead55ffb1630a3114b58c44742dcf1a407156a011bd3a0fde24e.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Google Maps for the English rendering of the selected company, 网易（杭州）网络有限公司.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/27b93a76d2dc221b70f1d20b69a39a7b778b27e77b0615466a86208f792af95d.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "NetEase (Hangzhou) Network Co., Ltd.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/98191d030e794d1bd10d017b1ecf400282f2e09b8c795414e4dd550c3144c675.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "NetEase (Hangzhou) Network Co., Ltd.",
+      "action": "complete",
+      "reason": "NetEase (Hangzhou) Network Co., Ltd.",
+      "screenshot": "screens/98191d030e794d1bd10d017b1ecf400282f2e09b8c795414e4dd550c3144c675.webp",
+      "screenNumber": 10
+    }
+  ]
+}

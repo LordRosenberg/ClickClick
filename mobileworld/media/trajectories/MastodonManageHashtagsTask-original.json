@@ -1,0 +1,209 @@
+{
+  "task": "MastodonManageHashtagsTask",
+  "variant": "original",
+  "screenCount": 20,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 20
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, traverse the complete list of followed hashtags, identify hashtags whose subject is animals, and unfollow each such hashtag while leaving all unrelated hashtags followed.",
+      "action": "execute",
+      "reason": "The task requires reviewing the account's followed hashtags and removing every animal-related one while preserving unrelated follows.",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to access and review the followed-hashtags list.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's profile to locate its followed hashtags.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/1891d2125ab7fdb92c88ea1cde7c0051cd5e550e46991de9262aeff0e49b6cb7.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the profile's Following collection, which may separate followed accounts and hashtags.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/4b3a7a335777745d6c63d4b83ab6bb8844664ff1727e664e0e8a6e470f294931.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from the account-following list because it contains people only, not followed hashtags.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/343f1e0d7633ec1cedcf4244a99861328fb9008d2d816d5f69a5028576ad8e48.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Explore to look for hashtag search and followed-hashtag management.",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/bdd66a428cfc771c5398f685c6347f06548118039aa919bae056b3be7aac1028.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Explore's Hashtags section to check for access to followed hashtags.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/09e2cacf98f6ad7a93c10a37d9ba4c7b6db84f848ec7367ede81a0495d955aaa.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Home to inspect timeline controls for a followed-hashtags view.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/0fc54dce900dc128a2dcfe0c01ecbc01be46d9a4bc75a229d96d266779956623.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home timeline selector to look for the followed-hashtags collection.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/55f89c380d9d53ab0cc202da531dc3b38fa02023b1f0e089c9304b477ed8c340.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Followed hashtags submenu from the Home timeline selector.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/8c8f0cdf12c87fba8095fa8c7be7a7a18821dfdd83c4c428a370ac8867dfc687.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the followed-hashtags menu to reveal and process the animal-related hashtag at the current boundary and any later entries.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/9956231a8ae54e4a091e37093fa5231456ec1cd2ce4abefe6aa298d2b7f904dc.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open hashtag management to unfollow the identified animal hashtags #cats and #dogs.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/ca2979266517ce3565198d99832e18b9ef0fadd971f14feef351752e7e2f14da.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the options for the followed animal hashtag cats.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/7b4cb336d06927761f638ecf419b87975744b6d1d4907425267ae0ebca8c8563.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Unfollow the animal-related hashtag #cats.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/b68a3c6081e10ce2e6ad4b3cf821eb3f984b9a904aa311b2806e5d1fa8ebfb66.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm unfollowing #cats.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/ff7787d633343f16770236c74b6c09a1af98bf3e98c428cde1bdeb6515cba639.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the managed hashtag list to locate and unfollow the remaining animal hashtag #dogs.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/210156452cf607b929315bb36a4e50d7dc596961e8574d40744e6ba74022a803.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the options for the remaining animal-related followed hashtag, #dogs.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/31216dbf54231d557ccc2c1394ca121fc5c80483673e8a4d442ff2fa3ea4d82e.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Unfollow #dogs.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/d354298dc6612785b23bc2a7f1b1174a39c21a1e6a1c6381671995fe9d827439.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm unfollowing #dogs.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/fa16b78c7ef66dd4c9a98c65855d07987b933c349666a6ab2b9fa3e4d5121b98.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Check the end of the managed hashtag list to verify #dogs is absent and traversal is complete.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/905731cc4a726e4540d744a0482b02b1716b76b8486f4d833e3b4353aa346462.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the full followed-hashtag traversal. The only animal-related hashtags were #cats and #dogs; both were confirmed through their unfollow dialogs and are now absent from the managed list. All unrelated hashtags remain followed, and the unchanged end-of-list view establishes traversal completion.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/10e55d288f906f6d9c6a9e22499b712e93b9ad58563dc94d8daf5e789dcb203d.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Unfollowed the animal-related hashtags #cats and #dogs. The completed traversal found no other animal-related followed hashtags, and unrelated hashtags remain followed.",
+      "action": "complete",
+      "reason": "Unfollowed the animal-related hashtags #cats and #dogs. The completed traversal found no other animal-related followed hashtags, and unrelated hashtags remain followed.",
+      "screenshot": "screens/10e55d288f906f6d9c6a9e22499b712e93b9ad58563dc94d8daf5e789dcb203d.webp",
+      "screenNumber": 19
+    }
+  ]
+}

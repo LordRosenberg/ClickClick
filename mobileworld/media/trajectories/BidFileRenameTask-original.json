@@ -1,0 +1,245 @@
+{
+  "task": "BidFileRenameTask",
+  "variant": "original",
+  "screenCount": 24,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 24
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Files 的 Download 文件夹中，将所有名称以 `bid_` 开头的文件按该界面可用的文件日期从早到晚排序，并依次重命名为 `bid_{序号}.{原扩展名}`；序号从 1 开始连续递增，保留每个文件各自的原扩展名及所有无关文件，并安全处理目标名称冲突。",
+      "action": "execute",
+      "reason": "Files 界面仅提供文件日期（Modified），没有独立的创建时间字段；按该可用日期从早到晚完成全部匹配文件的连续编号重命名。",
+      "screenshot": "screens/be9918aeb9c131b1ba31730842e0ca7590a6c36603f020d5c2d7c0b3493fb7bb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files，进入目标应用以处理 Download 中的匹配文件。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/be9918aeb9c131b1ba31730842e0ca7590a6c36603f020d5c2d7c0b3493fb7bb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "使用 Files 搜索筛选名称以 bid_ 开头的文件，减少遍历范围。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/c4319a3df13c0494abfb6bc0897d08d2dec39ef8253e3c1c16577f5c2011cd8b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "输入 bid_ 以筛选所有匹配前缀的文件。",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/e075db6fcbcf1c1918087071d31ad4534da3433b960d3198c20e03b9ac3f9069.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已确定 4 个匹配文件及日期顺序；先选择最早的 bid_restaurant_proposal.txt，准备重命名为 bid_1.txt。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/28557075f49be3d9f6f520868400f9539f202a060a27761147fd4eb064da8f09.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开已选最早文件的更多操作菜单以执行重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/02a376ae144b2c50d80407c34b280dd92d984f545a4a9579b11825de9a3307e2.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，开始将最早文件改名为 bid_1.txt。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/bf25e4352159a8e53b5013a3c0c89a140f5c56c8160cf1d2bc003676d6f9201e.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将最早文件的名称字段完整替换为 bid_1.txt，保留原 .txt 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/222487c162e8d69e52159d5d73e3bde8a03bd42dd92f3275dd1d6cf8676f7896.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将最早文件重命名为 bid_1.txt。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/55d96601e81f512253ce2bb4e5cce0c48ccde3b6e867ee9ff388c169cd41b9bf.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择第二早的 bid_catering_menu_2024.doc，准备重命名为 bid_2.doc。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/be107619c926173d463ad5e55ba3a23848d7c7012ae8238204743de123838b56.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开第二早文件的更多操作菜单，以继续重命名为 bid_2.doc。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/d871d85afc68f675c79958d1bbf62a66dd5d9e4f15d541c8758daeb73a594fd5.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，开始将第二早文件改名为 bid_2.doc。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/22692e6b774c80a123c457165c54632ab1501dcba89a8a10687db1b01a817484.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将当前重命名字段完整替换为 bid_2.doc，保留原 DOC 扩展名。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/7b1744893bf36403c878c952a508e3a5675469f977d96fb60cd440e58fe70188.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将第二早文件重命名为 bid_2.doc。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/abc473caaa094dbe009756dd132af853c16bf2209abb95fc9ff11efa6d7ce3c4.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择第三早的 bid_menu_design_contract.pdf，准备重命名为 bid_3.pdf。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/88ca381268b3f8802df52e53e71927546375656460f332512e563bb35ceed906.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开所选第三早文件的更多选项，以进入重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/0ba29795e45b315afbb874fceebb3e8b1b234602316435632dd1813c89aa4ff4.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，开始将第三早文件改名为 bid_3.pdf。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/c9f53a4fa8f297a4e0f789535753e2631ee0da0c49ba42140983c220603d1841.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第三早文件的完整名称替换为 bid_3.pdf，保留原 PDF 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/50d321cefd510c2fde8c03d747bca14f1053f436aaf797a0cda6ef2f29fa1460.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将第三早文件重命名为 bid_3.pdf。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/4ee0bf8bdb72eef3028b66c50388514c1ae5e326dc6b8b361e7fec6bffeb66b7.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择最新的第四个匹配文件 bid_food_supplier_quote.txt，准备重命名为 bid_4.txt。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/b3736a806f9aea84ef55aaac1abf7152cf98614542c322a9f6e577526f1ff2c1.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开已选中文件的更多操作菜单，以执行重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/9d67950ea74f7f842a0623d98f2822f2d5c98e0302cc388c6afd0a0f317fc140.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，开始将第四个文件改名为 bid_4.txt。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/5b4ac40c048b5da6dadc6b2dd5e2676f028df4a4c2d3196ecd3fee62f6f003e6.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第四个文件的完整名称替换为 bid_4.txt，并保留原 .txt 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/c2c82c1743c62c19486e15151e08119f1c329b88a2f0d60f94df663a70a2c7c0.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认第四个文件重命名为 bid_4.txt。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/bcf780bcbb67ab17efb7a17ef3c514e426485b0843fe14040ff71f8131cc01dd.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已完成全部 4 个 `bid_` 文件的按日期从早到晚连续编号重命名，并在当前搜索结果中确认：Sep 6 `bid_1.txt`、Sep 13 `bid_2.doc`、Sep 21 `bid_3.pdf`、Sep 28 `bid_4.txt`；各原扩展名均已保留。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/780590cf507b85f71ae67ccdae0adcc090a7080dff10f977ffd3d1650dac9f70.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：Download 中 4 个以 `bid_` 开头的文件已按 Files 显示日期由早到晚依次重命名为 `bid_1.txt`（Sep 6）、`bid_2.doc`（Sep 13）、`bid_3.pdf`（Sep 21）、`bid_4.txt`（Sep 28），并保留了各自原扩展名。",
+      "action": "complete",
+      "reason": "已完成：Download 中 4 个以 `bid_` 开头的文件已按 Files 显示日期由早到晚依次重命名为 `bid_1.txt`（Sep 6）、`bid_2.doc`（Sep 13）、`bid_3.pdf`（Sep 21）、`bid_4.txt`（Sep 28），并保留了各自原扩展名。",
+      "screenshot": "screens/780590cf507b85f71ae67ccdae0adcc090a7080dff10f977ffd3d1650dac9f70.webp",
+      "screenNumber": 23
+    }
+  ]
+}

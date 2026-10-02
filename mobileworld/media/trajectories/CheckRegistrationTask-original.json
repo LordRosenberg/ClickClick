@@ -1,0 +1,128 @@
+{
+  "task": "CheckRegistrationTask",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mail, check all relevant searchable email scope for a Putnam registration confirmation. If none exists, send a new email to kathy@gmail.com asking about it with the exact subject 'Putnam Registration Confirmation'; if one exists, do not send anything.",
+      "action": "execute",
+      "reason": "Search the user's email for a Putnam registration confirmation, then conditionally send the specified inquiry only if no such email exists.",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the target Mail app to search for the requested confirmation.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search all mail for messages specifically matching a Putnam registration confirmation.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/dc37cf5518853134ac5e6c8493e033921ec2bc709ee7cac4e0432f1357635f93.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Broaden the mail search to all Putnam-related messages so wording differences do not hide a registration confirmation.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/e3462376b8d654ac32cd53c98730e5a25d3f43aee1be053aa23969186757c84a.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the only Putnam-related result to inspect its full content and determine whether it is an actual confirmation.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/8ad8590ee464da42b678682224d244615e9305ffc86d56452c92a019be8105e1.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The only Putnam email says confirmation will arrive after coordinator approval, so it is not the confirmation; return to search results to compose the required inquiry.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/76782a916d4b8f4fffc8056766320f1782363087f3b209656ee0f3ff41a8bc9a.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "No confirmation exists in the Putnam search results; start a new message to Kathy as required.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d73e864b19283e087f68017b9be932b951124528722ba9b70d89a7bdfae8f633.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the required inquiry to kathy@gmail.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/e8562ec4f03f686c415d2a2a9b3daf8e41f8fda45cbc7e4f9764b0147d2ff806.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the exact required subject for the inquiry.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/32db73bcf8caed8329a5ccdd4a053ac13b7ba6a79ca0a8f8897ff4807232ebd0.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add a concise message asking Kathy about the missing Putnam registration confirmation.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/1fc11ef705b4dcb78a2070b22ede070a285f026c2156b1107d0312d4a8ae7e64.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed inquiry to kathy@gmail.com with the exact required subject.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/85c4d7b84feb615ff44e7eb4806d4589a504fcf227b1c995e4a2ccc52ef2bb5a.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "No Putnam registration confirmation email was found. The only Putnam message said a confirmation would be sent after coordinator approval. Sent kathy@gmail.com an inquiry with the exact subject 'Putnam Registration Confirmation'; Mail displayed 'Email Sent'.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/cf2a664ee1dfccd4aa3951288a7cae924bf257e5b16c17655649a27c88dde864.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "No Putnam registration confirmation email was found; the only Putnam message said confirmation would follow coordinator approval. An inquiry was sent to kathy@gmail.com with the exact subject 'Putnam Registration Confirmation', and Mail confirmed 'Email Sent'.",
+      "action": "complete",
+      "reason": "No Putnam registration confirmation email was found; the only Putnam message said confirmation would follow coordinator approval. An inquiry was sent to kathy@gmail.com with the exact subject 'Putnam Registration Confirmation', and Mail confirmed 'Email Sent'.",
+      "screenshot": "screens/cf2a664ee1dfccd4aa3951288a7cae924bf257e5b16c17655649a27c88dde864.webp",
+      "screenNumber": 10
+    }
+  ]
+}

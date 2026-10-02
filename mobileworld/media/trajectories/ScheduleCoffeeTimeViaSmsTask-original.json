@@ -1,0 +1,137 @@
+{
+  "task": "ScheduleCoffeeTimeViaSmsTask",
+  "variant": "original",
+  "screenCount": 10,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 10
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open the unread coffee invitation in Messages and capture the exact proposed date, time slot, and any event title/details needed for the calendar and reply; do not reply yet.",
+      "action": "execute",
+      "reason": "The invitation details must be read before checking the corresponding calendar slot.",
+      "screenshot": "screens/db56d64a70e62d9247a9b6f0c1a981d03081d47c378bcc5c0f59b3cb717a7216.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to inspect the unread coffee invitation without replying.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/db56d64a70e62d9247a9b6f0c1a981d03081d47c378bcc5c0f59b3cb717a7216.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the unread thread to confirm the full invitation text and exact details.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/2999600e545407f56350ac23201ee19e0c2757e05d745f64e4a686c2b9440ae3.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Captured the unread invitation from (505) 123-4567: \"Hi! Would you like to join me for a coffee time on October 20th at 9:10 AM? It will be about an hour. Looking forward to it!\" Proposed slot is October 20, 2025 from 9:10 AM to approximately 10:10 AM; corresponding title is \"Coffee time\". No reply was sent.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/3df524b78bfe993149c5f761e93e945b2c0894555fe3c6b75c55033f1d396661.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Check the calendar for any event overlapping October 20, 2025 from 9:10 AM through 10:10 AM, and report whether the full invitation slot is available; do not create an event or send a reply yet.",
+      "action": "execute",
+      "reason": "The next dependency is determining whether any existing calendar event overlaps the invitation's October 20, 2025, 9:10-10:10 AM slot.",
+      "screenshot": "screens/842f9da717e9396ac3a143abb44c2aafb9292583d6aaedeba2ab4937deb67f62.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Calendar to inspect October 20, 2025 for events overlapping 9:10-10:10 AM.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/842f9da717e9396ac3a143abb44c2aafb9292583d6aaedeba2ab4937deb67f62.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open October 20 to inspect that day's events and determine whether any overlap 9:10-10:10 AM.",
+      "action": "tap(index=31)",
+      "reason": "",
+      "screenshot": "screens/cf18afe6c74d2a23e294900b347fde5286da53e44d377c5dbf4da05cb6809e54.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The October 20, 2025 invitation slot from 9:10 AM to 10:10 AM is not available. Existing events overlap it: Team Standup runs 9:00-9:30 AM, and Meet with Sam runs 9:00-11:00 AM. No event was created and no message was sent in this stage.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/08ad779450b3e391b8d3cb0e4837c8b72d0666a90af0ec3d6ec4b9d95880dd6b.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Return to the coffee invitation thread from (505) 123-4567 and send exactly \"Not available in this time slot.\" Do not create any calendar event.",
+      "action": "execute",
+      "reason": "The requested slot is unavailable because two existing events overlap it, so the remaining required action is to send the specified unavailability reply and not create a calendar event.",
+      "screenshot": "screens/7d043a7a138d9eed3f775182fced8f7bedd61f4a94958dc924fb88a44582fcf9.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Messages to send the required unavailability reply in the invitation thread.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/7d043a7a138d9eed3f775182fced8f7bedd61f4a94958dc924fb88a44582fcf9.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact required unavailability reply in the compose field.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/582f179fb9ebbe7565c1b0b711a9d1ef6773a4e089659071f6361dd631f0d29c.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact drafted unavailability reply to (505) 123-4567.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/6400ec2fb4264d0e55fbdcc14cff459a5e25f34e3856f2dd8257a3473d9f770a.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent exactly \"Not available in this time slot.\" via SMS to (505) 123-4567. The sent message is visible in the invitation thread with SMS metadata; no calendar event was created.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/22be66ea62bfc42fe0245aed0556b273dd60118f2d94488971faf167d03cb935.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "The calendar showed conflicts during the requested October 20, 2025, 9:10-10:10 AM slot, so no event was created. Replied exactly \"Not available in this time slot.\" via SMS to (505) 123-4567.",
+      "action": "complete",
+      "reason": "The calendar showed conflicts during the requested October 20, 2025, 9:10-10:10 AM slot, so no event was created. Replied exactly \"Not available in this time slot.\" via SMS to (505) 123-4567.",
+      "screenshot": "screens/22be66ea62bfc42fe0245aed0556b273dd60118f2d94488971faf167d03cb935.webp",
+      "screenNumber": 9
+    }
+  ]
+}

@@ -1,0 +1,398 @@
+{
+  "task": "MastodonNewFilterTask",
+  "variant": "original",
+  "screenCount": 40,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 40
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open the text file named `filter_BCS` in the Documents folder and capture its complete text exactly, preserving every word for later use as blocked keywords.",
+      "action": "execute",
+      "reason": "The filter keywords must be obtained from the specified document before the Mastodon filter can be created.",
+      "screenshot": "screens/d81aa01beec71ef29f5f8cd46cd1aa0bec1cd8084677d09c3cccd7a63225921c.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to locate the requested document in Documents.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/d81aa01beec71ef29f5f8cd46cd1aa0bec1cd8084677d09c3cccd7a63225921c.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Files location drawer to select the Documents folder.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/7e54443b36684c7639834a58085996ea791efb8fc61a8b0375ae6c146acc223d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the Documents folder.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/a2bd93d6b8793f3318e4e39bcb3871c0bf2ef66f4a12462c36ff8f9e742a73e4.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Documents directory shown in the Documents collection.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/06959c14896ac824756bd1f32f7532c9b1abad05e2aa147c78e8ed63e68027cf.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search within Documents for the exact file name `filter_BCS`.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/263119188a54255e82fd81797f1e2045968df55b47012e19e69300c059013840.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact filename in the focused Documents search field.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/d8c1b5354a7fc06f56fee8f14c07ce03e961a165a315bcce0e392df51a167810.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact search result `filter_BCS.txt` to read all blocked-keyword text.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/10c02365026ea29b1beaf5975facd272e6f3f8b36f81ef9ec7004660a20256a5.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Chrome as a viewer for the plain text file; the chooser still requires a separate one-time confirmation.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/3af8599e6ac3ea83243d7b58a626f7362862893ed5ba582874ae843ef76bae6c.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm opening `filter_BCS.txt` in Chrome just once.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/ee2f68a89007f6e55e8ffe3ae54279660a12b2f9a72110fee8112d5ee363e61e.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened `filter_BCS.txt` and captured its complete text exactly: five newline-separated entries: `better call saul`, `saul goodman`, `kim wexler`, `season 6`, and `finale`. Ready to create the Mastodon filter with expiration 2026-10-06.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8365c6369ece1acee46dafdd2e4e5ae886210057c674618a60094075d917473a.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save a distinct Mastodon filter titled `Anti-Spoiler-BCS` with these five blocked keyword entries: `better call saul`, `saul goodman`, `kim wexler`, `season 6`, and `finale`; set it to expire 5 days from today, 2026-10-06. Preserve any existing filters.",
+      "action": "execute",
+      "reason": "The source file has been read completely, so the remaining work is to create and save the requested Mastodon filter with the exact captured keyword entries and expiration date.",
+      "screenshot": "screens/ac0b6e2cefd3b6c50ee19fb53fec03122e5f867f22f63f9b9ee3ed66195d65c4.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to access account settings and create the requested filter.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/ac0b6e2cefd3b6c50ee19fb53fec03122e5f867f22f63f9b9ee3ed66195d65c4.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon settings to locate account filter controls.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/6dc286e691a37edc18078a6ce1a87735a6791dfe6779ba2d13a69a3d77e9300f.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open settings for the active `@test@10.0.2.2` account to reach its web account settings.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/2d9b11a6658871f46cea8337b2f9b892edc8ec52fdfecb43bd8ec7745411580d.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's Filters settings.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/d2bbf2643cae3f91b609555f0726f4074ffc9cf3414870b67c7e3f60f45de7c5.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start creating a new filter while preserving the existing `Violence` filter.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d78b63de28ba2030c823995ae6d04f7797fe9dd498dda3f863cab5fcb1be1852.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the new filter's exact title.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/6f450a72aed18812ecdbd0092ee3dea69e00d3b795c53c999e57f56071044121.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the keyboard so the duration and muted-word controls can be configured.",
+      "action": "key(key=back)",
+      "reason": "",
+      "screenshot": "screens/09017f0bcd147eb9f82ef69fe9ba8839691e21598918b4f47fc091f5b354a69c.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Duration selector to set the required five-day expiration.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/fc4be6ba740308a8007a1635ad3784febd8f38bf294998e9e24e5eb00e8c03c8.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose a custom duration so the filter can expire exactly on 2026-10-06.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/651c7377c57332730f2649a760ff300951f19f6152efbb6eedef3fe371ca6a36.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact expiration date, 06 October 2026.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/f74f6b2cb08a5b28706612f6058a0b8fa1ffe5ef37409698ae94a39b31f44442.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected custom expiration date of 06 October 2026.",
+      "action": "tap(index=35)",
+      "reason": "",
+      "screenshot": "screens/083035c0e1aa9483fef5d8f0de8264c6ca8976af330011b05f02d9322536ff91.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Muted words editor to add the five exact blocked keyword entries.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/4249b5bb8f56bc85322cec203b09a09d7a37f3cc2fc0556a68c01cc31195b3d2.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start adding the first blocked keyword, `better call saul`.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/d7366b27cb1bd84cfbfc736c287536e2bb924650327a079e6f5766cbc4c67813.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the first blocked keyword exactly as `better call saul`.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/c8807e1ff20a84754f9cd9cdb86159be543e231f09d83e82f24fbda901243b6c.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the entered `better call saul` keyword to the filter.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/7fb996a5f5002b14092f13ff79836101e610fcdbeb1f600d351ce6f118e3fa1e.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the entry dialog to add the next blocked keyword, `saul goodman`.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/f70276e5399f39acc549ed7e8d8d05449bff903d22eda422fd43575eb5a5ad85.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the second blocked keyword exactly as `saul goodman`.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/8b22a905344e71b622c13bb2f327af6bb92330807e32ef55e1c04f8d973f38d5.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the entered `saul goodman` keyword to the filter.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/43299ea1f79298f02b263ec9d790274c6c1c49fa1631d71cbc097049b3087efd.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the entry dialog to add the next blocked keyword, `kim wexler`.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/ceb9b55c521f5416bbc7481f0e0363698786b9f9935e5b0ba92bb0693b3b1e93.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the third blocked keyword exactly as `kim wexler`.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/97fb148834a49f8c4adbe8eb27c5cef92faea2c30617a483091b305e52785331.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the entered `kim wexler` keyword to the filter.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/ff0ca82f22cffa2ce2c0149ffba5695f64138241f836f8623db1cd707c14e468.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the muted-word dialog to add the fourth exact keyword, `season 6`.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/f45c80d6251561bbe7f9b25ca6c749361512baf515cb9eadfeee1bf1510783fb.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the fourth blocked keyword exactly as `season 6`.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/bc16348b268cc09e687f5b84759699a2ecd48566040fbdf1e6bc3cece22a3686.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the entered `season 6` keyword to the filter.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/e034ac03fa356fb2f4a92cec4eba413260187b0604ba63eecba4e6df259699a2.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the muted-word dialog to add the fifth and final exact keyword, `finale`.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/af64ab0ad1ffc9146f3153931bf33485379c817367feca06007215a3de3c0467.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the fifth blocked keyword exactly as `finale`.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/c4b57894c3908a40fd748d85e3534120358e094c20a32d704c95f94a4bd6442e.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the entered `finale` keyword to complete the five-keyword list.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/52c4beb775f620a9fa76c4ebae699002e771fd7b25d2d050e197286daa1c60cf.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the new-filter form now that all five exact keywords are present, so the filter can be saved.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/a7ef6f9ed01ccc09ad905aebedacb632cfeb78be8e3b7636011b6c6f4c233286.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the completed `Anti-Spoiler-BCS` filter with five muted words and expiration on 2026-10-06.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/7fc713cd3edfd2e007158fdca021ed28764961354c10af3acdb7dfd5c0fb8994.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved the distinct active Mastodon filter `Anti-Spoiler-BCS`. Before saving, the form showed all 5 exact muted words/phrases and expiration `Ends 6 Oct at 12:00 AM` (2026-10-06, five days from the device date 2026-10-01). The Filters list now shows `Anti-Spoiler-BCS` as Active, while the existing `Violence` filter remains present and Active.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c595aa4174954ed69439113968dfedb5befc8a946d0c95ee0a5ec71c357fd5a8.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created and saved the distinct active Mastodon filter `Anti-Spoiler-BCS` with all five keywords from `Documents/filter_BCS.txt` (`better call saul`, `saul goodman`, `kim wexler`, `season 6`, and `finale`) and expiration set for 2026-10-06, five days from 2026-10-01. The existing `Violence` filter remains present and active.",
+      "action": "complete",
+      "reason": "Created and saved the distinct active Mastodon filter `Anti-Spoiler-BCS` with all five keywords from `Documents/filter_BCS.txt` (`better call saul`, `saul goodman`, `kim wexler`, `season 6`, and `finale`) and expiration set for 2026-10-06, five days from 2026-10-01. The existing `Violence` filter remains present and active.",
+      "screenshot": "screens/c595aa4174954ed69439113968dfedb5befc8a946d0c95ee0a5ec71c357fd5a8.webp",
+      "screenNumber": 39
+    }
+  ]
+}

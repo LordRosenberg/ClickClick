@@ -1,0 +1,182 @@
+{
+  "task": "SetAlarmTask",
+  "variant": "original",
+  "screenCount": 16,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 17
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save a new recurring alarm for 8:25 a.m. on Saturday and Sunday, with ringtone exactly \"beebeep\" and vibration disabled; preserve existing alarms.",
+      "action": "execute",
+      "reason": "Create the requested distinct recurring weekend alarm in Clock with all specified settings.",
+      "screenshot": "screens/52f0fa3d796fbcfa536ed2c60806d498434c9de5123a31d785514990d58f9f67.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Clock app to create the requested alarm.",
+      "action": "launch(app=com.google.android.deskclock)",
+      "reason": "",
+      "screenshot": "screens/52f0fa3d796fbcfa536ed2c60806d498434c9de5123a31d785514990d58f9f67.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Add alarm to begin creating a distinct weekend alarm.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/5bfe32b4337cdf8b31b90ac7e0ccd19868a87f9bba3080e5ee876598f37a94db.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch to text input mode for precise entry of 8:25 AM.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/76349b6fa1b843e02f318085a73d9d7896f4384aea9f5e8196a2b6382e6c31e3.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm hour to 8.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/23790637547c256e371166b0b5ea687003468e7ab078f9a33f34386df400eee6.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused hour value with 8.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/23790637547c256e371166b0b5ea687003468e7ab078f9a33f34386df400eee6.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the minute field so it can be set to 25.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/2062f88a6c51bb823f7e214f9dcecd236e0f77ba75d56878a527675dcde1323d.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused minute value with 25.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/32310d85addaeb29d05dc8983cf9e9deb4a0eeaff886dfc6e89a2bc1ad914060.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select AM for the new 8:25 alarm.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/ce83334282d857e9c2c7d8fb3c101e64d121530acb52aa5e1b6db570dbe91791.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the 8:25 AM time and continue to the new alarm settings.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/472359e45f60f3075caf4d828ee54080a6c56f07133513e3a9ea06ac3a18a0c3.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enable Sunday repeat for the new 8:25 AM alarm.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/28b780d6f52a1b5c191f7239f277004b41545f2823ab903c1333cf06ea6b4907.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enable Saturday repeat so the new alarm recurs on both weekend days.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/47a58982e482af34ce8ad761c053b20d4888ff0e529fb9cb962e685e34718ba1.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the ringtone selector for the new 8:25 AM weekend alarm.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/046afa83bea80735f326b2eb0074bf82adc1850411dc725962faad43861c9504.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the music-provider prompt to access the alarm sound list.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/8ed9b61ef2b70e30d18cdb3f5074c3cce5f7a103e1436b7504472b33b8402583.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the device ringtone named \"BeeBeep Alarm\", corresponding to the requested \"beebeep\" ringtone.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/1452317af29e037606127cf22a425ec933b12bb14bd060838cb9bcbb25840ca7.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the alarm card after selecting the confirmed \"BeeBeep Alarm\" ringtone.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/d5cd31475d1b6f8595d91b6d671e5c0ef5302119f4355905d9e0c9d453421b5f.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Turn off vibration for the expanded 8:25 AM weekend alarm.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/0ac2b215847b3b10697414cd9cbe7b42760298f7ebf08fde94479c6b4f962312.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved a distinct enabled 8:25 AM alarm recurring on Sunday and Saturday only. The expanded alarm card confirms ringtone \"BeeBeep Alarm\" and the Vibrate checkbox is unchecked; existing 8:30 AM and 9:00 AM alarms remain present and unmodified.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4e94f5075e21453f41fecda0c9e9102ff5a27316297d63bc4540c0b63bd2bfa5.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created and saved an enabled 8:25 a.m. weekend alarm for Saturday and Sunday with the ringtone set to \"BeeBeep Alarm\" and vibration turned off. Existing alarms remain unchanged.",
+      "action": "complete",
+      "reason": "Created and saved an enabled 8:25 a.m. weekend alarm for Saturday and Sunday with the ringtone set to \"BeeBeep Alarm\" and vibration turned off. Existing alarms remain unchanged.",
+      "screenshot": "screens/4e94f5075e21453f41fecda0c9e9102ff5a27316297d63bc4540c0b63bd2bfa5.webp",
+      "screenNumber": 15
+    }
+  ]
+}

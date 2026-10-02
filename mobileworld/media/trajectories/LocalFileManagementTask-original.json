@@ -1,0 +1,200 @@
+{
+  "task": "LocalFileManagementTask",
+  "variant": "original",
+  "screenCount": 18,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 18
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Files, inspect the Download folder using displayed Modified dates, identify all .zip files strictly older than 1 year as of 2025-10-16 (before 2024-10-16), delete those files only, and retain the exact deleted filenames for the Mattermost record.",
+      "action": "execute",
+      "reason": "First identify and delete every qualifying ZIP in Download while preserving an exact record of the deleted filenames for the later message.",
+      "screenshot": "screens/8b6ec4c7e56a2c93711a38e99df922258ed55466debf4960238e4cc700110615.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to inspect the Download folder and identify qualifying ZIP files by Modified date.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/8b6ec4c7e56a2c93711a38e99df922258ed55466debf4960238e4cc700110615.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down the date-ordered Downloads list toward the 2024-10-16 cutoff while preserving overlap.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/9b62a4531febcf635657d1576c8f5f4f6bb79b4c601b0155612e77f7b99cd43d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll slightly past Oct 28, 2024 to locate the first ZIP strictly before the 2024-10-16 cutoff.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/ab356410ff23c644b444339955ec9db36e92d0b7a01b5ec7f9bd51ee3ebbd2e0.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the older-than-cutoff range, retaining the qualifying filenames already seen: 06_music_collection_20240929.zip, 01_archive_20240924.zip, 11_source_code_backup_20240909.zip, and 03_screenshots_jun_2024.zip.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/f5eee7f948100c8e0506e1432683cf69aaa8a2d1b9315bf7eccdcfe77e66d60e.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue to the end of the date-ordered qualifying range to capture every older ZIP before selecting and deleting them.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/d730b2b4a4e779fb6bd86291090daf1dbf4f2f24669575f7820ddac20dd43953.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the contiguous qualifying range from the first pre-cutoff ZIP through the final ZIP at the established list end.",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/2b57237646eeca27b5673a813edcaaf7ac4bf1554a2f4a3fa810c2780e2d5e89.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the verified selection of 11 ZIP files whose displayed Modified dates are strictly before 2024-10-16.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/a6183c7bd843b386625ee44e7107936036130b8b153e59d85451a8073164ece7.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm deletion of the 11 verified qualifying ZIP files.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/1693a89a35665408d54c6b84732a820e5fa8ce70382d8c925fdbd2f43f2555fe.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Deleted all 11 qualifying ZIP files from Downloads. Files showed \"Deleting 11 items,\" and the refreshed date-descending list now ends at the retained Oct 23, 2024 ZIP; the exact deleted filenames are saved for the Mattermost record.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d3e68d2902602895a7de7030c8304e797644c46b799ce34f00022e360a9274e5.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mattermost, send a message to the user's own/self channel containing the exact 11 deleted filenames from note `qualifying_zip_files`, preserving each filename exactly and listing no retained files.",
+      "action": "execute",
+      "reason": "The qualifying ZIP deletion is complete; the remaining obligation is to send the exact deleted-file record to the user's own Mattermost channel.",
+      "screenshot": "screens/afa519d6a67b182748a348670bb5c821b1fb745b0a827c47f78c313ed1564805.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to send the exact deleted-file list to the user's self channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/afa519d6a67b182748a348670bb5c821b1fb745b0a827c47f78c313ed1564805.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the direct-message channel labeled sam, which is the user's self channel.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/34b18f2e675c3ef8d3f787ed88af8c197e6aa3592b0d00882dc8ea907121b7e2.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the channel list because the opened `sam` DM is a conversation between `harry` and `sam`, not the user's self channel; no message was sent.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/d54188f9ca44d400c288ef2f1c727a6d131ca54ddefe3fdad9e14a8c8d25be04.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the add menu to start or locate a direct message with the current user (`harry`).",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/68532b5efa0edb958934365983787466db538189ace29d2854ef20aa508694e3.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the direct-message picker to select the current user `harry` and create/open the self channel.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/a9bc4d2d73a664c22efd52528286fa8545abfb0c5f134ca017aebdde6d70eb85.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select `harry (you)` to open the user's self direct-message channel.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/076c0b2efd4f8be43a902d58eb1b3e2772c66bc724d6d1c1f21c17b56de88f5d.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact 11 deleted ZIP filenames, one per line, in the self-channel message draft.",
+      "action": "replace_text(index=7)",
+      "reason": "",
+      "screenshot": "screens/db12f3840bea1bd68298ea823aeb9c6de4c85e82f7ffb4bb5f38bc84430c07aa.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact 11-filename record to the confirmed `harry (you)` self channel.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/58f09cad242d89bdc6a461ddc05abffaece7f06d31bf5016e7249d10f6f3ec26.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Mattermost self-channel `harry (you)` now visibly contains a sent message with exactly the 11 deleted ZIP filenames, one per line, and no retained file. The deletion and record-message obligations are complete.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/03f2ad900ac048a7e7282a326f73ca06b82cacd2022ff7e39423696cef8f0478.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Deleted 11 ZIP files in Download whose displayed Modified dates were strictly before 2024-10-16, retained the newer ZIP, and sent the exact deleted-file list to the Mattermost self-channel `harry (you)`.",
+      "action": "complete",
+      "reason": "Deleted 11 ZIP files in Download whose displayed Modified dates were strictly before 2024-10-16, retained the newer ZIP, and sent the exact deleted-file list to the Mattermost self-channel `harry (you)`.",
+      "screenshot": "screens/03f2ad900ac048a7e7282a326f73ca06b82cacd2022ff7e39423696cef8f0478.webp",
+      "screenNumber": 17
+    }
+  ]
+}

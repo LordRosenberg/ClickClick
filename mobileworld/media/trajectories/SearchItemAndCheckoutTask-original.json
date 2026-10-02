@@ -1,0 +1,146 @@
+{
+  "task": "SearchItemAndCheckoutTask",
+  "variant": "original",
+  "screenCount": 12,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 13
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在淘店下单一套适合万圣节的临时纹身套装，完成必要的商品选择与订单确认，并在支付页面停下，不执行支付。",
+      "action": "execute",
+      "reason": "在淘店搜索并选择符合万圣节用途的临时纹身套装，推进结算流程并停在支付页面，保留最终支付给用户操作。",
+      "screenshot": "screens/13f41c073d47011d9dc607efa9665f13f0b751d741f64a22784be27bb3547817.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开淘店，开始选购万圣节临时纹身套装。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/13f41c073d47011d9dc607efa9665f13f0b751d741f64a22784be27bb3547817.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "关闭首页弹窗，以便使用搜索。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/7aaea74a988a88552c3659594deac8ad194b7c9cd14841313d8b6835c2b83325.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点开搜索框，准备搜索万圣节临时纹身套装。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/53330f85488275653cbf40d0a1efc99792d401174e3ad5bc4ab1892a993e9155.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "输入精确搜索词“万圣节临时纹身套装”。",
+      "action": "replace_text(index=22)",
+      "reason": "",
+      "screenshot": "screens/a6ac3d79d161492cdfd7cb0c825f23feeea48e3af846c66066e52c496dc91ff1.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "先聚焦搜索输入框，再输入搜索词。",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/a6ac3d79d161492cdfd7cb0c825f23feeea48e3af846c66066e52c496dc91ff1.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在已聚焦且为空的搜索框中输入“万圣节临时纹身套装”。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/03de672a464506ca258dc941981e43f24fc83e3eda00d0820c70c0306de2af9f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "提交“万圣节临时纹身套装”搜索。",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/034814e25f93c7cf1bf77456ea71b8b6d3deea4f6e046a109d3e797187017d55.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择搜索结果中明确为临时纹身、评价较多的“FashionTats临时纹身万圣节套装”（￥9.50，232评价，92%好评）。",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/03ee10a7c336e3def0674d74899d7d525434e8aa9cbdd0a6fc256a970c5c18d3.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "关闭仍显示的软键盘，以便查看商品页底部的购买操作按钮。",
+      "action": "key(key=back)",
+      "reason": "",
+      "screenshot": "screens/135384e8db623a9f23dbfab17010e5d7db8a306fdae54ee9275bb81f4713805f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "商品已选1件，点击“立即购买”进入规格或订单确认流程。",
+      "action": "tap(index=19)",
+      "reason": "",
+      "screenshot": "screens/d8eea14bc263ee7f0352f8365bfc6cda172cea86f9bc833cefd573cb86fdacc9.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "规格“标准款”和数量1已选，点击当前规格弹层内可见的“立即购买”继续确认订单。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/2a89538a3256e254af2d944f89fdaf8c41c0b2c92ee37c75286f9fa9be903d4f.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已核对订单为FashionTats万圣节临时纹身套装标准款1件、收货地址已填写、合计9.50元且免运费；点击“提交订单”进入支付页面，但不支付。",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/0e3e8620743a0d9b92184e71cccde64c57bc201d8784528c46bb15693161bb3d.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在淘店提交 FashionTats 临时纹身万圣节套装（标准款，1件）订单，金额为9.50元；当前已停在支付宝支付密码页面，未输入密码、未执行支付，等待用户操作。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1164226c8064f630fcb60ed0a0f7c1f04d184920bd6f7ef2b71ff8c0b428e6ad.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已下单 FashionTats 临时纹身万圣节套装（标准款，1件），订单金额 9.50 元；当前已停在支付宝支付密码页面，未输入密码或执行支付，请由你完成支付。",
+      "action": "complete",
+      "reason": "已下单 FashionTats 临时纹身万圣节套装（标准款，1件），订单金额 9.50 元；当前已停在支付宝支付密码页面，未输入密码或执行支付，请由你完成支付。",
+      "screenshot": "screens/1164226c8064f630fcb60ed0a0f7c1f04d184920bd6f7ef2b71ff8c0b428e6ad.webp",
+      "screenNumber": 11
+    }
+  ]
+}

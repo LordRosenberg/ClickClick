@@ -1,0 +1,335 @@
+{
+  "task": "MastodonServerInfoReportTask",
+  "variant": "original",
+  "screenCount": 32,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 32
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Switch the active Mastodon account to the owner account (`owner@gmail.com`), preserving other accounts and remembering that this owner identity must also be used for the independent web backend login.",
+      "action": "execute",
+      "reason": "First establish the requested owner account in Mastodon before retrieving the backend metric or composing the email.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to switch the active native account to owner@gmail.com.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Mastodon account switcher from the Profile tab.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/ccf9c52c78f2d965a709cd4b33b3b5fb79371466c3af741e352b1f0f2759c4b7.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the existing owner account in Mastodon.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/6edd3444163c98272b5779bf34ba14fa733eb17919449a52797513be6298cc66.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Mastodon is now actively using the existing owner account, evidenced by the owner timeline/profile identity. Other accounts were preserved. The independent backend login must also use owner@gmail.com.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/42d94f6827aa5f607d081b738a6d90ff34cae15a5b3af56caed54513a934b4b5.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Use Chrome to open the Mastodon instance backend, authenticate the independent web session as `owner@gmail.com` if needed, and obtain and remember the current unresolved/pending report count (reports not tackled yet) exactly as displayed in Arabic numerals.",
+      "action": "execute",
+      "reason": "The native Mastodon owner account is already active. The current dependency is obtaining the matching owner backend's unresolved/pending report count before composing the email.",
+      "screenshot": "screens/8a942f1359e55253163ae42be22df195d5179b88194dee414b670194c60234bb.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome to access the independent Mastodon administration backend as owner.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/8a942f1359e55253163ae42be22df195d5179b88194dee414b670194c60234bb.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to the Mastodon administration reports page.",
+      "action": "replace_text(index=16)",
+      "reason": "",
+      "screenshot": "screens/93ebdc9a7b70ba3268144259ff06404f146892a252b23291cd854e8b4a1f66fb.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the entered direct URL to load the administration reports page.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/3b02008c254f68f8bde06738212d94fd4e6f90d6293fca8694f4a247d45e50a9.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Retry the previously reachable local Mastodon instance after the transient connection-refused error.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/00f5861addbe2770d53d37d8c35e4df509cae5cbe3f16a0dd4a85659059d643c.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the previously loaded Mastodon page to recover from repeated direct-page connection refusal and navigate through the site's own controls.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/86b78cf61c78b0884b578b11d15bccee2dc1ddb259cb8bb3e7c4ee600b3e1130.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Correct the backend URL to HTTPS, matching the working Mastodon session.",
+      "action": "replace_text(index=16)",
+      "reason": "",
+      "screenshot": "screens/13e74bf5f15a926996e51527e5c40f69a7e360bdcc018c0773a008cbe3347e54.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the corrected HTTPS Mastodon admin reports URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/089638524764b81163412691b5594a21acc2c67f3f006a5e46be0c0d6ac0c91c.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon's sign-out route so the non-admin web session can be replaced with the owner account.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/7e751cd7141b32e05723d8838ae59e5f457a131427d29d2799f85aa7ddfc3efd.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the Mastodon sign-out URL to end the non-admin web session.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/392b4deab7caf35f145deb856501873fc943eb5659c5edee4c8b82b9734b67ac.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon's sign-in page directly after the sign-out route proved invalid.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/7da6588578553de1255a5c7cd3a0e7aed32122fc7896343a0a2669e8913dd82f.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the direct Mastodon sign-in URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/414e3a5476d0835b6c4a6480934b4873f3c87057ddfed64ea08bf72c9395f76f.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon preferences to use the authenticated web session's built-in logout control.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/3cd877e1a7f2370e842ec530c265d29c0b97c2181c6f18bf361adb50f56a6410.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the preferences URL so the current web account can be logged out through the page UI.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/66ccf98dd44a0cd4161b4958b2df8f72dadd66bf55bd277e418d649dbfe5f7ad.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Mastodon settings navigation menu to locate the logout control.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/32c6e824c6fadcf1efe394b87b73c1f180b1135d53a8721dd927cf2303b07da2.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Log out the current non-admin Mastodon web session so Chrome can authenticate as owner@gmail.com.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/f10b35e636a5f6fcde617a1f80a6118666e2a9f2441aa3601b615c6b5d62ef40.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the owner account email in the focused Mastodon login form.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/4e35164b1f9907782f298aa3a7817e137f2a1dca74e00a6c6324b1a4493dc364.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the password field for the owner Mastodon account.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/a1bd4c7104f431cbaa8ec33c66d7710b3dd9bee0df64ddc0bec6bf758bb293b0.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the owner account [REDACTED] in the focused [REDACTED] field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/c2b72ee197712895bd7c8805cbeba90bc7f56dd76813e82ca6f22e69b8a2d323.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the owner Mastodon login credentials.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/40ed2a84ef7ff053030db74995d60e714d93ac4ba0c22ad4a7169d62cf598024.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to the Mastodon administration reports page in the authenticated owner web session.",
+      "action": "replace_text(index=10)",
+      "reason": "",
+      "screenshot": "screens/1fc050bada602cf29a71e12e5c8a3cf18886dc50381146d10ed7284b125e313d.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Load the authenticated Mastodon administration reports URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/cac8162f185511c5b8eec1bdadc6aaf2b7f190bb2665f056edb25430b1776478.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Authenticated Chrome as owner@gmail.com and opened Mastodon Admin > Reports. The UNRESOLVED view displays two distinct report entries, so the current reports not tackled yet count is 2.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/b1a06ee3aed33c7a3ac817e1db8440f165dceb459d33e5ac441a68fb60e7581a.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Compose and send an email to `owner@mastodon_example.com` with the message body exactly `Recent reports: 2`; do not alter the verified Arabic-numeral count or recipient.",
+      "action": "execute",
+      "reason": "The owner account is active and the backend evidence establishes 2 unresolved reports. The remaining required outcome is sending that value by email in the specified format.",
+      "screenshot": "screens/1101c567dfd399bcce0f8935ac042a98a2b685feba6504d3f2dba99d9f8fa9b8.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the email app to compose the required message.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/1101c567dfd399bcce0f8935ac042a98a2b685feba6504d3f2dba99d9f8fa9b8.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start composing the required email.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/e90941caa96a32daff69f71ae537c6b233b46d1469a8ba389d8f255abfebdb66.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested recipient.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/bd2d50fcd2322ebd70fe04a5529e4218725d4d62967796f406a467c4ef740f49.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact required email body.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/53cf3b8759a9be2d20063c3bcad5e47ffa2db6355fc423f5f0d4fec442adea0d.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the composed email with the verified recipient and exact body.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/56e7b1a8903472f0b2566a5170eb1211a5c7c47560cb6aaf4b3c183d155f0df8.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email was sent successfully to owner@mastodon_example.com with body exactly `Recent reports: 2`; the app displayed `Email Sent`.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/a661bf7192e3b85588b96fd51983b6e101cd5533ec9162ca0a778ea920fe7c0f.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Switched Mastodon to the owner account, found 2 unresolved reports in the owner backend, and sent an email to owner@mastodon_example.com with the exact content `Recent reports: 2`. The email app confirmed `Email Sent`.",
+      "action": "complete",
+      "reason": "Switched Mastodon to the owner account, found 2 unresolved reports in the owner backend, and sent an email to owner@mastodon_example.com with the exact content `Recent reports: 2`. The email app confirmed `Email Sent`.",
+      "screenshot": "screens/a661bf7192e3b85588b96fd51983b6e101cd5533ec9162ca0a778ea920fe7c0f.webp",
+      "screenNumber": 31
+    }
+  ]
+}

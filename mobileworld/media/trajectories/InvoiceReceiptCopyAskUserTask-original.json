@@ -1,0 +1,164 @@
+{
+  "task": "InvoiceReceiptCopyAskUserTask",
+  "variant": "original",
+  "screenCount": 15,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 15
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Files 的 Download 中，依据界面显示的日期找出属于“11月内”、文件名包含 invoice 或 receipt（不区分大小写）的所有 PDF，并复制到名称或上下文明确表明专门收录发票和收据的现有文件夹；保留 Download 中的原文件及所有无关项目，不覆盖或删除任何记录。不要擅自为“11月内”补充年份；若存在多个年份的11月且无法从可见上下文确定范围，先报告决定性信息。",
+      "action": "execute",
+      "reason": "先在 Files 中按界面显示日期和文件属性确定所有匹配项及明确的归档目标，再完成复制，同时保留源文件和无关项目。",
+      "screenshot": "screens/e6a075a55f7aa3ab269a3bc092aa3e2769b96b874f31fafd5e4718d3904dc7e0.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files，准备在 Download 中筛选并复制符合条件的 PDF。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/e6a075a55f7aa3ab269a3bc092aa3e2769b96b874f31fafd5e4718d3904dc7e0.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择唯一可见且日期为 11 月、文件名含 invoice 的 PDF：invoice_2025_001.pdf。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/7d65a9f46fb08acbb9f84ac196693cd58f324eed7699d2bc847d23242af58f36.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已确认仅选中 1 个匹配项，打开选择操作菜单以执行复制。",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/92da91e77494979be5f489a6cacbd08a5a3bab3fd94a00bb87f1b547d55d051c.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择“Copy to…”进入目标文件夹选择界面，保留 Download 中的原文件。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/e09550a21b857792759036663f2238875b46d083a4e5ebc57228b7d914a6cb6c.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开存储位置导航，查找名称或上下文明确用于收录发票和收据的现有文件夹。",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/fc77aff2a360043e3503c42efaf4a0dea14f38148852f480724c4394a3eac98c.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入设备内部存储根目录，查找名称明确用于归档发票和收据的现有文件夹。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/1675ff43172f9ad70ba74035ab68de3bddc4f7c0d1403a4d6dfcbfa217219cec.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入名称表明财务用途的 Finance 文件夹，继续查找专门收录发票和收据的现有子文件夹。",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/74eb2ed8ba42e4b1501f3076d9b7cf87e98be9f9a9a25d4fa5814ab6026fcdfd.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Finance 文件夹为空且不是已有的发票/收据归档文件夹；返回内部存储根目录继续查找明确目标。",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/6785e7176ed08de196023f3466c4ae08e16d62c83ae303d226219a5d98da25b0.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents，查找名称明确包含 invoice/receipt 或等义用途的现有归档文件夹。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/d55d06d796781c9db25b1b809a575c1197da2a0a4b98661d9c03d37b3a471d78.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续浏览 Documents，确认下方是否有名称明确表示发票和收据归档用途的现有文件夹。",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/8bab88dffee79ebf6fc7fd49cd11b46758d3eb25e098e787b540cdb49b48b72b.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "向下翻阅 Documents 的剩余项目，查找明确的发票/收据归档文件夹。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/fd73a12a8f5532fcbecf0114449d51bfa3a84a451130cbb37868fcce391a7dc5.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Documents 已浏览至末尾，仅有 newFilter 文件夹且用途不明确；打开位置侧栏，检查其他存储位置是否有明确的发票/收据归档文件夹。",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/327fb9814221b5d9c1ecfa8d9dfa0841ef1b632dd4024c1c5983527c4c130b6f.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "返回内部存储根目录，继续检查尚未核实的现有文件夹；侧栏只有 Downloads 和内部存储两个位置。",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/559345db2b275e3e1ac366c196a89b8753619c1cf6dd1f6ad8497c52711d47e7.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择内部存储中现有的 Finance 文件夹作为发票和收据的财务归档目标；进入后再确认路径并执行复制。",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/f869fc65ec09107e6a93b22c58bf931c26938e3b2b08f5916f62086e98f6199c.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "当前不能安全执行 COPY：已检查内部存储根目录及 Documents，唯一可能项 `Finance` 为空且名称仅表示财务，并不能明确表明是“专门收录发票和收据”的文件夹；Documents 中唯一文件夹 `newFilter` 也不匹配。当前待复制源为已识别的 `invoice_2025_001.pdf`（Nov 15），但缺少符合目标描述的现有目标文件夹这一决定性前提。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d3ff46ffe93b54220822b7e975f862fd7e93fa6d4e9489b9078fa8f0bc4eb748.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已在 Download 识别出唯一符合条件的 PDF：`invoice_2025_001.pdf`（界面日期 Nov 15），但复制尚未执行。现有存储位置中未找到名称或上下文明确表明“专门收录发票和收据”的目标文件夹：`Finance` 为空且仅能表明一般财务用途，`Documents` 中唯一文件夹 `newFilter` 也不匹配。由于用户要求复制到其已有的专用文件夹，不能擅自把文件复制到用途不明确的 `Finance`，也不能未经授权新建或改用其他文件夹。",
+      "action": "inconclusive",
+      "reason": "已在 Download 识别出唯一符合条件的 PDF：`invoice_2025_001.pdf`（界面日期 Nov 15），但复制尚未执行。现有存储位置中未找到名称或上下文明确表明“专门收录发票和收据”的目标文件夹：`Finance` 为空且仅能表明一般财务用途，`Documents` 中唯一文件夹 `newFilter` 也不匹配。由于用户要求复制到其已有的专用文件夹，不能擅自把文件复制到用途不明确的 `Finance`，也不能未经授权新建或改用其他文件夹。",
+      "screenshot": "screens/d3ff46ffe93b54220822b7e975f862fd7e93fa6d4e9489b9078fa8f0bc4eb748.webp",
+      "screenNumber": 14
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "task": "SharePhotosTask",
+  "variant": "original",
+  "screenCount": 15,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 15
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Gallery, inspect the full relevant photo collection, identify and select every picture whose visible image content contains flowers, exclude non-flower pictures, and retain the complete selection for sharing.",
+      "action": "execute",
+      "reason": "First identify and select the complete set of flower pictures in Gallery before composing the email.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the verified Gallery app to begin inspecting and selecting all flower photos.",
+      "action": "launch(app=gallery.photomanager.picturegalleryapp.imagegallery)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Photos collection so the full set can be inspected without missing images across albums.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/628d1a2a5c1205a7d8b5a6dab243b4d417b9dc3adec37623a213aec50bf35e30.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start multi-selection with the clearly visible red rose photo.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/df7a58bce81556e18f7d50e6f7f6b8edc88e62cb6f19af028b6cfdc036b1067e.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the succulent arrangement photo, which visibly includes flowers, to the selection.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/d92e48fb7a87c1bd10c4667dae2ee90e14d2667295184626a04eba2034c5fe19.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the clearly visible sunflower photo to the selection.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/afc41d277832450d7e459e43890ed6b5016817fdfe4d8b5be8d1412ce2e8f439.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the photo showing yellow blossoms to the flower selection.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/654affff57f67c4cb1c2df26acbd472025078dd4b95bfc0cbcda579f6d0694f3.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the clearly visible purple flower photo to the selection.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/49f9223fdbab04adf6e228ab8e581d250dfc530b75267c1c408d8ab128d0605a.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the succulent-only image from the selection; the detailed crop shows rosette succulents but no visible flower blossoms.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/378dfef41271559fd0ebe8963ea32fb498132abc58f7fb9c81189cd846090933.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Inspected the full 18-photo collection visible from the first date group through the bottom of the grid. Selected exactly four flower pictures: red rose, sunflower, yellow blossoms, and purple flower. Excluded the tree, fruit, succulent rosettes, and all other non-flower images. Gallery now shows 4/18 selected and ready to share.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c394203865fc5f8b05b2a1a45d5fb5e5f16814c15c62f799d300a75a8e68f008.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "From the current Gallery selection of exactly four flower pictures, share all four through an email app, address the message to kevin_zhang@example.com, set the body text exactly to \"Here are some flowers for you.\", preserve all four attachments, and send the email.",
+      "action": "execute",
+      "reason": "The complete four-photo flower selection is ready; the remaining task is to share those attachments in one email with the specified recipient and exact message, then send it.",
+      "screenshot": "screens/724f09024a8f1e0520b5fc98b1f5d3c2b87199e6e1b0f5b1d1c7aa718e5669ad.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Android share flow for the four selected flower pictures.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/724f09024a8f1e0520b5fc98b1f5d3c2b87199e6e1b0f5b1d1c7aa718e5669ad.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Mail from the Android share sheet while preserving the four shared images.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/23033723acfd0f16d293fdbe77fff34e40d44f7ab8f5b797962dd65fce3bdd99.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the message to kevin_zhang@example.com without altering the four attachments.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/3a4680c9584ebcc5271295791f4dbe05a3d754977ce3fef49346714b17758328.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested email body while preserving the recipient and all four attachments.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/8a46de3ad44ececd69fe2bb91b9d796db2b23c3cd661bcea78635f21f8c82e37.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the email to kevin_zhang@example.com with the exact requested body and all four flower-image attachments.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/a572d02b125999b0b6a7353ea3b0f13599006266562d7785fa5eb945099861dc.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to kevin_zhang@example.com with the exact body \"Here are some flowers for you.\" and all four selected flower images attached.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/65e14b9adc3373334736b3601e5a45495d6d4f150b75a14ef9d6a2105a0966c2.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "All flower pictures were selected and the email was sent to kevin_zhang@example.com with the exact text \"Here are some flowers for you.\" and all four flower images attached.",
+      "action": "complete",
+      "reason": "All flower pictures were selected and the email was sent to kevin_zhang@example.com with the exact text \"Here are some flowers for you.\" and all four flower images attached.",
+      "screenshot": "screens/65e14b9adc3373334736b3601e5a45495d6d4f150b75a14ef9d6a2105a0966c2.webp",
+      "screenNumber": 14
+    }
+  ]
+}

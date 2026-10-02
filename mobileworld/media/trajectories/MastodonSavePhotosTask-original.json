@@ -1,0 +1,173 @@
+{
+  "task": "MastodonSavePhotosTask",
+  "variant": "original",
+  "screenCount": 15,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 15
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find Alice's Mastodon post published on October 5th, establish the exact matching post and complete number of attached images, and retain that post context for downloading; do not treat a partial or uncertain match as final.",
+      "action": "execute",
+      "reason": "The post must be identified before its complete image set can be saved.",
+      "screenshot": "screens/c12cf4c0897f0b25d799267984fa67dc4577c5a1a11f4e6311ff209746a4d23e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to locate Alice's October 5 post and determine its full attachment set.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/c12cf4c0897f0b25d799267984fa67dc4577c5a1a11f4e6311ff209746a4d23e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon Explore to search for Alice.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/84825ce797bfe808587b4643a3c18393a5c0fb9eff91bbc4f161e3cd6801db63.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Mastodon search editor so Alice can be searched.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/fc0970ca57fe6f3af7cf197eb9ef84d1003485a82cecaf7c875c468af04a76de.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mastodon for Alice.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/a88f3e4bc4aaabd70ae25b6edb8894a00a2fb8e0e5ca83eac7c8740300399173.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visible Alice (@alice) profile result.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/b9936c25322348589280a2d91b699120d6349dc0502f02d4ef5f9094f3164fd1.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Alice's Media tab to narrow the timeline to image posts while locating the October 5 entry.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/75fac0e8e4a198bc96380a634ee626939d42051a5c15782c88a1ef1a174c287a.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the 11-day-old birthday media post to verify its exact October 5 date and full attachment set.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/4c40df9e1bf0e16d978b40661071f2d05d1716c51762c651fcbc04d45b2cbbd1.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Established the exact target: Alice (@alice)'s post at 4:03 AM on Oct 5, 2025, text “Can’t believe it’s my birthday today! 🎉 21 years of life and I still don’t know how to adult. Grateful for another year. #BirthdayVibes”. The post detail shows exactly 3 attached images (controls 4, 5, and 6), all currently visible.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/a504324300888797672250777113a1b3500f46126a8241e2eaa57ab691bed671.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Save all three distinct image attachments from Alice's established Oct 5, 2025 Mastodon post to the phone, preserving the current post context and ensuring no attachment is omitted.",
+      "action": "execute",
+      "reason": "The exact October 5 post and its complete set of three images are established; the remaining work is to save each attachment to the phone.",
+      "screenshot": "screens/864e06e49904276eda5cfdd028ce892b8c22efe632328fdadf0618f19f6b5a3c.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the first attachment to access its save/download control.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/864e06e49904276eda5cfdd028ce892b8c22efe632328fdadf0618f19f6b5a3c.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the first of Alice's three image attachments.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/cfcaf30155ad9585f0d092563fdf36a7f491a10910f01f01ad9bf0d4b3a91fee.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "First image save is confirmed by the “Image saved.” message; swipe to the second attachment.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/9f523dcb4aeecc90c36c04f9a8ccb00b786f7a391a5d06385ce544e5b84b3c48.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the second distinct attachment (the birthday cake image).",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d6f6273610c19a9bd919be0ba027b06bc63cba46f837bfda3994c35bf2af700f.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Second image save is confirmed by the “Image saved.” message; swipe to the third attachment.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/4ce38861f3ebe733bc11c6ba9245e603c6d8677a14104bef32e4fc5030b2cf1f.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the third and final distinct attachment (the 21st birthday image).",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/f2632bac96f88ba59e4ec8efa56dd61c36a7da1da813dcacdbf512142c6277a7.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed: all three distinct images from Alice’s verified Oct 5, 2025 Mastodon post were saved to the phone. Each download produced an “Image saved.” confirmation, including the final attachment in the current observation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/621ea15fe84523c00d5b7e19693db366c7c24f6d21432d801cf26bb225dc869f.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found Alice’s October 5, 2025 Mastodon post and saved all three distinct attached images to the phone. Each download was confirmed with “Image saved.”",
+      "action": "complete",
+      "reason": "Found Alice’s October 5, 2025 Mastodon post and saved all three distinct attached images to the phone. Each download was confirmed with “Image saved.”",
+      "screenshot": "screens/621ea15fe84523c00d5b7e19693db366c7c24f6d21432d801cf26bb225dc869f.webp",
+      "screenNumber": 14
+    }
+  ]
+}

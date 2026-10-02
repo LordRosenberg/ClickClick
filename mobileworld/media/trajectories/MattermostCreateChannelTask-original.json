@@ -1,0 +1,272 @@
+{
+  "task": "MattermostCreateChannelTask",
+  "variant": "original",
+  "screenCount": 25,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 25
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a new Mattermost channel named 'reading' with its purpose set to paper reading; do not overwrite or repurpose any existing channel.",
+      "action": "execute",
+      "reason": "Start by creating the requested Mattermost channel with the correct identity and purpose, preserving later membership and message requirements as separate outcomes.",
+      "screenshot": "screens/61606721079d6880ecb3e7856d674ab097eae301ecdf633c455c29832550a2eb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to create the new reading channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/61606721079d6880ecb3e7856d674ab097eae301ecdf633c455c29832550a2eb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Mattermost add menu to start creating a distinct channel.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/e6049337b9da15ef77beed74f053c1158cd32a3bef4de66c39f4a1c00c29d109.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Create New Channel.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/80a0317f6f557ea4e1f1b570dedb3c6471d9dc1cea0f8146d1183d0c2bc55c36.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the new channel name to reading.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/bfce014afb691a6fc78ec66213f4f2bbe42cfe0927fc810b177a7c1c894f70bd.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the reading channel purpose to paper reading.",
+      "action": "replace_text(index=7)",
+      "reason": "",
+      "screenshot": "screens/2e67687f9b9d1451c12ac3cbf5e2f18652cbd6a9c4bcaaab5e6c10a4ce351cb2.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the new public reading channel with the entered paper reading purpose.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/667da87cee0b30b54e4373e7425b1441eede6322a68d57f362fc5bee58be3cc9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created the new public Mattermost channel 'reading' after entering the purpose 'paper reading'. The app opened the distinct reading channel, showing 1 member and the system event 'You joined the channel.'",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f683c0ec00f68d5946a763194e6ce90af9ea2ae859dffe91a0d4533148bea547.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Add every available member of the current Mattermost team to the newly created 'reading' channel, preserving the existing channel and its settings.",
+      "action": "execute",
+      "reason": "The channel is created and currently has only the creator, so the next required outcome is to add all available team members before posting the greeting.",
+      "screenshot": "screens/d6fc8f4b72af9db33550d4f86158882aa9ac23ae78c303f3ae87ed61f5a4ff75.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the reading channel's Add members flow to add every available team member.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d6fc8f4b72af9db33550d4f86158882aa9ac23ae78c303f3ae87ed61f5a4ff75.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select alex for addition to the reading channel.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/faa471460cc0a2008e53205cef56abab200d2ecf97984df05a179358e18d2717.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select arjun for addition to the reading channel.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/2626aab768d3f4237e42cc4be76f247de850fd8ab97fa02d2f79f603f46b8142.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select chen for addition to the reading channel.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/7b799ffd638850f838719e6e77c65d202d264d7df0604fa37107053858aee1a7.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select lina for addition to the reading channel.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/f42dfe141a6a963e1811898a2e18375504a48e0c81bf15d1274364fd1e5e4e18.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select mike for addition to the reading channel.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/0c7f5ba887b89b9e413a373234a2ff8e050da848033589a558527884e09f48c9.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select nina for addition to the reading channel.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/b9e59c22aa3c059fad11afbf7b6acab8c0b1c89e1434f976180b7cb4acf26d8f.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select oliver for addition to the reading channel.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/d90dd3dcab311691ce9dae8cccf5d0bf46f6dcf1467f90cd142bd5f27df727b8.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select sam for addition to the reading channel.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/6b59c2117ab99b4fa19da18d8b0eb2639d774e1d938c78c9421c7f5b55f60b75.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the available-member list to reveal the remaining users, including sofia and yuki.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/f50021f8bdb4551f62aafb07720d9e3d46c8745fe9d81d0cd6323eda20137b5e.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select sofia for addition to the reading channel.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/fd5f97edf56ca29c14f1708c8326fa013fb4d8e1c8eec53df142169b8f3f8225.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select yuki, the final available unselected member, for addition to the reading channel.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/4d46444ddf249f704e9dcaf4f91b06542f97bdef5c64ad3928a6d9785567b42a.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Commit all ten selected available members to the reading channel.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/a1d3cfda03e2d197cbd83ce5690a9e8ad48d29b2b96e20addad66bd280f0255e.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "All 10 available team members were added successfully. The reading channel now shows 11 members total, and Mattermost confirms \"10 members added.\" The channel and its existing settings remain unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/373c0ac89e96b79dd1bcf99d6746902b0aaa484b223c476cb77abe62ae625966.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Post a welcome message in the existing Mattermost 'reading' channel that explicitly greets everyone.",
+      "action": "execute",
+      "reason": "The channel and membership requirements are complete; the remaining requirement is to greet everyone with a welcome message in the reading channel.",
+      "screenshot": "screens/94a0dcbefaf3a234ce3657829106ddb89886af3fb83a610658bd7563a61158e8.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the reading channel message composer to prepare the welcome greeting.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/94a0dcbefaf3a234ce3657829106ddb89886af3fb83a610658bd7563a61158e8.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a welcome message that explicitly greets everyone and states the channel's paper-reading purpose.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/0266341279e5827c2da4641fbb6dd559b2327fffe05b4dedd56882d31c2edd34.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the composed welcome message to everyone in the reading channel.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/fab98a00dbbf211caac84d374d52447d37161b5b10399af5fd466c5dea6555cf.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Posted the message \"Welcome, everyone! This channel is for paper reading.\" in the existing reading channel. The post is visibly present under harry, and the composer has cleared.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/9b33008dbb28d4e876080516819a21b99c7c3f8ff775db9b9be6e35d076b7155.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created the public Mattermost channel `reading` for paper reading, added all 10 available team members (11 members total including the creator), and posted: “Welcome, everyone! This channel is for paper reading.”",
+      "action": "complete",
+      "reason": "Created the public Mattermost channel `reading` for paper reading, added all 10 available team members (11 members total including the creator), and posted: “Welcome, everyone! This channel is for paper reading.”",
+      "screenshot": "screens/9b33008dbb28d4e876080516819a21b99c7c3f8ff775db9b9be6e35d076b7155.webp",
+      "screenNumber": 24
+    }
+  ]
+}

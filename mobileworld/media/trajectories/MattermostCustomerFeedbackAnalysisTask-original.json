@@ -1,0 +1,299 @@
+{
+  "task": "MattermostCustomerFeedbackAnalysisTask",
+  "variant": "original",
+  "screenCount": 27,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 27
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Analyze the entire `customer-feedback` channel in Mattermost and record every negative feedback item (complaint, bug, or issue), preserving enough detail to list each item accurately in the digest.",
+      "action": "execute",
+      "reason": "The negative feedback items must be collected from the channel before they can be summarized in the email; later actions depend on that exact set.",
+      "screenshot": "screens/4fbd838899d01241f381e57d0367e3247bf1fc7df5385f70f143bd9296aec5f5.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to inspect the entire customer-feedback channel for negative feedback items.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/4fbd838899d01241f381e57d0367e3247bf1fc7df5385f70f143bd9296aec5f5.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Customer Feedback channel to begin reviewing all posts for complaints, bugs, and issues.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/41aff10f0ba56a31f32ed8c89d89074e69220fa36a654c04a0a3ebcc927bc9da.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Record the two visible negative items and move toward older channel posts to continue complete coverage.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/f27edcd213ae0036b4bc50447f7b42680119834e646d701ace4e28e05b7caa0b.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed full customer-feedback channel traversal through the channel creation boundary. Found exactly three negative feedback items: Cannot export reports to PDF; Billing dashboard is confusing; Login page crashes on Android 10.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4009144b7294dff5262816ffac87928c9a05bb6e69f5d0d29d1e3039f2e368e8.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a summary email to `product@company.com` with subject `Weekly Negative Feedback Digest` listing all three identified negative items: `Cannot export reports to PDF`, `Billing dashboard is confusing`, and `Login page crashes on Android 10`.",
+      "action": "execute",
+      "reason": "The channel scan is complete and provides the exact three items needed for the digest, so the next dependent outcome is sending the requested email.",
+      "screenshot": "screens/9416fdaa7e94fa227f9208c25221551075b37738e7f95e03ed0accdba75550a1.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail to compose and send the requested negative feedback digest.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/9416fdaa7e94fa227f9208c25221551075b37738e7f95e03ed0accdba75550a1.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new email draft.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/eea48e02c24336a28f5408f42e589c45c5847ccb9973fee6b578c4c4f8c2838e.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the recipient to product@company.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/ca4311f6ebe98e6d419e11bcdcb5f1ce238cfdf3a27b2f9b97690a9b5dcbcf06.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the exact requested email subject.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/43594b178d30ea97d1462f31331ef705c522a10768351e87080e25dd2d3a2d22.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the digest body listing all three identified negative feedback items.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/2fb2ad93e935e9a50e80acefff5bf11acf14d36bb53b52f27aab4f3c24caba35.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed negative feedback digest to product@company.com.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/8215a4a441fcd7f2e64d3ecdb408e7baf835f4f5d9e8d06404d73d2f0a4725ad.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to product@company.com with subject `Weekly Negative Feedback Digest` and all three identified negative feedback items; the app displayed `Email Sent`.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/e7cba490f9117928725369595116009299cee732f366e731c77ac72df5b9b30a.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a new Calendar meeting titled `Feedback Review` for next Friday (2026-10-02) with a 14:00 start time; no duration was specified, so preserve the calendar's default duration.",
+      "action": "execute",
+      "reason": "The email is confirmed sent. The next required outcome is the single distant Calendar meeting, using the date picker and retaining the default duration because only the start time was requested.",
+      "screenshot": "screens/25c0af9ee40823f1a86c0e4ad87a2638c8bb3050986bdf72a5513f0b3b1fc6c3.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to create the requested Feedback Review meeting.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/25c0af9ee40823f1a86c0e4ad87a2638c8bb3050986bdf72a5513f0b3b1fc6c3.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new event editor for the requested Feedback Review meeting.",
+      "action": "tap(index=51)",
+      "reason": "",
+      "screenshot": "screens/fa37dc1ee54d70ac1842df4bbb8ba698cd9d9defd0a758e4f134cd10a7bf451a.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event from the expanded New Event menu.",
+      "action": "tap(index=54)",
+      "reason": "",
+      "screenshot": "screens/5b23807240dcf8346bbbbf392e8a6bfbab1855b35a2bdfffaa4ef76c1172a9ff.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the meeting title in the focused Title field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/d3e4a9723acef4f8b6bc47363c0a9dece2b6f967018e29883368868e2c9a29ea.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-date picker to set the meeting to Friday, October 2, 2026.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/b531668c147712ec7efc05c44d580cbbc46e6c14cdca33eaa62024e40ae03845.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Friday, October 2, 2026 in the start-date picker.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/03f4e5d7d9e8b552424fdacc92046a35cf9f9b5942655ad09f505f808ad4b183.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected start date of Friday, October 2, 2026.",
+      "action": "tap(index=36)",
+      "reason": "",
+      "screenshot": "screens/02eddf154bc3207a1b2df66333d3bf764c47de6b041b832b312e481b9a384caa.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-time picker to set the meeting to 14:00.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/2c48c090e908d8d8f03976c16a8e9f891990b25a574a2f6c5c590fa773ef1b06.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 2 PM as the 14:00 start hour; PM and 00 minutes are already selected.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/f44a8b077c258ebc25347ae85aa0edc106820a84be748e560e1e8144e041c6d4.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected 2:00 PM (14:00) start time.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/047bc5ad8b23e85801ce1183c17a83d9e0647f4d93316b5f2f673960a5e54907.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the new `Feedback Review` event for Friday, October 2, 2026 at 14:00 with the editor's default duration unchanged.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/233840a8b82150f71a0831d0a135aedcbe25142b2115b3fb77996a9c9118013f.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved the new `Feedback Review` calendar event on Friday, October 2, 2026 at 14:00, preserving the calendar's default duration. The October 2 month cell now shows the saved event (title clipped as `Feedback`).",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f8529ef2468fac927af993f23e58ad1f8ac11e5a1dd87cc38f85f566bed41937.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Reply in the `customer-feedback` channel with exactly `Feedback logged and meeting scheduled`.",
+      "action": "execute",
+      "reason": "The email and calendar meeting are complete. The remaining required outcome is the exact channel reply.",
+      "screenshot": "screens/434065af4591ecdb1a74bfbd7ac158be88804de4442a8433f272cc0600524bcb.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to post the exact required reply in `customer-feedback`.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/434065af4591ecdb1a74bfbd7ac158be88804de4442a8433f272cc0600524bcb.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact required reply in the Customer Feedback channel composer.",
+      "action": "replace_text(index=16)",
+      "reason": "",
+      "screenshot": "screens/acf8d17ea344f36b6622d19c2d57068978cd66f36d1bb17df892605e566fc05b.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact composed reply to the Customer Feedback channel.",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/9a27cc769607870d1b42da190e9d0a41d650e85c52a2c8c0ea22d0ef41c5ee31.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Posted the exact message `Feedback logged and meeting scheduled` in the Customer Feedback channel; the new post is visibly present under harry at 11:06 AM.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/108b6fa63151863b4d9bfa20a144015bd9b586ccd6dc0942def72dfe94383f97.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed all requested actions: identified the three negative feedback items (`Cannot export reports to PDF`, `Billing dashboard is confusing`, and `Login page crashes on Android 10`); sent the digest email to `product@company.com` with subject `Weekly Negative Feedback Digest`; created `Feedback Review` for next Friday, October 2, 2026 at 14:00; and posted `Feedback logged and meeting scheduled` in the Customer Feedback channel.",
+      "action": "complete",
+      "reason": "Completed all requested actions: identified the three negative feedback items (`Cannot export reports to PDF`, `Billing dashboard is confusing`, and `Login page crashes on Android 10`); sent the digest email to `product@company.com` with subject `Weekly Negative Feedback Digest`; created `Feedback Review` for next Friday, October 2, 2026 at 14:00; and posted `Feedback logged and meeting scheduled` in the Customer Feedback channel.",
+      "screenshot": "screens/108b6fa63151863b4d9bfa20a144015bd9b586ccd6dc0942def72dfe94383f97.webp",
+      "screenNumber": 26
+    }
+  ]
+}

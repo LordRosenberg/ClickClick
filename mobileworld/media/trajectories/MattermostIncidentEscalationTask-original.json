@@ -1,0 +1,308 @@
+{
+  "task": "MattermostIncidentEscalationTask",
+  "variant": "original",
+  "screenCount": 28,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 28
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the Mattermost 'support-tickets' channel for CRITICAL incidents. If one is found, retain its exact ticket ID and issue description and report them; if none is found, establish that no conditional actions are required.",
+      "action": "execute",
+      "reason": "First determine whether the support-tickets channel contains a CRITICAL incident and capture the ticket ID and issue description needed for the conditional follow-up actions.",
+      "screenshot": "screens/5ab52b051ef894908b50a28ae2e6132d946ce748cd3365a0e8c21933a49e6791.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to inspect the requested support channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/5ab52b051ef894908b50a28ae2e6132d946ce748cd3365a0e8c21933a49e6791.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Support Tickets to inspect the unread incident.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/84c05314454f4c489e8053b13eb68d5b4ac8c1f99107a82c35eadc5c586e8c4f.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found a CRITICAL incident in Support Tickets: ticket ID TICKET-500. Exact issue description: \"Database connection timeout. All systems down. Immediate attention required.\" Conditional follow-up actions are required.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/0b83dc75e874ad7d430e469a65aef639fd154be2d4d27576a2d1a100bf33c0d4.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct Mattermost channel named 'incident-TICKET-500', then add user 'sam.oneill@neuralforge.ai' to that new channel; preserve all existing channels and memberships.",
+      "action": "execute",
+      "reason": "The CRITICAL ticket is established, so begin the required follow-up in the specified order by creating its dedicated Mattermost channel and adding the named user.",
+      "screenshot": "screens/b3ea33397c76b199e9bd9633ea52afa971c21895a557250993b6e5b6faeb5c1b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the Mattermost channel list to create the dedicated incident channel.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/b3ea33397c76b199e9bd9633ea52afa971c21895a557250993b6e5b6faeb5c1b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost's add menu to create the incident channel.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/0a208bb4a8c1426673084c76e8265c941aa6886191cea8432367620b54e0ee1a.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Create New Channel from the open Mattermost add menu.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d211683889c6c6cc6f5668c44afb3f926c340e1adee55a85f710f642fc722011.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact dedicated channel name in the New channel form.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/1407793bd5c29522c9f3d9c029d8055dbdc78704648d7d61d5b84d0a1232f0cf.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the new Mattermost channel with the exact entered name.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/ca66584eb6198f997edbbdc88d1f8c92c422520ef4155c9a760454740920b009.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new channel's Add members flow to add sam.oneill@neuralforge.ai.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/f43f352cfd4e15f26147ab5dada89084bdd3699cb747eab64ce05f97dd44acee.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the channel member picker by the exact requested email to verify and select the correct sam account.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/aa69e29cebba243bb1de9f7cfe71865ee44a9be0358d16977401759225f248f1.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the sole account returned by the exact email search, sam.oneill@neuralforge.ai.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/2ed0f3ee044648c488d74dbeed6d092ec55799543ff58d055d445b12c5e635fd.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm adding the selected sam.oneill@neuralforge.ai account to incident-TICKET-500.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/a08c9a3ccbf9077bd0ab8fc66792e06af08c5e7659cee100409607eecf9e02fd.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created the distinct public channel incident-TICKET-500 and added sam.oneill@neuralforge.ai. Current channel shows 2 members and the system message '@sam added to the channel by you.' Existing channels and memberships were otherwise left unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/454e53d5de0218b2d3337fb1dccfbdc001c2cf0c543e25012183a73a5032b585.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send an email to cto@company.com with subject 'CRITICAL INCIDENT: TICKET-500' and body containing the exact issue description: 'Database connection timeout. All systems down. Immediate attention required.'",
+      "action": "execute",
+      "reason": "The incident channel and requested membership are complete. Continue with the next required action in sequence: send the critical-incident email using the retained ticket details.",
+      "screenshot": "screens/eb626eab8565346d1e036685470a6ec877193a12a771646daafab476017dc6ca.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the mail app to compose and send the required critical-incident email.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/eb626eab8565346d1e036685470a6ec877193a12a771646daafab476017dc6ca.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new email composer.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/50d824ca442cae3fb13dd80c540b2709fa11c1c334c58113d82196ac0f26a7b0.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the recipient to cto@company.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/6719367be13a8f495f005d98e5b7840d81911501575d3db60ee112dbcfbb092e.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the required critical incident email subject.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/dd23958b2b71bf46d8f300131c43f6e5439110990fba58e284374bbd02720b43.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact issue description in the email body.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/e9e31aad92a414b70495a5893539ba6c35282aa411da809574d1ad47b0fd8b8a.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed critical incident email.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/69d2e685847c5e59200561ccf94b3e958b0a5c6c03994cabfdaa151be856eb03.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent confirmation is visible. The message was sent to cto@company.com with subject 'CRITICAL INCIDENT: TICKET-500' and the exact incident description.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/6e77ea4a0f6d9d07a2c33dd8959fdde034088cd566c086b38eac38790f38a472.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save one timed calendar event titled 'Discussion on TICKET-500' for tomorrow (2026-10-02) with a start time of 09:00 AM; keep unspecified fields at their defaults.",
+      "action": "execute",
+      "reason": "The critical-incident email is confirmed sent. The only remaining requirement is the calendar meeting.",
+      "screenshot": "screens/0dab7430692991cf71eb01318fa555decd671cfab12ec6273615f921d6b31b4a.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to create the required meeting.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/0dab7430692991cf71eb01318fa555decd671cfab12ec6273615f921d6b31b4a.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the view selector to switch to Weekly for direct 09:00 scheduling.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/6b6da8d98bec211c6c5912517f272e0f29cc6a484b0ba4e24255dcc39f9ff238.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Weekly view.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/1faac135093ce60a534fe58426dc5b228612084a961bdde127cc221bacf9b7a5.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new event on Friday, October 2 in the 09:00 AM time cell.",
+      "action": "double_tap",
+      "reason": "",
+      "screenshot": "screens/8c2778532de36a2d00a26b77a0b1ceb53454b381a40ebc25af45f76e5f8fc939.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event to open the timed event editor with the selected date and hour.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/24aab89f1a5d8ab76a36da0ba7f7c7ce9a37279c4fc7d5908b3045dc06c9fb09.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the requested meeting title; the editor already shows October 2 from 09:00 AM to the default 10:00 AM with other fields at defaults.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/07f689c06a6723fba23864dabbc5a3e9db3d3d97c000aac5d3346e42cb532dae.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the verified event titled 'Discussion on TICKET-500' for October 2, 2026 from 09:00 AM to the default 10:00 AM.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/00f633e43b8a3a7deaee55e2f776b36cfda3cf22ea4ed2983bc0e943776bc9ae.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved the timed event 'Discussion on TICKET-500' on Friday, October 2, 2026 at 09:00 AM. The weekly calendar now visibly shows the event in the Friday 09:00-10:00 slot; unspecified fields remained at defaults.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f678fdc025fcafe333aff1960d5bc757ce7f651753f96bdee09ffc1e4e9e48e3.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "A CRITICAL incident (TICKET-500) was found and all required follow-up actions are complete: created `incident-TICKET-500`, added `sam.oneill@neuralforge.ai`, sent the incident email to `cto@company.com` with the required subject and exact issue description, and scheduled `Discussion on TICKET-500` for tomorrow, October 2, 2026, at 09:00 AM.",
+      "action": "complete",
+      "reason": "A CRITICAL incident (TICKET-500) was found and all required follow-up actions are complete: created `incident-TICKET-500`, added `sam.oneill@neuralforge.ai`, sent the incident email to `cto@company.com` with the required subject and exact issue description, and scheduled `Discussion on TICKET-500` for tomorrow, October 2, 2026, at 09:00 AM.",
+      "screenshot": "screens/f678fdc025fcafe333aff1960d5bc757ce7f651753f96bdee09ffc1e4e9e48e3.webp",
+      "screenNumber": 27
+    }
+  ]
+}

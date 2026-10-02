@@ -1,0 +1,326 @@
+{
+  "task": "SendFormsTask",
+  "variant": "clarified",
+  "screenCount": 32,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 32
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mail, find every email already present in the mailbox dated October 3 or later (inclusive, with no upper cutoff) that contains field trip form attachment(s), download all such forms, and report the exact number of forms plus enough file details to attach each one later. Preserve distinct forms even when names or messages are similar.",
+      "action": "execute",
+      "reason": "First collect the complete qualifying attachment set and count; that output determines what must be attached to the outgoing email.",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail to begin searching the mailbox for qualifying field trip form attachments.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the October 20 'Field trip' email to inspect and download its attachments.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/679bd934d0492c807cf98a1997b4b1f29e05c8ac1deb52fba3e153623be2b062.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the qualifying attachment 'form2.jpg' from the October 20 email.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/8a2df2c75e37eb04e85f6b60bbd8fc19e43ddd7991446ae0f166fb797dd083ca.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the download confirmation and return to continue reviewing qualifying emails.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/87b76f135d05521c4ed71cd65f92e013a72c8985d703357701ead6461738e1c1.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Dave's October 15 signed field trip form email to inspect and download all attachments.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/25d3e5ab958dcd8e68bc52b4abb6f455772a6f250e925f18446091c298d6dd2e.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the qualifying attachment 'form3.jpg' from Dave's October 15 email.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/fe45c182930d4144d0d0c3a5f958cb2e3eb6f0b97b8ded6a0a8424ce224bda4a.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the download confirmation so collection can continue with the remaining qualifying messages.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/ae8a4f9c9ae2f3a60694fbc1ef1a98b5a5381552aef63f53ca2edaa0b4e59c55.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Carl's October 3 field trip form email to inspect and download every attachment.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/f02b54e5d2f294ae02e9087fcc3ed9aebd451ff0c54fb90e79cf92080f022ea4.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download Carl's qualifying October 3 attachment, 'form1.jpg'.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/056062be6b6c610696474518831384a5d7628eb0e810c3d34dc89fdfed2b2ff0.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the download confirmation, then return to the inbox to establish range completeness at and below the October 3 boundary.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/27c9172e2dd358f50ad25000e5f0193cdf28968b551de17a24b20668f56b4d83.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down with overlap past Carl's October 3 row to establish the inclusive lower date boundary and ensure no additional in-scope messages are omitted.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/7529130f46f4cf428d08f78ba7edfad997eb3b735a414e4e492f5e584f43adec.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning because the inbox order is not strictly chronological (October 8 appears below October 3), so the remainder must be checked for any additional qualifying later-dated field trip forms.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/c7a01df6e6e6c307a465ef7fa6b8caa8301d430177f56397bc1cc58ff4bf21a3.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue to the inbox end to complete coverage, retaining overlap from the September 22 row.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/0ce6330b2240844406d0beef5264f59621631427b078938b3d7b3a07fd918da3.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed full inbox coverage. Exactly 3 qualifying forms were found and downloaded: form2.jpg (Echo, Oct 20), form3.jpg (Dave, Oct 15), and form1.jpg (Carl, Oct 3). The remaining field trip messages (Bob Oct 2 and Alice Sep 30) are before the inclusive cutoff and excluded.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/886d8fafc8e34409dfde9e328e4213c6ab338f4703c2d38e7f779bcb76613652.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mail, compose and send one email to principal@school.edu with subject exactly 'Field Trip Forms', attaching all three downloaded qualifying files: form2.jpg, form3.jpg, and form1.jpg. Do not add or omit attachments; confirm the send outcome.",
+      "action": "execute",
+      "reason": "The complete qualifying set is established and downloaded; the remaining required operation is to send all three files in one correctly addressed email.",
+      "screenshot": "screens/886d8fafc8e34409dfde9e328e4213c6ab338f4703c2d38e7f779bcb76613652.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new draft to address the principal, set the exact subject, and attach the three downloaded qualifying files.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/886d8fafc8e34409dfde9e328e4213c6ab338f4703c2d38e7f779bcb76613652.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the recipient exactly to principal@school.edu.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/9a58e466f620ee118631911ed5723fd5ab382301d1a3d763b04a67d0ef1badde.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the subject exactly to Field Trip Forms.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/862265bcac62f91ce2c3f990bd4dd88f7ccf6912f1694890fd15e2549fe75956.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker to add the three downloaded qualifying files.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/d76c1235f40373b6dd84fbc0a8cb91d7a9878c052195c1372cae27390b9f8937.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Files so the exact downloaded JPG attachments can be selected.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/d4acefa4f34e5a4244e90fa5846611e885b87b939bbb986520865faf517b96ec.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the location drawer to navigate directly to Downloads, where the three forms were saved.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/991507c07a0441b20f0df76901002aaef8ee481546c0444814f950760d933249.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Downloads to select the three qualifying form images.",
+      "action": "tap(index=31)",
+      "reason": "",
+      "screenshot": "screens/017f0692f38c4ebd6168516caee867fb6cd8eb693d92a41935a041ec21296db1.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start multi-selection with form1.jpg so all three exact form files can be attached together.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/e460de1999770a82a015f161fc25dad01ed9354e626fc75d23e66d91bb67fa7f.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add form3.jpg to the current multi-selection.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/c49051dafe51c7454b3434637ae630a2bf8aa726210011ff526e8578da3f1dfe.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Attach the currently selected form3.jpg, then return to the draft to add the remaining exact files individually.",
+      "action": "tap(index=29)",
+      "reason": "",
+      "screenshot": "screens/9da5e1efae2d92ece8d543f2c34b77c690070137fe6cbc4c8e0b3a97c8778e90.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker again to add form1.jpg and form2.jpg to the same draft.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/11c687496f595df760be3b73a8e93f717ea39c109b432c845fc91739d82cb700.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Files to select the remaining downloaded form attachments.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/336493029bd88bd27c635bb6979fef15a650e89696ea7ca0beb24ee8df1d9541.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select form1.jpg to add it as the second attachment; the picker appears to support one file per invocation.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/860187647d8ff93774699fe857c798a0a0ab792eb6c1c76ff0841e0a85834f9f.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker once more to add the remaining required file, form2.jpg.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/82e11ce88e53c24d7051d8045065ad78273f25065090ddb5de44bc3f838305bd.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Files to select form2.jpg, the final required attachment.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/dc366c6a0ad411961e2dbb1f01471e949f289d63ea916e7aa42689c8d4dc214d.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select form2.jpg as the final attachment.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/b3981961e26e51d10c2da8430c8e323311e1d85ba28b1624b5b56ef7d54825aa.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the email now that the recipient, exact subject, and exactly the three required attachments are visibly present.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/9075231d63b691f7d164ad68ed5fdd2ef9c223ff3d9a2c47ecc043bedcbac767.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email send is confirmed by the visible 'Email Sent' confirmation. Before sending, the draft visibly contained recipient principal@school.edu, subject exactly 'Field Trip Forms', and exactly form3.jpg, form1.jpg, and form2.jpg.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/59ead786b71a6a46d65f3ef232f7902437ac06a87c84667f097cecfde8988cb2.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "3",
+      "action": "complete",
+      "reason": "3",
+      "screenshot": "screens/59ead786b71a6a46d65f3ef232f7902437ac06a87c84667f097cecfde8988cb2.webp",
+      "screenNumber": 31
+    }
+  ]
+}

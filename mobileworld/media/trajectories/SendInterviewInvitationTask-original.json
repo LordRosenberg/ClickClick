@@ -1,0 +1,137 @@
+{
+  "task": "SendInterviewInvitationTask",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find Kevin's resume in Files and inspect it to retain Kevin's phone number or other contact details needed to identify the correct message recipient; do not modify the resume. Treat displayed file dates only as modified dates if date ordering becomes relevant.",
+      "action": "execute",
+      "reason": "First obtain Kevin's contact information from the resume so the message can be sent to the correct recipient.",
+      "screenshot": "screens/83425b474e0aeab092e38cbc9b5cce31354c17b89f2cedfe8692d82b8568f6ec.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to locate Kevin's resume and inspect its contact details.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/83425b474e0aeab092e38cbc9b5cce31354c17b89f2cedfe8692d82b8568f6ec.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Kevin_CV.pdf to inspect Kevin's contact information.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/30a56d7eb01159439d0d699add4766a791784acb2f19c284c014ebe9d2573305.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found and inspected Kevin_CV.pdf without modifying it. The resume identifies Kevin Zhang and lists phone number +1 (555) 123-4567 (tel:+15551234567), which can be used to identify the correct Messages recipient.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/29c12b64a497eeba4880a5787d3b7db35533417350acc800e3fd2f275de38dc6.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Messages, start or open the conversation for Kevin Zhang at +15551234567 and send exactly: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\" Do not alter the wording or send it to any other recipient.",
+      "action": "execute",
+      "reason": "Kevin's phone number has been obtained from the resume, so the remaining work is to send the requested message to that exact recipient.",
+      "screenshot": "screens/535c9941e821affe9c95a540ed49f6e7119b927c436d71da781722c2013d1807.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to start or locate the conversation for Kevin Zhang at +15551234567.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/535c9941e821affe9c95a540ed49f6e7119b927c436d71da781722c2013d1807.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new chat so the exact recipient +15551234567 can be selected.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/bbd31b33dd3b101198c75bd4817dde8091fb9e8e844187c1f3c152d1aed5c3af.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the recipient field to enter Kevin Zhang's exact phone number.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/59f26b465f8ed0500bca7189d0626908625e69ba3455285a99e0479c0ab03d20.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Kevin Zhang's exact phone number in the focused recipient field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/4495b546a897843b3948d362a04d6dcea52000d0ceda9e89d80e6728c898cc42.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact custom recipient (555) 123-4567 to open the conversation before composing the message.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/638ab53ba404a143dceb37d22897059d7624c67d02a70b5060d0bef3cc396d3c.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested message in the focused composer for Kevin's verified number.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/198d84a40ac2af1a303b29f7c5a0f906026ea6de5e07fd524398643dc89aa3a6.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact composed SMS to Kevin at +15551234567.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/0714910657ef80685f3e0679694f0f98792c2e53f056d97d4e0b0ec729a46880.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found Kevin Zhang's phone number in Kevin_CV.pdf and sent the exact requested SMS to +15551234567: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\" The conversation now shows the outgoing message with SMS metadata at 12:03 PM.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c9e1fda803d1884619680830bb550fd202c75d71ddcff4d5e95db71beac54a1f.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found Kevin Zhang's resume, used the listed phone number +15551234567, and sent the exact requested text: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "action": "complete",
+      "reason": "Found Kevin Zhang's resume, used the listed phone number +15551234567, and sent the exact requested text: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "screenshot": "screens/c9e1fda803d1884619680830bb550fd202c75d71ddcff4d5e95db71beac54a1f.webp",
+      "screenNumber": 10
+    }
+  ]
+}

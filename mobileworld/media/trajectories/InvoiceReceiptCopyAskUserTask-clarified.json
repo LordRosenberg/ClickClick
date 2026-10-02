@@ -1,0 +1,263 @@
+{
+  "task": "InvoiceReceiptCopyAskUserTask",
+  "variant": "clarified",
+  "screenCount": 26,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 26
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Files, find every PDF in Download whose filename contains “invoice” or “receipt” and whose displayed file date falls within 11月内 (November, without assuming an unstated year), then copy each distinct match into `Documents/expense/invoice`; create that destination folder path first only if it does not already exist, and preserve unrelated files and existing folders.",
+      "action": "execute",
+      "reason": "Use the Files app’s displayed file date for the November criterion, identify the complete qualifying set in Download, and copy it to the requested folder while preserving the sources.",
+      "screenshot": "screens/f7dae4366d10bdc08f2a7fc0762acf2c98e50a49e62bb9152f30d1d761cc8d58.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Files app to begin locating the qualifying PDFs in Download.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/f7dae4366d10bdc08f2a7fc0762acf2c98e50a49e62bb9152f30d1d761cc8d58.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the visible qualifying PDF `invoice_2025_001.pdf` dated Nov 15.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/a50ff3571cfb4b79356a748d52586da7cec6e07a0088d18a938be1a39177ca95.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the selection actions for the qualifying PDF so it can be copied.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/a338fc8ea1ec887a9be62e81add212abe5267c30ded93778a8de575f4db8b59b.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose “Copy to…” for the selected qualifying PDF.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/28ddc1f6605447462ab2f17075db953894cbd2ad7b995df9705d2f35d2bcfe89.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open storage roots to navigate to the requested `Documents/expense/invoice` destination.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/4990542ed8daca5c786702f4b2fc4a3df1ac1d3913582db60758e6b92bcff234.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open internal storage so the `Documents` destination path can be located or created.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/ad2e9f677336607359c750e5c211b64ef9b4b66409530a76fa8b624b13351756.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the existing `Documents` folder in the requested destination path.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/eb1bbedfcadcd4e079b605d9534177816524271bd8c4d369d67a95ced3cd248f.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning `Documents` for the existing `expense` folder before creating anything.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/cd7a22cd6ac88d01f00f89fd5ddedca184e27ecfc26c40284f026f683b219a85.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the remainder of `Documents` for an existing `expense` folder.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/792284aa3d4178811f1cdbc02a67439ff1b156a0a5fd4bd5c78e33852413bab2.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The complete `Documents` listing has no `expense` folder, so start creating it as required.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/261ac9378b755775331188289094ee7290d5a86aa604bcdedda4599483174712.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the required first missing destination folder name, `expense`.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/09bc7a368955598178c82fb1d1bc600219eaa61acf227d9e7eb5f8be43b2bb5d.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm creation of the required `expense` folder under `Documents`.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/c71d14420a4f2d60cc461181c74fcf64971a020694ee9ade85b866e5a79aee7a.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inside the newly created `Documents/expense` folder; create the required nested `invoice` folder.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/7dabcd3f48004d0916f90391ac580a39b5723ac966d2b024ce1309fb4b7a7747.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the required nested destination folder name, `invoice`.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/1015b809aeb679b8dbbe2260096375e054adf2f8a5599d78c08f780aa83a3b5e.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm creation of the required `invoice` folder inside `Documents/expense`.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/3b230f2e2ef373c4f7607f55e490f79d0c22c0d780ff6b4b62bc265823920c6e.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Copy the selected qualifying PDF into the now-created `Documents/expense/invoice` destination.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/638f5c4a9e645cf60745f937bf80efea1a4e812764c450a69105e2923a74a5ca.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Check below the currently visible Download listing to establish the list end and ensure no additional November invoice/receipt PDFs were missed.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/91190c284e47082f95ba4c2a7ec22d30771cf70275865a4d0f3f931b5083b38e.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Files navigation drawer to verify the copied file in `Documents/expense/invoice`; the blank area below `invoice_payment.pdf` establishes the end of the Download list and no further matches.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/8cb3944a47dde53cfc57b5fc8b39c7cd681359139586160dfd0f07ce8f7f0017.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Documents to verify the destination folder and copied file.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/ff9ff9abe32eacafc1fa1c1fbf22494f06e3462d0d6f6bae5022deada55945ec.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visible invoice folder and inspect its breadcrumb/content to verify that the copied PDF is in the requested `Documents/expense/invoice` relationship despite the Documents category view.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/6dcef3e24d748bcfde21ec3fbd58ff98febd2d93f548957966354719cfb6c01b.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The current Documents-category breadcrumb shows `Documents > invoice`, which does not establish the required physical path `Documents/expense/invoice`; open roots to verify via device storage.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/ddb8eaca06b9e0bd7f5c29f4d49f4d2aa2393bdb8dfdabb01de53c88e165d669.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open internal storage to verify the actual folder hierarchy `Documents/expense/invoice` and the copied PDF.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/4111fa2272984ffac9561ecd4edf2ff7fe2543fa852cd75879d058efb7fa4659.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the physical `Documents` folder from internal storage to verify the required nested destination path.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/07a4dc482770d666278fb876aea385fee396f3c7cafe25b8f33d5cdc0bb3e0b2.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open `Documents/expense` to verify the nested `invoice` folder and copied PDF.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/29dc6df7e667db338fe1d1452eec8d15c985cd775cdfd7418ee9ae12a1572d1e.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the verified `Documents/expense/invoice` folder to confirm the copied qualifying PDF is present.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/14f6d7ebb15920389bf96114a9b42ab49f33cb9e2a232483b2c3f3e7cbf0f35a.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed: the full Download scan found one qualifying November PDF, `invoice_2025_001.pdf` (Nov 15). It was copied, not moved, into the verified physical path `Documents/expense/invoice`. The current breadcrumb confirms `sdk_gphone64_x86_64 > Documents > expense > invoice`, and the copied PDF is visibly present there; unrelated files and folders were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/ac1ca89b27961f57aab1c384ff3379e0f503761f21e921cc1860d33723997f00.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：在 Download 中完整检查后，符合条件的 11 月 PDF 只有 `invoice_2025_001.pdf`（11 月 15 日）；该文件已复制（未移动）到 `Documents/expense/invoice`。目标路径已确认，文件在其中可见，其他文件和文件夹均保留。",
+      "action": "complete",
+      "reason": "已完成：在 Download 中完整检查后，符合条件的 11 月 PDF 只有 `invoice_2025_001.pdf`（11 月 15 日）；该文件已复制（未移动）到 `Documents/expense/invoice`。目标路径已确认，文件在其中可见，其他文件和文件夹均保留。",
+      "screenshot": "screens/ac1ca89b27961f57aab1c384ff3379e0f503761f21e921cc1860d33723997f00.webp",
+      "screenNumber": 25
+    }
+  ]
+}
