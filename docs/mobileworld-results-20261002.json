@@ -1,0 +1,5227 @@
+{
+  "date": "2026-10-02",
+  "run": "full-gui-paired-20261001-v2",
+  "model": "GPT-5.6-SOL",
+  "reasoning": "high",
+  "tasks": 117,
+  "original_passed": 106,
+  "clarified_passed": 112,
+  "wording_changes": 8,
+  "additional_context_cases": 1,
+  "leaderboard_source": "https://tongyi-mai.github.io/MobileWorld/",
+  "leaderboard": [
+    {
+      "model": "Qwen-UI-Agent",
+      "score": 82.1,
+      "category": "Specialized",
+      "date": "2026-07-30"
+    },
+    {
+      "model": "Kimi-K3",
+      "score": 74.4,
+      "category": "General",
+      "date": "2026-07-16"
+    },
+    {
+      "model": "Wuying-Mobile-27B",
+      "score": 73.5,
+      "category": "Specialized",
+      "date": "2026-09-18"
+    },
+    {
+      "model": "GPT-5.6-Sol",
+      "score": 70.1,
+      "category": "General",
+      "date": "2026-07-09"
+    },
+    {
+      "model": "MagicGUI-Agent (GPT-5.4 + Seed-1.8)",
+      "score": 66.7,
+      "category": "Agentic",
+      "date": "2026-06-29"
+    },
+    {
+      "model": "KnowAct-GUIClaw",
+      "score": 64.1,
+      "category": "Agentic",
+      "date": "2026-07-17"
+    },
+    {
+      "model": "Seed-2.0-Pro",
+      "score": 63.2,
+      "category": "General",
+      "date": "2026-02-14"
+    },
+    {
+      "model": "GPT-5.5",
+      "score": 62.4,
+      "category": "General",
+      "date": "2026-04-23"
+    }
+  ],
+  "cases": [
+    {
+      "id": "CheckConferenceDurationTask",
+      "ordinal": 1,
+      "original": {
+        "score": 1.0,
+        "goal": "How many days of conference meetings did I schedule in October? Please only return the number of days, no other text.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 91.1,
+        "budget": 50,
+        "apps": [
+          "Calendar"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "How many days of conference meetings did I schedule in October? Please only return the number of days, no other text.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 91.1,
+        "budget": 50,
+        "apps": [
+          "Calendar"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ScheduleLunchViaSmsTask",
+      "ordinal": 2,
+      "original": {
+        "score": 1.0,
+        "goal": "I've received a lunch invitation via text message; please reply \"OK\" and schedule a corresponding event on my calendar.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 304.7,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I've received a lunch invitation via text message; please reply \"OK\" and schedule a corresponding event on my calendar.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 304.7,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckConferenceAndSendSmsTask1",
+      "ordinal": 3,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Paris. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 169.3,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Paris. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 169.3,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckConferenceAndSendSmsTask2",
+      "ordinal": 4,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Tokyo. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 166.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Tokyo. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 166.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ScheduleCoffeeTimeViaSmsTask",
+      "ordinal": 5,
+      "original": {
+        "score": 1.0,
+        "goal": "I've received a coffee time invitation via text message; please check the calendar.If I am available in this time slot, reply \"OK\" and schedule a corresponding event on my calendar.Otherwise reply \"Not available in this time slot.\"",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 196.0,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I've received a coffee time invitation via text message; please check the calendar.If I am available in this time slot, reply \"OK\" and schedule a corresponding event on my calendar.Otherwise reply \"Not available in this time slot.\"",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 196.0,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckDeduplicatedEventsTask",
+      "ordinal": 6,
+      "original": {
+        "score": 0.0,
+        "goal": "How many deduplicated events are there in the calendar, from October 20 to October 26?",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 100.7,
+        "budget": 50,
+        "apps": [
+          "Calendar"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "How many deduplicated events are there in the calendar, from October 20 to October 26? For this count, count repeated occurrences of the same recurring event only once across the date range, even when they occur on different dates. Count a multi-day event once as well.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 76.0,
+        "budget": 50,
+        "apps": [
+          "Calendar"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "MattermostReadingGroupTask",
+      "ordinal": 7,
+      "original": {
+        "score": 1.0,
+        "goal": "Please help me complete the task in mattermost reading group following sam's request.",
+        "actions": 39,
+        "rounds": 40,
+        "seconds": 757.6,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Chrome"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Please help me complete the task in mattermost reading group following sam's request.",
+        "actions": 39,
+        "rounds": 40,
+        "seconds": 757.6,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Chrome"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostBudgetApprovalPipelineTask",
+      "ordinal": 8,
+      "original": {
+        "score": 1.0,
+        "goal": "Review the 'budget-approvals-q4' channel for budget requests from different departments. Each request includes ROI calculations using mathematical formulas.\n\nYour tasks:\n1. Identify all budget requests that exceed $50,000 (these require executive approval).\n2. Calculate and identify which department has the HIGHEST projected ROI based on the NPV (Net Present Value) formula results posted in the channel.\n3. Post a consolidated budget summary in the channel with a markdown table showing:\n   - Department name\n   - Requested amount\n   - Projected ROI\n   - Approval status (Executive Required or Standard)",
+        "actions": 14,
+        "rounds": 15,
+        "seconds": 325.7,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Review the 'budget-approvals-q4' channel for budget requests from different departments. Each request includes ROI calculations using mathematical formulas.\n\nYour tasks:\n1. Identify all budget requests that exceed $50,000 (these require executive approval).\n2. Calculate and identify which department has the HIGHEST projected ROI based on the NPV (Net Present Value) formula results posted in the channel.\n3. Post a consolidated budget summary in the channel with a markdown table showing:\n   - Department name\n   - Requested amount\n   - Projected ROI\n   - Approval status (Executive Required or Standard)",
+        "actions": 14,
+        "rounds": 15,
+        "seconds": 325.7,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostShiftCoverageTask",
+      "ordinal": 9,
+      "original": {
+        "score": 1.0,
+        "goal": "Review shift swap requests in 'shift-requests' channel. Check the Calendar for any conflicts on the requested dates. If there is a conflict (e.g. 'All Hands' or 'Training'), reply to the request in the channel with 'Denied: [Reason]'. If there is no conflict, forward the request via email to 'hr@company.com' with subject 'Shift Swap Request' and reply to the user 'Request escalated to HR'.",
+        "actions": 21,
+        "rounds": 22,
+        "seconds": 436.4,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Review shift swap requests in 'shift-requests' channel. Check the Calendar for any conflicts on the requested dates. If there is a conflict (e.g. 'All Hands' or 'Training'), reply to the request in the channel with 'Denied: [Reason]'. If there is no conflict, forward the request via email to 'hr@company.com' with subject 'Shift Swap Request' and reply to the user 'Request escalated to HR'.",
+        "actions": 21,
+        "rounds": 22,
+        "seconds": 436.4,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostCustomerFeedbackAnalysisTask",
+      "ordinal": 10,
+      "original": {
+        "score": 1.0,
+        "goal": "Analyze the 'customer-feedback' channel. Identify all NEGATIVE feedback items (complaints, bugs, issues). 1. Send a summary email to 'product@company.com' with subject 'Weekly Negative Feedback Digest' listing these items.\n2. Schedule a meeting 'Feedback Review' for next Friday at 14:00 in the Calendar.\n3. Reply to the channel with 'Feedback logged and meeting scheduled'.",
+        "actions": 23,
+        "rounds": 24,
+        "seconds": 431.6,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Analyze the 'customer-feedback' channel. Identify all NEGATIVE feedback items (complaints, bugs, issues). 1. Send a summary email to 'product@company.com' with subject 'Weekly Negative Feedback Digest' listing these items.\n2. Schedule a meeting 'Feedback Review' for next Friday at 14:00 in the Calendar.\n3. Reply to the channel with 'Feedback logged and meeting scheduled'.",
+        "actions": 23,
+        "rounds": 24,
+        "seconds": 431.6,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "PhotoManagementTask",
+      "ordinal": 11,
+      "original": {
+        "score": 1.0,
+        "goal": "Find all my food pics from the past month and help me classify them into different folders named travel locations. You can find where I visited from calendar.",
+        "actions": 34,
+        "rounds": 35,
+        "seconds": 638.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Gallery"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find all my food pics from the past month and help me classify them into different folders named travel locations. You can find where I visited from calendar.",
+        "actions": 34,
+        "rounds": 35,
+        "seconds": 638.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Gallery"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostCreateChannelTask",
+      "ordinal": 12,
+      "original": {
+        "score": 1.0,
+        "goal": "Create a channel on Mattermost called 'reading' for paper reading. Add everyone to the channel and greet everyone with a welcome message.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 352.3,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Create a channel on Mattermost called 'reading' for paper reading. Add everyone to the channel and greet everyone with a welcome message.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 352.3,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostSendFileTask",
+      "ordinal": 13,
+      "original": {
+        "score": 1.0,
+        "goal": "It's alex's 21st birthday today. Send a birthday message to him privately on mattermost. Upload a birthday cake image to the message.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 172.4,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "It's alex's 21st birthday today. Send a birthday message to him privately on mattermost. Upload a birthday cake image to the message.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 172.4,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostProjectHandoverTask",
+      "ordinal": 14,
+      "original": {
+        "score": 1.0,
+        "goal": "I'm passing the Phoenix project to Alex. Add Alex to the phoenix channel on mattermost.  ping everyone to schedule a 1-hour project meeting on Monday (find an available time slot from my calendar). Use this exact format in your message: `Meeting Time: [YYYY-MM-DD] from [HH:MM] to [HH:MM]`",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 213.0,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I'm passing the Phoenix project to Alex. Add Alex to the phoenix channel on mattermost.  ping everyone to schedule a 1-hour project meeting on Monday (find an available time slot from my calendar). Use this exact format in your message: `Meeting Time: [YYYY-MM-DD] from [HH:MM] to [HH:MM]`",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 213.0,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostEmailTask",
+      "ordinal": 15,
+      "original": {
+        "score": 1.0,
+        "goal": "Sam has sent me a signed contract on Mattermost. Send it to our Legal (legal@company.com) through email. Include the tracking code. Send sam a quick confirmation when you're done. Thanks.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 302.8,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Sam has sent me a signed contract on Mattermost. Send it to our Legal (legal@company.com) through email. Include the tracking code. Send sam a quick confirmation when you're done. Thanks.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 302.8,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostTechnicalDebtTriageTask",
+      "ordinal": 16,
+      "original": {
+        "score": 1.0,
+        "goal": "Review the 'tech-debt-review' channel on Mattermost for technical debt discussions. Team members have posted complexity analysis using mathematical formulas. Your tasks:\n1. Identify the module with the HIGHEST complexity score (look for the LaTeX formula results).\n2. Send Sarah an SMS with the highest-priority module name and its complexity score.\n3. Create a new contact named 'Refactoring Team' with phone number '15559876543' and add the company 'TechDebt Solutions Inc'.\n4. Post a summary in the 'tech-debt-review' channel listing all modules sorted by complexity (highest first) in a markdown table format.",
+        "actions": 32,
+        "rounds": 33,
+        "seconds": 569.1,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Contacts",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Review the 'tech-debt-review' channel on Mattermost for technical debt discussions. Team members have posted complexity analysis using mathematical formulas. Your tasks:\n1. Identify the module with the HIGHEST complexity score (look for the LaTeX formula results).\n2. Send Sarah an SMS with the highest-priority module name and its complexity score.\n3. Create a new contact named 'Refactoring Team' with phone number '15559876543' and add the company 'TechDebt Solutions Inc'.\n4. Post a summary in the 'tech-debt-review' channel listing all modules sorted by complexity (highest first) in a markdown table format.",
+        "actions": 32,
+        "rounds": 33,
+        "seconds": 569.1,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Contacts",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostReplyToMessageTask",
+      "ordinal": 17,
+      "original": {
+        "score": 1.0,
+        "goal": "I just got our OSWorld eval SR result (35.5). Reply to my own earlier message in AI-Research on mattermost with the result.",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 260.4,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I just got our OSWorld eval SR result (35.5). Reply to my own earlier message in AI-Research on mattermost with the result.",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 260.4,
+        "budget": 50,
+        "apps": [
+          "Mattermost"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostDeadlineReconciliationTask",
+      "ordinal": 18,
+      "original": {
+        "score": 1.0,
+        "goal": "I suspect there's a discrepancy between what was discussed and what got documented. Please verify by checking the project-updates channel on Mattermost for any messages mentioning 'deadline' or 'milestone'. For each deadline mentioned, check if there's a corresponding calendar event within ±2 days of the mentioned date. Generate a reconciliation report showing: Deadlines with matching calendar events (PASS), Deadlines WITHOUT calendar events (- Missing), Calendar events not mentioned in chat (📅 Untracked). Email this report to dylan@gmail.com with subject 'Deadline Audit Report'. For each missing calendar event, create it with title '[AUTO] {deadline description}' and post confirmation in the project-updates channel listing the created event titles.",
+        "actions": 36,
+        "rounds": 37,
+        "seconds": 795.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I suspect there's a discrepancy between what was discussed and what got documented. Please verify by checking the project-updates channel on Mattermost for any messages mentioning 'deadline' or 'milestone'. For each deadline mentioned, check if there's a corresponding calendar event within ±2 days of the mentioned date. Generate a reconciliation report showing: Deadlines with matching calendar events (PASS), Deadlines WITHOUT calendar events (- Missing), Calendar events not mentioned in chat (📅 Untracked). Email this report to dylan@gmail.com with subject 'Deadline Audit Report'. For each missing calendar event, create it with title '[AUTO] {deadline description}' and post confirmation in the project-updates channel listing the created event titles.",
+        "actions": 36,
+        "rounds": 37,
+        "seconds": 795.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostResourceConflictResolutionTask",
+      "ordinal": 19,
+      "original": {
+        "score": 1.0,
+        "goal": "Check the 'resource-booking' channel on Mattermost for resource requests. Cross-reference each request with the calendar to determine status. Send a report email to 'facilities@company.com' with subject 'Resource Booking Conflicts' in the following format:\nAPPROVED: <resource>, <resource>, ... (no calendar conflict)\nCONFLICT: <resource>, <resource>, ... (overlaps existing booking)\nFor approved requests, add calendar events titled 'BOOKED: [resource] - [requester]'. For conflicts, DM the requester about the issue.",
+        "actions": 46,
+        "rounds": 47,
+        "seconds": 966.3,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check the 'resource-booking' channel on Mattermost for resource requests. Cross-reference each request with the calendar to determine status. Send a report email to 'facilities@company.com' with subject 'Resource Booking Conflicts' in the following format:\nAPPROVED: <resource>, <resource>, ... (no calendar conflict)\nCONFLICT: <resource>, <resource>, ... (overlaps existing booking)\nFor approved requests, add calendar events titled 'BOOKED: [resource] - [requester]'. For conflicts, DM the requester about the issue.",
+        "actions": 46,
+        "rounds": 47,
+        "seconds": 966.3,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "LocalFileManagementTask2",
+      "ordinal": 20,
+      "original": {
+        "score": 1.0,
+        "goal": "There are too many files in my download folder, can you check my files and compress files that are older than 1 year in a single `old_files.zip` file. Delete the files after compression. Send myself an email with the list of deleted files just for record",
+        "actions": 45,
+        "rounds": 46,
+        "seconds": 901.4,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "There are too many files in my download folder, can you check my files and compress files that are older than 1 year in a single `old_files.zip` file. Delete the files after compression. Send myself an email with the list of deleted files just for record",
+        "actions": 45,
+        "rounds": 46,
+        "seconds": 901.4,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostProjectStatusReportTask",
+      "ordinal": 21,
+      "original": {
+        "score": 1.0,
+        "goal": "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked.",
+        "actions": 50,
+        "rounds": 50,
+        "seconds": 928.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. For this check, the three-day window is measured relative to the completion/target date stated for each item in its Mattermost update: the calendar milestone may be at most three calendar days earlier or later than that date. It is not measured from today. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked.",
+        "actions": 41,
+        "rounds": 42,
+        "seconds": 746.2,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "MattermostVisualInstructionResponseTask",
+      "ordinal": 22,
+      "original": {
+        "score": 1.0,
+        "goal": "Check the 'emergency-response' channel on Mattermost. The operations manager has posted a whiteboard photo with emergency contacts and shift times. Please:\n1. Create new contacts for the people listed in the 'Emergency Contacts' image. Only fill the first name and phone number.\n2. Set alarms for the shift start times listed in the 'Shift Schedule' image, using the shift name as the alarm label.",
+        "actions": 31,
+        "rounds": 32,
+        "seconds": 474.1,
+        "budget": 50,
+        "apps": [
+          "Clock",
+          "Mattermost",
+          "Contacts"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check the 'emergency-response' channel on Mattermost. The operations manager has posted a whiteboard photo with emergency contacts and shift times. Please:\n1. Create new contacts for the people listed in the 'Emergency Contacts' image. Only fill the first name and phone number.\n2. Set alarms for the shift start times listed in the 'Shift Schedule' image, using the shift name as the alarm label.",
+        "actions": 31,
+        "rounds": 32,
+        "seconds": 474.1,
+        "budget": 50,
+        "apps": [
+          "Clock",
+          "Mattermost",
+          "Contacts"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "LocalFileManagementTask",
+      "ordinal": 23,
+      "original": {
+        "score": 1.0,
+        "goal": "I'm running out of space, can you check my files and delete zip files that are older than 1 year in my Download folder. Send myself on mattermost the list of deleted files just for record",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 329.6,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mattermost"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "I'm running out of space, can you check my files and delete zip files that are older than 1 year in my Download folder. Send myself on mattermost the list of deleted files just for record",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 329.6,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mattermost"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MattermostIncidentEscalationTask",
+      "ordinal": 24,
+      "original": {
+        "score": 1.0,
+        "goal": "Monitor the 'support-tickets' channel for CRITICAL incidents. If a critical ticket is found:\n1. Create a dedicated channel named 'incident-<ticket_id>' (e.g., incident-ticket-123).\n2. Add user 'sam.oneill@neuralforge.ai' to this new channel.\n3. Email 'cto@company.com' with subject 'CRITICAL INCIDENT: <ticket_id>' and the issue description.\n4. Schedule a 'Discussion on <ticket_id>' meeting for tomorrow at 09:00 AM in the calendar.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 616.1,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Monitor the 'support-tickets' channel for CRITICAL incidents. If a critical ticket is found:\n1. Create a dedicated channel named 'incident-<ticket_id>' (e.g., incident-ticket-123).\n2. Add user 'sam.oneill@neuralforge.ai' to this new channel.\n3. Email 'cto@company.com' with subject 'CRITICAL INCIDENT: <ticket_id>' and the issue description.\n4. Schedule a 'Discussion on <ticket_id>' meeting for tomorrow at 09:00 AM in the calendar.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 616.1,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mattermost",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SendInterviewInvitationTask",
+      "ordinal": 25,
+      "original": {
+        "score": 1.0,
+        "goal": "Find Kevin's resume and send a text message to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 198.5,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find Kevin's resume and send a text message to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 198.5,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "AdjustBrightnessMinimumTask",
+      "ordinal": 26,
+      "original": {
+        "score": 1.0,
+        "goal": "Set the brightness to the minimum level.",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 82.2,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Set the brightness to the minimum level.",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 82.2,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "AdjustFontIconMaximumTask",
+      "ordinal": 27,
+      "original": {
+        "score": 1.0,
+        "goal": "Increase the font size and icons on your phone to the maximum setting.",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 229.3,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Increase the font size and icons on your phone to the maximum setting.",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 229.3,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "AdjustBrightnessMaximumTask",
+      "ordinal": 28,
+      "original": {
+        "score": 1.0,
+        "goal": "Set the brightness to the maximum level.",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 84.4,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Set the brightness to the maximum level.",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 84.4,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "OpenFlightModeTask",
+      "ordinal": 29,
+      "original": {
+        "score": 1.0,
+        "goal": "Turn on device flight mode",
+        "actions": 3,
+        "rounds": 4,
+        "seconds": 75.3,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Turn on device flight mode",
+        "actions": 3,
+        "rounds": 4,
+        "seconds": 75.3,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ChangeWallpaperTask",
+      "ordinal": 30,
+      "original": {
+        "score": 1.0,
+        "goal": "Change the wallpaper to a photo from the album that features sunflowers.",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 127.2,
+        "budget": 50,
+        "apps": [
+          "Settings",
+          "Gallery"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Change the wallpaper to a photo from the album that features sunflowers.",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 127.2,
+        "budget": 50,
+        "apps": [
+          "Settings",
+          "Gallery"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "AdjustFontIconMinimumTask",
+      "ordinal": 31,
+      "original": {
+        "score": 1.0,
+        "goal": "Decrease the font size and icons on your phone to the minimum setting.",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 161.2,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Decrease the font size and icons on your phone to the minimum setting.",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 161.2,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CloseFlightModeTask",
+      "ordinal": 32,
+      "original": {
+        "score": 1.0,
+        "goal": "Turn off device flight mode",
+        "actions": 3,
+        "rounds": 4,
+        "seconds": 61.1,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Turn off device flight mode",
+        "actions": 3,
+        "rounds": 4,
+        "seconds": 61.1,
+        "budget": 50,
+        "apps": [
+          "Settings"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckPuchasedItem",
+      "ordinal": 33,
+      "original": {
+        "score": 1.0,
+        "goal": "之前我给朋友在淘店上买了一双鞋，帮我看一下他脚多少尺码。请只回答一个整数, 不要返回任何其他文本.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 79.1,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "之前我给朋友在淘店上买了一双鞋，帮我看一下他脚多少尺码。请只回答一个整数, 不要返回任何其他文本.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 79.1,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CartManagementTask",
+      "ordinal": 34,
+      "original": {
+        "score": 0.0,
+        "goal": "最近天气变冷了，请帮我从淘店app的购物车中删除所有短袖T恤衬衫。如果需要登录，可以通过短信验证码登录。",
+        "actions": 26,
+        "rounds": 27,
+        "seconds": 380.7,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "最近天气变冷了，请帮我从淘店app的购物车中删除所有短袖T恤衬衫。如果需要登录，可以通过短信验证码登录。\n\n这里的删除范围为“短袖、T恤、衬衫”：满足任一条件的商品均应删除，其余保留。",
+        "actions": 34,
+        "rounds": 35,
+        "seconds": 500.4,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "CartInfoNotificationTask",
+      "ordinal": 35,
+      "original": {
+        "score": 1.0,
+        "goal": "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text.",
+        "actions": 14,
+        "rounds": 15,
+        "seconds": 241.5,
+        "budget": 50,
+        "apps": [
+          "Taodian",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text.",
+        "actions": 14,
+        "rounds": 15,
+        "seconds": 241.5,
+        "budget": 50,
+        "apps": [
+          "Taodian",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckCartPriceTask",
+      "ordinal": 36,
+      "original": {
+        "score": 1.0,
+        "goal": "Find the three most expensive items in the TaoDian app shopping cart and calculate their total price. Respond only with an integer representing the total price, with no other text.",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 123.8,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find the three most expensive items in the TaoDian app shopping cart and calculate their total price. Respond only with an integer representing the total price, with no other text.",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 123.8,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ItemCheckoutTask",
+      "ordinal": 37,
+      "original": {
+        "score": 1.0,
+        "goal": "帮我在淘店下单购物车里的iphone 15 pro，寄到浙江省杭州市余杭区阿里巴巴西溪C区，收件人张先生，收件人电话13800138000。如需登录，可以通过短信验证码。在支付页面让我操作",
+        "actions": 33,
+        "rounds": 34,
+        "seconds": 464.7,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "帮我在淘店下单购物车里的iphone 15 pro，寄到浙江省杭州市余杭区阿里巴巴西溪C区，收件人张先生，收件人电话13800138000。如需登录，可以通过短信验证码。在支付页面让我操作",
+        "actions": 33,
+        "rounds": 34,
+        "seconds": 464.7,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "RecentTotalExpenseTask",
+      "ordinal": 38,
+      "original": {
+        "score": 1.0,
+        "goal": "请帮我算一下在淘店上最近1个月我总共花了多少钱。请只回答一个整数, 不要返回任何其他文本.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 175.9,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "请帮我算一下在淘店上最近1个月我总共花了多少钱。请只回答一个整数, 不要返回任何其他文本.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 175.9,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SearchItemAndCheckoutTask",
+      "ordinal": 39,
+      "original": {
+        "score": 1.0,
+        "goal": "万圣节快到了，帮我在淘店下单买一套临时纹身，在支付页面让我操作",
+        "actions": 12,
+        "rounds": 13,
+        "seconds": 157.1,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "万圣节快到了，帮我在淘店下单买一套临时纹身，在支付页面让我操作",
+        "actions": 12,
+        "rounds": 13,
+        "seconds": 157.1,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckRegistrationTask",
+      "ordinal": 40,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my email for Putnam registration confirmation.If no such email exists, email kathy@gmail.com asking about it with the subject 'Putnam Registration Confirmation'",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 147.5,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my email for Putnam registration confirmation.If no such email exists, email kathy@gmail.com asking about it with the subject 'Putnam Registration Confirmation'",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 147.5,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "GraduationMassEmailTask",
+      "ordinal": 41,
+      "original": {
+        "score": 1.0,
+        "goal": "Search up the UF academic calendar and find out the week that grades are due in the Spring 2026 semester.Then, set a calendar event at 6pm on the Saturday of that week titled 'Graduation Party'Search my email for the list of students graduating from the math department this year.Send an email to all the graduates with the subject 'Graduation Party' and body 'Don't forget about this year's graduation party! More details coming soon.' ",
+        "actions": 27,
+        "rounds": 28,
+        "seconds": 555.6,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Search up the UF academic calendar and find out the week that grades are due in the Spring 2026 semester.Then, set a calendar event at 6pm on the Saturday of that week titled 'Graduation Party'Search my email for the list of students graduating from the math department this year.Send an email to all the graduates with the subject 'Graduation Party' and body 'Don't forget about this year's graduation party! More details coming soon.' ",
+        "actions": 27,
+        "rounds": 28,
+        "seconds": 555.6,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckSetMeetTimeTask",
+      "ordinal": 42,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my email for the date and time of my meeting with Carl.Then, set a one hour calendar event titled 'Board Meeting'",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 281.4,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my email for the date and time of my meeting with Carl.Then, set a one hour calendar event titled 'Board Meeting'",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 281.4,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "DownloadSendReceiptTask",
+      "ordinal": 43,
+      "original": {
+        "score": 0.0,
+        "goal": "Look for a file in my email titled 'receipts.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email.",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 106.9,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Look for a file in my email titled 'receipt.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 287.4,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "CancelMeetingTask",
+      "ordinal": 44,
+      "original": {
+        "score": 1.0,
+        "goal": "Could you reply to Daniel's most recent email to tell him I'll have to cancel the meeting on Thursday?",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 105.2,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Could you reply to Daniel's most recent email to tell him I'll have to cancel the meeting on Thursday?",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 105.2,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "RequestCarpoolingTask",
+      "ordinal": 45,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my email for the time of the math competition tomorrow. If it's between 12 and 5 pm, text Daniel (3522228876) 'Hey, could you help send Bob to the competition tomorrow? Thanks.'",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 158.1,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my email for the time of the math competition tomorrow. If it's between 12 and 5 pm, text Daniel (3522228876) 'Hey, could you help send Bob to the competition tomorrow? Thanks.'",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 158.1,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SendInterviewEmailTask",
+      "ordinal": 46,
+      "original": {
+        "score": 1.0,
+        "goal": "Find Kevin's resume and send an email to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 140.8,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find Kevin's resume and send an email to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+        "actions": 7,
+        "rounds": 8,
+        "seconds": 140.8,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SuggestPaperTask",
+      "ordinal": 47,
+      "original": {
+        "score": 1.0,
+        "goal": "Reply to Tony's email asking for paper suggestions with a pdf of the ddpm paper (save the pdf to Download with the name `ddpm.pdf`).Mention the full name and the abstract of the paper in the email body.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 398.3,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Reply to Tony's email asking for paper suggestions with a pdf of the ddpm paper (save the pdf to Download with the name `ddpm.pdf`).Mention the full name and the abstract of the paper in the email body.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 398.3,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckDepartTimeTask",
+      "ordinal": 48,
+      "original": {
+        "score": 1.0,
+        "goal": "Check if I've received an email about the depart time for the CoolHacks hackathon.If not, text Carl (345 6784 3456) 'Do you know what time we're leaving tomorrow?'",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 187.4,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check if I've received an email about the depart time for the CoolHacks hackathon.If not, text Carl (345 6784 3456) 'Do you know what time we're leaving tomorrow?'",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 187.4,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ThanksgivingPrepTask",
+      "ordinal": 49,
+      "original": {
+        "score": 1.0,
+        "goal": "Email me (user@gmail.com) a list of the flavoring ingredients needed to make Pecan pie with subject 'Pie shopping'.You can browse the following link for reference: https://sallysbakingaddiction.com/my-favorite-pecan-pie-recipe/Then, set an 8 am calendar event titled 'Thanksgiving Shopping' one week before Thanksgiving 2025.",
+        "actions": 46,
+        "rounds": 47,
+        "seconds": 757.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Email me (user@gmail.com) a list of the flavoring ingredients needed to make Pecan pie with subject 'Pie shopping'.You can browse the following link for reference: https://sallysbakingaddiction.com/my-favorite-pecan-pie-recipe/Then, set an 8 am calendar event titled 'Thanksgiving Shopping' one week before Thanksgiving 2025.",
+        "actions": 46,
+        "rounds": 47,
+        "seconds": 757.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckConferenceLocationTask",
+      "ordinal": 50,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my email for the location of the MCFT conference hotel, then text the address to Tom (4456547865).Use Google maps to tell me how long it would take to walk from the MIT Stata center to there. Only response the time in minutes. No other text.",
+        "actions": 25,
+        "rounds": 26,
+        "seconds": 458.3,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my email for the location of the MCFT conference hotel, then text the address to Tom (4456547865).Use Google maps to tell me how long it would take to walk from the MIT Stata center to there. Only response the time in minutes. No other text.",
+        "actions": 25,
+        "rounds": 26,
+        "seconds": 458.3,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "AcceptMeetingTask",
+      "ordinal": 51,
+      "original": {
+        "score": 1.0,
+        "goal": "Reply to Daniel's most recent email to tell him: 'I'll be there at 10:00 AM on Thursday.'",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 89.0,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Reply to Daniel's most recent email to tell him: 'I'll be there at 10:00 AM on Thursday.'",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 89.0,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SendFormsTask",
+      "ordinal": 52,
+      "original": {
+        "score": 0.0,
+        "goal": "Please check my email for any field trip forms sent from October 3rd onward.Download all of them and send them to principal@school.edu with the subject 'Field Trip Forms'. Then, tell me how many forms you found as a single number.",
+        "actions": 21,
+        "rounds": 22,
+        "seconds": 302.9,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Please check my email for any field trip forms sent from October 3rd onward.Download all of them and send them to principal@school.edu with the subject 'Field Trip Forms'. Then, tell me how many forms you found as a single number.\n\n“October 3rd onward” includes October 3 and all later dates among the emails already present in the mailbox. Do not use the device's current date as an upper cutoff, even if an existing email is dated later than that date.",
+        "actions": 30,
+        "rounds": 31,
+        "seconds": 391.8,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "SendWaiverTask",
+      "ordinal": 53,
+      "original": {
+        "score": 1.0,
+        "goal": "Send the file 'waiver.jpg' as an email attachment to bob@gmail.com. Title the email 'Updated waiver'.",
+        "actions": 8,
+        "rounds": 9,
+        "seconds": 102.9,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Send the file 'waiver.jpg' as an email attachment to bob@gmail.com. Title the email 'Updated waiver'.",
+        "actions": 8,
+        "rounds": 9,
+        "seconds": 102.9,
+        "budget": 50,
+        "apps": [
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckEventTimeTask",
+      "ordinal": 54,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my email for the time of the Christmas party today. Set an alarm for one hour before then.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 130.0,
+        "budget": 50,
+        "apps": [
+          "Clock",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my email for the time of the Christmas party today. Set an alarm for one hour before then.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 130.0,
+        "budget": 50,
+        "apps": [
+          "Clock",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckInterviewTimesTask",
+      "ordinal": 55,
+      "original": {
+        "score": 1.0,
+        "goal": "Check my email for any job interviews I have in November.Set calendar events for each of them. Use the company name as the title and the interview time as the start and end time.",
+        "actions": 48,
+        "rounds": 49,
+        "seconds": 826.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check my email for any job interviews I have in November.Set calendar events for each of them. Use the company name as the title and the interview time as the start and end time.",
+        "actions": 48,
+        "rounds": 49,
+        "seconds": 826.8,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ChromeSearchBeijingWeatherTask",
+      "ordinal": 56,
+      "original": {
+        "score": 1.0,
+        "goal": "Use Chrome to search for Beijing highest temperature today. ONLY give a integer number denoted Celsius degree.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 148.3,
+        "budget": 50,
+        "apps": [
+          "Chrome"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Use Chrome to search for Beijing highest temperature today. ONLY give a integer number denoted Celsius degree.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 148.3,
+        "budget": 50,
+        "apps": [
+          "Chrome"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckGithubInfoTask",
+      "ordinal": 57,
+      "original": {
+        "score": 1.0,
+        "goal": "Please check the number of stars and contributors on the AndroidWorld GitHub repository, then send an email to kevin_zhang@example.com with the subject line \"AndroidWorld Repository Stats\" and the following message body:\nThere are XXX stars and XXX contributors in the AndroidWorld repository.\n\nReplace \"XXX\" with the actual numbers you find.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 317.2,
+        "budget": 50,
+        "apps": [
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Please check the number of stars and contributors on the AndroidWorld GitHub repository, then send an email to kevin_zhang@example.com with the subject line \"AndroidWorld Repository Stats\" and the following message body:\nThere are XXX stars and XXX contributors in the AndroidWorld repository.\n\nReplace \"XXX\" with the actual numbers you find.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 317.2,
+        "budget": 50,
+        "apps": [
+          "Chrome",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "TextArrivalTimeTask",
+      "ordinal": 58,
+      "original": {
+        "score": 0.0,
+        "goal": "Search up how long it takes to drive from Orlando to Miami.Text Susan (4538997638) the approximate time I'll be there if I leave at 5 pm.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 345.4,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 0.0,
+        "goal": "Search up how long it takes to drive from Orlando to Miami.Text Susan (4538997638) the approximate time I'll be there if I leave at 5 pm.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 345.4,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "GoogleMapsAlibabaSouthNeighborTask",
+      "ordinal": 59,
+      "original": {
+        "score": 1.0,
+        "goal": "Open Google Maps and find which company is directly south of Alibaba Hangzhou headquarters in Binjiang District. ONLY output the company name in English.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 166.1,
+        "budget": 50,
+        "apps": [
+          "Maps"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Open Google Maps and find which company is directly south of Alibaba Hangzhou headquarters in Binjiang District. ONLY output the company name in English.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 166.1,
+        "budget": 50,
+        "apps": [
+          "Maps"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "GoogleMapsAlibabaPhoneContactTask",
+      "ordinal": 60,
+      "original": {
+        "score": 1.0,
+        "goal": "Find the phone number of Alibaba's Hangzhou headquarters on the google map, and based on that, create a new contact named Kevin Zhang with the company.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 259.8,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Contacts"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find the phone number of Alibaba's Hangzhou headquarters on the google map, and based on that, create a new contact named Kevin Zhang with the company.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 259.8,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Contacts"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ReadQwen3PaperTask4",
+      "ordinal": 61,
+      "original": {
+        "score": 1.0,
+        "goal": "Read the downloaded Qwen3-Omni paper and tell me the size of Vision encoder in Qwen3-Omni-30B-A3B model. Please provide only the numeric value in millions of parameters.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 156.2,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Read the downloaded Qwen3-Omni paper and tell me the size of Vision encoder in Qwen3-Omni-30B-A3B model. Please provide only the numeric value in millions of parameters.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 156.2,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CountFileLinesTask",
+      "ordinal": 62,
+      "original": {
+        "score": 1.0,
+        "goal": "Check the file_1.txt inside the earliest zip file from July in the Downloads directory and count how many lines it contains. Respond only with an integer representing the line count, with no other text.",
+        "actions": 43,
+        "rounds": 44,
+        "seconds": 591.3,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check the file_1.txt inside the earliest zip file from July in the Downloads directory and count how many lines it contains. Respond only with an integer representing the line count, with no other text.",
+        "actions": 43,
+        "rounds": 44,
+        "seconds": 591.3,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "BidFileRenameTask",
+      "ordinal": 63,
+      "original": {
+        "score": 1.0,
+        "goal": "将Download中前缀为bid_的文件, 按创建日期由早到晚，统一按照'bid_{序号}.{原扩展名}'进行重命名。",
+        "actions": 23,
+        "rounds": 24,
+        "seconds": 316.8,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "将Download中前缀为bid_的文件, 按创建日期由早到晚，统一按照'bid_{序号}.{原扩展名}'进行重命名。",
+        "actions": 23,
+        "rounds": 24,
+        "seconds": 316.8,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "InvoiceReceiptCopyTask",
+      "ordinal": 64,
+      "original": {
+        "score": 1.0,
+        "goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进Finance/invoice文件夹。",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 210.4,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进Finance/invoice文件夹。",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 210.4,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CVEmailTask",
+      "ordinal": 65,
+      "original": {
+        "score": 1.0,
+        "goal": "在Download内找到最近一个月下载的简历文件，把文件发送给HR_chen@gmail.com，标题为candidates_cv。",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 170.6,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "在Download内找到最近一个月下载的简历文件，把文件发送给HR_chen@gmail.com，标题为candidates_cv。",
+        "actions": 9,
+        "rounds": 10,
+        "seconds": 170.6,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ReadQwen3PaperTask2",
+      "ordinal": 66,
+      "original": {
+        "score": 0.0,
+        "goal": "Read the downloaded Qwen3 paper and tell me how many core contributors in this paper. The answer should consist of only a single number.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 353.2,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 0.0,
+        "goal": "Read the downloaded Qwen3 paper and tell me how many core contributors in this paper. The answer should consist of only a single number.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 353.2,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckInvoiceTask1",
+      "ordinal": 67,
+      "original": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and respond with only a single number representing the total amount, with no other text.",
+        "actions": 2,
+        "rounds": 3,
+        "seconds": 72.1,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and respond with only a single number representing the total amount, with no other text.",
+        "actions": 2,
+        "rounds": 3,
+        "seconds": 72.1,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ReadQwen3PaperTask5",
+      "ordinal": 68,
+      "original": {
+        "score": 0.0,
+        "goal": "Read the downloaded Qwen3 paper and tell me what kind of Austroasiatic language is supported by Qwen3 in Belebele Benchmark.The answer should be a list of languages separated by comma.No other text.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 587.1,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 0.0,
+        "goal": "Read the downloaded Qwen3 paper and tell me what kind of Austroasiatic language is supported by Qwen3 in Belebele Benchmark.The answer should be a list of languages separated by comma.No other text.\n\nReturn the language-and-script codes printed in the paper's Belebele table, in their table order, rather than English language names. Separate language and script with a space, and separate entries with commas; include no other text.",
+        "actions": 19,
+        "rounds": 20,
+        "seconds": 403.2,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "CheckInvoiceTask2",
+      "ordinal": 69,
+      "original": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and forward the result number to the customer via Email.",
+        "actions": 8,
+        "rounds": 9,
+        "seconds": 193.5,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and forward the result number to the customer via Email.",
+        "actions": 8,
+        "rounds": 9,
+        "seconds": 193.5,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ReviewPaperEmailTask",
+      "ordinal": 70,
+      "original": {
+        "score": 1.0,
+        "goal": "查找手机Documents文件夹内所有review开头的pdf文件，移动在Document/paper下，并将paper目录下的所有文件，发送到chen@gmail.com，标题为paper。",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 391.9,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "查找手机Documents文件夹内所有review开头的pdf文件，移动在Document/paper下，并将paper目录下的所有文件，发送到chen@gmail.com，标题为paper。",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 391.9,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SharePhotosTask",
+      "ordinal": 71,
+      "original": {
+        "score": 1.0,
+        "goal": "Find all flowers pictures in gallery and send them via email to kevin_zhang@example.com, with text \"Here are some flowers for you.\"",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 265.3,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mail"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find all flowers pictures in gallery and send them via email to kevin_zhang@example.com, with text \"Here are some flowers for you.\"",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 265.3,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mail"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckInvoiceTask3",
+      "ordinal": 72,
+      "original": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. Send a SMS to Mia and report how many fewer hours does Consulting Services have than Software Development?",
+        "actions": 8,
+        "rounds": 9,
+        "seconds": 159.3,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. Send a SMS to Mia and report how many fewer hours does Consulting Services have than Software Development?",
+        "actions": 8,
+        "rounds": 9,
+        "seconds": 159.3,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SumFileLinesTask",
+      "ordinal": 73,
+      "original": {
+        "score": 1.0,
+        "goal": "Check the all files inside the earliest zip file from July in the Downloads directory and count how many lines it contains in total. Respond only with an integer representing the line count, with no other text.",
+        "actions": 36,
+        "rounds": 37,
+        "seconds": 658.6,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check the all files inside the earliest zip file from July in the Downloads directory and count how many lines it contains in total. Respond only with an integer representing the line count, with no other text.",
+        "actions": 36,
+        "rounds": 37,
+        "seconds": 658.6,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ReadQwen3PaperTask3",
+      "ordinal": 74,
+      "original": {
+        "score": 1.0,
+        "goal": "Read the downloaded Qwen3-Omni paper and tell me how many benchmarks are used in evaluting the Text to Text performance of Qwen3-Omni-Thinking model. The answer should consist of only a single number.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 452.7,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Read the downloaded Qwen3-Omni paper and tell me how many benchmarks are used in evaluting the Text to Text performance of Qwen3-Omni-Thinking model. The answer should consist of only a single number.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 452.7,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "ReadQwen3PaperTask1",
+      "ordinal": 75,
+      "original": {
+        "score": 0.0,
+        "goal": "Read the downloaded Qwen3 paper and indicate by how many points Qwen3-32B (Thinking) lags behind the best model on the AIME25 benchmark. The answer should consist of only a single number representing the score difference.",
+        "actions": 12,
+        "rounds": 13,
+        "seconds": 238.1,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 0.0,
+        "goal": "Read the downloaded Qwen3 paper and indicate by how many points Qwen3-32B (Thinking) lags behind the best model on the AIME25 benchmark. The answer should consist of only a single number representing the score difference.",
+        "actions": 12,
+        "rounds": 13,
+        "seconds": 238.1,
+        "budget": 50,
+        "apps": [
+          "Docreader",
+          "Files"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "InvoiceReceiptCopyAskUserTask",
+      "ordinal": 76,
+      "original": {
+        "score": 0.0,
+        "goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。",
+        "actions": 14,
+        "rounds": 15,
+        "seconds": 238.4,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。该文件夹是 Documents/expense/invoice；如果不存在，请先创建。",
+        "actions": 25,
+        "rounds": 26,
+        "seconds": 384.8,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "TakeSelfieTask",
+      "ordinal": 77,
+      "original": {
+        "score": 1.0,
+        "goal": "Take a photo.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 55.5,
+        "budget": 50,
+        "apps": [
+          "Camera"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Take a photo.",
+        "actions": 4,
+        "rounds": 5,
+        "seconds": 55.5,
+        "budget": 50,
+        "apps": [
+          "Camera"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SMSManagement",
+      "ordinal": 78,
+      "original": {
+        "score": 1.0,
+        "goal": "Check all unread sms messages, delete spams, and provide a summary of recruitment messages to me via email by sending to dylan@gmail.com. Note I'm only interested in open data scientist role.",
+        "actions": 27,
+        "rounds": 28,
+        "seconds": 483.6,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Messages"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Check all unread sms messages, delete spams, and provide a summary of recruitment messages to me via email by sending to dylan@gmail.com. Note I'm only interested in open data scientist role.",
+        "actions": 27,
+        "rounds": 28,
+        "seconds": 483.6,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Messages"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "SetAlarmTask",
+      "ordinal": 79,
+      "original": {
+        "score": 1.0,
+        "goal": "Set a weekend alarm for 8:25 a.m. with the ringtone \"beebeep\" and vibration off. ",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 173.2,
+        "budget": 50,
+        "apps": [
+          "Clock"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Set a weekend alarm for 8:25 a.m. with the ringtone \"beebeep\" and vibration off. ",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 173.2,
+        "budget": 50,
+        "apps": [
+          "Clock"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonRemoveBookmarkTask",
+      "ordinal": 80,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, remove the posts with #pets tag from bookmarks on my account.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 309.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, remove the posts with #pets tag from bookmarks on my account.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 309.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonPinTootsTask",
+      "ordinal": 81,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, pin the first post I published after creating the account to the top.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 102.4,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, pin the first post I published after creating the account to the top.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 102.4,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonServerInfoReportTask",
+      "ordinal": 82,
+      "original": {
+        "score": 1.0,
+        "goal": "switch to owner account in mastodon, then go to account backend to find the number of reports not tackled yet, and send the number as an email content in the format: \"Recent reports: xxx\" to owner@mastodon_example.com by email, the number should be in Arabic numerals.",
+        "actions": 29,
+        "rounds": 30,
+        "seconds": 471.3,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "switch to owner account in mastodon, then go to account backend to find the number of reports not tackled yet, and send the number as an email content in the format: \"Recent reports: xxx\" to owner@mastodon_example.com by email, the number should be in Arabic numerals.\n\n[Official synthetic account context supplied; credentials omitted from this public export.]",
+        "actions": 27,
+        "rounds": 28,
+        "seconds": 357.7,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Mastodon"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "MastodonUpdateContactsTask",
+      "ordinal": 83,
+      "original": {
+        "score": 1.0,
+        "goal": "My friend Olivia has left new phone and email information in the latest post on Mastodon, please update the information to my contacts, and send a text message to Olivia, the content of the text message should be 'Hello, how are you'. Remember to set the email label to internet.",
+        "actions": 30,
+        "rounds": 31,
+        "seconds": 456.2,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "My friend Olivia has left new phone and email information in the latest post on Mastodon, please update the information to my contacts, and send a text message to Olivia, the content of the text message should be 'Hello, how are you'. Remember to set the email label to internet.",
+        "actions": 30,
+        "rounds": 31,
+        "seconds": 456.2,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonConditionalFavoTask",
+      "ordinal": 84,
+      "original": {
+        "score": 1.0,
+        "goal": "favorite all toots tagged “#dogs” on Mastodon, but do not add them to my favorite list if they are already in my favorite list or bookmark list.",
+        "actions": 23,
+        "rounds": 24,
+        "seconds": 313.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "favorite all toots tagged “#dogs” on Mastodon, but do not add them to my favorite list if they are already in my favorite list or bookmark list.",
+        "actions": 23,
+        "rounds": 24,
+        "seconds": 313.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonFilterLanguageTask",
+      "ordinal": 85,
+      "original": {
+        "score": 1.0,
+        "goal": "On Mastodon, set up filters to only show posts in English, Japanese, and Chinese Simplified.",
+        "actions": 21,
+        "rounds": 22,
+        "seconds": 311.7,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "On Mastodon, set up filters to only show posts in English, Japanese, and Chinese Simplified.",
+        "actions": 21,
+        "rounds": 22,
+        "seconds": 311.7,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonInviteTask",
+      "ordinal": 86,
+      "original": {
+        "score": 1.0,
+        "goal": "Generate a one-person invite link that expires in one day, auto-follows me, and send it to my friend Leonard by SMS.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 301.9,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Generate a one-person invite link that expires in one day, auto-follows me, and send it to my friend Leonard by SMS.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 301.9,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonExportFollowsTask",
+      "ordinal": 87,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, export my follows in settings and save it as my_following.csv.",
+        "actions": 26,
+        "rounds": 27,
+        "seconds": 339.6,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, export my follows in settings and save it as my_following.csv.",
+        "actions": 26,
+        "rounds": 27,
+        "seconds": 339.6,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonNewFilterTask",
+      "ordinal": 88,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, add a new filter called “Anti-Spoiler-BCS”, use all the words from the text file named filter_BCS in the documents folder as blocked keywords, and set it to expire 5 days from today.",
+        "actions": 38,
+        "rounds": 39,
+        "seconds": 478.9,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, add a new filter called “Anti-Spoiler-BCS”, use all the words from the text file named filter_BCS in the documents folder as blocked keywords, and set it to expire 5 days from today.",
+        "actions": 38,
+        "rounds": 39,
+        "seconds": 478.9,
+        "budget": 50,
+        "apps": [
+          "Files",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonSavePhotosTask",
+      "ordinal": 89,
+      "original": {
+        "score": 1.0,
+        "goal": "Find the post that Alice published on October 5th on Mastodon, and save all the images to the phone.",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 199.9,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find the post that Alice published on October 5th on Mastodon, and save all the images to the phone.",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 199.9,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonManageHashtagsTask",
+      "ordinal": 90,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, unfollow the hashtags I followed before related to animals.",
+        "actions": 19,
+        "rounds": 20,
+        "seconds": 233.8,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, unfollow the hashtags I followed before related to animals.",
+        "actions": 19,
+        "rounds": 20,
+        "seconds": 233.8,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonCalendarMultiMemosTask",
+      "ordinal": 91,
+      "original": {
+        "score": 1.0,
+        "goal": "On Mastodon, find lectures in the #openTalk hashtag for the current month, then add the lecture information (time, location, topic) to the calendar events. If the start time is within 10 days, set the reminder time to 1 day before. Otherwise, set the reminder time to 3 days before the start time.",
+        "actions": 50,
+        "rounds": 50,
+        "seconds": 653.6,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "On Mastodon, find lectures in the #openTalk hashtag for the current month, then add the lecture information (time, location, topic) to the calendar events. If the start time is within 10 days, set the reminder time to 1 day before. Otherwise, set the reminder time to 3 days before the start time.",
+        "actions": 50,
+        "rounds": 50,
+        "seconds": 653.6,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonCreateMemoTask",
+      "ordinal": 92,
+      "original": {
+        "score": 1.0,
+        "goal": "Find information under #openTalk on Mastodon about the topic of Urban Mobility lectures, then create a event on my calendar with time, location, and topic as title, and set a reminder 1 day before.",
+        "actions": 34,
+        "rounds": 35,
+        "seconds": 448.2,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find information under #openTalk on Mastodon about the topic of Urban Mobility lectures, then create a event on my calendar with time, location, and topic as title, and set a reminder 1 day before.",
+        "actions": 34,
+        "rounds": 35,
+        "seconds": 448.2,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonMultiInviteTask",
+      "ordinal": 93,
+      "original": {
+        "score": 0,
+        "goal": "Generate two invite links with different conditions. One with validity days of 1 day and max uses of 1, send it to my friend Leonard by SMS. Another with validity days of 7 days and auto-follow me, send it to my friend Ella by SMS.",
+        "actions": 47,
+        "rounds": 48,
+        "seconds": 800.3,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 0,
+        "goal": "Generate two invite links with different conditions. One with validity days of 1 day and max uses of 1, send it to my friend Leonard by SMS. Another with validity days of 7 days and auto-follow me, send it to my friend Ella by SMS.",
+        "actions": 47,
+        "rounds": 48,
+        "seconds": 800.3,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonMattermostPostNoticeTask",
+      "ordinal": 94,
+      "original": {
+        "score": 1.0,
+        "goal": "Please help me sync the Security announcement from mike in the announcement channel on mattermost to mastodon, do not change the original content, the announcement is only visible to followers, and also @openCompany account.",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 249.8,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Please help me sync the Security announcement from mike in the announcement channel on mattermost to mastodon, do not change the original content, the announcement is only visible to followers, and also @openCompany account.",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 249.8,
+        "budget": 50,
+        "apps": [
+          "Mattermost",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonAddBookmarkTask",
+      "ordinal": 95,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, add all posts of user kitty that have #cats tag to bookmarks.",
+        "actions": 31,
+        "rounds": 32,
+        "seconds": 442.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, add all posts of user kitty that have #cats tag to bookmarks.",
+        "actions": 31,
+        "rounds": 32,
+        "seconds": 442.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonImportMutedUsersTask",
+      "ordinal": 96,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, import my muted list from the file named 'muted_accounts.csv' in the Downloads directory.",
+        "actions": 19,
+        "rounds": 20,
+        "seconds": 269.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, import my muted list from the file named 'muted_accounts.csv' in the Downloads directory.",
+        "actions": 19,
+        "rounds": 20,
+        "seconds": 269.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonReplyTask",
+      "ordinal": 97,
+      "original": {
+        "score": 1.0,
+        "goal": "Reply to the toot of gourmet user about Greek food Moussaka, and the reply content should be 'Nice sharing, i love it'.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 244.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Reply to the toot of gourmet user about Greek food Moussaka, and the reply content should be 'Nice sharing, i love it'.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 244.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonNewPostTask",
+      "ordinal": 98,
+      "original": {
+        "score": 1.0,
+        "goal": "Open Mastodon app and post a new toot with the content 'Hello from AI agent!'",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 71.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Open Mastodon app and post a new toot with the content 'Hello from AI agent!'",
+        "actions": 5,
+        "rounds": 6,
+        "seconds": 71.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonFavoriteTootsTask",
+      "ordinal": 99,
+      "original": {
+        "score": 1.0,
+        "goal": "Search for toots tagged “#dogs” on Mastodon, favorite all of them.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 272.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Search for toots tagged “#dogs” on Mastodon, favorite all of them.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 272.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonManageMultiListTask",
+      "ordinal": 100,
+      "original": {
+        "score": 1.0,
+        "goal": "View my lists on Mastodon, delete all previously created lists, and create two new lists. One list named 'open' should allow only I followed users to reply and add users, whose username contains 'open'. Another list named 'cute' should allow only members of the list to reply, enable hide members in following, and add users, whose avatar is a dog or cat.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 362.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "View my lists on Mastodon, delete all previously created lists, and create two new lists. One list named 'open' should allow only I followed users to reply and add users, whose username contains 'open'. Another list named 'cute' should allow only members of the list to reply, enable hide members in following, and add users, whose avatar is a dog or cat.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 362.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonPostEditedPhotoTask",
+      "ordinal": 101,
+      "original": {
+        "score": 1.0,
+        "goal": "Select a random photo from the gallery, crop it to a 9:16 ratio, and post it with the tag #onePhoto. Post with the account @test.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 227.5,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Select a random photo from the gallery, crop it to a 9:16 ratio, and post it with the tag #onePhoto. Post with the account @test.",
+        "actions": 18,
+        "rounds": 19,
+        "seconds": 227.5,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonRevisePollTask",
+      "ordinal": 102,
+      "original": {
+        "score": 1.0,
+        "goal": "Edit my Mastodon poll about which country has the largest area by removing the option “USA” and changing the option “Brazil” to “Canada.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 159.0,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Edit my Mastodon poll about which country has the largest area by removing the option “USA” and changing the option “Brazil” to “Canada.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 159.0,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonMallPurchaseCommodityTask",
+      "ordinal": 103,
+      "original": {
+        "score": 1.0,
+        "goal": "我在mastodon上关注的jack分享了一个商品,请你在淘店app下单购买2双同款，收货地址为：广东省广州市天河区华景新城，收货人李四，收货人电话13800139999。",
+        "actions": 32,
+        "rounds": 33,
+        "seconds": 514.4,
+        "budget": 50,
+        "apps": [
+          "Taodian",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "我在mastodon上关注的jack分享了一个商品,请你在淘店app下单购买2双同款，收货地址为：广东省广州市天河区华景新城，收货人李四，收货人电话13800139999。",
+        "actions": 32,
+        "rounds": 33,
+        "seconds": 514.4,
+        "budget": 50,
+        "apps": [
+          "Taodian",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonUnfollowTask",
+      "ordinal": 104,
+      "original": {
+        "score": 1.0,
+        "goal": "manage my following list on Mastodon, only keep the latest three users, and unfollow all other users.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 181.0,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "manage my following list on Mastodon, only keep the latest three users, and unfollow all other users.",
+        "actions": 11,
+        "rounds": 12,
+        "seconds": 181.0,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonRevisePhotoAltTask",
+      "ordinal": 105,
+      "original": {
+        "score": 1.0,
+        "goal": "please check the ALT content of the picture in the toot i posted about 'Impression, Sunrise' in Mastodon, if the author Monet is not mentioned, please add 'Author is Monet' to the first line",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 145.9,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "please check the ALT content of the picture in the toot i posted about 'Impression, Sunrise' in Mastodon, if the author Monet is not mentioned, please add 'Author is Monet' to the first line",
+        "actions": 10,
+        "rounds": 11,
+        "seconds": 145.9,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonPostPollTask",
+      "ordinal": 106,
+      "original": {
+        "score": 1.0,
+        "goal": "Search on Google for the '2025 Nobel Prize in Economics' and use the names of the winners as the poll options. Post a poll on Mastodon with the hashtag '#vote2025', allowing multiple selections and lasting for one week.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 283.8,
+        "budget": 50,
+        "apps": [
+          "Chrome",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Search on Google for the '2025 Nobel Prize in Economics' and use the names of the winners as the poll options. Post a poll on Mastodon with the hashtag '#vote2025', allowing multiple selections and lasting for one week.",
+        "actions": 20,
+        "rounds": 21,
+        "seconds": 283.8,
+        "budget": 50,
+        "apps": [
+          "Chrome",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonAddFeaturedHashtagsTask",
+      "ordinal": 107,
+      "original": {
+        "score": 1.0,
+        "goal": "On Mastodon, add some hashtags as my featured hashtags in my profile, add the hashtags: summerrain, nature, and photography.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 206.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "On Mastodon, add some hashtags as my featured hashtags in my profile, add the hashtags: summerrain, nature, and photography.",
+        "actions": 16,
+        "rounds": 17,
+        "seconds": 206.3,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonChangeHeaderTask",
+      "ordinal": 108,
+      "original": {
+        "score": 1.0,
+        "goal": "On Mastodon, replace my profile header with the tiger photo from my photo gallery.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 99.3,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "On Mastodon, replace my profile header with the tiger photo from my photo gallery.",
+        "actions": 6,
+        "rounds": 7,
+        "seconds": 99.3,
+        "budget": 50,
+        "apps": [
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonShareLocationTask",
+      "ordinal": 109,
+      "original": {
+        "score": 0.0,
+        "goal": "Search for the location Eiffel Tower on Google Map, and share the link to Mastodon, add the Eiffel Tower image in my photo gallery, then post it.",
+        "actions": 27,
+        "rounds": 28,
+        "seconds": 372.4,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Search for the location Eiffel Tower on Google Map, and share the link to Mastodon, add the Eiffel Tower image in my photo gallery, then post it.\n\nInclude the place name as text in the post, in addition to the Maps link and photo.",
+        "actions": 22,
+        "rounds": 23,
+        "seconds": 373.8,
+        "budget": 50,
+        "apps": [
+          "Maps",
+          "Gallery",
+          "Mastodon"
+        ]
+      },
+      "changed": true
+    },
+    {
+      "id": "MastodonCreateListTask",
+      "ordinal": 110,
+      "original": {
+        "score": 1.0,
+        "goal": "Create a list called \"Family,\" only followed users can reply, and add my family members — Alex, Emma, and Jack",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 164.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Create a list called \"Family,\" only followed users can reply, and add my family members — Alex, Emma, and Jack",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 164.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonAdjustTootsTask",
+      "ordinal": 111,
+      "original": {
+        "score": 1.0,
+        "goal": "On Mastodon, remove all bookmarks and add them as favorites, and boost all of them.",
+        "actions": 45,
+        "rounds": 46,
+        "seconds": 580.0,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "On Mastodon, remove all bookmarks and add them as favorites, and boost all of them.",
+        "actions": 45,
+        "rounds": 46,
+        "seconds": 580.0,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonChangeLanguageTask",
+      "ordinal": 112,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, set the language of the account to Chinese Simplified.",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 227.2,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, set the language of the account to Chinese Simplified.",
+        "actions": 17,
+        "rounds": 18,
+        "seconds": 227.2,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonMallShareOrderTask",
+      "ordinal": 113,
+      "original": {
+        "score": 1.0,
+        "goal": "在淘店中,找到我的订单中的手表商品,然后在mastodon发布一条推文介绍商品,内容包括商品名称,购买价格和商品图片。",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 421.9,
+        "budget": 50,
+        "apps": [
+          "Taodian",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "在淘店中,找到我的订单中的手表商品,然后在mastodon发布一条推文介绍商品,内容包括商品名称,购买价格和商品图片。",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 421.9,
+        "budget": 50,
+        "apps": [
+          "Taodian",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonFollowTask",
+      "ordinal": 114,
+      "original": {
+        "score": 1.0,
+        "goal": "Find Robert's nickname in Contacts, then search it on Mastodon, and follow him.",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 195.0,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Find Robert's nickname in Contacts, then search it on Mastodon, and follow him.",
+        "actions": 13,
+        "rounds": 14,
+        "seconds": 195.0,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonReportTask",
+      "ordinal": 115,
+      "original": {
+        "score": 1.0,
+        "goal": "Report Frank’s post about “the gas leak event” for spam, include the whole post content as the report reason, and block Frank after submitting the report.",
+        "actions": 26,
+        "rounds": 27,
+        "seconds": 348.2,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "Report Frank’s post about “the gas leak event” for spam, include the whole post content as the report reason, and block Frank after submitting the report.",
+        "actions": 26,
+        "rounds": 27,
+        "seconds": 348.2,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonGetServerInfoTask",
+      "ordinal": 116,
+      "original": {
+        "score": 1.0,
+        "goal": "On mastodon, switch to owner account, then go to settings backend to query the database size, and post a toot to tell the result, use MB as the unit",
+        "actions": 25,
+        "rounds": 26,
+        "seconds": 342.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "On mastodon, switch to owner account, then go to settings backend to query the database size, and post a toot to tell the result, use MB as the unit",
+        "actions": 25,
+        "rounds": 26,
+        "seconds": 342.1,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonOpenAutomatedDeletionTask",
+      "ordinal": 117,
+      "original": {
+        "score": 1.0,
+        "goal": "In Mastodon, enable automatically delete old posts, only set pinned posts as expected, and set the age threshold to 7 days, Keep posts with at least 20 favs or 20 reblogs.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 330.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "clarified": {
+        "score": 1.0,
+        "goal": "In Mastodon, enable automatically delete old posts, only set pinned posts as expected, and set the age threshold to 7 days, Keep posts with at least 20 favs or 20 reblogs.",
+        "actions": 24,
+        "rounds": 25,
+        "seconds": 330.5,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ]
+      },
+      "changed": false
+    }
+  ],
+  "clarifications": [
+    {
+      "id": "CheckDeduplicatedEventsTask",
+      "problem": "Counting unit was unspecified.",
+      "clarification": "Count a recurring series once across the date range; count a multi-day event once.",
+      "problemZh": "去重计数单位未说明。",
+      "clarificationZh": "同一重复事件系列在日期范围内计一次，跨日事件也计一次。",
+      "original": 0.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    },
+    {
+      "id": "MattermostProjectStatusReportTask",
+      "problem": "The three-day milestone window had no reference date.",
+      "clarification": "Use each update's completion/target date, with a ±3-calendar-day milestone window, rather than today.",
+      "problemZh": "三天里程碑窗口缺少基准日期。",
+      "clarificationZh": "以状态更新中的完成／目标日期为基准，前后三个自然日内匹配里程碑，不以今天为基准。",
+      "original": 1.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    },
+    {
+      "id": "CartManagementTask",
+      "problem": "The deletion categories could be read as a single modified phrase.",
+      "clarification": "Delete items matching any of: short sleeves, T-shirts or shirts; retain the rest.",
+      "problemZh": "“短袖T恤衬衫”的删除范围有歧义。",
+      "clarificationZh": "明确为“短袖、T恤、衬衫”三类并列条件，满足任一条件删除，其余保留。",
+      "original": 0.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    },
+    {
+      "id": "DownloadSendReceiptTask",
+      "problem": "The goal said receipts.jpg; the fixture and evaluator use receipt.jpg.",
+      "clarification": "Correct the filename to receipt.jpg.",
+      "problemZh": "原题写 receipts.jpg，初始化文件与评分器使用 receipt.jpg。",
+      "clarificationZh": "将目标文件名更正为 receipt.jpg。",
+      "original": 0.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    },
+    {
+      "id": "SendFormsTask",
+      "problem": "The mailbox contains messages later than the restored device date.",
+      "clarification": "October 3 onward includes October 3 and all later messages already present; do not cap at the device date.",
+      "problemZh": "邮箱中存在晚于恢复后设备日期的邮件。",
+      "clarificationZh": "October 3 onward 包含 10 月 3 日及邮箱已有的所有后续日期邮件，不以设备日期为上限。",
+      "original": 0.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    },
+    {
+      "id": "ReadQwen3PaperTask5",
+      "problem": "The goal requested language names; scoring requires exact language/script codes and order.",
+      "clarification": "Return the printed language-and-script codes in table order, comma separated, without additional text.",
+      "problemZh": "原题要求语言列表，评分器要求精确的语言／文字代码及顺序。",
+      "clarificationZh": "按论文表格顺序返回语言与文字代码，以逗号分隔，不附加其他文字。",
+      "original": 0.0,
+      "clarified": 0.0,
+      "kind": "wording"
+    },
+    {
+      "id": "InvoiceReceiptCopyAskUserTask",
+      "problem": "The destination preference is only in simulated-user context despite no interaction tag.",
+      "clarification": "Supply Documents/expense/invoice as the destination; create it if absent.",
+      "problemZh": "目标目录仅在模拟用户信息中，任务却未标注用户交互。",
+      "clarificationZh": "补充目标目录 Documents/expense/invoice，不存在则创建。",
+      "original": 0.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    },
+    {
+      "id": "MastodonServerInfoReportTask",
+      "problem": "Official fixture account information was not explicit in the goal.",
+      "clarification": "Append official synthetic account context; all login remains agent GUI work. This is environment context, not an answer.",
+      "problemZh": "任务未显式提供官方测试账号信息。",
+      "clarificationZh": "附加官方合成测试账号信息；登录仍由 Agent 通过 GUI 完成。这是环境信息，不是答案。",
+      "original": 1.0,
+      "clarified": 1.0,
+      "kind": "environment context"
+    },
+    {
+      "id": "MastodonShareLocationTask",
+      "problem": "The goal asked for a link and photo; scoring also requires the place name in the post.",
+      "clarification": "Include the place name as post text alongside the Maps link and photo.",
+      "problemZh": "原题要求链接和照片，评分器还要求帖子正文包含地点名。",
+      "clarificationZh": "除地图链接和照片外，在帖子正文写明地点名称。",
+      "original": 0.0,
+      "clarified": 1.0,
+      "kind": "wording"
+    }
+  ],
+  "demos": [
+    {
+      "task": "MattermostProjectStatusReportTask",
+      "variant": "clarified",
+      "slug": "project-risk-matrix",
+      "title": "Project risk matrix",
+      "titleZh": "项目风险矩阵",
+      "description": "Reconcile three teams with milestones, email a risk matrix, schedule escalations and post counts.",
+      "descriptionZh": "核对三组团队状态与里程碑，发送风险矩阵、安排升级事件并发布统计。",
+      "apps": "Mattermost → Calendar → Mail",
+      "score": 1,
+      "actions": 41,
+      "rounds": 42,
+      "task_seconds": 746.17,
+      "source_recording_seconds": 757.2552111111111,
+      "playback_speed": 3,
+      "source_sha256": "3eee6a9e36efc62189252d3d6d686385f738563c113ee3a432fc1f12bf424e09",
+      "video": "project-risk-matrix.mp4",
+      "preview": "project-risk-matrix.gif",
+      "poster": "project-risk-matrix.webp",
+      "output_sha256": "d4570907f26f6fa4597849968fb3b7971cc793924bc761a0f5521092c987f54f",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Mattermost to inspect the requested team status updates.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open Backend Team to collect all relevant status items and target dates.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Backend Team scope shows Authentication Module (on-track, expected completion 2026-10-09) and Payment Integration (blocked, no completion/target date stated). Return to channel list to inspect the remaining teams.",
+          "action": "back",
+          "screenshot": "project-risk-matrix-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Open Frontend Team to collect its complete status-update scope.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Frontend Team scope shows Dashboard UI (at-risk, original target 2026-10-12) and API Gateway Setup (on-track, completion target 2026-10-09). Return to inspect QA Team.",
+          "action": "back",
+          "screenshot": "project-risk-matrix-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Open QA Team to collect its full status-update scope.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Completed requested Mattermost scope: six items collected. Authentication Module (on-track, 2026-10-09), Payment Integration (blocked, no date), API Gateway Setup (on-track, 2026-10-09), Dashboard UI (at-risk, 2026-10-12), Performance Testing (at-risk, no date and explicitly no milestone), Security Audit (blocked, no date).",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Launch Fossify Calendar to verify dated milestone claims in their item-relative windows.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Focus Calendar search to verify the Authentication Module milestone title and date.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Search Calendar for the Authentication Module milestone.",
+          "action": "type",
+          "screenshot": "project-risk-matrix-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Authentication Module has an in-window milestone on October 9; now search for API Gateway Setup.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "The full-title search returned no exact match, but the month view previously showed a clipped API Gateway entry on October 9; broaden the search to identify its full title and confirm the date.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "API Gateway Setup matches the October 9 milestone \"API Gateway Launch\"; now search for Dashboard UI.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "The exact Dashboard UI search had no match; broaden to the distinctive term Dashboard before considering a date-range list check.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Calendar cross-check complete: Authentication Module and API Gateway Setup each have matching October 9 milestones within their ±3-day windows; Dashboard UI has no matching calendar entry after exact and broadened global searches, and Performance Testing explicitly reports no milestone. The two blocked items have no target dates and require no window calculation.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Close Calendar search so the October month view can be used to create the first escalation event.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Open the October 5 context menu to create the first escalation event on the requested date.",
+          "action": "long_press",
+          "screenshot": "project-risk-matrix-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Choose Event for the October 5 calendar entry.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Enter the first escalation event title.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Open the start-time picker to set the event to 10:00 AM.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Select 10 o'clock for the event start time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Confirm the 10:00 AM start time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Open the event end-time picker to set the required 10:30 AM end.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Keep the end hour at 10 and advance to minute selection.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Select 30 minutes for the event end time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Confirm the 10:30 AM end time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Save the first escalation event with the verified October 5, 2026, 10:00-10:30 AM schedule.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Open October 5 to access the saved Payment Integration event for duplication.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Open the saved Payment Integration event so it can be duplicated for Security Audit.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Duplicate the verified Payment Integration event to preserve the same date and 10:00-10:30 AM schedule for the Security Audit escalation.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Rename the duplicated event to the Security Audit escalation while preserving October 5 and 10:00-10:30 AM.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Save the Security Audit escalation event with the verified October 5, 2026, 10:00-10:30 AM schedule.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Created and visibly verified two distinct events on Monday, October 5, 2026: '[ESCALATION] Payment Integration' and '[ESCALATION] Security Audit', each scheduled 10:00-10:30 AM.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Open the mail app to compose the required risk-matrix email.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Start composing the risk-matrix email.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Address the email to pm@company.com.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Set the required email subject.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Enter the exact three-line risk matrix in the email body.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Send the completed risk-matrix email to pm@company.com.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Email sent successfully to pm@company.com with subject 'Sprint Status Risk Matrix' and the exact requested three-line report. The app displayed 'Email Sent'.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Open Mattermost to post the required project-sync summary.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Open Mattermost channel navigation to select project-sync.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Open the Project Sync channel.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Enter the exact required status-count summary in Project Sync.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Send the exact status-count summary to Project Sync.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Posted exactly `2 on-track, 2 at-risk, 2 blocked` in the Mattermost Project Sync channel; the sent post is visibly present.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-046.webp"
+        }
+      ]
+    },
+    {
+      "task": "MattermostResourceConflictResolutionTask",
+      "variant": "original",
+      "slug": "resource-conflicts",
+      "title": "Resolve resource conflicts",
+      "titleZh": "处理资源预订冲突",
+      "description": "Check booking requests against the calendar, create approved bookings, notify conflicts and email the report.",
+      "descriptionZh": "对照日历检查预订请求，创建获批预订、通知冲突并发送汇总邮件。",
+      "apps": "Mattermost → Calendar → Mail",
+      "score": 1,
+      "actions": 46,
+      "rounds": 47,
+      "task_seconds": 966.303,
+      "source_recording_seconds": 977.4392888888889,
+      "playback_speed": 3,
+      "source_sha256": "2680c5119192f23f744e86ea2908c065def633a2d6c5ab691dbd3509eac818af",
+      "video": "resource-conflicts.mp4",
+      "preview": "resource-conflicts.gif",
+      "poster": "resource-conflicts.webp",
+      "output_sha256": "4e2a18928b66357a4d01b592bc63fe16b32023e8930cc3171766a6c575f760c3",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Mattermost to inspect the resource-booking channel.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open the Resource Booking channel to collect all requests.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Scroll toward older channel posts to identify the clipped preceding request and establish the channel boundary.",
+          "action": "swipe",
+          "screenshot": "resource-conflicts-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Completed the full Resource Booking channel scan through the channel-creation boundary. Recorded five distinct, complete requests: Conf Room B/Sam (Oct 7, 14:00-15:00), Conf Room A/Alex (Oct 7, 10:00-12:00), Conf Room C/Sofia (Oct 6, 11:00-12:00), Video Camera/Mike (Oct 9, 13:00-15:00), and Projector/Sam (Oct 8, 09:00-10:00). No incomplete requests.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Launch Fossify Calendar to begin checking the five resource intervals against existing bookings.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Search Calendar for existing Conf Room B bookings to compare against Sam's Oct 7 14:00-15:00 request.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Broaden the empty exact search to the identifying words 'Room B' before concluding Conf Room B has no existing booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Leave the broadened search; its lone Project Review Meeting result is unrelated to Conf Room B, then navigate to the requested October 2026 dates for a date-scoped check.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Open the month/year selector to jump from October 2025 to the requested October 2026 dates without twelve separate month steps.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Confirm October 2026 in the month/year picker.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Open Change view so the requested October 6-9 dates can be inspected chronologically with full event titles and times.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Switch to Simple event list for chronological inspection of the requested dates and booking intervals.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Continue through October 8-9 to inspect all events that could overlap the Projector and Video Camera requests.",
+          "action": "scroll",
+          "screenshot": "resource-conflicts-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Cross-reference complete for October 6-9, 2026. CONFLICT: Conf Room A/Alex on Oct 7 10:00-12:00 overlaps existing 'Team Standup - Conf Room A' from 10:00-11:00. APPROVED: Conf Room B/Sam Oct 7 14:00-15:00 (no same-resource event shown); Conf Room C/Sofia Oct 6 11:00-12:00 (no same-resource event shown); Video Camera/Mike Oct 9 13:00-15:00 (no same-resource event shown); Projector/Sam Oct 8 09:00-10:00 (existing 'Projector - Morning Presentation' is 08:00-08:30, so no overlap).",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Open the email app to compose the required facilities report.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Start a new message for the facilities report.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Address the report email to facilities@company.com.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Enter the exact required report subject.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Enter the exact two-line resource booking report body.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Send the completed report email.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "The report email was sent to facilities@company.com with subject 'Resource Booking Conflicts' and the exact required two-line body; the app confirms 'Email Sent'.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Open Fossify Calendar to create the four approved booking events.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Switch to Weekly view so the four timed events in the visible October 6-9 week can be created efficiently.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Select Weekly view.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Move Weekly view forward to the October 4-10 week containing all four requested events.",
+          "action": "swipe",
+          "screenshot": "resource-conflicts-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Open the October 6 11:00 AM weekly cell to create Sofia's Conf Room C booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Choose Event for Sofia's October 6 11:00 AM booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Enter the exact title for Sofia's Conf Room C event; the prefilled October 6 11:00 AM-12:00 PM interval is correct.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Save Sofia's exact Conf Room C event after confirming its October 6 11:00 AM-12:00 PM interval.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Open the October 7 2:00 PM weekly cell to create Sam's Conf Room B booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Select Event for the October 7 2:00 PM slot.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Enter the exact title for Sam's Conf Room B event; the editor already shows October 7, 2:00-3:00 PM.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Save the confirmed October 7 2:00-3:00 PM Conf Room B booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Open the October 8 9:00 AM weekly cell to create Sam's Projector booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Choose Event for the October 8 9:00-10:00 Projector booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Set the exact title for Sam's October 8 Projector booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Save the confirmed October 8 9:00-10:00 AM Projector booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Open the October 9 1:00 PM weekly cell to create Mike's two-hour Video Camera booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Choose Event for the October 9 1:00 PM Video Camera booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Set the exact title for Mike's Video Camera booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Open the end-time picker to extend Mike's booking from 2:00 PM to 3:00 PM.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Set the end-time hour to 3 PM; minutes remain 00.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Confirm the selected end time of 3:00 PM.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Save the Video Camera booking with the verified October 9, 1:00-3:00 PM interval.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Created and visibly confirmed all four distinct approved booking events in the October 4-10 weekly view: Conf Room C/Sofia on Oct 6 11:00-12:00, Conf Room B/Sam on Oct 7 14:00-15:00, Projector/Sam on Oct 8 09:00-10:00, and Video Camera/Mike on Oct 9 13:00-15:00. Existing unrelated events remain visible.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Open Mattermost to send Alex the required conflict direct message.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-046.webp"
+        },
+        {
+          "sequence": 47,
+          "summary": "Open Alex's profile from the resource request to start a direct message.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-047.webp"
+        },
+        {
+          "sequence": 48,
+          "summary": "Tap Send a message on Alex's profile to open the direct-message conversation.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-048.webp"
+        },
+        {
+          "sequence": 49,
+          "summary": "Enter a direct message explaining the exact Conf Room A conflict and overlapping booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-049.webp"
+        },
+        {
+          "sequence": 50,
+          "summary": "Send the prepared direct message to Alex about the Conf Room A booking conflict.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-050.webp"
+        },
+        {
+          "sequence": 51,
+          "summary": "Completed the resource-booking workflow: sent the facilities report email, added all four approved calendar events, and sent Alex a direct message explaining that the Conf Room A request for 2026-10-07 10:00-12:00 conflicts with the existing Team Standup booking from 10:00-11:00. The Mattermost conversation now visibly shows the sent message.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-051.webp"
+        }
+      ]
+    },
+    {
+      "task": "ThanksgivingPrepTask",
+      "variant": "original",
+      "slug": "thanksgiving-preparation",
+      "title": "Research to a shopping plan",
+      "titleZh": "从网页资料到采购计划",
+      "description": "Read a recipe, email the flavoring ingredients and schedule shopping relative to Thanksgiving.",
+      "descriptionZh": "读取网页食谱，邮件发送调味食材，并按感恩节日期安排采购。",
+      "apps": "Chrome → Mail → Calendar",
+      "score": 1,
+      "actions": 46,
+      "rounds": 47,
+      "task_seconds": 757.761,
+      "source_recording_seconds": 767.7703111111111,
+      "playback_speed": 3,
+      "source_sha256": "0a2e1e152c8f952e9a8085ef3ff5d87c2232ad9b23fba7a5eba21b0d623bff89",
+      "video": "thanksgiving-preparation.mp4",
+      "preview": "thanksgiving-preparation.gif",
+      "poster": "thanksgiving-preparation.webp",
+      "output_sha256": "430accb5ee97aa01e11d31bb6e90e0372efd9666f7cd49edc980af3aec7e9edd",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Chrome to retrieve the pecan pie recipe ingredients from the provided source.",
+          "action": "launch",
+          "screenshot": "thanksgiving-preparation-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Continue Chrome setup without adding an account so the provided recipe can be opened.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Dismiss the optional notification prompt to reach Chrome browsing.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Navigate directly to the provided Sally’s Baking Addiction pecan pie recipe.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Enter the provided recipe URL into the now-focused Chrome address bar.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Submit the entered recipe URL and load the reference page.",
+          "action": "key",
+          "screenshot": "thanksgiving-preparation-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Wait briefly for the active Cloudflare browser verification to complete without interrupting it.",
+          "action": "sleep",
+          "screenshot": "thanksgiving-preparation-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Select the visible Cloudflare 'Verify you are human' checkbox to continue to the recipe.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Allow the active Cloudflare verification to finish before inspecting the recipe page.",
+          "action": "sleep",
+          "screenshot": "thanksgiving-preparation-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Continue waiting for the in-progress security verification to settle; it has not reset or shown an error.",
+          "action": "sleep",
+          "screenshot": "thanksgiving-preparation-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Retry the visible Cloudflare human-verification checkbox after the prior verification reset.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Switch to a targeted search for the same recipe after the Cloudflare challenge reset twice, to obtain the requested source context through indexed results.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Submit the targeted search query for the Sally's Baking Addiction pecan pie ingredient details.",
+          "action": "key",
+          "screenshot": "thanksgiving-preparation-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Refine the search to surface the exact recipe ingredient list and flavoring context from the provided source.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Replace the focused Google query with a source-restricted ingredient search for the exact recipe.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Submit the refined source-restricted ingredient search.",
+          "action": "key",
+          "screenshot": "thanksgiving-preparation-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Search the exact recipe for its own flavor descriptions to classify the filling ingredients accurately.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Use the already-focused search field to look for the recipe author's flavor descriptions.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Submit the focused recipe flavor-description search.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Search the recipe's ingredient-explanation section to separate flavoring ingredients from structural filling components.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Search the recipe for the grouped flavoring ingredients, including salt, to confirm the complete flavoring list.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Submit the focused grouped-ingredient search to confirm whether salt appears with the recipe's flavoring components.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Search the recipe for the flavor-contributing filling ingredients and, if surfaced, their shopping quantities.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Identified the recipe's flavor-contributing ingredients as pecans, corn syrup (the recipe uses dark corn syrup), brown sugar, vanilla extract, melted butter, salt, and ground cinnamon. Sally's snippet explicitly describes pecans plus vanilla, butter, and cinnamon as the pie's flavor, while the recipe-method snippet groups corn syrup, brown sugar, vanilla, butter, salt, and cinnamon in the filling and separately includes eggs, supporting exclusion of eggs as structural/binding rather than flavoring.",
+          "action": "request_replan",
+          "screenshot": "thanksgiving-preparation-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Open Gmail to compose and send the requested pecan pie shopping email.",
+          "action": "launch",
+          "screenshot": "thanksgiving-preparation-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Start a new email draft.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Address the new email to user@gmail.com.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Set the requested email subject.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Fill the email body with the requested pecan pie flavoring ingredients.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Send the completed email to user@gmail.com.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Email sent successfully to user@gmail.com with subject “Pie shopping” and the requested seven-item flavoring ingredient list. The app displayed “Email Sent” as confirmation.",
+          "action": "request_replan",
+          "screenshot": "thanksgiving-preparation-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Open Fossify Calendar to create the requested event.",
+          "action": "launch",
+          "screenshot": "thanksgiving-preparation-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Open a new event editor for the requested distant date.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Choose Event from the expanded new-item menu.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Enter the event title exactly as requested.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Open the start-date picker to set November 20, 2025.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Open the year selector to move from 2026 to 2025 efficiently.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Select year 2025 in the date picker.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Advance the date picker from October to November 2025.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Select November 20, 2025 as the event start date.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Confirm the selected start date of November 20, 2025.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Open the start-time picker to set the event to 8:00 AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Set the start time period to AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Set the selected hour to 8 while retaining 00 minutes and AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Confirm the selected start time of 8:00 AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Save the new event with the verified title, date, and 8:00 AM start time.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-046.webp"
+        },
+        {
+          "sequence": 47,
+          "summary": "Open calendar search to verify the saved event by its exact title.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-047.webp"
+        },
+        {
+          "sequence": 48,
+          "summary": "Search for the exact event title to verify the saved record.",
+          "action": "type",
+          "screenshot": "thanksgiving-preparation-048.webp"
+        },
+        {
+          "sequence": 49,
+          "summary": "Created and saved “Thanksgiving Shopping”; calendar search verifies it on Thursday, November 20, 2025 at 08:00 AM. The email was already confirmed sent to user@gmail.com with subject “Pie shopping” and the requested flavoring ingredient list.",
+          "action": "request_replan",
+          "screenshot": "thanksgiving-preparation-049.webp"
+        }
+      ]
+    },
+    {
+      "task": "MastodonCreateMemoTask",
+      "variant": "original",
+      "slug": "lectures-to-calendar",
+      "title": "A lecture into the calendar",
+      "titleZh": "讲座转日历与提醒",
+      "description": "Find the Urban Mobility lecture under a hashtag, read its time and location, and create an event with a one-day reminder.",
+      "descriptionZh": "在话题中查找 Urban Mobility 讲座，读取时间和地点，创建日历事件并设置提前一天提醒。",
+      "apps": "Mastodon → Calendar",
+      "score": 1,
+      "actions": 34,
+      "rounds": 35,
+      "task_seconds": 448.23,
+      "source_recording_seconds": 446.27934444444446,
+      "playback_speed": 3,
+      "source_sha256": "cb5d2287897d1cafe83180c4ceecad721e75f19e178c79f945a3ffb4f8362de5",
+      "video": "lectures-to-calendar.mp4",
+      "preview": "lectures-to-calendar.gif",
+      "poster": "lectures-to-calendar.webp",
+      "output_sha256": "925e33d2c464dab127b5d6934d5d35ffa3519db994dcda83b9fb50e6506cec92",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Mastodon to search #openTalk for the Urban Mobility lecture details.",
+          "action": "launch",
+          "screenshot": "lectures-to-calendar-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open Mastodon Explore to access search.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Activate the Mastodon search field so the #openTalk query can be entered.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Search Mastodon for the exact #openTalk hashtag.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Open the visible OpenTalk hashtag result to inspect posts for the Urban Mobility lecture.",
+          "action": "tap_xy",
+          "screenshot": "lectures-to-calendar-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Scroll through #OpenTalk posts to locate the one specifically about Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Continue down the #OpenTalk post list to find the Urban Mobility lecture entry.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Continue scanning #OpenTalk posts for the Urban Mobility lecture.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Continue down the hashtag timeline; the visible posts are unrelated AI topics, not Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Continue scanning older #OpenTalk posts for the requested Urban Mobility lecture.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Continue scanning older #OpenTalk posts; the visible Nov 3 Embodied GUI Agents post is not about Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Continue scanning older #OpenTalk posts; the visible Oct 27 Edge Intelligence lecture is unrelated to Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Continue down the chronological #OpenTalk feed toward older lectures; Oct 27 is still not Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Found the requested #OpenTalk post. Topic/title: AI-Powered Urban Mobility. Date and time shown: Oct 24, 2025, 15:00–16:30. Location: Auditorium 2-A, Innovation Building. The post labels the date as Monday, but Oct 24, 2025 is a Friday; use the explicit calendar date Oct 24, 2025 while retaining the exact time and location.",
+          "action": "request_replan",
+          "screenshot": "lectures-to-calendar-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Open Fossify Calendar to create the single distant event with the established details.",
+          "action": "launch",
+          "screenshot": "lectures-to-calendar-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Open the new-event editor for the requested single event.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Choose Event from the expanded new-item menu.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Set the event title exactly as requested.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Set the event location exactly as found in the #OpenTalk details.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Open the start-date picker to set October 24, 2025.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Select October 24, 2025 in the start-date picker.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Confirm the selected start date of October 24, 2025.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Open the start-time picker to set 3:00 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Select 3 o'clock for the event start time; PM is already selected.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Confirm the selected start time of 3:00 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Open the end-time picker to set the event end to 4:30 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Set the end-time hour to 4 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Set the end-time minutes to 30.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Confirm the selected end time of 4:30 PM and return to the event editor.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Open the reminder selector to set a reminder exactly 1 day before.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Choose Custom to configure a reminder exactly 1 day before the event.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Enter a custom reminder value of 1.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Select days as the unit, making the custom reminder 1 day before.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Confirm the custom reminder interval of 1 day.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Save the event with the verified title, location, schedule, and 1-day reminder.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Created and saved the distinct event \"AI-Powered Urban Mobility\" for Oct 24, 2025, 3:00 PM–4:30 PM at Auditorium 2-A, Innovation Building, with reminder set to exactly 1 day before. Save returned to October month view, where the new event is visible on Oct 24.",
+          "action": "request_replan",
+          "screenshot": "lectures-to-calendar-036.webp"
+        }
+      ]
+    },
+    {
+      "task": "LocalFileManagementTask2",
+      "variant": "original",
+      "slug": "archive-old-files",
+      "title": "Archive files and keep a record",
+      "titleZh": "归档旧文件并邮件留档",
+      "description": "Select files older than a year, archive them, remove the originals and email the deleted-file list.",
+      "descriptionZh": "筛选超过一年的文件，压缩归档、删除原文件并邮件记录清单。",
+      "apps": "Files → Mail",
+      "score": 1,
+      "actions": 45,
+      "rounds": 46,
+      "task_seconds": 901.428,
+      "source_recording_seconds": 892.4234666666666,
+      "playback_speed": 3,
+      "source_sha256": "afc620097bf39045904c51dd87f31f119f53ac389d9312db40f4816cfa964bf9",
+      "video": "archive-old-files.mp4",
+      "preview": "archive-old-files.gif",
+      "poster": "archive-old-files.webp",
+      "output_sha256": "ced070c19c85b08eb93e55273c9ae146fda7cb734beb2eb3668040dd1b1846c6",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open the Files app to inspect the Download folder and identify files modified strictly before 2024-10-16.",
+          "action": "launch",
+          "screenshot": "archive-old-files-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open Files options to confirm or set Modified-date ordering before locating the strict 2024-10-16 cutoff.",
+          "action": "tap",
+          "screenshot": "archive-old-files-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Open the Sort by dialog to verify the list is ordered by Modified date.",
+          "action": "tap",
+          "screenshot": "archive-old-files-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Sort by Modified oldest first so every qualifying file before 2024-10-16 can be cataloged and selected as one contiguous range.",
+          "action": "tap",
+          "screenshot": "archive-old-files-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Record the first nine qualifying filenames and scroll toward the 2024-10-16 cutoff to identify any remaining eligible files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Record the final two qualifying files and confirmed cutoff, then return to the first item to select the exact 11-file contiguous prefix.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Select the visible contiguous qualifying prefix from the first file through the ninth file using the range-selection gesture.",
+          "action": "drag",
+          "screenshot": "archive-old-files-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Nine qualifying files are confirmed selected; scroll while preserving selection to expose and add the final two qualifying files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Add the tenth qualifying file, 01_archive_20240924.zip, to the current selection.",
+          "action": "tap",
+          "screenshot": "archive-old-files-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Add the eleventh and final qualifying file, 06_music_collection_20240929.zip, while leaving the Oct 23, 2024 file excluded.",
+          "action": "tap",
+          "screenshot": "archive-old-files-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Open the selection actions menu for the confirmed 11 qualifying files to start compression.",
+          "action": "tap",
+          "screenshot": "archive-old-files-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Choose Compress for the 11 confirmed qualifying files.",
+          "action": "tap",
+          "screenshot": "archive-old-files-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Move to the newest end of the oldest-first Downloads list to verify the completed archive and its generated filename before deleting any sources.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Continue to the newest end of Downloads to locate the newly created archive and verify its generated name before source deletion.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Continue to the bottom of the oldest-first list to find and verify the newly created archive before deleting its source files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Continue to the bottom of Downloads, where a newly created archive should appear in the current oldest-first order.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Continue to the final rows of Downloads to verify whether the newly created archive is present.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Continue toward the newest end of the oldest-first Downloads list to locate and verify the generated archive.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Continue to the very bottom of the oldest-first list, where the just-created archive should be ordered as newest.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Continue to the bottom to find and verify the newly created `old_files.zip` before deleting any source files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Scroll the final segment of the oldest-first Downloads list to verify whether `old_files.zip` is present as the newest item.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Select the verified newly created `archive.zip` so it can be renamed exactly to `old_files.zip` before deleting its source files.",
+          "action": "long_press",
+          "screenshot": "archive-old-files-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Open the selected archive's actions menu to rename `archive.zip` to the required `old_files.zip`.",
+          "action": "tap",
+          "screenshot": "archive-old-files-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Choose Rename for the selected newly created archive.",
+          "action": "tap",
+          "screenshot": "archive-old-files-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Replace the generated archive name with the exact required filename `old_files.zip`.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Confirm the exact rename to `old_files.zip`.",
+          "action": "tap",
+          "screenshot": "archive-old-files-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Scroll toward the oldest Downloads entries so the confirmed qualifying source-file range can be selected for deletion.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Move quickly toward the oldest end of the date-sorted Downloads list to locate the qualifying source range.",
+          "action": "swipe",
+          "screenshot": "archive-old-files-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Scroll to the oldest end of the sorted list so the full qualifying prefix can be range-selected without including the Oct 23 boundary file.",
+          "action": "swipe",
+          "screenshot": "archive-old-files-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Range-select the visible qualifying oldest files, from the first file through the last fully visible qualifying row, before extending to the remaining two.",
+          "action": "drag",
+          "screenshot": "archive-old-files-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Retry the prescribed continuous range selection across the list surface, without incorrectly constraining the drag to the first row.",
+          "action": "drag",
+          "screenshot": "archive-old-files-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Keep the 9-file selection active and reveal the final two qualifying rows plus the excluded cutoff boundary.",
+          "action": "swipe",
+          "screenshot": "archive-old-files-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Add the first of the two remaining qualifying files, `01_archive_20240924.zip`, to the active selection while leaving the Oct 23 cutoff file unselected.",
+          "action": "tap",
+          "screenshot": "archive-old-files-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Add the final qualifying file, `06_music_collection_20240929.zip`, bringing the verified selection to all 11 files while keeping `05_download_20241023.zip` excluded.",
+          "action": "tap",
+          "screenshot": "archive-old-files-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Delete the verified 11 selected source files now that `old_files.zip` has been created; the newer Oct 23 file remains unselected.",
+          "action": "tap",
+          "screenshot": "archive-old-files-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Confirm deletion of the 11 verified source files.",
+          "action": "tap",
+          "screenshot": "archive-old-files-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Created `old_files.zip` from the 11 files strictly before 2024-10-16, then confirmed deletion of those 11 sources. The post-delete Downloads view now begins with the excluded `05_download_20241023.zip`, showing the qualifying prefix is gone while newer files remain. Exact deleted-file list is retained for the email stage.",
+          "action": "request_replan",
+          "screenshot": "archive-old-files-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Open the signed-in email app to compose the deleted-files record email.",
+          "action": "launch",
+          "screenshot": "archive-old-files-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Open the account panel to identify the signed-in email address for the self-recipient.",
+          "action": "tap_xy",
+          "screenshot": "archive-old-files-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Open the mailbox navigation panel to locate the signed-in account identity after the avatar tap produced no visible change.",
+          "action": "tap",
+          "screenshot": "archive-old-files-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Close the navigation drawer and return to the inbox so the record email can be composed.",
+          "action": "back",
+          "screenshot": "archive-old-files-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Open a new message to address the deleted-files record email to the signed-in account.",
+          "action": "tap",
+          "screenshot": "archive-old-files-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Address the record email to the same signed-in account shown in the From field.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Set a clear subject for the deleted-files record email.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Enter the exact list of all 11 archived and deleted filenames in the email body.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Send the completed self-addressed record email containing the exact 11-file deletion list.",
+          "action": "tap",
+          "screenshot": "archive-old-files-046.webp"
+        },
+        {
+          "sequence": 47,
+          "summary": "Completed the task: created `old_files.zip` containing the 11 files older than one year, deleted those source files after compression, and sent the signed-in account a self-addressed email with the exact deleted-file list. The app confirms `Email Sent`.",
+          "action": "request_replan",
+          "screenshot": "archive-old-files-047.webp"
+        }
+      ]
+    },
+    {
+      "task": "PhotoManagementTask",
+      "variant": "original",
+      "slug": "photos-by-travel-location",
+      "title": "Organize photos by travel",
+      "titleZh": "按旅行地点整理照片",
+      "description": "Read travel dates and locations from the calendar and sort last month's food photos into location folders.",
+      "descriptionZh": "从日历读取旅行日期和地点，把上个月的美食照片归类到地点文件夹。",
+      "apps": "Calendar → Gallery",
+      "score": 1,
+      "actions": 34,
+      "rounds": 35,
+      "task_seconds": 638.839,
+      "source_recording_seconds": 640.5233111111111,
+      "playback_speed": 3,
+      "source_sha256": "d075be588d84ccb7f8d7afcd98ceea714c2bcfcf5b9146efd41c21a1663b503b",
+      "video": "photos-by-travel-location.mp4",
+      "preview": "photos-by-travel-location.gif",
+      "poster": "photos-by-travel-location.webp",
+      "output_sha256": "1d332f88ce35d75c8071190d8a09ec8811ddff1e85e571925e6dc369de8fb98d",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Fossify Calendar to inspect travel events in the required 2025-09-16 through 2025-10-16 range.",
+          "action": "launch",
+          "screenshot": "photos-by-travel-location-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open the view selector so the date range can be inspected chronologically in Simple event list.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Switch to Simple event list for chronological inspection of the past-month events.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Scroll earlier in the chronological event list toward the start of the required range.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Continue scrolling earlier to expose the Paris event's start and prior September travel events.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Continue earlier in the event list to inspect travel entries from September 16 through October 3.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Search calendar entries for conference travel events to identify all destinations and their date spans within the required month.",
+          "action": "replace_text",
+          "screenshot": "photos-by-travel-location-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Calendar inspection identified two travel-location spans within 2025-09-16 through 2025-10-16: Tokyo from Oct 4 through Oct 10 (Conference in Tokyo, shown under Oct 4 with all-day end Oct 10), and Paris from Oct 11 through Oct 15 (Conference in Paris, shown under Oct 11 with all-day end Oct 15). No September travel entry appeared before the October section in the chronological event list. Calendar data was not modified.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Launch the exact Gallery package specified by the current stage.",
+          "action": "launch",
+          "screenshot": "photos-by-travel-location-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Open the all-photos timeline so visible food thumbnails can be matched to their date groups.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Record the four qualifying visible food photos and scroll to inspect earlier dates in the requested range.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Record the Oct 7 Tokyo food photo and continue down to inspect Oct 6 and earlier dates.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Record the Oct 6 sushi and Oct 5 skillet meal as Tokyo food photos, then continue to earlier dates.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Completed Gallery inspection for the requested 2025-09-16 through 2025-10-16 window. The timeline reaches its oldest visible media at Oct 5, so there are no Gallery photos from Sep 16-Oct 4 to inspect. Identified 7 qualifying food photos: Paris — Oct 14 banquet/table spread, Oct 13 bread/pastry, Oct 12 burger; Tokyo — Oct 8 plated meal, Oct 7 ramen, Oct 6 sushi counter, Oct 5 skillet meal. No food photos had dates outside the two established travel ranges, and Oct 29 media was excluded as outside the past-month window.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Enter multi-select mode with the Oct 8 Tokyo food photo.",
+          "action": "long_press",
+          "screenshot": "photos-by-travel-location-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Add the Oct 7 Tokyo ramen photo to the current selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Add the Oct 6 Tokyo sushi photo to the current selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Add the Oct 5 Tokyo skillet photo to complete the four-photo selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Open the selection actions menu to organize the four selected Tokyo photos into a folder.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Choose Move to so the four selected Tokyo photos can be placed in a distinct Tokyo folder without duplicating them.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Create a new destination folder for the selected Tokyo photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Name the new destination folder exactly Tokyo.",
+          "action": "replace_text",
+          "screenshot": "photos-by-travel-location-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Confirm creation of the Tokyo folder so the four selected photos can be moved into it.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Allow Gallery to modify the four selected Tokyo photos, completing their move into the newly created Tokyo folder.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Open Albums to verify that the Tokyo folder was created and contains the four selected photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Tokyo classification is complete and verified: Albums shows a distinct `Tokyo (4)` folder. The four selected Tokyo food photos were moved there, while the other albums and Paris photos remain unchanged.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Open Photos to select the three identified Paris food photos dated Oct 14, Oct 13, and Oct 12.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Start multi-selection with the identified Paris food photo dated Oct 14.",
+          "action": "long_press",
+          "screenshot": "photos-by-travel-location-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Add the identified Oct 13 Paris food photo to the current selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Add the identified Oct 12 Paris food photo to complete the three-photo selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Open selection options to move the three selected Paris photos into a distinct album.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Choose Move to so the three selected Paris photos can be placed in a new Paris folder.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Create a new destination folder for the selected Paris photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Enter the exact new folder name Paris.",
+          "action": "replace_text",
+          "screenshot": "photos-by-travel-location-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Confirm creation of the Paris folder and proceed with moving the three selected photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Allow Gallery to modify the three explicitly identified Paris photos so the move can complete.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Open Albums to verify that Paris was created with exactly three photos while Tokyo remains intact.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Completed the past-month food photo classification using the calendar-derived travel ranges. Gallery now shows Paris (3) containing the Oct 14, Oct 13, and Oct 12 food photos, and Tokyo (4) remains intact with the Oct 8, Oct 7, Oct 6, and Oct 5 food photos. Unrelated Pictures (4) media is preserved.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-038.webp"
+        }
+      ]
+    }
+  ]
+}

@@ -6,8 +6,9 @@
 
 Cross-app tasks · Reliable device interaction · Reusable skills · Full execution visibility
 
-[中文](README.zh-CN.md) · [Benchmark results](https://lordrosenberg.github.io/ClickClick/androidworld/) · [Demos](#see-it-in-action) · [Quick Start](#deployment) · [Architecture](docs/architecture.md) · [Docs](#documentation)
+[中文](README.zh-CN.md) · [Benchmark results](https://lordrosenberg.github.io/ClickClick/) · [Demos](#see-it-in-action) · [Quick Start](#deployment) · [Architecture](docs/architecture.md) · [Docs](#documentation)
 
+[![MobileWorld GUI-only](https://img.shields.io/badge/MobileWorld%20GUI--only-95.73%25%20%28112%2F117%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 [![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
@@ -17,13 +18,39 @@ Cross-app tasks · Reliable device interaction · Reusable skills · Full execut
 
 ClickClick is an open-source Android agent platform. Give it a goal in natural language: transfer information between apps, fill complex forms, manage collections or configure a schedule. It plans the work, operates the device and checks the result, with a web Console that lets you follow every step.
 
-## 99.14% on AndroidWorld
+## 95.73% on MobileWorld GUI-only · #1 in our comparison
+
+**112/117 tasks passed with locally clarified instructions**; the **original-wording result also reaches 106/117 (90.60%)**. Evaluated with `chatgpt/gpt-5.6-sol` (high), Android API 34 and at most 50 MobileWorld rounds per task. Both arms include disclosed official fixture account context for two tasks.
+
+Adding our local result places it above all published GUI-only rows checked on October 2, 2026. The clarified comparison uses eight wording changes and one account-context variant; unchanged tasks share their original result. This is a comparison with published results, not an accepted official leaderboard ranking.
+
+**[Results, leaderboard and six complex demos →](https://lordrosenberg.github.io/ClickClick/mobileworld/)** · [Clarifications and methodology](docs/mobileworld-results-20261002.md).
+
+## 99.14% on AndroidWorld · tied #2 by success-rate tier
 
 **115 of 116 tasks passed**, covering multi-step tasks across Android apps. Evaluated with `chatgpt/gpt-5.6-sol` (high) on Android API 33 using AndroidWorld's official success checks.
 
 **[Explore the results and execution traces →](https://lordrosenberg.github.io/ClickClick/androidworld/)** Browse all 116 tasks, filter by outcome, and inspect scores, actions and recorded screen states. [Evaluation methodology](docs/androidworld-results-20260921.md).
 
+
+At the [public leaderboard](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)'s one-decimal precision, our local result ties Artemis at 99.1% in the second distinct success-rate tier, behind the 100% tier (checked October 2, 2026). This is a local comparison, not official leaderboard acceptance.
+
 ## See it in action
+
+Six successful complex MobileWorld workflows from this exact evaluation batch. Open a preview for the **complete 3× recording**. The project risk matrix uses clarified wording; the other five use original wording. All shown accounts and records are synthetic benchmark fixtures.
+
+| Project risk matrix | Resource conflicts | Research to shopping plan |
+| --- | --- | --- |
+| [![Project risk matrix](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![Resource conflicts](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![Research to shopping plan](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
+
+| Lectures to calendar | Archive files and email record | Photos by travel location |
+| --- | --- | --- |
+| [![Lectures to calendar](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![Archive files and email record](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![Photos by travel location](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
+
+[MobileWorld demo details and provenance](docs/mobileworld-results-20261002.md#six-complex-successes--六个复杂成功用例)
+
+### AndroidWorld demos
+
 
 Real recordings of successful tasks. Click a preview to open the complete video at **3× speed**.
 

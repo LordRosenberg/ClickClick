@@ -6,8 +6,9 @@
 
 跨应用任务 · 可靠设备交互 · 可复用技能 · 完整执行可观测性
 
-[English](README.md) · [评测成绩](https://lordrosenberg.github.io/ClickClick/androidworld/) · [效果演示](#效果演示) · [快速开始](#部署) · [架构](docs/architecture.zh-CN.md) · [文档](#文档导航)
+[English](README.md) · [评测成绩](https://lordrosenberg.github.io/ClickClick/) · [效果演示](#效果演示) · [快速开始](#部署) · [架构](docs/architecture.zh-CN.md) · [文档](#文档导航)
 
+[![MobileWorld GUI-only](https://img.shields.io/badge/MobileWorld%20GUI--only-95.73%25%20%28112%2F117%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 [![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
@@ -17,13 +18,39 @@
 
 ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，它就能跨应用搬运信息、填写复杂表单、管理记录、配置日程，并规划步骤、操作设备和检查结果。Web Console 让你随时查看执行进度，深入检查每一次决策。
 
-## AndroidWorld：99.14%
+## MobileWorld 纯 GUI：95.73%，成绩对比第 1
+
+**本地澄清指令后通过 112/117（95.73%）**；**原题措辞未修改版也达到 106/117（90.60%）**。使用 `chatgpt/gpt-5.6-sol`（high）、Android API 34 和每题最多 50 个 MobileWorld 回合。两个口径均包含已披露的官方测试账号环境信息补充。
+
+截至 2026-10-02，加入我们的本地自测结果后，纯 GUI 成绩高于公开榜单各项。95.73% 使用 8 道措辞澄清和 1 道账号信息变体；其余任务共享原题结果。此处为成绩对比，尚不代表官方榜单收录。
+
+[成绩、排行榜与六个复杂演示 →](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [逐项澄清表与评测方法](docs/mobileworld-results-20261002.md)
+
+## AndroidWorld：99.14%，按成功率档位并列第 2
 
 使用 `chatgpt/gpt-5.6-sol`（high）在 Android API 33 上完成评测，**115/116 个任务通过官方评分**。
 
 [成绩与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/androidworld/) · [评测方法与配置](docs/androidworld-results-20260921.md)
 
+
+按 2026-10-02 的[公开榜单](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)及其一位小数精度，加入本地结果后与 Artemis 同为 99.1%，按成功率档位并列第 2；100% 为第 1 档。这是自测成绩对比，非官方收录排名。
+
 ## 效果演示
+
+六个通过的 MobileWorld 复杂用例均来自本次正式批次，点击预览查看 **3 倍速完整录像**。项目风险矩阵使用澄清版，其余五个使用原题措辞。画面中的账号与任务数据均为合成测试数据。
+
+| 项目风险矩阵 | 资源预订冲突 | 网页资料转采购计划 |
+| --- | --- | --- |
+| [![项目风险矩阵](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![资源预订冲突](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![网页资料转采购计划](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
+
+| 讲座转日历 | 旧文件归档与邮件留档 | 按旅行地点整理照片 |
+| --- | --- | --- |
+| [![讲座转日历](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![旧文件归档与邮件留档](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![按旅行地点整理照片](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
+
+[MobileWorld 演示详情与来源](docs/mobileworld-results-20261002.md#six-complex-successes--六个复杂成功用例)
+
+### AndroidWorld 演示
+
 
 真实成功任务录屏。点击预览，观看 **3 倍速完整视频**。
 

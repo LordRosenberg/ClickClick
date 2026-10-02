@@ -1,0 +1,1764 @@
+{
+  "source_batch": "full-gui-paired-20261001-v2",
+  "date": "2026-10-02",
+  "demos": [
+    {
+      "task": "MattermostProjectStatusReportTask",
+      "variant": "clarified",
+      "slug": "project-risk-matrix",
+      "title": "Project risk matrix",
+      "titleZh": "项目风险矩阵",
+      "description": "Reconcile three teams with milestones, email a risk matrix, schedule escalations and post counts.",
+      "descriptionZh": "核对三组团队状态与里程碑，发送风险矩阵、安排升级事件并发布统计。",
+      "apps": "Mattermost → Calendar → Mail",
+      "score": 1,
+      "actions": 41,
+      "rounds": 42,
+      "task_seconds": 746.17,
+      "source_recording_seconds": 757.2552111111111,
+      "playback_speed": 3,
+      "source_sha256": "3eee6a9e36efc62189252d3d6d686385f738563c113ee3a432fc1f12bf424e09",
+      "video": "project-risk-matrix.mp4",
+      "preview": "project-risk-matrix.gif",
+      "poster": "project-risk-matrix.webp",
+      "output_sha256": "d4570907f26f6fa4597849968fb3b7971cc793924bc761a0f5521092c987f54f",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Mattermost to inspect the requested team status updates.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open Backend Team to collect all relevant status items and target dates.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Backend Team scope shows Authentication Module (on-track, expected completion 2026-10-09) and Payment Integration (blocked, no completion/target date stated). Return to channel list to inspect the remaining teams.",
+          "action": "back",
+          "screenshot": "project-risk-matrix-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Open Frontend Team to collect its complete status-update scope.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Frontend Team scope shows Dashboard UI (at-risk, original target 2026-10-12) and API Gateway Setup (on-track, completion target 2026-10-09). Return to inspect QA Team.",
+          "action": "back",
+          "screenshot": "project-risk-matrix-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Open QA Team to collect its full status-update scope.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Completed requested Mattermost scope: six items collected. Authentication Module (on-track, 2026-10-09), Payment Integration (blocked, no date), API Gateway Setup (on-track, 2026-10-09), Dashboard UI (at-risk, 2026-10-12), Performance Testing (at-risk, no date and explicitly no milestone), Security Audit (blocked, no date).",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Launch Fossify Calendar to verify dated milestone claims in their item-relative windows.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Focus Calendar search to verify the Authentication Module milestone title and date.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Search Calendar for the Authentication Module milestone.",
+          "action": "type",
+          "screenshot": "project-risk-matrix-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Authentication Module has an in-window milestone on October 9; now search for API Gateway Setup.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "The full-title search returned no exact match, but the month view previously showed a clipped API Gateway entry on October 9; broaden the search to identify its full title and confirm the date.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "API Gateway Setup matches the October 9 milestone \"API Gateway Launch\"; now search for Dashboard UI.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "The exact Dashboard UI search had no match; broaden to the distinctive term Dashboard before considering a date-range list check.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Calendar cross-check complete: Authentication Module and API Gateway Setup each have matching October 9 milestones within their ±3-day windows; Dashboard UI has no matching calendar entry after exact and broadened global searches, and Performance Testing explicitly reports no milestone. The two blocked items have no target dates and require no window calculation.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Close Calendar search so the October month view can be used to create the first escalation event.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Open the October 5 context menu to create the first escalation event on the requested date.",
+          "action": "long_press",
+          "screenshot": "project-risk-matrix-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Choose Event for the October 5 calendar entry.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Enter the first escalation event title.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Open the start-time picker to set the event to 10:00 AM.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Select 10 o'clock for the event start time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Confirm the 10:00 AM start time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Open the event end-time picker to set the required 10:30 AM end.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Keep the end hour at 10 and advance to minute selection.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Select 30 minutes for the event end time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Confirm the 10:30 AM end time.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Save the first escalation event with the verified October 5, 2026, 10:00-10:30 AM schedule.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Open October 5 to access the saved Payment Integration event for duplication.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Open the saved Payment Integration event so it can be duplicated for Security Audit.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Duplicate the verified Payment Integration event to preserve the same date and 10:00-10:30 AM schedule for the Security Audit escalation.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Rename the duplicated event to the Security Audit escalation while preserving October 5 and 10:00-10:30 AM.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Save the Security Audit escalation event with the verified October 5, 2026, 10:00-10:30 AM schedule.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Created and visibly verified two distinct events on Monday, October 5, 2026: '[ESCALATION] Payment Integration' and '[ESCALATION] Security Audit', each scheduled 10:00-10:30 AM.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Open the mail app to compose the required risk-matrix email.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Start composing the risk-matrix email.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Address the email to pm@company.com.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Set the required email subject.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Enter the exact three-line risk matrix in the email body.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Send the completed risk-matrix email to pm@company.com.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Email sent successfully to pm@company.com with subject 'Sprint Status Risk Matrix' and the exact requested three-line report. The app displayed 'Email Sent'.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Open Mattermost to post the required project-sync summary.",
+          "action": "launch",
+          "screenshot": "project-risk-matrix-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Open Mattermost channel navigation to select project-sync.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Open the Project Sync channel.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Enter the exact required status-count summary in Project Sync.",
+          "action": "replace_text",
+          "screenshot": "project-risk-matrix-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Send the exact status-count summary to Project Sync.",
+          "action": "tap",
+          "screenshot": "project-risk-matrix-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Posted exactly `2 on-track, 2 at-risk, 2 blocked` in the Mattermost Project Sync channel; the sent post is visibly present.",
+          "action": "request_replan",
+          "screenshot": "project-risk-matrix-046.webp"
+        }
+      ]
+    },
+    {
+      "task": "MattermostResourceConflictResolutionTask",
+      "variant": "original",
+      "slug": "resource-conflicts",
+      "title": "Resolve resource conflicts",
+      "titleZh": "处理资源预订冲突",
+      "description": "Check booking requests against the calendar, create approved bookings, notify conflicts and email the report.",
+      "descriptionZh": "对照日历检查预订请求，创建获批预订、通知冲突并发送汇总邮件。",
+      "apps": "Mattermost → Calendar → Mail",
+      "score": 1,
+      "actions": 46,
+      "rounds": 47,
+      "task_seconds": 966.303,
+      "source_recording_seconds": 977.4392888888889,
+      "playback_speed": 3,
+      "source_sha256": "2680c5119192f23f744e86ea2908c065def633a2d6c5ab691dbd3509eac818af",
+      "video": "resource-conflicts.mp4",
+      "preview": "resource-conflicts.gif",
+      "poster": "resource-conflicts.webp",
+      "output_sha256": "4e2a18928b66357a4d01b592bc63fe16b32023e8930cc3171766a6c575f760c3",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Mattermost to inspect the resource-booking channel.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open the Resource Booking channel to collect all requests.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Scroll toward older channel posts to identify the clipped preceding request and establish the channel boundary.",
+          "action": "swipe",
+          "screenshot": "resource-conflicts-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Completed the full Resource Booking channel scan through the channel-creation boundary. Recorded five distinct, complete requests: Conf Room B/Sam (Oct 7, 14:00-15:00), Conf Room A/Alex (Oct 7, 10:00-12:00), Conf Room C/Sofia (Oct 6, 11:00-12:00), Video Camera/Mike (Oct 9, 13:00-15:00), and Projector/Sam (Oct 8, 09:00-10:00). No incomplete requests.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Launch Fossify Calendar to begin checking the five resource intervals against existing bookings.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Search Calendar for existing Conf Room B bookings to compare against Sam's Oct 7 14:00-15:00 request.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Broaden the empty exact search to the identifying words 'Room B' before concluding Conf Room B has no existing booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Leave the broadened search; its lone Project Review Meeting result is unrelated to Conf Room B, then navigate to the requested October 2026 dates for a date-scoped check.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Open the month/year selector to jump from October 2025 to the requested October 2026 dates without twelve separate month steps.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Confirm October 2026 in the month/year picker.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Open Change view so the requested October 6-9 dates can be inspected chronologically with full event titles and times.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Switch to Simple event list for chronological inspection of the requested dates and booking intervals.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Continue through October 8-9 to inspect all events that could overlap the Projector and Video Camera requests.",
+          "action": "scroll",
+          "screenshot": "resource-conflicts-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Cross-reference complete for October 6-9, 2026. CONFLICT: Conf Room A/Alex on Oct 7 10:00-12:00 overlaps existing 'Team Standup - Conf Room A' from 10:00-11:00. APPROVED: Conf Room B/Sam Oct 7 14:00-15:00 (no same-resource event shown); Conf Room C/Sofia Oct 6 11:00-12:00 (no same-resource event shown); Video Camera/Mike Oct 9 13:00-15:00 (no same-resource event shown); Projector/Sam Oct 8 09:00-10:00 (existing 'Projector - Morning Presentation' is 08:00-08:30, so no overlap).",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Open the email app to compose the required facilities report.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Start a new message for the facilities report.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Address the report email to facilities@company.com.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Enter the exact required report subject.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Enter the exact two-line resource booking report body.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Send the completed report email.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "The report email was sent to facilities@company.com with subject 'Resource Booking Conflicts' and the exact required two-line body; the app confirms 'Email Sent'.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Open Fossify Calendar to create the four approved booking events.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Switch to Weekly view so the four timed events in the visible October 6-9 week can be created efficiently.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Select Weekly view.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Move Weekly view forward to the October 4-10 week containing all four requested events.",
+          "action": "swipe",
+          "screenshot": "resource-conflicts-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Open the October 6 11:00 AM weekly cell to create Sofia's Conf Room C booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Choose Event for Sofia's October 6 11:00 AM booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Enter the exact title for Sofia's Conf Room C event; the prefilled October 6 11:00 AM-12:00 PM interval is correct.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Save Sofia's exact Conf Room C event after confirming its October 6 11:00 AM-12:00 PM interval.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Open the October 7 2:00 PM weekly cell to create Sam's Conf Room B booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Select Event for the October 7 2:00 PM slot.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Enter the exact title for Sam's Conf Room B event; the editor already shows October 7, 2:00-3:00 PM.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Save the confirmed October 7 2:00-3:00 PM Conf Room B booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Open the October 8 9:00 AM weekly cell to create Sam's Projector booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Choose Event for the October 8 9:00-10:00 Projector booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Set the exact title for Sam's October 8 Projector booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Save the confirmed October 8 9:00-10:00 AM Projector booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Open the October 9 1:00 PM weekly cell to create Mike's two-hour Video Camera booking.",
+          "action": "double_tap",
+          "screenshot": "resource-conflicts-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Choose Event for the October 9 1:00 PM Video Camera booking.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Set the exact title for Mike's Video Camera booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Open the end-time picker to extend Mike's booking from 2:00 PM to 3:00 PM.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Set the end-time hour to 3 PM; minutes remain 00.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Confirm the selected end time of 3:00 PM.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Save the Video Camera booking with the verified October 9, 1:00-3:00 PM interval.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Created and visibly confirmed all four distinct approved booking events in the October 4-10 weekly view: Conf Room C/Sofia on Oct 6 11:00-12:00, Conf Room B/Sam on Oct 7 14:00-15:00, Projector/Sam on Oct 8 09:00-10:00, and Video Camera/Mike on Oct 9 13:00-15:00. Existing unrelated events remain visible.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Open Mattermost to send Alex the required conflict direct message.",
+          "action": "launch",
+          "screenshot": "resource-conflicts-046.webp"
+        },
+        {
+          "sequence": 47,
+          "summary": "Open Alex's profile from the resource request to start a direct message.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-047.webp"
+        },
+        {
+          "sequence": 48,
+          "summary": "Tap Send a message on Alex's profile to open the direct-message conversation.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-048.webp"
+        },
+        {
+          "sequence": 49,
+          "summary": "Enter a direct message explaining the exact Conf Room A conflict and overlapping booking.",
+          "action": "replace_text",
+          "screenshot": "resource-conflicts-049.webp"
+        },
+        {
+          "sequence": 50,
+          "summary": "Send the prepared direct message to Alex about the Conf Room A booking conflict.",
+          "action": "tap",
+          "screenshot": "resource-conflicts-050.webp"
+        },
+        {
+          "sequence": 51,
+          "summary": "Completed the resource-booking workflow: sent the facilities report email, added all four approved calendar events, and sent Alex a direct message explaining that the Conf Room A request for 2026-10-07 10:00-12:00 conflicts with the existing Team Standup booking from 10:00-11:00. The Mattermost conversation now visibly shows the sent message.",
+          "action": "request_replan",
+          "screenshot": "resource-conflicts-051.webp"
+        }
+      ]
+    },
+    {
+      "task": "ThanksgivingPrepTask",
+      "variant": "original",
+      "slug": "thanksgiving-preparation",
+      "title": "Research to a shopping plan",
+      "titleZh": "从网页资料到采购计划",
+      "description": "Read a recipe, email the flavoring ingredients and schedule shopping relative to Thanksgiving.",
+      "descriptionZh": "读取网页食谱，邮件发送调味食材，并按感恩节日期安排采购。",
+      "apps": "Chrome → Mail → Calendar",
+      "score": 1,
+      "actions": 46,
+      "rounds": 47,
+      "task_seconds": 757.761,
+      "source_recording_seconds": 767.7703111111111,
+      "playback_speed": 3,
+      "source_sha256": "0a2e1e152c8f952e9a8085ef3ff5d87c2232ad9b23fba7a5eba21b0d623bff89",
+      "video": "thanksgiving-preparation.mp4",
+      "preview": "thanksgiving-preparation.gif",
+      "poster": "thanksgiving-preparation.webp",
+      "output_sha256": "430accb5ee97aa01e11d31bb6e90e0372efd9666f7cd49edc980af3aec7e9edd",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Chrome to retrieve the pecan pie recipe ingredients from the provided source.",
+          "action": "launch",
+          "screenshot": "thanksgiving-preparation-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Continue Chrome setup without adding an account so the provided recipe can be opened.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Dismiss the optional notification prompt to reach Chrome browsing.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Navigate directly to the provided Sally’s Baking Addiction pecan pie recipe.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Enter the provided recipe URL into the now-focused Chrome address bar.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Submit the entered recipe URL and load the reference page.",
+          "action": "key",
+          "screenshot": "thanksgiving-preparation-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Wait briefly for the active Cloudflare browser verification to complete without interrupting it.",
+          "action": "sleep",
+          "screenshot": "thanksgiving-preparation-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Select the visible Cloudflare 'Verify you are human' checkbox to continue to the recipe.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Allow the active Cloudflare verification to finish before inspecting the recipe page.",
+          "action": "sleep",
+          "screenshot": "thanksgiving-preparation-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Continue waiting for the in-progress security verification to settle; it has not reset or shown an error.",
+          "action": "sleep",
+          "screenshot": "thanksgiving-preparation-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Retry the visible Cloudflare human-verification checkbox after the prior verification reset.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Switch to a targeted search for the same recipe after the Cloudflare challenge reset twice, to obtain the requested source context through indexed results.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Submit the targeted search query for the Sally's Baking Addiction pecan pie ingredient details.",
+          "action": "key",
+          "screenshot": "thanksgiving-preparation-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Refine the search to surface the exact recipe ingredient list and flavoring context from the provided source.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Replace the focused Google query with a source-restricted ingredient search for the exact recipe.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Submit the refined source-restricted ingredient search.",
+          "action": "key",
+          "screenshot": "thanksgiving-preparation-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Search the exact recipe for its own flavor descriptions to classify the filling ingredients accurately.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Use the already-focused search field to look for the recipe author's flavor descriptions.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Submit the focused recipe flavor-description search.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Search the recipe's ingredient-explanation section to separate flavoring ingredients from structural filling components.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Search the recipe for the grouped flavoring ingredients, including salt, to confirm the complete flavoring list.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Submit the focused grouped-ingredient search to confirm whether salt appears with the recipe's flavoring components.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Search the recipe for the flavor-contributing filling ingredients and, if surfaced, their shopping quantities.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Identified the recipe's flavor-contributing ingredients as pecans, corn syrup (the recipe uses dark corn syrup), brown sugar, vanilla extract, melted butter, salt, and ground cinnamon. Sally's snippet explicitly describes pecans plus vanilla, butter, and cinnamon as the pie's flavor, while the recipe-method snippet groups corn syrup, brown sugar, vanilla, butter, salt, and cinnamon in the filling and separately includes eggs, supporting exclusion of eggs as structural/binding rather than flavoring.",
+          "action": "request_replan",
+          "screenshot": "thanksgiving-preparation-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Open Gmail to compose and send the requested pecan pie shopping email.",
+          "action": "launch",
+          "screenshot": "thanksgiving-preparation-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Start a new email draft.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Address the new email to user@gmail.com.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Set the requested email subject.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Fill the email body with the requested pecan pie flavoring ingredients.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Send the completed email to user@gmail.com.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Email sent successfully to user@gmail.com with subject “Pie shopping” and the requested seven-item flavoring ingredient list. The app displayed “Email Sent” as confirmation.",
+          "action": "request_replan",
+          "screenshot": "thanksgiving-preparation-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Open Fossify Calendar to create the requested event.",
+          "action": "launch",
+          "screenshot": "thanksgiving-preparation-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Open a new event editor for the requested distant date.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Choose Event from the expanded new-item menu.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Enter the event title exactly as requested.",
+          "action": "replace_text",
+          "screenshot": "thanksgiving-preparation-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Open the start-date picker to set November 20, 2025.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Open the year selector to move from 2026 to 2025 efficiently.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Select year 2025 in the date picker.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Advance the date picker from October to November 2025.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Select November 20, 2025 as the event start date.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Confirm the selected start date of November 20, 2025.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Open the start-time picker to set the event to 8:00 AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Set the start time period to AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Set the selected hour to 8 while retaining 00 minutes and AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Confirm the selected start time of 8:00 AM.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Save the new event with the verified title, date, and 8:00 AM start time.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-046.webp"
+        },
+        {
+          "sequence": 47,
+          "summary": "Open calendar search to verify the saved event by its exact title.",
+          "action": "tap",
+          "screenshot": "thanksgiving-preparation-047.webp"
+        },
+        {
+          "sequence": 48,
+          "summary": "Search for the exact event title to verify the saved record.",
+          "action": "type",
+          "screenshot": "thanksgiving-preparation-048.webp"
+        },
+        {
+          "sequence": 49,
+          "summary": "Created and saved “Thanksgiving Shopping”; calendar search verifies it on Thursday, November 20, 2025 at 08:00 AM. The email was already confirmed sent to user@gmail.com with subject “Pie shopping” and the requested flavoring ingredient list.",
+          "action": "request_replan",
+          "screenshot": "thanksgiving-preparation-049.webp"
+        }
+      ]
+    },
+    {
+      "task": "MastodonCreateMemoTask",
+      "variant": "original",
+      "slug": "lectures-to-calendar",
+      "title": "A lecture into the calendar",
+      "titleZh": "讲座转日历与提醒",
+      "description": "Find the Urban Mobility lecture under a hashtag, read its time and location, and create an event with a one-day reminder.",
+      "descriptionZh": "在话题中查找 Urban Mobility 讲座，读取时间和地点，创建日历事件并设置提前一天提醒。",
+      "apps": "Mastodon → Calendar",
+      "score": 1,
+      "actions": 34,
+      "rounds": 35,
+      "task_seconds": 448.23,
+      "source_recording_seconds": 446.27934444444446,
+      "playback_speed": 3,
+      "source_sha256": "cb5d2287897d1cafe83180c4ceecad721e75f19e178c79f945a3ffb4f8362de5",
+      "video": "lectures-to-calendar.mp4",
+      "preview": "lectures-to-calendar.gif",
+      "poster": "lectures-to-calendar.webp",
+      "output_sha256": "925e33d2c464dab127b5d6934d5d35ffa3519db994dcda83b9fb50e6506cec92",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Mastodon to search #openTalk for the Urban Mobility lecture details.",
+          "action": "launch",
+          "screenshot": "lectures-to-calendar-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open Mastodon Explore to access search.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Activate the Mastodon search field so the #openTalk query can be entered.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Search Mastodon for the exact #openTalk hashtag.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Open the visible OpenTalk hashtag result to inspect posts for the Urban Mobility lecture.",
+          "action": "tap_xy",
+          "screenshot": "lectures-to-calendar-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Scroll through #OpenTalk posts to locate the one specifically about Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Continue down the #OpenTalk post list to find the Urban Mobility lecture entry.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Continue scanning #OpenTalk posts for the Urban Mobility lecture.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Continue down the hashtag timeline; the visible posts are unrelated AI topics, not Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Continue scanning older #OpenTalk posts for the requested Urban Mobility lecture.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Continue scanning older #OpenTalk posts; the visible Nov 3 Embodied GUI Agents post is not about Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Continue scanning older #OpenTalk posts; the visible Oct 27 Edge Intelligence lecture is unrelated to Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Continue down the chronological #OpenTalk feed toward older lectures; Oct 27 is still not Urban Mobility.",
+          "action": "scroll",
+          "screenshot": "lectures-to-calendar-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Found the requested #OpenTalk post. Topic/title: AI-Powered Urban Mobility. Date and time shown: Oct 24, 2025, 15:00–16:30. Location: Auditorium 2-A, Innovation Building. The post labels the date as Monday, but Oct 24, 2025 is a Friday; use the explicit calendar date Oct 24, 2025 while retaining the exact time and location.",
+          "action": "request_replan",
+          "screenshot": "lectures-to-calendar-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Open Fossify Calendar to create the single distant event with the established details.",
+          "action": "launch",
+          "screenshot": "lectures-to-calendar-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Open the new-event editor for the requested single event.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Choose Event from the expanded new-item menu.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Set the event title exactly as requested.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Set the event location exactly as found in the #OpenTalk details.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Open the start-date picker to set October 24, 2025.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Select October 24, 2025 in the start-date picker.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Confirm the selected start date of October 24, 2025.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Open the start-time picker to set 3:00 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Select 3 o'clock for the event start time; PM is already selected.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Confirm the selected start time of 3:00 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Open the end-time picker to set the event end to 4:30 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Set the end-time hour to 4 PM.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Set the end-time minutes to 30.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Confirm the selected end time of 4:30 PM and return to the event editor.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Open the reminder selector to set a reminder exactly 1 day before.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Choose Custom to configure a reminder exactly 1 day before the event.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Enter a custom reminder value of 1.",
+          "action": "replace_text",
+          "screenshot": "lectures-to-calendar-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Select days as the unit, making the custom reminder 1 day before.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Confirm the custom reminder interval of 1 day.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Save the event with the verified title, location, schedule, and 1-day reminder.",
+          "action": "tap",
+          "screenshot": "lectures-to-calendar-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Created and saved the distinct event \"AI-Powered Urban Mobility\" for Oct 24, 2025, 3:00 PM–4:30 PM at Auditorium 2-A, Innovation Building, with reminder set to exactly 1 day before. Save returned to October month view, where the new event is visible on Oct 24.",
+          "action": "request_replan",
+          "screenshot": "lectures-to-calendar-036.webp"
+        }
+      ]
+    },
+    {
+      "task": "LocalFileManagementTask2",
+      "variant": "original",
+      "slug": "archive-old-files",
+      "title": "Archive files and keep a record",
+      "titleZh": "归档旧文件并邮件留档",
+      "description": "Select files older than a year, archive them, remove the originals and email the deleted-file list.",
+      "descriptionZh": "筛选超过一年的文件，压缩归档、删除原文件并邮件记录清单。",
+      "apps": "Files → Mail",
+      "score": 1,
+      "actions": 45,
+      "rounds": 46,
+      "task_seconds": 901.428,
+      "source_recording_seconds": 892.4234666666666,
+      "playback_speed": 3,
+      "source_sha256": "afc620097bf39045904c51dd87f31f119f53ac389d9312db40f4816cfa964bf9",
+      "video": "archive-old-files.mp4",
+      "preview": "archive-old-files.gif",
+      "poster": "archive-old-files.webp",
+      "output_sha256": "ced070c19c85b08eb93e55273c9ae146fda7cb734beb2eb3668040dd1b1846c6",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open the Files app to inspect the Download folder and identify files modified strictly before 2024-10-16.",
+          "action": "launch",
+          "screenshot": "archive-old-files-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open Files options to confirm or set Modified-date ordering before locating the strict 2024-10-16 cutoff.",
+          "action": "tap",
+          "screenshot": "archive-old-files-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Open the Sort by dialog to verify the list is ordered by Modified date.",
+          "action": "tap",
+          "screenshot": "archive-old-files-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Sort by Modified oldest first so every qualifying file before 2024-10-16 can be cataloged and selected as one contiguous range.",
+          "action": "tap",
+          "screenshot": "archive-old-files-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Record the first nine qualifying filenames and scroll toward the 2024-10-16 cutoff to identify any remaining eligible files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Record the final two qualifying files and confirmed cutoff, then return to the first item to select the exact 11-file contiguous prefix.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Select the visible contiguous qualifying prefix from the first file through the ninth file using the range-selection gesture.",
+          "action": "drag",
+          "screenshot": "archive-old-files-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Nine qualifying files are confirmed selected; scroll while preserving selection to expose and add the final two qualifying files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Add the tenth qualifying file, 01_archive_20240924.zip, to the current selection.",
+          "action": "tap",
+          "screenshot": "archive-old-files-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Add the eleventh and final qualifying file, 06_music_collection_20240929.zip, while leaving the Oct 23, 2024 file excluded.",
+          "action": "tap",
+          "screenshot": "archive-old-files-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Open the selection actions menu for the confirmed 11 qualifying files to start compression.",
+          "action": "tap",
+          "screenshot": "archive-old-files-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Choose Compress for the 11 confirmed qualifying files.",
+          "action": "tap",
+          "screenshot": "archive-old-files-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Move to the newest end of the oldest-first Downloads list to verify the completed archive and its generated filename before deleting any sources.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Continue to the newest end of Downloads to locate the newly created archive and verify its generated name before source deletion.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Continue to the bottom of the oldest-first list to find and verify the newly created archive before deleting its source files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Continue to the bottom of Downloads, where a newly created archive should appear in the current oldest-first order.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Continue to the final rows of Downloads to verify whether the newly created archive is present.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Continue toward the newest end of the oldest-first Downloads list to locate and verify the generated archive.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Continue to the very bottom of the oldest-first list, where the just-created archive should be ordered as newest.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Continue to the bottom to find and verify the newly created `old_files.zip` before deleting any source files.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Scroll the final segment of the oldest-first Downloads list to verify whether `old_files.zip` is present as the newest item.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Select the verified newly created `archive.zip` so it can be renamed exactly to `old_files.zip` before deleting its source files.",
+          "action": "long_press",
+          "screenshot": "archive-old-files-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Open the selected archive's actions menu to rename `archive.zip` to the required `old_files.zip`.",
+          "action": "tap",
+          "screenshot": "archive-old-files-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Choose Rename for the selected newly created archive.",
+          "action": "tap",
+          "screenshot": "archive-old-files-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Replace the generated archive name with the exact required filename `old_files.zip`.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Confirm the exact rename to `old_files.zip`.",
+          "action": "tap",
+          "screenshot": "archive-old-files-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Scroll toward the oldest Downloads entries so the confirmed qualifying source-file range can be selected for deletion.",
+          "action": "scroll",
+          "screenshot": "archive-old-files-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Move quickly toward the oldest end of the date-sorted Downloads list to locate the qualifying source range.",
+          "action": "swipe",
+          "screenshot": "archive-old-files-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Scroll to the oldest end of the sorted list so the full qualifying prefix can be range-selected without including the Oct 23 boundary file.",
+          "action": "swipe",
+          "screenshot": "archive-old-files-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Range-select the visible qualifying oldest files, from the first file through the last fully visible qualifying row, before extending to the remaining two.",
+          "action": "drag",
+          "screenshot": "archive-old-files-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Retry the prescribed continuous range selection across the list surface, without incorrectly constraining the drag to the first row.",
+          "action": "drag",
+          "screenshot": "archive-old-files-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Keep the 9-file selection active and reveal the final two qualifying rows plus the excluded cutoff boundary.",
+          "action": "swipe",
+          "screenshot": "archive-old-files-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Add the first of the two remaining qualifying files, `01_archive_20240924.zip`, to the active selection while leaving the Oct 23 cutoff file unselected.",
+          "action": "tap",
+          "screenshot": "archive-old-files-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Add the final qualifying file, `06_music_collection_20240929.zip`, bringing the verified selection to all 11 files while keeping `05_download_20241023.zip` excluded.",
+          "action": "tap",
+          "screenshot": "archive-old-files-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Delete the verified 11 selected source files now that `old_files.zip` has been created; the newer Oct 23 file remains unselected.",
+          "action": "tap",
+          "screenshot": "archive-old-files-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Confirm deletion of the 11 verified source files.",
+          "action": "tap",
+          "screenshot": "archive-old-files-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Created `old_files.zip` from the 11 files strictly before 2024-10-16, then confirmed deletion of those 11 sources. The post-delete Downloads view now begins with the excluded `05_download_20241023.zip`, showing the qualifying prefix is gone while newer files remain. Exact deleted-file list is retained for the email stage.",
+          "action": "request_replan",
+          "screenshot": "archive-old-files-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Open the signed-in email app to compose the deleted-files record email.",
+          "action": "launch",
+          "screenshot": "archive-old-files-038.webp"
+        },
+        {
+          "sequence": 39,
+          "summary": "Open the account panel to identify the signed-in email address for the self-recipient.",
+          "action": "tap_xy",
+          "screenshot": "archive-old-files-039.webp"
+        },
+        {
+          "sequence": 40,
+          "summary": "Open the mailbox navigation panel to locate the signed-in account identity after the avatar tap produced no visible change.",
+          "action": "tap",
+          "screenshot": "archive-old-files-040.webp"
+        },
+        {
+          "sequence": 41,
+          "summary": "Close the navigation drawer and return to the inbox so the record email can be composed.",
+          "action": "back",
+          "screenshot": "archive-old-files-041.webp"
+        },
+        {
+          "sequence": 42,
+          "summary": "Open a new message to address the deleted-files record email to the signed-in account.",
+          "action": "tap",
+          "screenshot": "archive-old-files-042.webp"
+        },
+        {
+          "sequence": 43,
+          "summary": "Address the record email to the same signed-in account shown in the From field.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-043.webp"
+        },
+        {
+          "sequence": 44,
+          "summary": "Set a clear subject for the deleted-files record email.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-044.webp"
+        },
+        {
+          "sequence": 45,
+          "summary": "Enter the exact list of all 11 archived and deleted filenames in the email body.",
+          "action": "replace_text",
+          "screenshot": "archive-old-files-045.webp"
+        },
+        {
+          "sequence": 46,
+          "summary": "Send the completed self-addressed record email containing the exact 11-file deletion list.",
+          "action": "tap",
+          "screenshot": "archive-old-files-046.webp"
+        },
+        {
+          "sequence": 47,
+          "summary": "Completed the task: created `old_files.zip` containing the 11 files older than one year, deleted those source files after compression, and sent the signed-in account a self-addressed email with the exact deleted-file list. The app confirms `Email Sent`.",
+          "action": "request_replan",
+          "screenshot": "archive-old-files-047.webp"
+        }
+      ]
+    },
+    {
+      "task": "PhotoManagementTask",
+      "variant": "original",
+      "slug": "photos-by-travel-location",
+      "title": "Organize photos by travel",
+      "titleZh": "按旅行地点整理照片",
+      "description": "Read travel dates and locations from the calendar and sort last month's food photos into location folders.",
+      "descriptionZh": "从日历读取旅行日期和地点，把上个月的美食照片归类到地点文件夹。",
+      "apps": "Calendar → Gallery",
+      "score": 1,
+      "actions": 34,
+      "rounds": 35,
+      "task_seconds": 638.839,
+      "source_recording_seconds": 640.5233111111111,
+      "playback_speed": 3,
+      "source_sha256": "d075be588d84ccb7f8d7afcd98ceea714c2bcfcf5b9146efd41c21a1663b503b",
+      "video": "photos-by-travel-location.mp4",
+      "preview": "photos-by-travel-location.gif",
+      "poster": "photos-by-travel-location.webp",
+      "output_sha256": "1d332f88ce35d75c8071190d8a09ec8811ddff1e85e571925e6dc369de8fb98d",
+      "sequence": "all recorded frames retained; source timing divided by three; silent H.264",
+      "preview_disclosure": "Eight sampled moments; open video for full recording",
+      "data_disclosure": "Public synthetic benchmark fixtures; no personal user account",
+      "steps": [
+        {
+          "sequence": 1,
+          "summary": "Open Fossify Calendar to inspect travel events in the required 2025-09-16 through 2025-10-16 range.",
+          "action": "launch",
+          "screenshot": "photos-by-travel-location-001.webp"
+        },
+        {
+          "sequence": 2,
+          "summary": "Open the view selector so the date range can be inspected chronologically in Simple event list.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-002.webp"
+        },
+        {
+          "sequence": 3,
+          "summary": "Switch to Simple event list for chronological inspection of the past-month events.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-003.webp"
+        },
+        {
+          "sequence": 4,
+          "summary": "Scroll earlier in the chronological event list toward the start of the required range.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-004.webp"
+        },
+        {
+          "sequence": 5,
+          "summary": "Continue scrolling earlier to expose the Paris event's start and prior September travel events.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-005.webp"
+        },
+        {
+          "sequence": 6,
+          "summary": "Continue earlier in the event list to inspect travel entries from September 16 through October 3.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-006.webp"
+        },
+        {
+          "sequence": 7,
+          "summary": "Search calendar entries for conference travel events to identify all destinations and their date spans within the required month.",
+          "action": "replace_text",
+          "screenshot": "photos-by-travel-location-007.webp"
+        },
+        {
+          "sequence": 8,
+          "summary": "Calendar inspection identified two travel-location spans within 2025-09-16 through 2025-10-16: Tokyo from Oct 4 through Oct 10 (Conference in Tokyo, shown under Oct 4 with all-day end Oct 10), and Paris from Oct 11 through Oct 15 (Conference in Paris, shown under Oct 11 with all-day end Oct 15). No September travel entry appeared before the October section in the chronological event list. Calendar data was not modified.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-008.webp"
+        },
+        {
+          "sequence": 9,
+          "summary": "Launch the exact Gallery package specified by the current stage.",
+          "action": "launch",
+          "screenshot": "photos-by-travel-location-009.webp"
+        },
+        {
+          "sequence": 10,
+          "summary": "Open the all-photos timeline so visible food thumbnails can be matched to their date groups.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-010.webp"
+        },
+        {
+          "sequence": 11,
+          "summary": "Record the four qualifying visible food photos and scroll to inspect earlier dates in the requested range.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-011.webp"
+        },
+        {
+          "sequence": 12,
+          "summary": "Record the Oct 7 Tokyo food photo and continue down to inspect Oct 6 and earlier dates.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-012.webp"
+        },
+        {
+          "sequence": 13,
+          "summary": "Record the Oct 6 sushi and Oct 5 skillet meal as Tokyo food photos, then continue to earlier dates.",
+          "action": "scroll",
+          "screenshot": "photos-by-travel-location-013.webp"
+        },
+        {
+          "sequence": 14,
+          "summary": "Completed Gallery inspection for the requested 2025-09-16 through 2025-10-16 window. The timeline reaches its oldest visible media at Oct 5, so there are no Gallery photos from Sep 16-Oct 4 to inspect. Identified 7 qualifying food photos: Paris — Oct 14 banquet/table spread, Oct 13 bread/pastry, Oct 12 burger; Tokyo — Oct 8 plated meal, Oct 7 ramen, Oct 6 sushi counter, Oct 5 skillet meal. No food photos had dates outside the two established travel ranges, and Oct 29 media was excluded as outside the past-month window.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-014.webp"
+        },
+        {
+          "sequence": 15,
+          "summary": "Enter multi-select mode with the Oct 8 Tokyo food photo.",
+          "action": "long_press",
+          "screenshot": "photos-by-travel-location-015.webp"
+        },
+        {
+          "sequence": 16,
+          "summary": "Add the Oct 7 Tokyo ramen photo to the current selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-016.webp"
+        },
+        {
+          "sequence": 17,
+          "summary": "Add the Oct 6 Tokyo sushi photo to the current selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-017.webp"
+        },
+        {
+          "sequence": 18,
+          "summary": "Add the Oct 5 Tokyo skillet photo to complete the four-photo selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-018.webp"
+        },
+        {
+          "sequence": 19,
+          "summary": "Open the selection actions menu to organize the four selected Tokyo photos into a folder.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-019.webp"
+        },
+        {
+          "sequence": 20,
+          "summary": "Choose Move to so the four selected Tokyo photos can be placed in a distinct Tokyo folder without duplicating them.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-020.webp"
+        },
+        {
+          "sequence": 21,
+          "summary": "Create a new destination folder for the selected Tokyo photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-021.webp"
+        },
+        {
+          "sequence": 22,
+          "summary": "Name the new destination folder exactly Tokyo.",
+          "action": "replace_text",
+          "screenshot": "photos-by-travel-location-022.webp"
+        },
+        {
+          "sequence": 23,
+          "summary": "Confirm creation of the Tokyo folder so the four selected photos can be moved into it.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-023.webp"
+        },
+        {
+          "sequence": 24,
+          "summary": "Allow Gallery to modify the four selected Tokyo photos, completing their move into the newly created Tokyo folder.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-024.webp"
+        },
+        {
+          "sequence": 25,
+          "summary": "Open Albums to verify that the Tokyo folder was created and contains the four selected photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-025.webp"
+        },
+        {
+          "sequence": 26,
+          "summary": "Tokyo classification is complete and verified: Albums shows a distinct `Tokyo (4)` folder. The four selected Tokyo food photos were moved there, while the other albums and Paris photos remain unchanged.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-026.webp"
+        },
+        {
+          "sequence": 27,
+          "summary": "Open Photos to select the three identified Paris food photos dated Oct 14, Oct 13, and Oct 12.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-027.webp"
+        },
+        {
+          "sequence": 28,
+          "summary": "Start multi-selection with the identified Paris food photo dated Oct 14.",
+          "action": "long_press",
+          "screenshot": "photos-by-travel-location-028.webp"
+        },
+        {
+          "sequence": 29,
+          "summary": "Add the identified Oct 13 Paris food photo to the current selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-029.webp"
+        },
+        {
+          "sequence": 30,
+          "summary": "Add the identified Oct 12 Paris food photo to complete the three-photo selection.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-030.webp"
+        },
+        {
+          "sequence": 31,
+          "summary": "Open selection options to move the three selected Paris photos into a distinct album.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-031.webp"
+        },
+        {
+          "sequence": 32,
+          "summary": "Choose Move to so the three selected Paris photos can be placed in a new Paris folder.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-032.webp"
+        },
+        {
+          "sequence": 33,
+          "summary": "Create a new destination folder for the selected Paris photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-033.webp"
+        },
+        {
+          "sequence": 34,
+          "summary": "Enter the exact new folder name Paris.",
+          "action": "replace_text",
+          "screenshot": "photos-by-travel-location-034.webp"
+        },
+        {
+          "sequence": 35,
+          "summary": "Confirm creation of the Paris folder and proceed with moving the three selected photos.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-035.webp"
+        },
+        {
+          "sequence": 36,
+          "summary": "Allow Gallery to modify the three explicitly identified Paris photos so the move can complete.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-036.webp"
+        },
+        {
+          "sequence": 37,
+          "summary": "Open Albums to verify that Paris was created with exactly three photos while Tokyo remains intact.",
+          "action": "tap",
+          "screenshot": "photos-by-travel-location-037.webp"
+        },
+        {
+          "sequence": 38,
+          "summary": "Completed the past-month food photo classification using the calendar-derived travel ranges. Gallery now shows Paris (3) containing the Oct 14, Oct 13, and Oct 12 food photos, and Tokyo (4) remains intact with the Oct 8, Oct 7, Oct 6, and Oct 5 food photos. Unrelated Pictures (4) media is preserved.",
+          "action": "request_replan",
+          "screenshot": "photos-by-travel-location-038.webp"
+        }
+      ]
+    }
+  ]
+}

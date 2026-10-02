@@ -2,6 +2,12 @@
 
 [README](../README.md) · [中文首页](../README.zh-CN.md) · [Task examples](task-examples.md)
 
+The latest [MobileWorld GUI-only result](mobileworld-results-20261002.md) includes **six successful complex workflows** from the October 2 paired evaluation: project risk matrix, resource conflict resolution, recipe research and shopping plan, lecture-to-calendar, file archiving with email records, and photos organized by travel location. Watch the complete 3× recordings and inspect their steps on the [MobileWorld results page](https://lordrosenberg.github.io/ClickClick/mobileworld/). That result is **112/117 (95.73%) with locally clarified instructions**, alongside **106/117 (90.60%) with original wording**; the clarification table and environment context are disclosed there.
+
+最新 [MobileWorld 纯 GUI 成绩](mobileworld-results-20261002.md)提供六个通过的复杂用例、3 倍速完整录像和步骤截图：[查看演示与逐题成绩](https://lordrosenberg.github.io/ClickClick/mobileworld/)。澄清版 **112/117（95.73%）**，原题措辞版 **106/117（90.60%）**；澄清表及测试账号环境信息均已披露。
+
+The AndroidWorld recordings below retain their separate September provenance.
+
 These videos show complete successful Android tasks at **3× playback speed**. The original screen sequence is preserved. Cropping removes unused black recording margins; an adjacent panel explains the task. Animated README previews sample eight moments and link to the full videos.
 
 ## Notes to recipes / 笔记转食谱
