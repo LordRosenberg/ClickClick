@@ -3714,7 +3714,7 @@
       "task_seconds": 746.17,
       "source_recording_seconds": 757.2552111111111,
       "source_sha256": "3eee6a9e36efc62189252d3d6d686385f738563c113ee3a432fc1f12bf424e09",
-      "poster": "project-risk-matrix.webp",
+      "poster": "project-risk-matrix-cover.svg",
       "data_disclosure": "Public synthetic benchmark fixtures; no personal user account"
     },
     {
@@ -3732,7 +3732,7 @@
       "task_seconds": 966.303,
       "source_recording_seconds": 977.4392888888889,
       "source_sha256": "2680c5119192f23f744e86ea2908c065def633a2d6c5ab691dbd3509eac818af",
-      "poster": "resource-conflicts.webp",
+      "poster": "resource-conflicts-cover.svg",
       "data_disclosure": "Public synthetic benchmark fixtures; no personal user account"
     },
     {
@@ -3750,7 +3750,7 @@
       "task_seconds": 757.761,
       "source_recording_seconds": 767.7703111111111,
       "source_sha256": "0a2e1e152c8f952e9a8085ef3ff5d87c2232ad9b23fba7a5eba21b0d623bff89",
-      "poster": "thanksgiving-preparation.webp",
+      "poster": "thanksgiving-preparation-cover.svg",
       "data_disclosure": "Public synthetic benchmark fixtures; no personal user account"
     },
     {
@@ -3768,7 +3768,7 @@
       "task_seconds": 448.23,
       "source_recording_seconds": 446.27934444444446,
       "source_sha256": "cb5d2287897d1cafe83180c4ceecad721e75f19e178c79f945a3ffb4f8362de5",
-      "poster": "lectures-to-calendar.webp",
+      "poster": "lectures-to-calendar-cover.svg",
       "data_disclosure": "Public synthetic benchmark fixtures; no personal user account"
     },
     {
@@ -3786,7 +3786,7 @@
       "task_seconds": 901.428,
       "source_recording_seconds": 892.4234666666666,
       "source_sha256": "afc620097bf39045904c51dd87f31f119f53ac389d9312db40f4816cfa964bf9",
-      "poster": "archive-old-files.webp",
+      "poster": "archive-old-files-cover.svg",
       "data_disclosure": "Public synthetic benchmark fixtures; no personal user account"
     },
     {
@@ -3804,7 +3804,7 @@
       "task_seconds": 638.839,
       "source_recording_seconds": 640.5233111111111,
       "source_sha256": "d075be588d84ccb7f8d7afcd98ceea714c2bcfcf5b9146efd41c21a1663b503b",
-      "poster": "photos-by-travel-location.webp",
+      "poster": "photos-by-travel-location-cover.svg",
       "data_disclosure": "Public synthetic benchmark fixtures; no personal user account"
     }
   ]
