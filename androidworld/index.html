@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#101b29">
   <meta name="description" content="ClickClick's AndroidWorld 115/116 result with per-step screenshot evidence.">
   <title>AndroidWorld 115/116 · ClickClick</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="ranking.css">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="../" aria-label="ClickClick home"><span class="brand-mark">C<span>↗</span></span><span>ClickClick <b>/ AndroidWorld</b></span></a>
-    <nav aria-label="External links"><a href="../">Home</a><a href="https://github.com/LordRosenberg/ClickClick" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="methodology.html">Methodology ↗</a></nav>
+    <nav aria-label="External links"><a href="../">Home</a><a href="../mobileworld/">MobileWorld</a><a href="https://github.com/LordRosenberg/ClickClick" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="methodology.html">Methodology ↗</a></nav>
   </header>
 
   <main>
@@ -25,7 +25,7 @@
       <div class="score-card" aria-label="Evaluation score">
         <div class="score-heading">ANDROIDWORLD <span>·</span> OFFICIAL PREDICATE</div>
         <div class="score-number"><strong>115</strong><span>/ 116</span></div>
-        <div class="score-percent">99.14% <span>task success</span></div>
+        <div class="score-percent">99.14% <span>task success · tied #2 tier</span></div>
         <div class="score-rule"></div>
         <div class="score-meta"><div><span>MODEL</span><strong>GPT-5.6-SOL</strong></div><div><span>REASONING</span><strong>HIGH</strong></div><div><span>ENVIRONMENT</span><strong>ANDROID 13</strong></div></div>
       </div>
@@ -33,7 +33,24 @@
 
     <section class="context" aria-label="Result context"><span class="context-icon">i</span><p>These 116 task results are scored by AndroidWorld’s official predicates. This is a skill-adapted system result; the evaluation notes describe its protocol and scope. Screenshots replace video because the run was not recorded.</p></section>
 
-    <section class="explorer" id="explore">
+        <section id="leaderboard" class="ranking-section">
+      <div class="section-title"><div><span class="section-index">LEADERBOARD / CHECKED 02 OCT 2026</span><h2>Tied #2 by success-rate tier<br><small>按成功率档位并列第 2</small></h2></div><span class="ranking-pill">#2 · 99.1%</span></div>
+      <p>At the public leaderboard’s one-decimal precision, ClickClick’s 115/116 (99.14%) rounds to 99.1%, tying Artemis in the second distinct success-rate tier. Three systems share the 100% tier. This adds our local result to the public snapshot; it does not imply official leaderboard acceptance.</p>
+      <p>按公开榜单一位小数精度，ClickClick 115/116（99.14%）显示为 99.1%，与 Artemis 并列第二个成功率档位，第一档为三个 100% 结果。这是加入本地自测成绩后的对比，不代表官方榜单收录。</p>
+      <div class="ranking-table-wrap"><table><caption>AndroidWorld success rate · public comparison</caption><thead><tr><th>Rate tier / 档位</th><th>System / 系统</th><th>Success / 成功率</th><th>Result source / 来源</th></tr></thead><tbody>
+        <tr><td>1</td><td>FluizAI</td><td>100.0%</td><td>Public leaderboard</td></tr>
+        <tr><td>1</td><td>Kirk Engine</td><td>100.0%</td><td>Public leaderboard</td></tr>
+        <tr><td>1</td><td>MobileRun</td><td>100.0%</td><td>Public leaderboard</td></tr>
+        <tr class="ranking-ours"><td>2 (tied)</td><td>ClickClick · GPT-5.6-SOL</td><td>99.1% <small>(115/116 · 99.14%)</small></td><td>Local evaluation · <a href="methodology.html">methodology</a></td></tr>
+        <tr><td>2 (tied)</td><td>Artemis</td><td>99.1%</td><td>Public leaderboard</td></tr>
+        <tr><td>3</td><td>AGI-0</td><td>97.4%</td><td>Public leaderboard</td></tr>
+        <tr><td>3</td><td>MobileUseAgent</td><td>97.4%</td><td>Public leaderboard</td></tr>
+        <tr><td>3</td><td>Finalrun</td><td>97.4%</td><td>Public leaderboard</td></tr>
+      </tbody></table></div>
+      <p class="ranking-note">Rank convention: dense ranking by distinct success rate at one-decimal precision. The official sheet uses competition ranking (three 100% entries make its next rank 4); the “#2” here means the second rate tier. Results are self-reported and protocols/task parameters can differ. 来源：<a href="https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0">AndroidWorld public leaderboard ↗</a> · 2026-10-02.</p>
+    </section>
+
+<section class="explorer" id="explore">
       <div class="section-title"><div><span class="section-index">01 / EVIDENCE BROWSER</span><h2>Explore the run</h2></div><span id="taskCount" class="task-count">Loading tasks…</span></div>
       <div class="explorer-shell">
         <aside class="task-sidebar" aria-label="Task list">
