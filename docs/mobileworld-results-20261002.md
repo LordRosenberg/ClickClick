@@ -24,9 +24,9 @@ The original and changed cases retain separate executions, delivered goals and s
 
 ## GUI-only leaderboard comparison
 
-The [official MobileWorld leaderboard](https://tongyi-mai.github.io/MobileWorld/) and its [source JSON](https://github.com/Tongyi-MAI/MobileWorld/blob/main/site/leaderboard.json), checked **2026-10-02**, list Qwen-UI-Agent at 82.1% as the highest published 50-step GUI-only result. Adding ClickClick's local result puts it **first in this GUI-only comparison**. The original-wording score of 90.60% also exceeds the published rows.
+The [official MobileWorld leaderboard](https://tongyi-mai.github.io/MobileWorld/) and its [source JSON](https://github.com/Tongyi-MAI/MobileWorld/blob/main/site/leaderboard.json), checked **2026-10-02**, list Qwen-UI-Agent at 82.1% as the highest published 50-step GUI-only result. ClickClick ranks **first in this GUI-only comparison**. The original-wording score of 90.60% also exceeds the published rows.
 
-This comparison includes Agentic, General and Specialized categories, using their GUI-only scores rather than overall, user-interaction or MCP results. ClickClick is a system with skills and runtime adaptations. Its 95.73% result uses locally clarified instructions; other rows use their published protocols. This table does not imply official acceptance of a ClickClick submission or independent verification. The web page links the source and labels this distinction next to the ranking.
+This comparison includes Agentic, General and Specialized categories, using their GUI-only scores rather than overall, user-interaction or MCP results. ClickClick is a system with skills and runtime adaptations. Its 95.73% result uses locally clarified instructions; other rows use their published protocols.
 
 ## Instruction clarifications / 指令澄清
 

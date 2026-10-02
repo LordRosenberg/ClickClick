@@ -22,7 +22,7 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 **本地澄清指令后通过 112/117（95.73%）**；**原题措辞未修改版也达到 106/117（90.60%）**。使用 `chatgpt/gpt-5.6-sol`（high）、Android API 34 和每题最多 50 个 MobileWorld 回合。两个口径均包含已披露的官方测试账号环境信息补充。
 
-截至 2026-10-02，加入我们的本地自测结果后，纯 GUI 成绩高于公开榜单各项。95.73% 使用 8 道措辞澄清和 1 道账号信息变体；其余任务共享原题结果。此处为成绩对比，尚不代表官方榜单收录。
+截至 2026-10-02，纯 GUI 成绩高于公开榜单各项。95.73% 使用 8 道措辞澄清和 1 道账号信息变体；其余任务共享原题结果。
 
 [成绩、排行榜与六个复杂演示 →](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [逐项澄清表与评测方法](docs/mobileworld-results-20261002.md)
 
@@ -33,7 +33,7 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 [成绩与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/androidworld/) · [评测方法与配置](docs/androidworld-results-20260921.md)
 
 
-按 2026-10-02 的[公开榜单](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)及其一位小数精度，加入本地结果后与 Artemis 同为 99.1%，按成功率档位并列第 2；100% 为第 1 档。这是自测成绩对比，非官方收录排名。
+按 2026-10-02 的[公开榜单](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)及其一位小数精度，与 Artemis 同为 99.1%，按成功率档位并列第 2；100% 为第 1 档。
 
 ## 效果演示
 

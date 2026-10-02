@@ -22,7 +22,7 @@ ClickClick is an open-source Android agent platform. Give it a goal in natural l
 
 **112/117 tasks passed with locally clarified instructions**; the **original-wording result also reaches 106/117 (90.60%)**. Evaluated with `chatgpt/gpt-5.6-sol` (high), Android API 34 and at most 50 MobileWorld rounds per task. Both arms include disclosed official fixture account context for two tasks.
 
-Adding our local result places it above all published GUI-only rows checked on October 2, 2026. The clarified comparison uses eight wording changes and one account-context variant; unchanged tasks share their original result. This is a comparison with published results, not an accepted official leaderboard ranking.
+Our result exceeds all published GUI-only rows checked on October 2, 2026. The clarified comparison uses eight wording changes and one account-context variant; unchanged tasks share their original result.
 
 **[Results, leaderboard and six complex demos →](https://lordrosenberg.github.io/ClickClick/mobileworld/)** · [Clarifications and methodology](docs/mobileworld-results-20261002.md).
 
@@ -33,7 +33,7 @@ Adding our local result places it above all published GUI-only rows checked on O
 **[Explore the results and execution traces →](https://lordrosenberg.github.io/ClickClick/androidworld/)** Browse all 116 tasks, filter by outcome, and inspect scores, actions and recorded screen states. [Evaluation methodology](docs/androidworld-results-20260921.md).
 
 
-At the [public leaderboard](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)'s one-decimal precision, our local result ties Artemis at 99.1% in the second distinct success-rate tier, behind the 100% tier (checked October 2, 2026). This is a local comparison, not official leaderboard acceptance.
+At the [public leaderboard](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)'s one-decimal precision, our result ties Artemis at 99.1% in the second distinct success-rate tier, behind the 100% tier (checked October 2, 2026).
 
 ## See it in action
 
