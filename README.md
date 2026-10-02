@@ -174,6 +174,11 @@ Put the current goal and data in the task request, and reusable app knowledge in
 
 ## Evaluation and reproduction
 
+For MobileWorld, the public [complete running guide](docs/mobileworld-reproduction.md) includes a frozen runtime, all 117 original goals, nine variants, preparation and resume. Start with `python -m evaluation.mobileworld.reproduce --prepare-only`; after preparing the dedicated environment, supply its serial and the two local APKs to run the paired evaluation.
+
+[Evaluation architecture and changes since AndroidWorld](docs/mobileworld-evaluation-architecture.md): structured summary, provenance-backed memory restoration and native-detail observations.
+
+
 With model access and the AndroidWorld emulator ready, run all 116 published instances:
 
 ```bash

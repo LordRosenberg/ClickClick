@@ -268,7 +268,8 @@ class Action(BaseModel):
     `scroll` carries a content-navigation `direction`: down reveals content
     below, up reveals content above, and horizontal values follow the same
     convention. `long_press` and `drag` reuse `duration_ms`; `drag` uses `x/y`
-    as start and `x2/y2` as end.
+    as start and `x2/y2` as end. `drag.hold_before_move` optionally adds the
+    system long-press delay before movement, without lifting the finger.
     """
 
     type: Literal[
@@ -299,6 +300,7 @@ class Action(BaseModel):
     app: str | None = None
     direction: Literal["up", "down", "left", "right"] | None = None
     duration_ms: int | None = None
+    hold_before_move: bool | None = Field(default=None, strict=True)
     skill_action_id: str | None = None
     # Bound by the executor after observation validation; cannot be model-authored
     # or resurrected from serialized history/resume data.
@@ -306,6 +308,8 @@ class Action(BaseModel):
 
     @model_validator(mode="after")
     def validate_skill_authorized_target(self):
+        if self.hold_before_move and self.type != "drag":
+            raise ValueError("hold_before_move is only supported for drag")
         if (
             self.type == "key"
             and self.key is not None
@@ -434,6 +438,7 @@ class SubmittedActionSnapshot(BaseModel):
     app: str | None = None
     direction: str | None = None
     duration_ms: int | None = None
+    hold_before_move: bool | None = None
     skill_action_id: str | None = None
     image_size: tuple[int, int] | None = None
 

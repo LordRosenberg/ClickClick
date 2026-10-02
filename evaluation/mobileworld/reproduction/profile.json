@@ -1,0 +1,1317 @@
+{
+  "upstream_commit": "e41d1478e252325c513003d3d191b4c164b4af2c",
+  "model": "chatgpt/gpt-5.6-sol",
+  "max_round": 50,
+  "max_seconds": 2400,
+  "architecture": "plan_executor",
+  "context_window": 16000,
+  "compaction_attempt_notes": false,
+  "fixture_context_tasks": [
+    "MastodonServerInfoReportTask",
+    "MastodonGetServerInfoTask"
+  ],
+  "clarified_tasks": [
+    "CheckDeduplicatedEventsTask",
+    "MattermostProjectStatusReportTask",
+    "CartManagementTask",
+    "DownloadSendReceiptTask",
+    "SendFormsTask",
+    "ReadQwen3PaperTask5",
+    "InvoiceReceiptCopyAskUserTask",
+    "MastodonShareLocationTask",
+    "MastodonServerInfoReportTask"
+  ],
+  "tasks": {
+    "CheckConferenceDurationTask": {
+      "container_goal": "How many days of conference meetings did I schedule in October? Please only return the number of days, no other text.",
+      "original_goal": "How many days of conference meetings did I schedule in October? Please only return the number of days, no other text.",
+      "clarified_goal": "How many days of conference meetings did I schedule in October? Please only return the number of days, no other text.",
+      "source_file_sha256": "73a2294c44734d3508498281e35e8081aec4e3f4d50c181311c00a2c7bfae8ab",
+      "container_source_sha256": "73a2294c44734d3508498281e35e8081aec4e3f4d50c181311c00a2c7bfae8ab",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/calendar/check_conference_duration.py",
+      "accepted_backend_goals": [
+        "How many days of conference meetings did I schedule in October? Please only return the number of days, no other text."
+      ]
+    },
+    "ScheduleLunchViaSmsTask": {
+      "container_goal": "I've received a lunch invitation via text message; please reply \"OK\" and schedule a corresponding event on my calendar.",
+      "original_goal": "I've received a lunch invitation via text message; please reply \"OK\" and schedule a corresponding event on my calendar.",
+      "clarified_goal": "I've received a lunch invitation via text message; please reply \"OK\" and schedule a corresponding event on my calendar.",
+      "source_file_sha256": "b04d5159b0cef4581a09a71454a117b2c6d9567fa9f66f9dc5e0404bb51bf179",
+      "container_source_sha256": "b04d5159b0cef4581a09a71454a117b2c6d9567fa9f66f9dc5e0404bb51bf179",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/calendar/schedule_lunch_via_sms.py",
+      "accepted_backend_goals": [
+        "I've received a lunch invitation via text message; please reply \"OK\" and schedule a corresponding event on my calendar."
+      ]
+    },
+    "CheckConferenceAndSendSmsTask1": {
+      "container_goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Paris. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+      "original_goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Paris. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+      "clarified_goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Paris. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+      "source_file_sha256": "4e8a4a0cc85b45f4e72d33a581742185c9d506ebb95918f30e5b2a3441dc63db",
+      "container_source_sha256": "4e8a4a0cc85b45f4e72d33a581742185c9d506ebb95918f30e5b2a3441dc63db",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/calendar/check_conference_and_send_sms_1.py",
+      "accepted_backend_goals": [
+        "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Paris. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma."
+      ]
+    },
+    "CheckConferenceAndSendSmsTask2": {
+      "container_goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Tokyo. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+      "original_goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Tokyo. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+      "clarified_goal": "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Tokyo. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma.",
+      "source_file_sha256": "aac1feb3bd9c6fd3a0a81e6945e2cface35d98321f32af7cbb32623b403b9768",
+      "container_source_sha256": "aac1feb3bd9c6fd3a0a81e6945e2cface35d98321f32af7cbb32623b403b9768",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/calendar/check_conference_and_send_sms_2.py",
+      "accepted_backend_goals": [
+        "Check my calendar and send an SMS notification to Mia with the dates of my arrival and departure from Tokyo. The message should contain only the two dates in MM/DD/YYYY format, separated by a comma."
+      ]
+    },
+    "ScheduleCoffeeTimeViaSmsTask": {
+      "container_goal": "I've received a coffee time invitation via text message; please check the calendar.If I am available in this time slot, reply \"OK\" and schedule a corresponding event on my calendar.Otherwise reply \"Not available in this time slot.\"",
+      "original_goal": "I've received a coffee time invitation via text message; please check the calendar.If I am available in this time slot, reply \"OK\" and schedule a corresponding event on my calendar.Otherwise reply \"Not available in this time slot.\"",
+      "clarified_goal": "I've received a coffee time invitation via text message; please check the calendar.If I am available in this time slot, reply \"OK\" and schedule a corresponding event on my calendar.Otherwise reply \"Not available in this time slot.\"",
+      "source_file_sha256": "0a1fda4887e693324d1997cdd6f238845fb9437c66cde4675df517ca2ad72073",
+      "container_source_sha256": "0a1fda4887e693324d1997cdd6f238845fb9437c66cde4675df517ca2ad72073",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/calendar/schedule_coffee_time_via_sms.py",
+      "accepted_backend_goals": [
+        "I've received a coffee time invitation via text message; please check the calendar.If I am available in this time slot, reply \"OK\" and schedule a corresponding event on my calendar.Otherwise reply \"Not available in this time slot.\""
+      ]
+    },
+    "CheckDeduplicatedEventsTask": {
+      "container_goal": "How many deduplicated events are there in the calendar, from October 20 to October 26? For this count, count repeated occurrences of the same recurring event only once across the date range, even when they occur on different dates. Count a multi-day event once as well.",
+      "original_goal": "How many deduplicated events are there in the calendar, from October 20 to October 26?",
+      "clarified_goal": "How many deduplicated events are there in the calendar, from October 20 to October 26? For this count, count repeated occurrences of the same recurring event only once across the date range, even when they occur on different dates. Count a multi-day event once as well.",
+      "source_file_sha256": "c707c6993bf279be2be9002fbab8f7face971c27714b950cbc2a6ce95e5ab994",
+      "container_source_sha256": "4f396aa1628573b47be0fe7c285afa9f82356dbe63813f4b1e8c686b6c75c445",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/calendar/check_deduplicated_events.py",
+      "accepted_backend_goals": [
+        "How many deduplicated events are there in the calendar, from October 20 to October 26?",
+        "How many deduplicated events are there in the calendar, from October 20 to October 26? For this count, count repeated occurrences of the same recurring event only once across the date range, even when they occur on different dates. Count a multi-day event once as well."
+      ]
+    },
+    "MattermostReadingGroupTask": {
+      "container_goal": "Please help me complete the task in mattermost reading group following sam's request.",
+      "original_goal": "Please help me complete the task in mattermost reading group following sam's request.",
+      "clarified_goal": "Please help me complete the task in mattermost reading group following sam's request.",
+      "source_file_sha256": "7eccda3d414ab37dbc6379484dd1f1ac3a69807abdac0c114363779e9321aa32",
+      "container_source_sha256": "7eccda3d414ab37dbc6379484dd1f1ac3a69807abdac0c114363779e9321aa32",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_reading_group.py",
+      "accepted_backend_goals": [
+        "Please help me complete the task in mattermost reading group following sam's request."
+      ]
+    },
+    "MattermostBudgetApprovalPipelineTask": {
+      "container_goal": "Review the 'budget-approvals-q4' channel for budget requests from different departments. Each request includes ROI calculations using mathematical formulas.\n\nYour tasks:\n1. Identify all budget requests that exceed $50,000 (these require executive approval).\n2. Calculate and identify which department has the HIGHEST projected ROI based on the NPV (Net Present Value) formula results posted in the channel.\n3. Post a consolidated budget summary in the channel with a markdown table showing:\n   - Department name\n   - Requested amount\n   - Projected ROI\n   - Approval status (Executive Required or Standard)",
+      "original_goal": "Review the 'budget-approvals-q4' channel for budget requests from different departments. Each request includes ROI calculations using mathematical formulas.\n\nYour tasks:\n1. Identify all budget requests that exceed $50,000 (these require executive approval).\n2. Calculate and identify which department has the HIGHEST projected ROI based on the NPV (Net Present Value) formula results posted in the channel.\n3. Post a consolidated budget summary in the channel with a markdown table showing:\n   - Department name\n   - Requested amount\n   - Projected ROI\n   - Approval status (Executive Required or Standard)",
+      "clarified_goal": "Review the 'budget-approvals-q4' channel for budget requests from different departments. Each request includes ROI calculations using mathematical formulas.\n\nYour tasks:\n1. Identify all budget requests that exceed $50,000 (these require executive approval).\n2. Calculate and identify which department has the HIGHEST projected ROI based on the NPV (Net Present Value) formula results posted in the channel.\n3. Post a consolidated budget summary in the channel with a markdown table showing:\n   - Department name\n   - Requested amount\n   - Projected ROI\n   - Approval status (Executive Required or Standard)",
+      "source_file_sha256": "88f8d8c82e916892bca9f381e091d2e119955425e58dba88be689d38527753d9",
+      "container_source_sha256": "88f8d8c82e916892bca9f381e091d2e119955425e58dba88be689d38527753d9",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_budget_approval_pipeline.py",
+      "accepted_backend_goals": [
+        "Review the 'budget-approvals-q4' channel for budget requests from different departments. Each request includes ROI calculations using mathematical formulas.\n\nYour tasks:\n1. Identify all budget requests that exceed $50,000 (these require executive approval).\n2. Calculate and identify which department has the HIGHEST projected ROI based on the NPV (Net Present Value) formula results posted in the channel.\n3. Post a consolidated budget summary in the channel with a markdown table showing:\n   - Department name\n   - Requested amount\n   - Projected ROI\n   - Approval status (Executive Required or Standard)"
+      ]
+    },
+    "MattermostShiftCoverageTask": {
+      "container_goal": "Review shift swap requests in 'shift-requests' channel. Check the Calendar for any conflicts on the requested dates. If there is a conflict (e.g. 'All Hands' or 'Training'), reply to the request in the channel with 'Denied: [Reason]'. If there is no conflict, forward the request via email to 'hr@company.com' with subject 'Shift Swap Request' and reply to the user 'Request escalated to HR'.",
+      "original_goal": "Review shift swap requests in 'shift-requests' channel. Check the Calendar for any conflicts on the requested dates. If there is a conflict (e.g. 'All Hands' or 'Training'), reply to the request in the channel with 'Denied: [Reason]'. If there is no conflict, forward the request via email to 'hr@company.com' with subject 'Shift Swap Request' and reply to the user 'Request escalated to HR'.",
+      "clarified_goal": "Review shift swap requests in 'shift-requests' channel. Check the Calendar for any conflicts on the requested dates. If there is a conflict (e.g. 'All Hands' or 'Training'), reply to the request in the channel with 'Denied: [Reason]'. If there is no conflict, forward the request via email to 'hr@company.com' with subject 'Shift Swap Request' and reply to the user 'Request escalated to HR'.",
+      "source_file_sha256": "9a7f4de19a6d26c8d536a7cfe7aa04cb291b357d9168a6b8208e10f7bf7dd5d8",
+      "container_source_sha256": "9a7f4de19a6d26c8d536a7cfe7aa04cb291b357d9168a6b8208e10f7bf7dd5d8",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_shift_coverage.py",
+      "accepted_backend_goals": [
+        "Review shift swap requests in 'shift-requests' channel. Check the Calendar for any conflicts on the requested dates. If there is a conflict (e.g. 'All Hands' or 'Training'), reply to the request in the channel with 'Denied: [Reason]'. If there is no conflict, forward the request via email to 'hr@company.com' with subject 'Shift Swap Request' and reply to the user 'Request escalated to HR'."
+      ]
+    },
+    "MattermostCustomerFeedbackAnalysisTask": {
+      "container_goal": "Analyze the 'customer-feedback' channel. Identify all NEGATIVE feedback items (complaints, bugs, issues). 1. Send a summary email to 'product@company.com' with subject 'Weekly Negative Feedback Digest' listing these items.\n2. Schedule a meeting 'Feedback Review' for next Friday at 14:00 in the Calendar.\n3. Reply to the channel with 'Feedback logged and meeting scheduled'.",
+      "original_goal": "Analyze the 'customer-feedback' channel. Identify all NEGATIVE feedback items (complaints, bugs, issues). 1. Send a summary email to 'product@company.com' with subject 'Weekly Negative Feedback Digest' listing these items.\n2. Schedule a meeting 'Feedback Review' for next Friday at 14:00 in the Calendar.\n3. Reply to the channel with 'Feedback logged and meeting scheduled'.",
+      "clarified_goal": "Analyze the 'customer-feedback' channel. Identify all NEGATIVE feedback items (complaints, bugs, issues). 1. Send a summary email to 'product@company.com' with subject 'Weekly Negative Feedback Digest' listing these items.\n2. Schedule a meeting 'Feedback Review' for next Friday at 14:00 in the Calendar.\n3. Reply to the channel with 'Feedback logged and meeting scheduled'.",
+      "source_file_sha256": "8f141eb16389b8bcf172addfdb313eb999b8d63c4ccabd92b8f3b13069439913",
+      "container_source_sha256": "8f141eb16389b8bcf172addfdb313eb999b8d63c4ccabd92b8f3b13069439913",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_customer_feedback_analysis.py",
+      "accepted_backend_goals": [
+        "Analyze the 'customer-feedback' channel. Identify all NEGATIVE feedback items (complaints, bugs, issues). 1. Send a summary email to 'product@company.com' with subject 'Weekly Negative Feedback Digest' listing these items.\n2. Schedule a meeting 'Feedback Review' for next Friday at 14:00 in the Calendar.\n3. Reply to the channel with 'Feedback logged and meeting scheduled'."
+      ]
+    },
+    "PhotoManagementTask": {
+      "container_goal": "Find all my food pics from the past month and help me classify them into different folders named travel locations. You can find where I visited from calendar.",
+      "original_goal": "Find all my food pics from the past month and help me classify them into different folders named travel locations. You can find where I visited from calendar.",
+      "clarified_goal": "Find all my food pics from the past month and help me classify them into different folders named travel locations. You can find where I visited from calendar.",
+      "source_file_sha256": "2a92aac6fdeb3ce4de1994d893732b4a400284410890e14f1561901e82a435f8",
+      "container_source_sha256": "2a92aac6fdeb3ce4de1994d893732b4a400284410890e14f1561901e82a435f8",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/photo_management.py",
+      "accepted_backend_goals": [
+        "Find all my food pics from the past month and help me classify them into different folders named travel locations. You can find where I visited from calendar."
+      ]
+    },
+    "MattermostCreateChannelTask": {
+      "container_goal": "Create a channel on Mattermost called 'reading' for paper reading. Add everyone to the channel and greet everyone with a welcome message.",
+      "original_goal": "Create a channel on Mattermost called 'reading' for paper reading. Add everyone to the channel and greet everyone with a welcome message.",
+      "clarified_goal": "Create a channel on Mattermost called 'reading' for paper reading. Add everyone to the channel and greet everyone with a welcome message.",
+      "source_file_sha256": "5d921b062151893ce4d2130d84a987a7d12199e4d1ddf91bd0eadfa213a9a1d5",
+      "container_source_sha256": "5d921b062151893ce4d2130d84a987a7d12199e4d1ddf91bd0eadfa213a9a1d5",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_create_channel.py",
+      "accepted_backend_goals": [
+        "Create a channel on Mattermost called 'reading' for paper reading. Add everyone to the channel and greet everyone with a welcome message."
+      ]
+    },
+    "MattermostSendFileTask": {
+      "container_goal": "It's alex's 21st birthday today. Send a birthday message to him privately on mattermost. Upload a birthday cake image to the message.",
+      "original_goal": "It's alex's 21st birthday today. Send a birthday message to him privately on mattermost. Upload a birthday cake image to the message.",
+      "clarified_goal": "It's alex's 21st birthday today. Send a birthday message to him privately on mattermost. Upload a birthday cake image to the message.",
+      "source_file_sha256": "02dbf167fc5e42bcd6d02dde561f17a44dfe151ea5011c15f29f46b521588de7",
+      "container_source_sha256": "02dbf167fc5e42bcd6d02dde561f17a44dfe151ea5011c15f29f46b521588de7",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_send_file.py",
+      "accepted_backend_goals": [
+        "It's alex's 21st birthday today. Send a birthday message to him privately on mattermost. Upload a birthday cake image to the message."
+      ]
+    },
+    "MattermostProjectHandoverTask": {
+      "container_goal": "I'm passing the Phoenix project to Alex. Add Alex to the phoenix channel on mattermost.  ping everyone to schedule a 1-hour project meeting on Monday (find an available time slot from my calendar). Use this exact format in your message: `Meeting Time: [YYYY-MM-DD] from [HH:MM] to [HH:MM]`",
+      "original_goal": "I'm passing the Phoenix project to Alex. Add Alex to the phoenix channel on mattermost.  ping everyone to schedule a 1-hour project meeting on Monday (find an available time slot from my calendar). Use this exact format in your message: `Meeting Time: [YYYY-MM-DD] from [HH:MM] to [HH:MM]`",
+      "clarified_goal": "I'm passing the Phoenix project to Alex. Add Alex to the phoenix channel on mattermost.  ping everyone to schedule a 1-hour project meeting on Monday (find an available time slot from my calendar). Use this exact format in your message: `Meeting Time: [YYYY-MM-DD] from [HH:MM] to [HH:MM]`",
+      "source_file_sha256": "29ba6a4301710eb8ae80a5618e10d2604632a023daef8bfc3e6aec968c82cf37",
+      "container_source_sha256": "29ba6a4301710eb8ae80a5618e10d2604632a023daef8bfc3e6aec968c82cf37",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_project_handover.py",
+      "accepted_backend_goals": [
+        "I'm passing the Phoenix project to Alex. Add Alex to the phoenix channel on mattermost.  ping everyone to schedule a 1-hour project meeting on Monday (find an available time slot from my calendar). Use this exact format in your message: `Meeting Time: [YYYY-MM-DD] from [HH:MM] to [HH:MM]`"
+      ]
+    },
+    "MattermostEmailTask": {
+      "container_goal": "Sam has sent me a signed contract on Mattermost. Send it to our Legal (legal@company.com) through email. Include the tracking code. Send sam a quick confirmation when you're done. Thanks.",
+      "original_goal": "Sam has sent me a signed contract on Mattermost. Send it to our Legal (legal@company.com) through email. Include the tracking code. Send sam a quick confirmation when you're done. Thanks.",
+      "clarified_goal": "Sam has sent me a signed contract on Mattermost. Send it to our Legal (legal@company.com) through email. Include the tracking code. Send sam a quick confirmation when you're done. Thanks.",
+      "source_file_sha256": "5eb066ad48013acc81de0136c7023c7bf513f0b96ab5567ee0f6fbdde29fb07e",
+      "container_source_sha256": "5eb066ad48013acc81de0136c7023c7bf513f0b96ab5567ee0f6fbdde29fb07e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_email.py",
+      "accepted_backend_goals": [
+        "Sam has sent me a signed contract on Mattermost. Send it to our Legal (legal@company.com) through email. Include the tracking code. Send sam a quick confirmation when you're done. Thanks."
+      ]
+    },
+    "MattermostTechnicalDebtTriageTask": {
+      "container_goal": "Review the 'tech-debt-review' channel on Mattermost for technical debt discussions. Team members have posted complexity analysis using mathematical formulas. Your tasks:\n1. Identify the module with the HIGHEST complexity score (look for the LaTeX formula results).\n2. Send Sarah an SMS with the highest-priority module name and its complexity score.\n3. Create a new contact named 'Refactoring Team' with phone number '15559876543' and add the company 'TechDebt Solutions Inc'.\n4. Post a summary in the 'tech-debt-review' channel listing all modules sorted by complexity (highest first) in a markdown table format.",
+      "original_goal": "Review the 'tech-debt-review' channel on Mattermost for technical debt discussions. Team members have posted complexity analysis using mathematical formulas. Your tasks:\n1. Identify the module with the HIGHEST complexity score (look for the LaTeX formula results).\n2. Send Sarah an SMS with the highest-priority module name and its complexity score.\n3. Create a new contact named 'Refactoring Team' with phone number '15559876543' and add the company 'TechDebt Solutions Inc'.\n4. Post a summary in the 'tech-debt-review' channel listing all modules sorted by complexity (highest first) in a markdown table format.",
+      "clarified_goal": "Review the 'tech-debt-review' channel on Mattermost for technical debt discussions. Team members have posted complexity analysis using mathematical formulas. Your tasks:\n1. Identify the module with the HIGHEST complexity score (look for the LaTeX formula results).\n2. Send Sarah an SMS with the highest-priority module name and its complexity score.\n3. Create a new contact named 'Refactoring Team' with phone number '15559876543' and add the company 'TechDebt Solutions Inc'.\n4. Post a summary in the 'tech-debt-review' channel listing all modules sorted by complexity (highest first) in a markdown table format.",
+      "source_file_sha256": "7bb2747cd62a3fc5160251f59858f3e8a0ea7d2138d41d689d9e850e3c51560d",
+      "container_source_sha256": "7bb2747cd62a3fc5160251f59858f3e8a0ea7d2138d41d689d9e850e3c51560d",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_technical_debt_triage.py",
+      "accepted_backend_goals": [
+        "Review the 'tech-debt-review' channel on Mattermost for technical debt discussions. Team members have posted complexity analysis using mathematical formulas. Your tasks:\n1. Identify the module with the HIGHEST complexity score (look for the LaTeX formula results).\n2. Send Sarah an SMS with the highest-priority module name and its complexity score.\n3. Create a new contact named 'Refactoring Team' with phone number '15559876543' and add the company 'TechDebt Solutions Inc'.\n4. Post a summary in the 'tech-debt-review' channel listing all modules sorted by complexity (highest first) in a markdown table format."
+      ]
+    },
+    "MattermostReplyToMessageTask": {
+      "container_goal": "I just got our OSWorld eval SR result (35.5). Reply to my own earlier message in AI-Research on mattermost with the result.",
+      "original_goal": "I just got our OSWorld eval SR result (35.5). Reply to my own earlier message in AI-Research on mattermost with the result.",
+      "clarified_goal": "I just got our OSWorld eval SR result (35.5). Reply to my own earlier message in AI-Research on mattermost with the result.",
+      "source_file_sha256": "7ab33b283b8d55724581a1e7cd08e09d2271aa01e002bd25818e5c228d61eb7a",
+      "container_source_sha256": "7ab33b283b8d55724581a1e7cd08e09d2271aa01e002bd25818e5c228d61eb7a",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_reply_to_message.py",
+      "accepted_backend_goals": [
+        "I just got our OSWorld eval SR result (35.5). Reply to my own earlier message in AI-Research on mattermost with the result."
+      ]
+    },
+    "MattermostDeadlineReconciliationTask": {
+      "container_goal": "I suspect there's a discrepancy between what was discussed and what got documented. Please verify by checking the project-updates channel on Mattermost for any messages mentioning 'deadline' or 'milestone'. For each deadline mentioned, check if there's a corresponding calendar event within ±2 days of the mentioned date. Generate a reconciliation report showing: Deadlines with matching calendar events (PASS), Deadlines WITHOUT calendar events (- Missing), Calendar events not mentioned in chat (📅 Untracked). Email this report to dylan@gmail.com with subject 'Deadline Audit Report'. For each missing calendar event, create it with title '[AUTO] {deadline description}' and post confirmation in the project-updates channel listing the created event titles.",
+      "original_goal": "I suspect there's a discrepancy between what was discussed and what got documented. Please verify by checking the project-updates channel on Mattermost for any messages mentioning 'deadline' or 'milestone'. For each deadline mentioned, check if there's a corresponding calendar event within ±2 days of the mentioned date. Generate a reconciliation report showing: Deadlines with matching calendar events (PASS), Deadlines WITHOUT calendar events (- Missing), Calendar events not mentioned in chat (📅 Untracked). Email this report to dylan@gmail.com with subject 'Deadline Audit Report'. For each missing calendar event, create it with title '[AUTO] {deadline description}' and post confirmation in the project-updates channel listing the created event titles.",
+      "clarified_goal": "I suspect there's a discrepancy between what was discussed and what got documented. Please verify by checking the project-updates channel on Mattermost for any messages mentioning 'deadline' or 'milestone'. For each deadline mentioned, check if there's a corresponding calendar event within ±2 days of the mentioned date. Generate a reconciliation report showing: Deadlines with matching calendar events (PASS), Deadlines WITHOUT calendar events (- Missing), Calendar events not mentioned in chat (📅 Untracked). Email this report to dylan@gmail.com with subject 'Deadline Audit Report'. For each missing calendar event, create it with title '[AUTO] {deadline description}' and post confirmation in the project-updates channel listing the created event titles.",
+      "source_file_sha256": "aa18b8efe528bd5a2fb547b051da769f5060778770795c742bc7a914da979c77",
+      "container_source_sha256": "aa18b8efe528bd5a2fb547b051da769f5060778770795c742bc7a914da979c77",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_deadline_reconciliation.py",
+      "accepted_backend_goals": [
+        "I suspect there's a discrepancy between what was discussed and what got documented. Please verify by checking the project-updates channel on Mattermost for any messages mentioning 'deadline' or 'milestone'. For each deadline mentioned, check if there's a corresponding calendar event within ±2 days of the mentioned date. Generate a reconciliation report showing: Deadlines with matching calendar events (PASS), Deadlines WITHOUT calendar events (- Missing), Calendar events not mentioned in chat (📅 Untracked). Email this report to dylan@gmail.com with subject 'Deadline Audit Report'. For each missing calendar event, create it with title '[AUTO] {deadline description}' and post confirmation in the project-updates channel listing the created event titles."
+      ]
+    },
+    "MattermostResourceConflictResolutionTask": {
+      "container_goal": "Check the 'resource-booking' channel on Mattermost for resource requests. Cross-reference each request with the calendar to determine status. Send a report email to 'facilities@company.com' with subject 'Resource Booking Conflicts' in the following format:\nAPPROVED: <resource>, <resource>, ... (no calendar conflict)\nCONFLICT: <resource>, <resource>, ... (overlaps existing booking)\nFor approved requests, add calendar events titled 'BOOKED: [resource] - [requester]'. For conflicts, DM the requester about the issue.",
+      "original_goal": "Check the 'resource-booking' channel on Mattermost for resource requests. Cross-reference each request with the calendar to determine status. Send a report email to 'facilities@company.com' with subject 'Resource Booking Conflicts' in the following format:\nAPPROVED: <resource>, <resource>, ... (no calendar conflict)\nCONFLICT: <resource>, <resource>, ... (overlaps existing booking)\nFor approved requests, add calendar events titled 'BOOKED: [resource] - [requester]'. For conflicts, DM the requester about the issue.",
+      "clarified_goal": "Check the 'resource-booking' channel on Mattermost for resource requests. Cross-reference each request with the calendar to determine status. Send a report email to 'facilities@company.com' with subject 'Resource Booking Conflicts' in the following format:\nAPPROVED: <resource>, <resource>, ... (no calendar conflict)\nCONFLICT: <resource>, <resource>, ... (overlaps existing booking)\nFor approved requests, add calendar events titled 'BOOKED: [resource] - [requester]'. For conflicts, DM the requester about the issue.",
+      "source_file_sha256": "cfb7d2e04db377c2f75fdf46fbc45ff214c6c8ae3b6654970258272518ad2f5b",
+      "container_source_sha256": "cfb7d2e04db377c2f75fdf46fbc45ff214c6c8ae3b6654970258272518ad2f5b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_resource_conflict_resolution.py",
+      "accepted_backend_goals": [
+        "Check the 'resource-booking' channel on Mattermost for resource requests. Cross-reference each request with the calendar to determine status. Send a report email to 'facilities@company.com' with subject 'Resource Booking Conflicts' in the following format:\nAPPROVED: <resource>, <resource>, ... (no calendar conflict)\nCONFLICT: <resource>, <resource>, ... (overlaps existing booking)\nFor approved requests, add calendar events titled 'BOOKED: [resource] - [requester]'. For conflicts, DM the requester about the issue."
+      ]
+    },
+    "LocalFileManagementTask2": {
+      "container_goal": "There are too many files in my download folder, can you check my files and compress files that are older than 1 year in a single `old_files.zip` file. Delete the files after compression. Send myself an email with the list of deleted files just for record",
+      "original_goal": "There are too many files in my download folder, can you check my files and compress files that are older than 1 year in a single `old_files.zip` file. Delete the files after compression. Send myself an email with the list of deleted files just for record",
+      "clarified_goal": "There are too many files in my download folder, can you check my files and compress files that are older than 1 year in a single `old_files.zip` file. Delete the files after compression. Send myself an email with the list of deleted files just for record",
+      "source_file_sha256": "7b9ba500c639bf4194819def025e8d7781fb22544032d218f0d6e78a407b48b8",
+      "container_source_sha256": "7b9ba500c639bf4194819def025e8d7781fb22544032d218f0d6e78a407b48b8",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/local_file_management_2.py",
+      "accepted_backend_goals": [
+        "There are too many files in my download folder, can you check my files and compress files that are older than 1 year in a single `old_files.zip` file. Delete the files after compression. Send myself an email with the list of deleted files just for record"
+      ]
+    },
+    "MattermostProjectStatusReportTask": {
+      "container_goal": "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. For this check, the three-day window is measured relative to the completion/target date stated for each item in its Mattermost update: the calendar milestone may be at most three calendar days earlier or later than that date. It is not measured from today. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked.",
+      "original_goal": "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked.",
+      "clarified_goal": "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. For this check, the three-day window is measured relative to the completion/target date stated for each item in its Mattermost update: the calendar milestone may be at most three calendar days earlier or later than that date. It is not measured from today. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked.",
+      "source_file_sha256": "b328729c77d92fcab6e60e6b907146aee1d36970eff75a46bac310731f47fea5",
+      "container_source_sha256": "65e7945c3134e57248296da7b47370538f4e6380d9b277e7254cb3c06a52c268",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_project_status_report.py",
+      "accepted_backend_goals": [
+        "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. For this check, the three-day window is measured relative to the completion/target date stated for each item in its Mattermost update: the calendar milestone may be at most three calendar days earlier or later than that date. It is not measured from today. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked.",
+        "I need a comprehensive project status report. Check these Mattermost channels: 'backend-team', 'frontend-team', and 'qa-team' for status updates. For each team, identify items marked as 'blocked', 'at-risk', or 'on-track'. Cross-reference with calendar milestones to verify if timeline claims are accurate. Generate a risk matrix report in the following format: \nOn Track (status=on-track AND milestone exists within 3 days): <item name>, <item name>, ... (and so on for all on-track items) \nAt Risk (status=at-risk OR no milestone found): <item name>, <item name>, ... (and so on for all at-risk items) \nBlocked (explicitly marked blocked): <item name>, <item name>, ... (and so on for all blocked items) \nEmail this report to 'pm@company.com' with subject 'Sprint Status Risk Matrix'. For any blocked items, create a calendar event titled '[ESCALATION] {item name}' on the next business day at 10:00-10:30. Post a summary in the 'project-sync' channel with the counts: X on-track, Y at-risk, Z blocked."
+      ]
+    },
+    "MattermostVisualInstructionResponseTask": {
+      "container_goal": "Check the 'emergency-response' channel on Mattermost. The operations manager has posted a whiteboard photo with emergency contacts and shift times. Please:\n1. Create new contacts for the people listed in the 'Emergency Contacts' image. Only fill the first name and phone number.\n2. Set alarms for the shift start times listed in the 'Shift Schedule' image, using the shift name as the alarm label.",
+      "original_goal": "Check the 'emergency-response' channel on Mattermost. The operations manager has posted a whiteboard photo with emergency contacts and shift times. Please:\n1. Create new contacts for the people listed in the 'Emergency Contacts' image. Only fill the first name and phone number.\n2. Set alarms for the shift start times listed in the 'Shift Schedule' image, using the shift name as the alarm label.",
+      "clarified_goal": "Check the 'emergency-response' channel on Mattermost. The operations manager has posted a whiteboard photo with emergency contacts and shift times. Please:\n1. Create new contacts for the people listed in the 'Emergency Contacts' image. Only fill the first name and phone number.\n2. Set alarms for the shift start times listed in the 'Shift Schedule' image, using the shift name as the alarm label.",
+      "source_file_sha256": "79fffb81c30ef422a6b1012b6eb92e869dc8f4dab962132d1fe296bfd54094a6",
+      "container_source_sha256": "79fffb81c30ef422a6b1012b6eb92e869dc8f4dab962132d1fe296bfd54094a6",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_visual_instruction_response.py",
+      "accepted_backend_goals": [
+        "Check the 'emergency-response' channel on Mattermost. The operations manager has posted a whiteboard photo with emergency contacts and shift times. Please:\n1. Create new contacts for the people listed in the 'Emergency Contacts' image. Only fill the first name and phone number.\n2. Set alarms for the shift start times listed in the 'Shift Schedule' image, using the shift name as the alarm label."
+      ]
+    },
+    "LocalFileManagementTask": {
+      "container_goal": "I'm running out of space, can you check my files and delete zip files that are older than 1 year in my Download folder. Send myself on mattermost the list of deleted files just for record",
+      "original_goal": "I'm running out of space, can you check my files and delete zip files that are older than 1 year in my Download folder. Send myself on mattermost the list of deleted files just for record",
+      "clarified_goal": "I'm running out of space, can you check my files and delete zip files that are older than 1 year in my Download folder. Send myself on mattermost the list of deleted files just for record",
+      "source_file_sha256": "a414ca23b836763e8f912abfc6d54deef0e938639b56047f9f9a3a0a48a5cb15",
+      "container_source_sha256": "a414ca23b836763e8f912abfc6d54deef0e938639b56047f9f9a3a0a48a5cb15",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/local_file_management.py",
+      "accepted_backend_goals": [
+        "I'm running out of space, can you check my files and delete zip files that are older than 1 year in my Download folder. Send myself on mattermost the list of deleted files just for record"
+      ]
+    },
+    "MattermostIncidentEscalationTask": {
+      "container_goal": "Monitor the 'support-tickets' channel for CRITICAL incidents. If a critical ticket is found:\n1. Create a dedicated channel named 'incident-<ticket_id>' (e.g., incident-ticket-123).\n2. Add user 'sam.oneill@neuralforge.ai' to this new channel.\n3. Email 'cto@company.com' with subject 'CRITICAL INCIDENT: <ticket_id>' and the issue description.\n4. Schedule a 'Discussion on <ticket_id>' meeting for tomorrow at 09:00 AM in the calendar.",
+      "original_goal": "Monitor the 'support-tickets' channel for CRITICAL incidents. If a critical ticket is found:\n1. Create a dedicated channel named 'incident-<ticket_id>' (e.g., incident-ticket-123).\n2. Add user 'sam.oneill@neuralforge.ai' to this new channel.\n3. Email 'cto@company.com' with subject 'CRITICAL INCIDENT: <ticket_id>' and the issue description.\n4. Schedule a 'Discussion on <ticket_id>' meeting for tomorrow at 09:00 AM in the calendar.",
+      "clarified_goal": "Monitor the 'support-tickets' channel for CRITICAL incidents. If a critical ticket is found:\n1. Create a dedicated channel named 'incident-<ticket_id>' (e.g., incident-ticket-123).\n2. Add user 'sam.oneill@neuralforge.ai' to this new channel.\n3. Email 'cto@company.com' with subject 'CRITICAL INCIDENT: <ticket_id>' and the issue description.\n4. Schedule a 'Discussion on <ticket_id>' meeting for tomorrow at 09:00 AM in the calendar.",
+      "source_file_sha256": "c2e0426e359bdb74bbc22f8ac9e64939ece8e52733d427c64e295048780e57a4",
+      "container_source_sha256": "c2e0426e359bdb74bbc22f8ac9e64939ece8e52733d427c64e295048780e57a4",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/work/mattermost_incident_escalation.py",
+      "accepted_backend_goals": [
+        "Monitor the 'support-tickets' channel for CRITICAL incidents. If a critical ticket is found:\n1. Create a dedicated channel named 'incident-<ticket_id>' (e.g., incident-ticket-123).\n2. Add user 'sam.oneill@neuralforge.ai' to this new channel.\n3. Email 'cto@company.com' with subject 'CRITICAL INCIDENT: <ticket_id>' and the issue description.\n4. Schedule a 'Discussion on <ticket_id>' meeting for tomorrow at 09:00 AM in the calendar."
+      ]
+    },
+    "SendInterviewInvitationTask": {
+      "container_goal": "Find Kevin's resume and send a text message to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "original_goal": "Find Kevin's resume and send a text message to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "clarified_goal": "Find Kevin's resume and send a text message to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "source_file_sha256": "35c59c279bdc8cd881891d9c5d4e3b4b30625199cf3c5810e29043399ca00626",
+      "container_source_sha256": "35c59c279bdc8cd881891d9c5d4e3b4b30625199cf3c5810e29043399ca00626",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/messages/send_interview_invitation.py",
+      "accepted_backend_goals": [
+        "Find Kevin's resume and send a text message to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\""
+      ]
+    },
+    "AdjustBrightnessMinimumTask": {
+      "container_goal": "Set the brightness to the minimum level.",
+      "original_goal": "Set the brightness to the minimum level.",
+      "clarified_goal": "Set the brightness to the minimum level.",
+      "source_file_sha256": "78acfe6c54bd720d0e76f93ed98a1a864c6af26e436a3b787c9bfa3b060b5ffd",
+      "container_source_sha256": "78acfe6c54bd720d0e76f93ed98a1a864c6af26e436a3b787c9bfa3b060b5ffd",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/adjust_brigtness_min.py",
+      "accepted_backend_goals": [
+        "Set the brightness to the minimum level."
+      ]
+    },
+    "AdjustFontIconMaximumTask": {
+      "container_goal": "Increase the font size and icons on your phone to the maximum setting.",
+      "original_goal": "Increase the font size and icons on your phone to the maximum setting.",
+      "clarified_goal": "Increase the font size and icons on your phone to the maximum setting.",
+      "source_file_sha256": "d36dc818443539f6063413a4850871b7c3debf07cf5bfcfd8826b0f0813e2a04",
+      "container_source_sha256": "d36dc818443539f6063413a4850871b7c3debf07cf5bfcfd8826b0f0813e2a04",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/adjust_font_icon_max.py",
+      "accepted_backend_goals": [
+        "Increase the font size and icons on your phone to the maximum setting."
+      ]
+    },
+    "AdjustBrightnessMaximumTask": {
+      "container_goal": "Set the brightness to the maximum level.",
+      "original_goal": "Set the brightness to the maximum level.",
+      "clarified_goal": "Set the brightness to the maximum level.",
+      "source_file_sha256": "06f6ed33ac1d222d6d34c32892c4774cdc5ee8a38545f61bed96971b7c4e6c54",
+      "container_source_sha256": "06f6ed33ac1d222d6d34c32892c4774cdc5ee8a38545f61bed96971b7c4e6c54",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/adjust_brigtness_max.py",
+      "accepted_backend_goals": [
+        "Set the brightness to the maximum level."
+      ]
+    },
+    "OpenFlightModeTask": {
+      "container_goal": "Turn on device flight mode",
+      "original_goal": "Turn on device flight mode",
+      "clarified_goal": "Turn on device flight mode",
+      "source_file_sha256": "f6296573911206a72fc7292e70acec870667fd56b56ce9be4f9cadb49b598795",
+      "container_source_sha256": "f6296573911206a72fc7292e70acec870667fd56b56ce9be4f9cadb49b598795",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/open_flight_mode.py",
+      "accepted_backend_goals": [
+        "Turn on device flight mode"
+      ]
+    },
+    "ChangeWallpaperTask": {
+      "container_goal": "Change the wallpaper to a photo from the album that features sunflowers.",
+      "original_goal": "Change the wallpaper to a photo from the album that features sunflowers.",
+      "clarified_goal": "Change the wallpaper to a photo from the album that features sunflowers.",
+      "source_file_sha256": "813ca981b0249797625f4a4c2cd944430c812d23646396df10ce6e1396e197ae",
+      "container_source_sha256": "813ca981b0249797625f4a4c2cd944430c812d23646396df10ce6e1396e197ae",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/change_wallpaper.py",
+      "accepted_backend_goals": [
+        "Change the wallpaper to a photo from the album that features sunflowers."
+      ]
+    },
+    "AdjustFontIconMinimumTask": {
+      "container_goal": "Decrease the font size and icons on your phone to the minimum setting.",
+      "original_goal": "Decrease the font size and icons on your phone to the minimum setting.",
+      "clarified_goal": "Decrease the font size and icons on your phone to the minimum setting.",
+      "source_file_sha256": "8dde433ad4586bce459c24e9de606832f7c157bcc6c6a55c83c4d7f6409563c7",
+      "container_source_sha256": "8dde433ad4586bce459c24e9de606832f7c157bcc6c6a55c83c4d7f6409563c7",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/adjust_font_icon_min.py",
+      "accepted_backend_goals": [
+        "Decrease the font size and icons on your phone to the minimum setting."
+      ]
+    },
+    "CloseFlightModeTask": {
+      "container_goal": "Turn off device flight mode",
+      "original_goal": "Turn off device flight mode",
+      "clarified_goal": "Turn off device flight mode",
+      "source_file_sha256": "e5948573ca3fdeed410a5bdd991e9ca93f12bb4984b4c038cab5c3e50c250c68",
+      "container_source_sha256": "e5948573ca3fdeed410a5bdd991e9ca93f12bb4984b4c038cab5c3e50c250c68",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/settings/close_flight_mode.py",
+      "accepted_backend_goals": [
+        "Turn off device flight mode"
+      ]
+    },
+    "CheckPuchasedItem": {
+      "container_goal": "之前我给朋友在淘店上买了一双鞋，帮我看一下他脚多少尺码。请只回答一个整数, 不要返回任何其他文本.",
+      "original_goal": "之前我给朋友在淘店上买了一双鞋，帮我看一下他脚多少尺码。请只回答一个整数, 不要返回任何其他文本.",
+      "clarified_goal": "之前我给朋友在淘店上买了一双鞋，帮我看一下他脚多少尺码。请只回答一个整数, 不要返回任何其他文本.",
+      "source_file_sha256": "84d91044fd71374a89030d06eb547571b74440c0c443c46bd0748b27424f4378",
+      "container_source_sha256": "84d91044fd71374a89030d06eb547571b74440c0c443c46bd0748b27424f4378",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/check_purchased_item.py",
+      "accepted_backend_goals": [
+        "之前我给朋友在淘店上买了一双鞋，帮我看一下他脚多少尺码。请只回答一个整数, 不要返回任何其他文本."
+      ]
+    },
+    "CartManagementTask": {
+      "container_goal": "最近天气变冷了，请帮我从淘店app的购物车中删除所有短袖T恤衬衫。如果需要登录，可以通过短信验证码登录。",
+      "original_goal": "最近天气变冷了，请帮我从淘店app的购物车中删除所有短袖T恤衬衫。如果需要登录，可以通过短信验证码登录。",
+      "clarified_goal": "最近天气变冷了，请帮我从淘店app的购物车中删除所有短袖T恤衬衫。如果需要登录，可以通过短信验证码登录。\n\n这里的删除范围为“短袖、T恤、衬衫”：满足任一条件的商品均应删除，其余保留。",
+      "source_file_sha256": "27aa0951cac6d9248c34827b74be1873e6ce7469b2d58f548ec3020270e225f4",
+      "container_source_sha256": "27aa0951cac6d9248c34827b74be1873e6ce7469b2d58f548ec3020270e225f4",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/cart_management.py",
+      "accepted_backend_goals": [
+        "最近天气变冷了，请帮我从淘店app的购物车中删除所有短袖T恤衬衫。如果需要登录，可以通过短信验证码登录。"
+      ]
+    },
+    "CartInfoNotificationTask": {
+      "container_goal": "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text.",
+      "original_goal": "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text.",
+      "clarified_goal": "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text.",
+      "source_file_sha256": "eb0d5f58c0988d0ffb14fb687771b09ce041e56f18ff4dfc6c958db33eb5c4a3",
+      "container_source_sha256": "eb0d5f58c0988d0ffb14fb687771b09ce041e56f18ff4dfc6c958db33eb5c4a3",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/cart_info_notification.py",
+      "accepted_backend_goals": [
+        "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text."
+      ]
+    },
+    "CheckCartPriceTask": {
+      "container_goal": "Find the three most expensive items in the TaoDian app shopping cart and calculate their total price. Respond only with an integer representing the total price, with no other text.",
+      "original_goal": "Find the three most expensive items in the TaoDian app shopping cart and calculate their total price. Respond only with an integer representing the total price, with no other text.",
+      "clarified_goal": "Find the three most expensive items in the TaoDian app shopping cart and calculate their total price. Respond only with an integer representing the total price, with no other text.",
+      "source_file_sha256": "41ca90d9cb22ebd3b3b769d40f0afd69f00eb67095f6ddbbc4dc6166253eefd7",
+      "container_source_sha256": "41ca90d9cb22ebd3b3b769d40f0afd69f00eb67095f6ddbbc4dc6166253eefd7",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/check_cart_price_1.py",
+      "accepted_backend_goals": [
+        "Find the three most expensive items in the TaoDian app shopping cart and calculate their total price. Respond only with an integer representing the total price, with no other text."
+      ]
+    },
+    "ItemCheckoutTask": {
+      "container_goal": "帮我在淘店下单购物车里的iphone 15 pro，寄到浙江省杭州市余杭区阿里巴巴西溪C区，收件人张先生，收件人电话13800138000。如需登录，可以通过短信验证码。在支付页面让我操作",
+      "original_goal": "帮我在淘店下单购物车里的iphone 15 pro，寄到浙江省杭州市余杭区阿里巴巴西溪C区，收件人张先生，收件人电话13800138000。如需登录，可以通过短信验证码。在支付页面让我操作",
+      "clarified_goal": "帮我在淘店下单购物车里的iphone 15 pro，寄到浙江省杭州市余杭区阿里巴巴西溪C区，收件人张先生，收件人电话13800138000。如需登录，可以通过短信验证码。在支付页面让我操作",
+      "source_file_sha256": "d0aa5c52ded4580352baf65f7867c25c20bc1bef35417e05167331ec83dd920a",
+      "container_source_sha256": "d0aa5c52ded4580352baf65f7867c25c20bc1bef35417e05167331ec83dd920a",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/item_checkout.py",
+      "accepted_backend_goals": [
+        "帮我在淘店下单购物车里的iphone 15 pro，寄到浙江省杭州市余杭区阿里巴巴西溪C区，收件人张先生，收件人电话13800138000。如需登录，可以通过短信验证码。在支付页面让我操作"
+      ]
+    },
+    "RecentTotalExpenseTask": {
+      "container_goal": "请帮我算一下在淘店上最近1个月我总共花了多少钱。请只回答一个整数, 不要返回任何其他文本.",
+      "original_goal": "请帮我算一下在淘店上最近1个月我总共花了多少钱。请只回答一个整数, 不要返回任何其他文本.",
+      "clarified_goal": "请帮我算一下在淘店上最近1个月我总共花了多少钱。请只回答一个整数, 不要返回任何其他文本.",
+      "source_file_sha256": "4e85d40e3508ba733b2bc20c9957e3bbf1e79115eebd4ea228ee6c65d1135554",
+      "container_source_sha256": "4e85d40e3508ba733b2bc20c9957e3bbf1e79115eebd4ea228ee6c65d1135554",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/recent_total_expense.py",
+      "accepted_backend_goals": [
+        "请帮我算一下在淘店上最近1个月我总共花了多少钱。请只回答一个整数, 不要返回任何其他文本."
+      ]
+    },
+    "SearchItemAndCheckoutTask": {
+      "container_goal": "万圣节快到了，帮我在淘店下单买一套临时纹身，在支付页面让我操作",
+      "original_goal": "万圣节快到了，帮我在淘店下单买一套临时纹身，在支付页面让我操作",
+      "clarified_goal": "万圣节快到了，帮我在淘店下单买一套临时纹身，在支付页面让我操作",
+      "source_file_sha256": "9f477766834cb67a38112a95b55e7f7fb9eb837fa1db3c51284fea86e204dcef",
+      "container_source_sha256": "9f477766834cb67a38112a95b55e7f7fb9eb837fa1db3c51284fea86e204dcef",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mall/search_item_and_checkout.py",
+      "accepted_backend_goals": [
+        "万圣节快到了，帮我在淘店下单买一套临时纹身，在支付页面让我操作"
+      ]
+    },
+    "CheckRegistrationTask": {
+      "container_goal": "Check my email for Putnam registration confirmation.If no such email exists, email kathy@gmail.com asking about it with the subject 'Putnam Registration Confirmation'",
+      "original_goal": "Check my email for Putnam registration confirmation.If no such email exists, email kathy@gmail.com asking about it with the subject 'Putnam Registration Confirmation'",
+      "clarified_goal": "Check my email for Putnam registration confirmation.If no such email exists, email kathy@gmail.com asking about it with the subject 'Putnam Registration Confirmation'",
+      "source_file_sha256": "fcabd32e358860f0d7fcf4fc0c37a77599fd8fd99196471a932e1cfde9873a35",
+      "container_source_sha256": "fcabd32e358860f0d7fcf4fc0c37a77599fd8fd99196471a932e1cfde9873a35",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/check_registration.py",
+      "accepted_backend_goals": [
+        "Check my email for Putnam registration confirmation.If no such email exists, email kathy@gmail.com asking about it with the subject 'Putnam Registration Confirmation'"
+      ]
+    },
+    "GraduationMassEmailTask": {
+      "container_goal": "Search up the UF academic calendar and find out the week that grades are due in the Spring 2026 semester.Then, set a calendar event at 6pm on the Saturday of that week titled 'Graduation Party'Search my email for the list of students graduating from the math department this year.Send an email to all the graduates with the subject 'Graduation Party' and body 'Don't forget about this year's graduation party! More details coming soon.' ",
+      "original_goal": "Search up the UF academic calendar and find out the week that grades are due in the Spring 2026 semester.Then, set a calendar event at 6pm on the Saturday of that week titled 'Graduation Party'Search my email for the list of students graduating from the math department this year.Send an email to all the graduates with the subject 'Graduation Party' and body 'Don't forget about this year's graduation party! More details coming soon.' ",
+      "clarified_goal": "Search up the UF academic calendar and find out the week that grades are due in the Spring 2026 semester.Then, set a calendar event at 6pm on the Saturday of that week titled 'Graduation Party'Search my email for the list of students graduating from the math department this year.Send an email to all the graduates with the subject 'Graduation Party' and body 'Don't forget about this year's graduation party! More details coming soon.' ",
+      "source_file_sha256": "cd5029aff604aab364a74a8a688855b41c08bd9027545ee1cdeff73be987930e",
+      "container_source_sha256": "cd5029aff604aab364a74a8a688855b41c08bd9027545ee1cdeff73be987930e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/graduation_mass_email.py",
+      "accepted_backend_goals": [
+        "Search up the UF academic calendar and find out the week that grades are due in the Spring 2026 semester.Then, set a calendar event at 6pm on the Saturday of that week titled 'Graduation Party'Search my email for the list of students graduating from the math department this year.Send an email to all the graduates with the subject 'Graduation Party' and body 'Don't forget about this year's graduation party! More details coming soon.' "
+      ]
+    },
+    "CheckSetMeetTimeTask": {
+      "container_goal": "Check my email for the date and time of my meeting with Carl.Then, set a one hour calendar event titled 'Board Meeting'",
+      "original_goal": "Check my email for the date and time of my meeting with Carl.Then, set a one hour calendar event titled 'Board Meeting'",
+      "clarified_goal": "Check my email for the date and time of my meeting with Carl.Then, set a one hour calendar event titled 'Board Meeting'",
+      "source_file_sha256": "94a195d9b60caf89e18428548de3c0ad06b5ba1c1297e07fb3285d64f53027b1",
+      "container_source_sha256": "94a195d9b60caf89e18428548de3c0ad06b5ba1c1297e07fb3285d64f53027b1",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/check_set_meet_time.py",
+      "accepted_backend_goals": [
+        "Check my email for the date and time of my meeting with Carl.Then, set a one hour calendar event titled 'Board Meeting'"
+      ]
+    },
+    "DownloadSendReceiptTask": {
+      "container_goal": "Look for a file in my email titled 'receipt.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email.",
+      "original_goal": "Look for a file in my email titled 'receipts.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email.",
+      "clarified_goal": "Look for a file in my email titled 'receipt.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email.",
+      "source_file_sha256": "08c68e161c56a5c71b5af7e3452601fa1b461c639ad5e05dd374608d11b784fa",
+      "container_source_sha256": "82171452a0308f00d0a9aee6dd12226b38730d0cbee1e06045eb54bed5c74b52",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/download_send_receipt.py",
+      "accepted_backend_goals": [
+        "Look for a file in my email titled 'receipt.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email.",
+        "Look for a file in my email titled 'receipts.jpg' and download it.Then, send it to to treasurer@gmail.com with the subject 'Proof of purchase', the email should mention the total amount spent in the email."
+      ]
+    },
+    "CancelMeetingTask": {
+      "container_goal": "Could you reply to Daniel's most recent email to tell him I'll have to cancel the meeting on Thursday?",
+      "original_goal": "Could you reply to Daniel's most recent email to tell him I'll have to cancel the meeting on Thursday?",
+      "clarified_goal": "Could you reply to Daniel's most recent email to tell him I'll have to cancel the meeting on Thursday?",
+      "source_file_sha256": "fbc1003f529b75e2a517f97c64b666e6a7b5ac2491fe3bef0f07a7b4a4c0ff54",
+      "container_source_sha256": "fbc1003f529b75e2a517f97c64b666e6a7b5ac2491fe3bef0f07a7b4a4c0ff54",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/cancel_meeting.py",
+      "accepted_backend_goals": [
+        "Could you reply to Daniel's most recent email to tell him I'll have to cancel the meeting on Thursday?"
+      ]
+    },
+    "RequestCarpoolingTask": {
+      "container_goal": "Check my email for the time of the math competition tomorrow. If it's between 12 and 5 pm, text Daniel (3522228876) 'Hey, could you help send Bob to the competition tomorrow? Thanks.'",
+      "original_goal": "Check my email for the time of the math competition tomorrow. If it's between 12 and 5 pm, text Daniel (3522228876) 'Hey, could you help send Bob to the competition tomorrow? Thanks.'",
+      "clarified_goal": "Check my email for the time of the math competition tomorrow. If it's between 12 and 5 pm, text Daniel (3522228876) 'Hey, could you help send Bob to the competition tomorrow? Thanks.'",
+      "source_file_sha256": "24fba7e1fb3445be24ab3c16a43ecb69038112651289eaaaf98f7f48a3a92ba3",
+      "container_source_sha256": "24fba7e1fb3445be24ab3c16a43ecb69038112651289eaaaf98f7f48a3a92ba3",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/request_carpooling.py",
+      "accepted_backend_goals": [
+        "Check my email for the time of the math competition tomorrow. If it's between 12 and 5 pm, text Daniel (3522228876) 'Hey, could you help send Bob to the competition tomorrow? Thanks.'"
+      ]
+    },
+    "SendInterviewEmailTask": {
+      "container_goal": "Find Kevin's resume and send an email to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "original_goal": "Find Kevin's resume and send an email to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "clarified_goal": "Find Kevin's resume and send an email to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "source_file_sha256": "662763f1216f0a88bdf0b8cacb2ba08494a91e2c4a526f2e00795aa15bc25412",
+      "container_source_sha256": "662763f1216f0a88bdf0b8cacb2ba08494a91e2c4a526f2e00795aa15bc25412",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/send_interview_email.py",
+      "accepted_backend_goals": [
+        "Find Kevin's resume and send an email to Kevin saying: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\""
+      ]
+    },
+    "SuggestPaperTask": {
+      "container_goal": "Reply to Tony's email asking for paper suggestions with a pdf of the ddpm paper (save the pdf to Download with the name `ddpm.pdf`).Mention the full name and the abstract of the paper in the email body.",
+      "original_goal": "Reply to Tony's email asking for paper suggestions with a pdf of the ddpm paper (save the pdf to Download with the name `ddpm.pdf`).Mention the full name and the abstract of the paper in the email body.",
+      "clarified_goal": "Reply to Tony's email asking for paper suggestions with a pdf of the ddpm paper (save the pdf to Download with the name `ddpm.pdf`).Mention the full name and the abstract of the paper in the email body.",
+      "source_file_sha256": "c32ad72076c9b54649c9a470c23ffe4d7a3d2136a356bdb9cd58f148885a9554",
+      "container_source_sha256": "c32ad72076c9b54649c9a470c23ffe4d7a3d2136a356bdb9cd58f148885a9554",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/suggest_paper.py",
+      "accepted_backend_goals": [
+        "Reply to Tony's email asking for paper suggestions with a pdf of the ddpm paper (save the pdf to Download with the name `ddpm.pdf`).Mention the full name and the abstract of the paper in the email body."
+      ]
+    },
+    "CheckDepartTimeTask": {
+      "container_goal": "Check if I've received an email about the depart time for the CoolHacks hackathon.If not, text Carl (345 6784 3456) 'Do you know what time we're leaving tomorrow?'",
+      "original_goal": "Check if I've received an email about the depart time for the CoolHacks hackathon.If not, text Carl (345 6784 3456) 'Do you know what time we're leaving tomorrow?'",
+      "clarified_goal": "Check if I've received an email about the depart time for the CoolHacks hackathon.If not, text Carl (345 6784 3456) 'Do you know what time we're leaving tomorrow?'",
+      "source_file_sha256": "7a712803bec36149b9427d7547277eed0741c9b22f40b7d6ce3feb9386f740e0",
+      "container_source_sha256": "7a712803bec36149b9427d7547277eed0741c9b22f40b7d6ce3feb9386f740e0",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/check_depart_time.py",
+      "accepted_backend_goals": [
+        "Check if I've received an email about the depart time for the CoolHacks hackathon.If not, text Carl (345 6784 3456) 'Do you know what time we're leaving tomorrow?'"
+      ]
+    },
+    "ThanksgivingPrepTask": {
+      "container_goal": "Email me (user@gmail.com) a list of the flavoring ingredients needed to make Pecan pie with subject 'Pie shopping'.You can browse the following link for reference: https://sallysbakingaddiction.com/my-favorite-pecan-pie-recipe/Then, set an 8 am calendar event titled 'Thanksgiving Shopping' one week before Thanksgiving 2025.",
+      "original_goal": "Email me (user@gmail.com) a list of the flavoring ingredients needed to make Pecan pie with subject 'Pie shopping'.You can browse the following link for reference: https://sallysbakingaddiction.com/my-favorite-pecan-pie-recipe/Then, set an 8 am calendar event titled 'Thanksgiving Shopping' one week before Thanksgiving 2025.",
+      "clarified_goal": "Email me (user@gmail.com) a list of the flavoring ingredients needed to make Pecan pie with subject 'Pie shopping'.You can browse the following link for reference: https://sallysbakingaddiction.com/my-favorite-pecan-pie-recipe/Then, set an 8 am calendar event titled 'Thanksgiving Shopping' one week before Thanksgiving 2025.",
+      "source_file_sha256": "ee800d1f1e0e7532f98190fcf9365ff825e1ddd307a60c9c296832ad9ec9f74c",
+      "container_source_sha256": "ee800d1f1e0e7532f98190fcf9365ff825e1ddd307a60c9c296832ad9ec9f74c",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/thanksgiving_prep.py",
+      "accepted_backend_goals": [
+        "Email me (user@gmail.com) a list of the flavoring ingredients needed to make Pecan pie with subject 'Pie shopping'.You can browse the following link for reference: https://sallysbakingaddiction.com/my-favorite-pecan-pie-recipe/Then, set an 8 am calendar event titled 'Thanksgiving Shopping' one week before Thanksgiving 2025."
+      ]
+    },
+    "CheckConferenceLocationTask": {
+      "container_goal": "Check my email for the location of the MCFT conference hotel, then text the address to Tom (4456547865).Use Google maps to tell me how long it would take to walk from the MIT Stata center to there. Only response the time in minutes. No other text.",
+      "original_goal": "Check my email for the location of the MCFT conference hotel, then text the address to Tom (4456547865).Use Google maps to tell me how long it would take to walk from the MIT Stata center to there. Only response the time in minutes. No other text.",
+      "clarified_goal": "Check my email for the location of the MCFT conference hotel, then text the address to Tom (4456547865).Use Google maps to tell me how long it would take to walk from the MIT Stata center to there. Only response the time in minutes. No other text.",
+      "source_file_sha256": "27fcbf70b2c4942923fe2752d3b532234920d44fcfc5aee3e8ed5d2a996b0324",
+      "container_source_sha256": "27fcbf70b2c4942923fe2752d3b532234920d44fcfc5aee3e8ed5d2a996b0324",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/check_conference_location.py",
+      "accepted_backend_goals": [
+        "Check my email for the location of the MCFT conference hotel, then text the address to Tom (4456547865).Use Google maps to tell me how long it would take to walk from the MIT Stata center to there. Only response the time in minutes. No other text."
+      ]
+    },
+    "AcceptMeetingTask": {
+      "container_goal": "Reply to Daniel's most recent email to tell him: 'I'll be there at 10:00 AM on Thursday.'",
+      "original_goal": "Reply to Daniel's most recent email to tell him: 'I'll be there at 10:00 AM on Thursday.'",
+      "clarified_goal": "Reply to Daniel's most recent email to tell him: 'I'll be there at 10:00 AM on Thursday.'",
+      "source_file_sha256": "c4e64bd82c8f97502494b903994752074b51cc604f2840ad39f64350a317d391",
+      "container_source_sha256": "c4e64bd82c8f97502494b903994752074b51cc604f2840ad39f64350a317d391",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/accept_meeting.py",
+      "accepted_backend_goals": [
+        "Reply to Daniel's most recent email to tell him: 'I'll be there at 10:00 AM on Thursday.'"
+      ]
+    },
+    "SendFormsTask": {
+      "container_goal": "Please check my email for any field trip forms sent from October 3rd onward.Download all of them and send them to principal@school.edu with the subject 'Field Trip Forms'. Then, tell me how many forms you found as a single number.",
+      "original_goal": "Please check my email for any field trip forms sent from October 3rd onward.Download all of them and send them to principal@school.edu with the subject 'Field Trip Forms'. Then, tell me how many forms you found as a single number.",
+      "clarified_goal": "Please check my email for any field trip forms sent from October 3rd onward.Download all of them and send them to principal@school.edu with the subject 'Field Trip Forms'. Then, tell me how many forms you found as a single number.\n\n“October 3rd onward” includes October 3 and all later dates among the emails already present in the mailbox. Do not use the device's current date as an upper cutoff, even if an existing email is dated later than that date.",
+      "source_file_sha256": "0683cce7b852167b2f753625482f1267393ef398460aa558d857e14f22ea2cbc",
+      "container_source_sha256": "0683cce7b852167b2f753625482f1267393ef398460aa558d857e14f22ea2cbc",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/send_forms.py",
+      "accepted_backend_goals": [
+        "Please check my email for any field trip forms sent from October 3rd onward.Download all of them and send them to principal@school.edu with the subject 'Field Trip Forms'. Then, tell me how many forms you found as a single number."
+      ]
+    },
+    "SendWaiverTask": {
+      "container_goal": "Send the file 'waiver.jpg' as an email attachment to bob@gmail.com. Title the email 'Updated waiver'.",
+      "original_goal": "Send the file 'waiver.jpg' as an email attachment to bob@gmail.com. Title the email 'Updated waiver'.",
+      "clarified_goal": "Send the file 'waiver.jpg' as an email attachment to bob@gmail.com. Title the email 'Updated waiver'.",
+      "source_file_sha256": "eb5f31350ca587fa41b45e7cfd9623fbb739939a6138810e476a9ddda65ef876",
+      "container_source_sha256": "eb5f31350ca587fa41b45e7cfd9623fbb739939a6138810e476a9ddda65ef876",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/send_waiver.py",
+      "accepted_backend_goals": [
+        "Send the file 'waiver.jpg' as an email attachment to bob@gmail.com. Title the email 'Updated waiver'."
+      ]
+    },
+    "CheckEventTimeTask": {
+      "container_goal": "Check my email for the time of the Christmas party today. Set an alarm for one hour before then.",
+      "original_goal": "Check my email for the time of the Christmas party today. Set an alarm for one hour before then.",
+      "clarified_goal": "Check my email for the time of the Christmas party today. Set an alarm for one hour before then.",
+      "source_file_sha256": "24ed02cf879e394a7f097449b0649baa6b3ecc12659cbd400ab44bcc4aa1d903",
+      "container_source_sha256": "24ed02cf879e394a7f097449b0649baa6b3ecc12659cbd400ab44bcc4aa1d903",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/check_event_time.py",
+      "accepted_backend_goals": [
+        "Check my email for the time of the Christmas party today. Set an alarm for one hour before then."
+      ]
+    },
+    "CheckInterviewTimesTask": {
+      "container_goal": "Check my email for any job interviews I have in November.Set calendar events for each of them. Use the company name as the title and the interview time as the start and end time.",
+      "original_goal": "Check my email for any job interviews I have in November.Set calendar events for each of them. Use the company name as the title and the interview time as the start and end time.",
+      "clarified_goal": "Check my email for any job interviews I have in November.Set calendar events for each of them. Use the company name as the title and the interview time as the start and end time.",
+      "source_file_sha256": "1f7ea81cb8aed097a189f418efb735318f5ea7b68b71811b1c404cb1a7b07132",
+      "container_source_sha256": "1f7ea81cb8aed097a189f418efb735318f5ea7b68b71811b1c404cb1a7b07132",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/gmail/check_interview_times.py",
+      "accepted_backend_goals": [
+        "Check my email for any job interviews I have in November.Set calendar events for each of them. Use the company name as the title and the interview time as the start and end time."
+      ]
+    },
+    "ChromeSearchBeijingWeatherTask": {
+      "container_goal": "Use Chrome to search for Beijing highest temperature today. ONLY give a integer number denoted Celsius degree.",
+      "original_goal": "Use Chrome to search for Beijing highest temperature today. ONLY give a integer number denoted Celsius degree.",
+      "clarified_goal": "Use Chrome to search for Beijing highest temperature today. ONLY give a integer number denoted Celsius degree.",
+      "source_file_sha256": "070542c439860b82c545d40f5aadc2b62508d88466924477dbd8bd1e2685dd4e",
+      "container_source_sha256": "070542c439860b82c545d40f5aadc2b62508d88466924477dbd8bd1e2685dd4e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/chrome/check_weather.py",
+      "accepted_backend_goals": [
+        "Use Chrome to search for Beijing highest temperature today. ONLY give a integer number denoted Celsius degree."
+      ]
+    },
+    "CheckGithubInfoTask": {
+      "container_goal": "Please check the number of stars and contributors on the AndroidWorld GitHub repository, then send an email to kevin_zhang@example.com with the subject line \"AndroidWorld Repository Stats\" and the following message body:\nThere are XXX stars and XXX contributors in the AndroidWorld repository.\n\nReplace \"XXX\" with the actual numbers you find.",
+      "original_goal": "Please check the number of stars and contributors on the AndroidWorld GitHub repository, then send an email to kevin_zhang@example.com with the subject line \"AndroidWorld Repository Stats\" and the following message body:\nThere are XXX stars and XXX contributors in the AndroidWorld repository.\n\nReplace \"XXX\" with the actual numbers you find.",
+      "clarified_goal": "Please check the number of stars and contributors on the AndroidWorld GitHub repository, then send an email to kevin_zhang@example.com with the subject line \"AndroidWorld Repository Stats\" and the following message body:\nThere are XXX stars and XXX contributors in the AndroidWorld repository.\n\nReplace \"XXX\" with the actual numbers you find.",
+      "source_file_sha256": "88a2860b1d0211e2c7668119680c9380360f83332fe8b068052f1c0049fc3931",
+      "container_source_sha256": "88a2860b1d0211e2c7668119680c9380360f83332fe8b068052f1c0049fc3931",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/chrome/check_github_info.py",
+      "accepted_backend_goals": [
+        "Please check the number of stars and contributors on the AndroidWorld GitHub repository, then send an email to kevin_zhang@example.com with the subject line \"AndroidWorld Repository Stats\" and the following message body:\nThere are XXX stars and XXX contributors in the AndroidWorld repository.\n\nReplace \"XXX\" with the actual numbers you find."
+      ]
+    },
+    "TextArrivalTimeTask": {
+      "container_goal": "Search up how long it takes to drive from Orlando to Miami.Text Susan (4538997638) the approximate time I'll be there if I leave at 5 pm.",
+      "original_goal": "Search up how long it takes to drive from Orlando to Miami.Text Susan (4538997638) the approximate time I'll be there if I leave at 5 pm.",
+      "clarified_goal": "Search up how long it takes to drive from Orlando to Miami.Text Susan (4538997638) the approximate time I'll be there if I leave at 5 pm.",
+      "source_file_sha256": "a2d0eec721b5923d5c299b363139ae4518a1d2845ab773281bbb3e23e689b18e",
+      "container_source_sha256": "a2d0eec721b5923d5c299b363139ae4518a1d2845ab773281bbb3e23e689b18e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/map/text_arrival_time.py",
+      "accepted_backend_goals": [
+        "Search up how long it takes to drive from Orlando to Miami.Text Susan (4538997638) the approximate time I'll be there if I leave at 5 pm."
+      ]
+    },
+    "GoogleMapsAlibabaSouthNeighborTask": {
+      "container_goal": "Open Google Maps and find which company is directly south of Alibaba Hangzhou headquarters in Binjiang District. ONLY output the company name in English.",
+      "original_goal": "Open Google Maps and find which company is directly south of Alibaba Hangzhou headquarters in Binjiang District. ONLY output the company name in English.",
+      "clarified_goal": "Open Google Maps and find which company is directly south of Alibaba Hangzhou headquarters in Binjiang District. ONLY output the company name in English.",
+      "source_file_sha256": "4280dcb8399b92fccb083340489178dba274b4f2a6c94d00b04010536232787b",
+      "container_source_sha256": "4280dcb8399b92fccb083340489178dba274b4f2a6c94d00b04010536232787b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/map/check_neighbours.py",
+      "accepted_backend_goals": [
+        "Open Google Maps and find which company is directly south of Alibaba Hangzhou headquarters in Binjiang District. ONLY output the company name in English."
+      ]
+    },
+    "GoogleMapsAlibabaPhoneContactTask": {
+      "container_goal": "Find the phone number of Alibaba's Hangzhou headquarters on the google map, and based on that, create a new contact named Kevin Zhang with the company.",
+      "original_goal": "Find the phone number of Alibaba's Hangzhou headquarters on the google map, and based on that, create a new contact named Kevin Zhang with the company.",
+      "clarified_goal": "Find the phone number of Alibaba's Hangzhou headquarters on the google map, and based on that, create a new contact named Kevin Zhang with the company.",
+      "source_file_sha256": "56d03c2759773af17f50c1392d9045e36e895f33c851bddebe8737325607a87b",
+      "container_source_sha256": "56d03c2759773af17f50c1392d9045e36e895f33c851bddebe8737325607a87b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/map/check_phone_numbers.py",
+      "accepted_backend_goals": [
+        "Find the phone number of Alibaba's Hangzhou headquarters on the google map, and based on that, create a new contact named Kevin Zhang with the company."
+      ]
+    },
+    "ReadQwen3PaperTask4": {
+      "container_goal": "Read the downloaded Qwen3-Omni paper and tell me the size of Vision encoder in Qwen3-Omni-30B-A3B model. Please provide only the numeric value in millions of parameters.",
+      "original_goal": "Read the downloaded Qwen3-Omni paper and tell me the size of Vision encoder in Qwen3-Omni-30B-A3B model. Please provide only the numeric value in millions of parameters.",
+      "clarified_goal": "Read the downloaded Qwen3-Omni paper and tell me the size of Vision encoder in Qwen3-Omni-30B-A3B model. Please provide only the numeric value in millions of parameters.",
+      "source_file_sha256": "55f892cddb28bf37dbe66c953107f6936d6f0ab1189c84e8f876ab46d5aa750f",
+      "container_source_sha256": "55f892cddb28bf37dbe66c953107f6936d6f0ab1189c84e8f876ab46d5aa750f",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/read_paper_4.py",
+      "accepted_backend_goals": [
+        "Read the downloaded Qwen3-Omni paper and tell me the size of Vision encoder in Qwen3-Omni-30B-A3B model. Please provide only the numeric value in millions of parameters."
+      ]
+    },
+    "CountFileLinesTask": {
+      "container_goal": "Check the file_1.txt inside the earliest zip file from July in the Downloads directory and count how many lines it contains. Respond only with an integer representing the line count, with no other text.",
+      "original_goal": "Check the file_1.txt inside the earliest zip file from July in the Downloads directory and count how many lines it contains. Respond only with an integer representing the line count, with no other text.",
+      "clarified_goal": "Check the file_1.txt inside the earliest zip file from July in the Downloads directory and count how many lines it contains. Respond only with an integer representing the line count, with no other text.",
+      "source_file_sha256": "f9c97c7d598dcfa537bab4111fe5813c1ee84c38e67ccfdc20f9086adfb5b446",
+      "container_source_sha256": "f9c97c7d598dcfa537bab4111fe5813c1ee84c38e67ccfdc20f9086adfb5b446",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/count_file_lines.py",
+      "accepted_backend_goals": [
+        "Check the file_1.txt inside the earliest zip file from July in the Downloads directory and count how many lines it contains. Respond only with an integer representing the line count, with no other text."
+      ]
+    },
+    "BidFileRenameTask": {
+      "container_goal": "将Download中前缀为bid_的文件, 按创建日期由早到晚，统一按照'bid_{序号}.{原扩展名}'进行重命名。",
+      "original_goal": "将Download中前缀为bid_的文件, 按创建日期由早到晚，统一按照'bid_{序号}.{原扩展名}'进行重命名。",
+      "clarified_goal": "将Download中前缀为bid_的文件, 按创建日期由早到晚，统一按照'bid_{序号}.{原扩展名}'进行重命名。",
+      "source_file_sha256": "0477527ebaced163315f2d14fb5ca2f5095c1c8c8a234036354398f4ce52f915",
+      "container_source_sha256": "0477527ebaced163315f2d14fb5ca2f5095c1c8c8a234036354398f4ce52f915",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/bid_file_rename.py",
+      "accepted_backend_goals": [
+        "将Download中前缀为bid_的文件, 按创建日期由早到晚，统一按照'bid_{序号}.{原扩展名}'进行重命名。"
+      ]
+    },
+    "InvoiceReceiptCopyTask": {
+      "container_goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进Finance/invoice文件夹。",
+      "original_goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进Finance/invoice文件夹。",
+      "clarified_goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进Finance/invoice文件夹。",
+      "source_file_sha256": "5ed4bebd348bc025fbfcceed827c2469a258fb8550994bea52033bdc62f4bd1b",
+      "container_source_sha256": "5ed4bebd348bc025fbfcceed827c2469a258fb8550994bea52033bdc62f4bd1b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/invoice_receipt_copy_task.py",
+      "accepted_backend_goals": [
+        "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进Finance/invoice文件夹。"
+      ]
+    },
+    "CVEmailTask": {
+      "container_goal": "在Download内找到最近一个月下载的简历文件，把文件发送给HR_chen@gmail.com，标题为candidates_cv。",
+      "original_goal": "在Download内找到最近一个月下载的简历文件，把文件发送给HR_chen@gmail.com，标题为candidates_cv。",
+      "clarified_goal": "在Download内找到最近一个月下载的简历文件，把文件发送给HR_chen@gmail.com，标题为candidates_cv。",
+      "source_file_sha256": "2817b3aa5195c7d67f9a08e8ec5bd1669a40ad3ef48ae6106631b78071ac9f07",
+      "container_source_sha256": "2817b3aa5195c7d67f9a08e8ec5bd1669a40ad3ef48ae6106631b78071ac9f07",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/cv_email_task.py",
+      "accepted_backend_goals": [
+        "在Download内找到最近一个月下载的简历文件，把文件发送给HR_chen@gmail.com，标题为candidates_cv。"
+      ]
+    },
+    "ReadQwen3PaperTask2": {
+      "container_goal": "Read the downloaded Qwen3 paper and tell me how many core contributors in this paper. The answer should consist of only a single number.",
+      "original_goal": "Read the downloaded Qwen3 paper and tell me how many core contributors in this paper. The answer should consist of only a single number.",
+      "clarified_goal": "Read the downloaded Qwen3 paper and tell me how many core contributors in this paper. The answer should consist of only a single number.",
+      "source_file_sha256": "c46c0bb46e3d39663bf2ecaf13343fc601b9851b9f5e5aa68f443ec5d1fad2e8",
+      "container_source_sha256": "c46c0bb46e3d39663bf2ecaf13343fc601b9851b9f5e5aa68f443ec5d1fad2e8",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/read_paper_2.py",
+      "accepted_backend_goals": [
+        "Read the downloaded Qwen3 paper and tell me how many core contributors in this paper. The answer should consist of only a single number."
+      ]
+    },
+    "CheckInvoiceTask1": {
+      "container_goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and respond with only a single number representing the total amount, with no other text.",
+      "original_goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and respond with only a single number representing the total amount, with no other text.",
+      "clarified_goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and respond with only a single number representing the total amount, with no other text.",
+      "source_file_sha256": "4d7cd1bc28d2e8e6b03c81134f71d7113fc55505fe1826328f7ee9afa64dd09c",
+      "container_source_sha256": "4d7cd1bc28d2e8e6b03c81134f71d7113fc55505fe1826328f7ee9afa64dd09c",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/check_invoice_1.py",
+      "accepted_backend_goals": [
+        "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and respond with only a single number representing the total amount, with no other text."
+      ]
+    },
+    "ReadQwen3PaperTask5": {
+      "container_goal": "Read the downloaded Qwen3 paper and tell me what kind of Austroasiatic language is supported by Qwen3 in Belebele Benchmark.The answer should be a list of languages separated by comma.No other text.",
+      "original_goal": "Read the downloaded Qwen3 paper and tell me what kind of Austroasiatic language is supported by Qwen3 in Belebele Benchmark.The answer should be a list of languages separated by comma.No other text.",
+      "clarified_goal": "Read the downloaded Qwen3 paper and tell me what kind of Austroasiatic language is supported by Qwen3 in Belebele Benchmark.The answer should be a list of languages separated by comma.No other text.\n\nReturn the language-and-script codes printed in the paper's Belebele table, in their table order, rather than English language names. Separate language and script with a space, and separate entries with commas; include no other text.",
+      "source_file_sha256": "a409657ae4ae75d361cb49508ce26412b439e004cd4d7f96cc6ab277b57bf8bc",
+      "container_source_sha256": "a409657ae4ae75d361cb49508ce26412b439e004cd4d7f96cc6ab277b57bf8bc",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/read_paper_5.py",
+      "accepted_backend_goals": [
+        "Read the downloaded Qwen3 paper and tell me what kind of Austroasiatic language is supported by Qwen3 in Belebele Benchmark.The answer should be a list of languages separated by comma.No other text."
+      ]
+    },
+    "CheckInvoiceTask2": {
+      "container_goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and forward the result number to the customer via Email.",
+      "original_goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and forward the result number to the customer via Email.",
+      "clarified_goal": "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and forward the result number to the customer via Email.",
+      "source_file_sha256": "dbfbf78a9224128bdbe56553625130bad2373b9f004172a1eedaef43cb8cf44e",
+      "container_source_sha256": "dbfbf78a9224128bdbe56553625130bad2373b9f004172a1eedaef43cb8cf44e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/check_invoice_2.py",
+      "accepted_backend_goals": [
+        "Read the invoice PDF file in the download directory. The customer has notified that payment will be made 45 days after the due date. Please recalculate the total amount payable and forward the result number to the customer via Email."
+      ]
+    },
+    "ReviewPaperEmailTask": {
+      "container_goal": "查找手机Documents文件夹内所有review开头的pdf文件，移动在Document/paper下，并将paper目录下的所有文件，发送到chen@gmail.com，标题为paper。",
+      "original_goal": "查找手机Documents文件夹内所有review开头的pdf文件，移动在Document/paper下，并将paper目录下的所有文件，发送到chen@gmail.com，标题为paper。",
+      "clarified_goal": "查找手机Documents文件夹内所有review开头的pdf文件，移动在Document/paper下，并将paper目录下的所有文件，发送到chen@gmail.com，标题为paper。",
+      "source_file_sha256": "e217dd7149e0a88f4593bc6a2a99f73af5f6f2a1ed3fb58180ec65cbcccf0d0c",
+      "container_source_sha256": "e217dd7149e0a88f4593bc6a2a99f73af5f6f2a1ed3fb58180ec65cbcccf0d0c",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/review_paper_email_task.py",
+      "accepted_backend_goals": [
+        "查找手机Documents文件夹内所有review开头的pdf文件，移动在Document/paper下，并将paper目录下的所有文件，发送到chen@gmail.com，标题为paper。"
+      ]
+    },
+    "SharePhotosTask": {
+      "container_goal": "Find all flowers pictures in gallery and send them via email to kevin_zhang@example.com, with text \"Here are some flowers for you.\"",
+      "original_goal": "Find all flowers pictures in gallery and send them via email to kevin_zhang@example.com, with text \"Here are some flowers for you.\"",
+      "clarified_goal": "Find all flowers pictures in gallery and send them via email to kevin_zhang@example.com, with text \"Here are some flowers for you.\"",
+      "source_file_sha256": "1b8d0d26d155713f47e6523a0884f446dde4e12ab4801b9c6a6874c93ced208e",
+      "container_source_sha256": "1b8d0d26d155713f47e6523a0884f446dde4e12ab4801b9c6a6874c93ced208e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/share_photos.py",
+      "accepted_backend_goals": [
+        "Find all flowers pictures in gallery and send them via email to kevin_zhang@example.com, with text \"Here are some flowers for you.\""
+      ]
+    },
+    "CheckInvoiceTask3": {
+      "container_goal": "Read the invoice PDF file in the download directory. Send a SMS to Mia and report how many fewer hours does Consulting Services have than Software Development?",
+      "original_goal": "Read the invoice PDF file in the download directory. Send a SMS to Mia and report how many fewer hours does Consulting Services have than Software Development?",
+      "clarified_goal": "Read the invoice PDF file in the download directory. Send a SMS to Mia and report how many fewer hours does Consulting Services have than Software Development?",
+      "source_file_sha256": "6451c9e4c5631546b93e83469a585fed1f3b3333c324026c1d406f3f07cac405",
+      "container_source_sha256": "6451c9e4c5631546b93e83469a585fed1f3b3333c324026c1d406f3f07cac405",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/check_invoice_3.py",
+      "accepted_backend_goals": [
+        "Read the invoice PDF file in the download directory. Send a SMS to Mia and report how many fewer hours does Consulting Services have than Software Development?"
+      ]
+    },
+    "SumFileLinesTask": {
+      "container_goal": "Check the all files inside the earliest zip file from July in the Downloads directory and count how many lines it contains in total. Respond only with an integer representing the line count, with no other text.",
+      "original_goal": "Check the all files inside the earliest zip file from July in the Downloads directory and count how many lines it contains in total. Respond only with an integer representing the line count, with no other text.",
+      "clarified_goal": "Check the all files inside the earliest zip file from July in the Downloads directory and count how many lines it contains in total. Respond only with an integer representing the line count, with no other text.",
+      "source_file_sha256": "d46b69eeb57a9862418c0edc3d1040d3240af4041789776aec7b7052220c4064",
+      "container_source_sha256": "d46b69eeb57a9862418c0edc3d1040d3240af4041789776aec7b7052220c4064",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/sum_file_lines.py",
+      "accepted_backend_goals": [
+        "Check the all files inside the earliest zip file from July in the Downloads directory and count how many lines it contains in total. Respond only with an integer representing the line count, with no other text."
+      ]
+    },
+    "ReadQwen3PaperTask3": {
+      "container_goal": "Read the downloaded Qwen3-Omni paper and tell me how many benchmarks are used in evaluting the Text to Text performance of Qwen3-Omni-Thinking model. The answer should consist of only a single number.",
+      "original_goal": "Read the downloaded Qwen3-Omni paper and tell me how many benchmarks are used in evaluting the Text to Text performance of Qwen3-Omni-Thinking model. The answer should consist of only a single number.",
+      "clarified_goal": "Read the downloaded Qwen3-Omni paper and tell me how many benchmarks are used in evaluting the Text to Text performance of Qwen3-Omni-Thinking model. The answer should consist of only a single number.",
+      "source_file_sha256": "a756de4df0caf57eae35f72e33af0db869bab9ef0d9298ddb9249d3251b5b820",
+      "container_source_sha256": "a756de4df0caf57eae35f72e33af0db869bab9ef0d9298ddb9249d3251b5b820",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/read_paper_3.py",
+      "accepted_backend_goals": [
+        "Read the downloaded Qwen3-Omni paper and tell me how many benchmarks are used in evaluting the Text to Text performance of Qwen3-Omni-Thinking model. The answer should consist of only a single number."
+      ]
+    },
+    "ReadQwen3PaperTask1": {
+      "container_goal": "Read the downloaded Qwen3 paper and indicate by how many points Qwen3-32B (Thinking) lags behind the best model on the AIME25 benchmark. The answer should consist of only a single number representing the score difference.",
+      "original_goal": "Read the downloaded Qwen3 paper and indicate by how many points Qwen3-32B (Thinking) lags behind the best model on the AIME25 benchmark. The answer should consist of only a single number representing the score difference.",
+      "clarified_goal": "Read the downloaded Qwen3 paper and indicate by how many points Qwen3-32B (Thinking) lags behind the best model on the AIME25 benchmark. The answer should consist of only a single number representing the score difference.",
+      "source_file_sha256": "1cab7e6c597479af44dc144c331dcb70d500791fe8c0c3ce92c2f1617d935f8e",
+      "container_source_sha256": "1cab7e6c597479af44dc144c331dcb70d500791fe8c0c3ce92c2f1617d935f8e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/read_paper_1.py",
+      "accepted_backend_goals": [
+        "Read the downloaded Qwen3 paper and indicate by how many points Qwen3-32B (Thinking) lags behind the best model on the AIME25 benchmark. The answer should consist of only a single number representing the score difference."
+      ]
+    },
+    "InvoiceReceiptCopyAskUserTask": {
+      "container_goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。该文件夹是 Documents/expense/invoice；如果不存在，请先创建。",
+      "original_goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。",
+      "clarified_goal": "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。该文件夹是 Documents/expense/invoice；如果不存在，请先创建。",
+      "source_file_sha256": "be1009db5b3a2d08adc34a9155624b3447870bfba1b586af449cd0590a05d503",
+      "container_source_sha256": "541fe18cb78c6d81ce5097fb8ad266bd9846f265251625c2d78b75e2b120ed26",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/invoice_receipt_copy_ask_user_task.py",
+      "accepted_backend_goals": [
+        "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。",
+        "在Download里找到11月内文件名包含invoice或者receipt的PDF复制进我专门用来收录发票和收据的文件夹。该文件夹是 Documents/expense/invoice；如果不存在，请先创建。"
+      ]
+    },
+    "TakeSelfieTask": {
+      "container_goal": "Take a photo.",
+      "original_goal": "Take a photo.",
+      "clarified_goal": "Take a photo.",
+      "source_file_sha256": "b2435425f0b54bfc877a352fc7cb3f6108ed6163aba492f0cf8156d6fb836564",
+      "container_source_sha256": "b2435425f0b54bfc877a352fc7cb3f6108ed6163aba492f0cf8156d6fb836564",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/take_selfie.py",
+      "accepted_backend_goals": [
+        "Take a photo."
+      ]
+    },
+    "SMSManagement": {
+      "container_goal": "Check all unread sms messages, delete spams, and provide a summary of recruitment messages to me via email by sending to dylan@gmail.com. Note I'm only interested in open data scientist role.",
+      "original_goal": "Check all unread sms messages, delete spams, and provide a summary of recruitment messages to me via email by sending to dylan@gmail.com. Note I'm only interested in open data scientist role.",
+      "clarified_goal": "Check all unread sms messages, delete spams, and provide a summary of recruitment messages to me via email by sending to dylan@gmail.com. Note I'm only interested in open data scientist role.",
+      "source_file_sha256": "3307a436fe46862fd247df2f898d07a33aa00fda26f9b4a75852f51a0af6c4e3",
+      "container_source_sha256": "3307a436fe46862fd247df2f898d07a33aa00fda26f9b4a75852f51a0af6c4e3",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/sms_management.py",
+      "accepted_backend_goals": [
+        "Check all unread sms messages, delete spams, and provide a summary of recruitment messages to me via email by sending to dylan@gmail.com. Note I'm only interested in open data scientist role."
+      ]
+    },
+    "SetAlarmTask": {
+      "container_goal": "Set a weekend alarm for 8:25 a.m. with the ringtone \"beebeep\" and vibration off. ",
+      "original_goal": "Set a weekend alarm for 8:25 a.m. with the ringtone \"beebeep\" and vibration off. ",
+      "clarified_goal": "Set a weekend alarm for 8:25 a.m. with the ringtone \"beebeep\" and vibration off. ",
+      "source_file_sha256": "625d46339ff4f1527a1d33f77954dd610eeb10ca2e0d2a81f97b0ced6c17cfa7",
+      "container_source_sha256": "625d46339ff4f1527a1d33f77954dd610eeb10ca2e0d2a81f97b0ced6c17cfa7",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/native/set_alarm.py",
+      "accepted_backend_goals": [
+        "Set a weekend alarm for 8:25 a.m. with the ringtone \"beebeep\" and vibration off. "
+      ]
+    },
+    "MastodonRemoveBookmarkTask": {
+      "container_goal": "In Mastodon, remove the posts with #pets tag from bookmarks on my account.",
+      "original_goal": "In Mastodon, remove the posts with #pets tag from bookmarks on my account.",
+      "clarified_goal": "In Mastodon, remove the posts with #pets tag from bookmarks on my account.",
+      "source_file_sha256": "80882f7d87094ee1c281ed758dcc95cb3ead7d1da138c9f7ab013b756f9cacba",
+      "container_source_sha256": "80882f7d87094ee1c281ed758dcc95cb3ead7d1da138c9f7ab013b756f9cacba",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_remove_bookmark.py",
+      "accepted_backend_goals": [
+        "In Mastodon, remove the posts with #pets tag from bookmarks on my account."
+      ]
+    },
+    "MastodonPinTootsTask": {
+      "container_goal": "In Mastodon, pin the first post I published after creating the account to the top.",
+      "original_goal": "In Mastodon, pin the first post I published after creating the account to the top.",
+      "clarified_goal": "In Mastodon, pin the first post I published after creating the account to the top.",
+      "source_file_sha256": "8f1d9f9bd344249e254adf8e4e206c8a87487b0ec647a4aa794317d1e2460034",
+      "container_source_sha256": "8f1d9f9bd344249e254adf8e4e206c8a87487b0ec647a4aa794317d1e2460034",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_pin_toots.py",
+      "accepted_backend_goals": [
+        "In Mastodon, pin the first post I published after creating the account to the top."
+      ]
+    },
+    "MastodonServerInfoReportTask": {
+      "container_goal": "switch to owner account in mastodon, then go to account backend to find the number of reports not tackled yet, and send the number as an email content in the format: \"Recent reports: xxx\" to owner@mastodon_example.com by email, the number should be in Arabic numerals.",
+      "original_goal": "switch to owner account in mastodon, then go to account backend to find the number of reports not tackled yet, and send the number as an email content in the format: \"Recent reports: xxx\" to owner@mastodon_example.com by email, the number should be in Arabic numerals.",
+      "clarified_goal": "switch to owner account in mastodon, then go to account backend to find the number of reports not tackled yet, and send the number as an email content in the format: \"Recent reports: xxx\" to owner@mastodon_example.com by email, the number should be in Arabic numerals.\n\nEnvironment account information from the official MobileWorld fixture: the owner account login is owner@gmail.com; password: password. Log in through the app or browser UI when required.",
+      "source_file_sha256": "bc1f402c2a35a9db061534bb2730be162f5bcdee4299e1101060902096fe3726",
+      "container_source_sha256": "bc1f402c2a35a9db061534bb2730be162f5bcdee4299e1101060902096fe3726",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_server_info_report.py",
+      "accepted_backend_goals": [
+        "switch to owner account in mastodon, then go to account backend to find the number of reports not tackled yet, and send the number as an email content in the format: \"Recent reports: xxx\" to owner@mastodon_example.com by email, the number should be in Arabic numerals."
+      ]
+    },
+    "MastodonUpdateContactsTask": {
+      "container_goal": "My friend Olivia has left new phone and email information in the latest post on Mastodon, please update the information to my contacts, and send a text message to Olivia, the content of the text message should be 'Hello, how are you'. Remember to set the email label to internet.",
+      "original_goal": "My friend Olivia has left new phone and email information in the latest post on Mastodon, please update the information to my contacts, and send a text message to Olivia, the content of the text message should be 'Hello, how are you'. Remember to set the email label to internet.",
+      "clarified_goal": "My friend Olivia has left new phone and email information in the latest post on Mastodon, please update the information to my contacts, and send a text message to Olivia, the content of the text message should be 'Hello, how are you'. Remember to set the email label to internet.",
+      "source_file_sha256": "378e52f689111eac6e270f10919bf44f67ebd76b76e52a6d3f4fe1024992e91d",
+      "container_source_sha256": "378e52f689111eac6e270f10919bf44f67ebd76b76e52a6d3f4fe1024992e91d",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_update_contacts.py",
+      "accepted_backend_goals": [
+        "My friend Olivia has left new phone and email information in the latest post on Mastodon, please update the information to my contacts, and send a text message to Olivia, the content of the text message should be 'Hello, how are you'. Remember to set the email label to internet."
+      ]
+    },
+    "MastodonConditionalFavoTask": {
+      "container_goal": "favorite all toots tagged “#dogs” on Mastodon, but do not add them to my favorite list if they are already in my favorite list or bookmark list.",
+      "original_goal": "favorite all toots tagged “#dogs” on Mastodon, but do not add them to my favorite list if they are already in my favorite list or bookmark list.",
+      "clarified_goal": "favorite all toots tagged “#dogs” on Mastodon, but do not add them to my favorite list if they are already in my favorite list or bookmark list.",
+      "source_file_sha256": "942804a2e35701acaf5012e0077501f43d7025abfd67b1c21c6cb9a0479cc5a7",
+      "container_source_sha256": "942804a2e35701acaf5012e0077501f43d7025abfd67b1c21c6cb9a0479cc5a7",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_conditional_favo.py",
+      "accepted_backend_goals": [
+        "favorite all toots tagged “#dogs” on Mastodon, but do not add them to my favorite list if they are already in my favorite list or bookmark list."
+      ]
+    },
+    "MastodonFilterLanguageTask": {
+      "container_goal": "On Mastodon, set up filters to only show posts in English, Japanese, and Chinese Simplified.",
+      "original_goal": "On Mastodon, set up filters to only show posts in English, Japanese, and Chinese Simplified.",
+      "clarified_goal": "On Mastodon, set up filters to only show posts in English, Japanese, and Chinese Simplified.",
+      "source_file_sha256": "c0b3440f485e5710ef43c8e5a3b9a6dbde704eec71f0ade9b8f4b133e84a0579",
+      "container_source_sha256": "c0b3440f485e5710ef43c8e5a3b9a6dbde704eec71f0ade9b8f4b133e84a0579",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_filter_language.py",
+      "accepted_backend_goals": [
+        "On Mastodon, set up filters to only show posts in English, Japanese, and Chinese Simplified."
+      ]
+    },
+    "MastodonInviteTask": {
+      "container_goal": "Generate a one-person invite link that expires in one day, auto-follows me, and send it to my friend Leonard by SMS.",
+      "original_goal": "Generate a one-person invite link that expires in one day, auto-follows me, and send it to my friend Leonard by SMS.",
+      "clarified_goal": "Generate a one-person invite link that expires in one day, auto-follows me, and send it to my friend Leonard by SMS.",
+      "source_file_sha256": "79aa98df2ac174a344cff7cd4a2c58c67bbb99a5544c34ba3efa4f6e55f54477",
+      "container_source_sha256": "79aa98df2ac174a344cff7cd4a2c58c67bbb99a5544c34ba3efa4f6e55f54477",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_invite.py",
+      "accepted_backend_goals": [
+        "Generate a one-person invite link that expires in one day, auto-follows me, and send it to my friend Leonard by SMS."
+      ]
+    },
+    "MastodonExportFollowsTask": {
+      "container_goal": "In Mastodon, export my follows in settings and save it as my_following.csv.",
+      "original_goal": "In Mastodon, export my follows in settings and save it as my_following.csv.",
+      "clarified_goal": "In Mastodon, export my follows in settings and save it as my_following.csv.",
+      "source_file_sha256": "29c124eaa7724d1e39ae1f0cf7eec4daddbc680a0d98e89a10d4ed837928fbeb",
+      "container_source_sha256": "29c124eaa7724d1e39ae1f0cf7eec4daddbc680a0d98e89a10d4ed837928fbeb",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_export_follows.py",
+      "accepted_backend_goals": [
+        "In Mastodon, export my follows in settings and save it as my_following.csv."
+      ]
+    },
+    "MastodonNewFilterTask": {
+      "container_goal": "In Mastodon, add a new filter called “Anti-Spoiler-BCS”, use all the words from the text file named filter_BCS in the documents folder as blocked keywords, and set it to expire 5 days from today.",
+      "original_goal": "In Mastodon, add a new filter called “Anti-Spoiler-BCS”, use all the words from the text file named filter_BCS in the documents folder as blocked keywords, and set it to expire 5 days from today.",
+      "clarified_goal": "In Mastodon, add a new filter called “Anti-Spoiler-BCS”, use all the words from the text file named filter_BCS in the documents folder as blocked keywords, and set it to expire 5 days from today.",
+      "source_file_sha256": "209251bbab83e6e4b9b6471234ab72c924672bdc95b50b2689c74fd292fa70df",
+      "container_source_sha256": "209251bbab83e6e4b9b6471234ab72c924672bdc95b50b2689c74fd292fa70df",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_new_filter.py",
+      "accepted_backend_goals": [
+        "In Mastodon, add a new filter called “Anti-Spoiler-BCS”, use all the words from the text file named filter_BCS in the documents folder as blocked keywords, and set it to expire 5 days from today."
+      ]
+    },
+    "MastodonSavePhotosTask": {
+      "container_goal": "Find the post that Alice published on October 5th on Mastodon, and save all the images to the phone.",
+      "original_goal": "Find the post that Alice published on October 5th on Mastodon, and save all the images to the phone.",
+      "clarified_goal": "Find the post that Alice published on October 5th on Mastodon, and save all the images to the phone.",
+      "source_file_sha256": "d40bf8f997c068e109a5a8951c45fab2049e3944dca5ef7edc50a994a4d40779",
+      "container_source_sha256": "d40bf8f997c068e109a5a8951c45fab2049e3944dca5ef7edc50a994a4d40779",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_save_photos.py",
+      "accepted_backend_goals": [
+        "Find the post that Alice published on October 5th on Mastodon, and save all the images to the phone."
+      ]
+    },
+    "MastodonManageHashtagsTask": {
+      "container_goal": "In Mastodon, unfollow the hashtags I followed before related to animals.",
+      "original_goal": "In Mastodon, unfollow the hashtags I followed before related to animals.",
+      "clarified_goal": "In Mastodon, unfollow the hashtags I followed before related to animals.",
+      "source_file_sha256": "c1980e126d4bb712dc7e5a873a31955653562641d222534dec278492c1eccb54",
+      "container_source_sha256": "c1980e126d4bb712dc7e5a873a31955653562641d222534dec278492c1eccb54",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_manage_hashtags.py",
+      "accepted_backend_goals": [
+        "In Mastodon, unfollow the hashtags I followed before related to animals."
+      ]
+    },
+    "MastodonCalendarMultiMemosTask": {
+      "container_goal": "On Mastodon, find lectures in the #openTalk hashtag for the current month, then add the lecture information (time, location, topic) to the calendar events. If the start time is within 10 days, set the reminder time to 1 day before. Otherwise, set the reminder time to 3 days before the start time.",
+      "original_goal": "On Mastodon, find lectures in the #openTalk hashtag for the current month, then add the lecture information (time, location, topic) to the calendar events. If the start time is within 10 days, set the reminder time to 1 day before. Otherwise, set the reminder time to 3 days before the start time.",
+      "clarified_goal": "On Mastodon, find lectures in the #openTalk hashtag for the current month, then add the lecture information (time, location, topic) to the calendar events. If the start time is within 10 days, set the reminder time to 1 day before. Otherwise, set the reminder time to 3 days before the start time.",
+      "source_file_sha256": "a8dc25516c8f1e61badc67d30910cf6298f1650aab1cf79aa15e24f79d07afad",
+      "container_source_sha256": "a8dc25516c8f1e61badc67d30910cf6298f1650aab1cf79aa15e24f79d07afad",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_calendar_multi_memos.py",
+      "accepted_backend_goals": [
+        "On Mastodon, find lectures in the #openTalk hashtag for the current month, then add the lecture information (time, location, topic) to the calendar events. If the start time is within 10 days, set the reminder time to 1 day before. Otherwise, set the reminder time to 3 days before the start time."
+      ]
+    },
+    "MastodonCreateMemoTask": {
+      "container_goal": "Find information under #openTalk on Mastodon about the topic of Urban Mobility lectures, then create a event on my calendar with time, location, and topic as title, and set a reminder 1 day before.",
+      "original_goal": "Find information under #openTalk on Mastodon about the topic of Urban Mobility lectures, then create a event on my calendar with time, location, and topic as title, and set a reminder 1 day before.",
+      "clarified_goal": "Find information under #openTalk on Mastodon about the topic of Urban Mobility lectures, then create a event on my calendar with time, location, and topic as title, and set a reminder 1 day before.",
+      "source_file_sha256": "bdee9c44da4d939a8888d138da5efc823ec7effc046deab9557c6f4376e4f8ab",
+      "container_source_sha256": "bdee9c44da4d939a8888d138da5efc823ec7effc046deab9557c6f4376e4f8ab",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_create_calendar_memo.py",
+      "accepted_backend_goals": [
+        "Find information under #openTalk on Mastodon about the topic of Urban Mobility lectures, then create a event on my calendar with time, location, and topic as title, and set a reminder 1 day before."
+      ]
+    },
+    "MastodonMultiInviteTask": {
+      "container_goal": "Generate two invite links with different conditions. One with validity days of 1 day and max uses of 1, send it to my friend Leonard by SMS. Another with validity days of 7 days and auto-follow me, send it to my friend Ella by SMS.",
+      "original_goal": "Generate two invite links with different conditions. One with validity days of 1 day and max uses of 1, send it to my friend Leonard by SMS. Another with validity days of 7 days and auto-follow me, send it to my friend Ella by SMS.",
+      "clarified_goal": "Generate two invite links with different conditions. One with validity days of 1 day and max uses of 1, send it to my friend Leonard by SMS. Another with validity days of 7 days and auto-follow me, send it to my friend Ella by SMS.",
+      "source_file_sha256": "2f7b5af8946f85887131c380c1cda3c95365f4720a465a2851a4bf950618b5f7",
+      "container_source_sha256": "2f7b5af8946f85887131c380c1cda3c95365f4720a465a2851a4bf950618b5f7",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_multi_invite.py",
+      "accepted_backend_goals": [
+        "Generate two invite links with different conditions. One with validity days of 1 day and max uses of 1, send it to my friend Leonard by SMS. Another with validity days of 7 days and auto-follow me, send it to my friend Ella by SMS."
+      ]
+    },
+    "MastodonMattermostPostNoticeTask": {
+      "container_goal": "Please help me sync the Security announcement from mike in the announcement channel on mattermost to mastodon, do not change the original content, the announcement is only visible to followers, and also @openCompany account.",
+      "original_goal": "Please help me sync the Security announcement from mike in the announcement channel on mattermost to mastodon, do not change the original content, the announcement is only visible to followers, and also @openCompany account.",
+      "clarified_goal": "Please help me sync the Security announcement from mike in the announcement channel on mattermost to mastodon, do not change the original content, the announcement is only visible to followers, and also @openCompany account.",
+      "source_file_sha256": "240ddf5ea255514647b8ecef3af00c8ebcabac9a25729610803efed33d049d6e",
+      "container_source_sha256": "240ddf5ea255514647b8ecef3af00c8ebcabac9a25729610803efed33d049d6e",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_mattermost_post_notice.py",
+      "accepted_backend_goals": [
+        "Please help me sync the Security announcement from mike in the announcement channel on mattermost to mastodon, do not change the original content, the announcement is only visible to followers, and also @openCompany account."
+      ]
+    },
+    "MastodonAddBookmarkTask": {
+      "container_goal": "In Mastodon, add all posts of user kitty that have #cats tag to bookmarks.",
+      "original_goal": "In Mastodon, add all posts of user kitty that have #cats tag to bookmarks.",
+      "clarified_goal": "In Mastodon, add all posts of user kitty that have #cats tag to bookmarks.",
+      "source_file_sha256": "efbf5c32f3b87d3eae26b8a4aca41887934395ffe16489c03f60f28082f40124",
+      "container_source_sha256": "efbf5c32f3b87d3eae26b8a4aca41887934395ffe16489c03f60f28082f40124",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_add_bookmark.py",
+      "accepted_backend_goals": [
+        "In Mastodon, add all posts of user kitty that have #cats tag to bookmarks."
+      ]
+    },
+    "MastodonImportMutedUsersTask": {
+      "container_goal": "In Mastodon, import my muted list from the file named 'muted_accounts.csv' in the Downloads directory.",
+      "original_goal": "In Mastodon, import my muted list from the file named 'muted_accounts.csv' in the Downloads directory.",
+      "clarified_goal": "In Mastodon, import my muted list from the file named 'muted_accounts.csv' in the Downloads directory.",
+      "source_file_sha256": "2ad41a182a0ea3fa0d67320afee914aed0530f1b9a7fa11ed5147026c88992d9",
+      "container_source_sha256": "2ad41a182a0ea3fa0d67320afee914aed0530f1b9a7fa11ed5147026c88992d9",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_import_muted.py",
+      "accepted_backend_goals": [
+        "In Mastodon, import my muted list from the file named 'muted_accounts.csv' in the Downloads directory."
+      ]
+    },
+    "MastodonReplyTask": {
+      "container_goal": "Reply to the toot of gourmet user about Greek food Moussaka, and the reply content should be 'Nice sharing, i love it'.",
+      "original_goal": "Reply to the toot of gourmet user about Greek food Moussaka, and the reply content should be 'Nice sharing, i love it'.",
+      "clarified_goal": "Reply to the toot of gourmet user about Greek food Moussaka, and the reply content should be 'Nice sharing, i love it'.",
+      "source_file_sha256": "59db0caad50a4f7ac1b22514ef6c30998a5dfbd6ef8bd7c0930481e9686c9738",
+      "container_source_sha256": "59db0caad50a4f7ac1b22514ef6c30998a5dfbd6ef8bd7c0930481e9686c9738",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_reply.py",
+      "accepted_backend_goals": [
+        "Reply to the toot of gourmet user about Greek food Moussaka, and the reply content should be 'Nice sharing, i love it'."
+      ]
+    },
+    "MastodonNewPostTask": {
+      "container_goal": "Open Mastodon app and post a new toot with the content 'Hello from AI agent!'",
+      "original_goal": "Open Mastodon app and post a new toot with the content 'Hello from AI agent!'",
+      "clarified_goal": "Open Mastodon app and post a new toot with the content 'Hello from AI agent!'",
+      "source_file_sha256": "fb7d98ce5360cefa9bf6486b8b5dc5eedecc837dfce935d833f9efb4e5032e37",
+      "container_source_sha256": "fb7d98ce5360cefa9bf6486b8b5dc5eedecc837dfce935d833f9efb4e5032e37",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_new_post.py",
+      "accepted_backend_goals": [
+        "Open Mastodon app and post a new toot with the content 'Hello from AI agent!'"
+      ]
+    },
+    "MastodonFavoriteTootsTask": {
+      "container_goal": "Search for toots tagged “#dogs” on Mastodon, favorite all of them.",
+      "original_goal": "Search for toots tagged “#dogs” on Mastodon, favorite all of them.",
+      "clarified_goal": "Search for toots tagged “#dogs” on Mastodon, favorite all of them.",
+      "source_file_sha256": "6e2ca20e1683b4947cfa5c6b881584e2614318114cd8c99c6acf6a78c1c06f45",
+      "container_source_sha256": "6e2ca20e1683b4947cfa5c6b881584e2614318114cd8c99c6acf6a78c1c06f45",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_favorite_toots.py",
+      "accepted_backend_goals": [
+        "Search for toots tagged “#dogs” on Mastodon, favorite all of them."
+      ]
+    },
+    "MastodonManageMultiListTask": {
+      "container_goal": "View my lists on Mastodon, delete all previously created lists, and create two new lists. One list named 'open' should allow only I followed users to reply and add users, whose username contains 'open'. Another list named 'cute' should allow only members of the list to reply, enable hide members in following, and add users, whose avatar is a dog or cat.",
+      "original_goal": "View my lists on Mastodon, delete all previously created lists, and create two new lists. One list named 'open' should allow only I followed users to reply and add users, whose username contains 'open'. Another list named 'cute' should allow only members of the list to reply, enable hide members in following, and add users, whose avatar is a dog or cat.",
+      "clarified_goal": "View my lists on Mastodon, delete all previously created lists, and create two new lists. One list named 'open' should allow only I followed users to reply and add users, whose username contains 'open'. Another list named 'cute' should allow only members of the list to reply, enable hide members in following, and add users, whose avatar is a dog or cat.",
+      "source_file_sha256": "7ed31cbe617e3aaf514f99ce8287e6ca203e72a25336797791e83d49ab554276",
+      "container_source_sha256": "7ed31cbe617e3aaf514f99ce8287e6ca203e72a25336797791e83d49ab554276",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_manage_multi_list.py",
+      "accepted_backend_goals": [
+        "View my lists on Mastodon, delete all previously created lists, and create two new lists. One list named 'open' should allow only I followed users to reply and add users, whose username contains 'open'. Another list named 'cute' should allow only members of the list to reply, enable hide members in following, and add users, whose avatar is a dog or cat."
+      ]
+    },
+    "MastodonPostEditedPhotoTask": {
+      "container_goal": "Select a random photo from the gallery, crop it to a 9:16 ratio, and post it with the tag #onePhoto. Post with the account @test.",
+      "original_goal": "Select a random photo from the gallery, crop it to a 9:16 ratio, and post it with the tag #onePhoto. Post with the account @test.",
+      "clarified_goal": "Select a random photo from the gallery, crop it to a 9:16 ratio, and post it with the tag #onePhoto. Post with the account @test.",
+      "source_file_sha256": "3ac3de78582a6e4cb5cec0ae131c731d2114f7b4a97a8cdb0973f89ed3c3c8ac",
+      "container_source_sha256": "3ac3de78582a6e4cb5cec0ae131c731d2114f7b4a97a8cdb0973f89ed3c3c8ac",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_post_edited_photo.py",
+      "accepted_backend_goals": [
+        "Select a random photo from the gallery, crop it to a 9:16 ratio, and post it with the tag #onePhoto. Post with the account @test."
+      ]
+    },
+    "MastodonRevisePollTask": {
+      "container_goal": "Edit my Mastodon poll about which country has the largest area by removing the option “USA” and changing the option “Brazil” to “Canada.",
+      "original_goal": "Edit my Mastodon poll about which country has the largest area by removing the option “USA” and changing the option “Brazil” to “Canada.",
+      "clarified_goal": "Edit my Mastodon poll about which country has the largest area by removing the option “USA” and changing the option “Brazil” to “Canada.",
+      "source_file_sha256": "497b16e117ee96a44b6144850562173c4fd8c08a6894bb3478e1eca053673262",
+      "container_source_sha256": "497b16e117ee96a44b6144850562173c4fd8c08a6894bb3478e1eca053673262",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_revise_poll.py",
+      "accepted_backend_goals": [
+        "Edit my Mastodon poll about which country has the largest area by removing the option “USA” and changing the option “Brazil” to “Canada."
+      ]
+    },
+    "MastodonMallPurchaseCommodityTask": {
+      "container_goal": "我在mastodon上关注的jack分享了一个商品,请你在淘店app下单购买2双同款，收货地址为：广东省广州市天河区华景新城，收货人李四，收货人电话13800139999。",
+      "original_goal": "我在mastodon上关注的jack分享了一个商品,请你在淘店app下单购买2双同款，收货地址为：广东省广州市天河区华景新城，收货人李四，收货人电话13800139999。",
+      "clarified_goal": "我在mastodon上关注的jack分享了一个商品,请你在淘店app下单购买2双同款，收货地址为：广东省广州市天河区华景新城，收货人李四，收货人电话13800139999。",
+      "source_file_sha256": "991355b775f4cd29922c2e235785d8d24161a5e057409f4eb28915a92af3f0f6",
+      "container_source_sha256": "991355b775f4cd29922c2e235785d8d24161a5e057409f4eb28915a92af3f0f6",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_mall_purchase_commodity.py",
+      "accepted_backend_goals": [
+        "我在mastodon上关注的jack分享了一个商品,请你在淘店app下单购买2双同款，收货地址为：广东省广州市天河区华景新城，收货人李四，收货人电话13800139999。"
+      ]
+    },
+    "MastodonUnfollowTask": {
+      "container_goal": "manage my following list on Mastodon, only keep the latest three users, and unfollow all other users.",
+      "original_goal": "manage my following list on Mastodon, only keep the latest three users, and unfollow all other users.",
+      "clarified_goal": "manage my following list on Mastodon, only keep the latest three users, and unfollow all other users.",
+      "source_file_sha256": "c23332ed7ac593311678956bc0d193fd363267ef330e52e0683733df06273f4a",
+      "container_source_sha256": "c23332ed7ac593311678956bc0d193fd363267ef330e52e0683733df06273f4a",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_unfollow.py",
+      "accepted_backend_goals": [
+        "manage my following list on Mastodon, only keep the latest three users, and unfollow all other users."
+      ]
+    },
+    "MastodonRevisePhotoAltTask": {
+      "container_goal": "please check the ALT content of the picture in the toot i posted about 'Impression, Sunrise' in Mastodon, if the author Monet is not mentioned, please add 'Author is Monet' to the first line",
+      "original_goal": "please check the ALT content of the picture in the toot i posted about 'Impression, Sunrise' in Mastodon, if the author Monet is not mentioned, please add 'Author is Monet' to the first line",
+      "clarified_goal": "please check the ALT content of the picture in the toot i posted about 'Impression, Sunrise' in Mastodon, if the author Monet is not mentioned, please add 'Author is Monet' to the first line",
+      "source_file_sha256": "222bfa97c065ce7847bc11a9c51d806c9652f17016e4db9e9f4e8e55ac6fb1ec",
+      "container_source_sha256": "222bfa97c065ce7847bc11a9c51d806c9652f17016e4db9e9f4e8e55ac6fb1ec",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_revise_photo_alt.py",
+      "accepted_backend_goals": [
+        "please check the ALT content of the picture in the toot i posted about 'Impression, Sunrise' in Mastodon, if the author Monet is not mentioned, please add 'Author is Monet' to the first line"
+      ]
+    },
+    "MastodonPostPollTask": {
+      "container_goal": "Search on Google for the '2025 Nobel Prize in Economics' and use the names of the winners as the poll options. Post a poll on Mastodon with the hashtag '#vote2025', allowing multiple selections and lasting for one week.",
+      "original_goal": "Search on Google for the '2025 Nobel Prize in Economics' and use the names of the winners as the poll options. Post a poll on Mastodon with the hashtag '#vote2025', allowing multiple selections and lasting for one week.",
+      "clarified_goal": "Search on Google for the '2025 Nobel Prize in Economics' and use the names of the winners as the poll options. Post a poll on Mastodon with the hashtag '#vote2025', allowing multiple selections and lasting for one week.",
+      "source_file_sha256": "da805dbfbe4263ca1094eaefd0af4912c4bbe0158c0cc67c2ae5f6a47529d91d",
+      "container_source_sha256": "da805dbfbe4263ca1094eaefd0af4912c4bbe0158c0cc67c2ae5f6a47529d91d",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_post_poll.py",
+      "accepted_backend_goals": [
+        "Search on Google for the '2025 Nobel Prize in Economics' and use the names of the winners as the poll options. Post a poll on Mastodon with the hashtag '#vote2025', allowing multiple selections and lasting for one week."
+      ]
+    },
+    "MastodonAddFeaturedHashtagsTask": {
+      "container_goal": "On Mastodon, add some hashtags as my featured hashtags in my profile, add the hashtags: summerrain, nature, and photography.",
+      "original_goal": "On Mastodon, add some hashtags as my featured hashtags in my profile, add the hashtags: summerrain, nature, and photography.",
+      "clarified_goal": "On Mastodon, add some hashtags as my featured hashtags in my profile, add the hashtags: summerrain, nature, and photography.",
+      "source_file_sha256": "bb3ae86ba111bfbe1eb42564e268a23d59fdf5b6391e151a147b9a06d5826de5",
+      "container_source_sha256": "bb3ae86ba111bfbe1eb42564e268a23d59fdf5b6391e151a147b9a06d5826de5",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_add_featured_hashtags.py",
+      "accepted_backend_goals": [
+        "On Mastodon, add some hashtags as my featured hashtags in my profile, add the hashtags: summerrain, nature, and photography."
+      ]
+    },
+    "MastodonChangeHeaderTask": {
+      "container_goal": "On Mastodon, replace my profile header with the tiger photo from my photo gallery.",
+      "original_goal": "On Mastodon, replace my profile header with the tiger photo from my photo gallery.",
+      "clarified_goal": "On Mastodon, replace my profile header with the tiger photo from my photo gallery.",
+      "source_file_sha256": "304cb404771b4579b925e8b25af2b8b7ffa18b7c7037f0176bf6236be32d9ebb",
+      "container_source_sha256": "304cb404771b4579b925e8b25af2b8b7ffa18b7c7037f0176bf6236be32d9ebb",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_change_header.py",
+      "accepted_backend_goals": [
+        "On Mastodon, replace my profile header with the tiger photo from my photo gallery."
+      ]
+    },
+    "MastodonShareLocationTask": {
+      "container_goal": "Search for the location Eiffel Tower on Google Map, and share the link to Mastodon, add the Eiffel Tower image in my photo gallery, then post it.",
+      "original_goal": "Search for the location Eiffel Tower on Google Map, and share the link to Mastodon, add the Eiffel Tower image in my photo gallery, then post it.",
+      "clarified_goal": "Search for the location Eiffel Tower on Google Map, and share the link to Mastodon, add the Eiffel Tower image in my photo gallery, then post it.\n\nInclude the place name as text in the post, in addition to the Maps link and photo.",
+      "source_file_sha256": "1df09b86652dcf32375abd021d895c5e5b07d4e5d68a745609a49d4e2e28f60c",
+      "container_source_sha256": "1df09b86652dcf32375abd021d895c5e5b07d4e5d68a745609a49d4e2e28f60c",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_share_location.py",
+      "accepted_backend_goals": [
+        "Search for the location Eiffel Tower on Google Map, and share the link to Mastodon, add the Eiffel Tower image in my photo gallery, then post it."
+      ]
+    },
+    "MastodonCreateListTask": {
+      "container_goal": "Create a list called \"Family,\" only followed users can reply, and add my family members — Alex, Emma, and Jack",
+      "original_goal": "Create a list called \"Family,\" only followed users can reply, and add my family members — Alex, Emma, and Jack",
+      "clarified_goal": "Create a list called \"Family,\" only followed users can reply, and add my family members — Alex, Emma, and Jack",
+      "source_file_sha256": "cbe589565ba0892cb658e9b6fbcd3ec56680926bb6d24a8d936b0adf9085476b",
+      "container_source_sha256": "cbe589565ba0892cb658e9b6fbcd3ec56680926bb6d24a8d936b0adf9085476b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_create_list.py",
+      "accepted_backend_goals": [
+        "Create a list called \"Family,\" only followed users can reply, and add my family members — Alex, Emma, and Jack"
+      ]
+    },
+    "MastodonAdjustTootsTask": {
+      "container_goal": "On Mastodon, remove all bookmarks and add them as favorites, and boost all of them.",
+      "original_goal": "On Mastodon, remove all bookmarks and add them as favorites, and boost all of them.",
+      "clarified_goal": "On Mastodon, remove all bookmarks and add them as favorites, and boost all of them.",
+      "source_file_sha256": "6e68dc857bf733cd20ff7a170dd93f6b4c8c1a69700930a5723faabd039c3528",
+      "container_source_sha256": "6e68dc857bf733cd20ff7a170dd93f6b4c8c1a69700930a5723faabd039c3528",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_adjust_toots.py",
+      "accepted_backend_goals": [
+        "On Mastodon, remove all bookmarks and add them as favorites, and boost all of them."
+      ]
+    },
+    "MastodonChangeLanguageTask": {
+      "container_goal": "In Mastodon, set the language of the account to Chinese Simplified.",
+      "original_goal": "In Mastodon, set the language of the account to Chinese Simplified.",
+      "clarified_goal": "In Mastodon, set the language of the account to Chinese Simplified.",
+      "source_file_sha256": "2c82735bb8f0dbeb07ac1ac1911891dc3450b752943d68356444c2ac9660a51d",
+      "container_source_sha256": "2c82735bb8f0dbeb07ac1ac1911891dc3450b752943d68356444c2ac9660a51d",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_change_language.py",
+      "accepted_backend_goals": [
+        "In Mastodon, set the language of the account to Chinese Simplified."
+      ]
+    },
+    "MastodonMallShareOrderTask": {
+      "container_goal": "在淘店中,找到我的订单中的手表商品,然后在mastodon发布一条推文介绍商品,内容包括商品名称,购买价格和商品图片。",
+      "original_goal": "在淘店中,找到我的订单中的手表商品,然后在mastodon发布一条推文介绍商品,内容包括商品名称,购买价格和商品图片。",
+      "clarified_goal": "在淘店中,找到我的订单中的手表商品,然后在mastodon发布一条推文介绍商品,内容包括商品名称,购买价格和商品图片。",
+      "source_file_sha256": "d86993fc2a2c7e435f0393d69aff937d8c84b8fd98b7612ea3fa2fd334e34edf",
+      "container_source_sha256": "d86993fc2a2c7e435f0393d69aff937d8c84b8fd98b7612ea3fa2fd334e34edf",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_mall_share_order.py",
+      "accepted_backend_goals": [
+        "在淘店中,找到我的订单中的手表商品,然后在mastodon发布一条推文介绍商品,内容包括商品名称,购买价格和商品图片。"
+      ]
+    },
+    "MastodonFollowTask": {
+      "container_goal": "Find Robert's nickname in Contacts, then search it on Mastodon, and follow him.",
+      "original_goal": "Find Robert's nickname in Contacts, then search it on Mastodon, and follow him.",
+      "clarified_goal": "Find Robert's nickname in Contacts, then search it on Mastodon, and follow him.",
+      "source_file_sha256": "0163c5670d7faa72bf3e275a48907a027bbdfda6fc7b813c83d953ab3afbd96b",
+      "container_source_sha256": "0163c5670d7faa72bf3e275a48907a027bbdfda6fc7b813c83d953ab3afbd96b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_follow.py",
+      "accepted_backend_goals": [
+        "Find Robert's nickname in Contacts, then search it on Mastodon, and follow him."
+      ]
+    },
+    "MastodonReportTask": {
+      "container_goal": "Report Frank’s post about “the gas leak event” for spam, include the whole post content as the report reason, and block Frank after submitting the report.",
+      "original_goal": "Report Frank’s post about “the gas leak event” for spam, include the whole post content as the report reason, and block Frank after submitting the report.",
+      "clarified_goal": "Report Frank’s post about “the gas leak event” for spam, include the whole post content as the report reason, and block Frank after submitting the report.",
+      "source_file_sha256": "d8e9ce673e9388ce9655650878316ededb7dad9c54f73bf757057b8522ceca19",
+      "container_source_sha256": "d8e9ce673e9388ce9655650878316ededb7dad9c54f73bf757057b8522ceca19",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_report.py",
+      "accepted_backend_goals": [
+        "Report Frank’s post about “the gas leak event” for spam, include the whole post content as the report reason, and block Frank after submitting the report."
+      ]
+    },
+    "MastodonGetServerInfoTask": {
+      "container_goal": "On mastodon, switch to owner account, then go to settings backend to query the database size, and post a toot to tell the result, use MB as the unit",
+      "original_goal": "On mastodon, switch to owner account, then go to settings backend to query the database size, and post a toot to tell the result, use MB as the unit",
+      "clarified_goal": "On mastodon, switch to owner account, then go to settings backend to query the database size, and post a toot to tell the result, use MB as the unit",
+      "source_file_sha256": "7eec0b78d3c052df8fa394527d8c532312fe3887e576302eefd8744d42fdc25b",
+      "container_source_sha256": "7eec0b78d3c052df8fa394527d8c532312fe3887e576302eefd8744d42fdc25b",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_get_server_info.py",
+      "accepted_backend_goals": [
+        "On mastodon, switch to owner account, then go to settings backend to query the database size, and post a toot to tell the result, use MB as the unit"
+      ]
+    },
+    "MastodonOpenAutomatedDeletionTask": {
+      "container_goal": "In Mastodon, enable automatically delete old posts, only set pinned posts as expected, and set the age threshold to 7 days, Keep posts with at least 20 favs or 20 reblogs.",
+      "original_goal": "In Mastodon, enable automatically delete old posts, only set pinned posts as expected, and set the age threshold to 7 days, Keep posts with at least 20 favs or 20 reblogs.",
+      "clarified_goal": "In Mastodon, enable automatically delete old posts, only set pinned posts as expected, and set the age threshold to 7 days, Keep posts with at least 20 favs or 20 reblogs.",
+      "source_file_sha256": "75d7e3c087859963b7e3d72661814ad74d15574301fd393f661f44b86fa658c6",
+      "container_source_sha256": "75d7e3c087859963b7e3d72661814ad74d15574301fd393f661f44b86fa658c6",
+      "source": "https://github.com/Tongyi-MAI/MobileWorld/blob/e41d1478e252325c513003d3d191b4c164b4af2c/src/mobile_world/tasks/definitions/mastodon/mastodon_open_automated_deletion.py",
+      "accepted_backend_goals": [
+        "In Mastodon, enable automatically delete old posts, only set pinned posts as expected, and set the age threshold to 7 days, Keep posts with at least 20 favs or 20 reblogs."
+      ]
+    }
+  }
+}

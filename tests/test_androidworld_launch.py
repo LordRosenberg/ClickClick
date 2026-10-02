@@ -26,6 +26,12 @@ def harness(tmp_path, monkeypatch):
         events.append(("probe" if "probe_model.py" in command[-1] else "run", command))
         return SimpleNamespace(returncode=0)
     monkeypatch.setattr(launch.subprocess, "run", run)
+    class Recording:
+        def poll(self): return None
+        def wait(self, timeout=None): return 0
+        def terminate(self): return None
+    monkeypatch.setattr(launch.subprocess, "Popen", lambda *a, **k: Recording())
+    monkeypatch.setattr(launch, "ffmpeg_executable", lambda: "ffmpeg")
     return tmp_path, events
 
 
@@ -65,6 +71,14 @@ def test_resume_leaves_episode_boundary_recovery_to_full_runner(harness, monkeyp
     assert launch.main(resume_after_quota=True) == 0
     assert [event[0] for event in events] == ["probe", "run"]
     assert events[-1][1][-1] == "--resume-after-quota"
+
+
+def test_environment_resume_is_forwarded_without_startup_initialization(harness, monkeypatch):
+    root, events = harness
+    (root / "run-state.json").write_text('{"status":"error","restoration_ok":true}')
+    assert launch.main(resume_after_environment=True) == 0
+    assert [event[0] for event in events] == ["probe", "run"]
+    assert events[-1][1][-1] == "--resume-after-environment"
 
 
 def test_stop_marker_blocks_all_startup_side_effects(harness):

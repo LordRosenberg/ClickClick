@@ -6,6 +6,12 @@
 
 ![系统架构](assets/clickclick-architecture.svg)
 
+## MobileWorld 评测配置
+
+本次重点升级为结构化历史摘要、逐条来源、短笔记恢复和原生细节观测。参见[相对 AndroidWorld 的已核实对比](mobileworld-evaluation-architecture.md)与[完整复现说明](mobileworld-reproduction.zh-CN.md)。
+
+![MobileWorld 评测记忆与观测架构](assets/mobileworld-evaluation-architecture.svg)
+
 <a id="what-harness-means-here"></a>
 ## Harness 的定义
 

@@ -548,7 +548,7 @@ class SkillLibrary:
         """Return actionable authoring errors without hiding parse failures."""
         errors: list[str] = []
         seen_ids: dict[str, Path] = {}
-        app_cores: dict[str, Path] = {}
+        app_cores: dict[str, list[SkillPack]] = {}
         for path in self.iter_files():
             try:
                 pack = parse_skill_markdown(path.read_text(encoding="utf-8"), path=path)
@@ -565,15 +565,26 @@ class SkillLibrary:
             if pack.kind == "app_core" and _section_body(pack.body, "Procedure"):
                 errors.append(f"{path}: app_core must move task procedures into workflows")
             if pack.kind == "app_core" and pack.app:
-                previous_core = app_cores.setdefault(pack.app, path)
-                if previous_core != path:
-                    errors.append(
-                        f"{path}: app {pack.app} already has app_core at {previous_core}"
-                    )
+                # Device-bound variants share a package, but must never be
+                # active together. Runtime profile filtering already selects
+                # the matching core; do not broaden another system's content.
+                previous_cores = app_cores.setdefault(pack.app, [])
+                for previous_core in previous_cores:
+                    if (not pack.device_profiles or not previous_core.device_profiles
+                            or set(pack.device_profiles).intersection(previous_core.device_profiles)):
+                        errors.append(
+                            f"{path}: app {pack.app} already has app_core at {previous_core.path}"
+                        )
+                previous_cores.append(pack)
             relative = path.resolve().relative_to(self.root)
             if pack.kind == "app_core":
                 expected = Path("apps") / str(pack.app) / "core" / "SKILL.md"
-                if relative != expected:
+                profile_variant = (
+                    pack.interface_scope == "system"
+                    and len(pack.device_profiles) == 1
+                    and relative == expected.parent / pack.device_profiles[0] / "SKILL.md"
+                )
+                if relative != expected and not profile_variant:
                     errors.append(f"{path}: app_core must live at {expected}")
             elif pack.kind == "workflow":
                 expected_prefix = Path("apps") / str(pack.app) / "workflows"

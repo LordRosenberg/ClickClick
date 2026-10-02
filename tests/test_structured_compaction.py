@@ -165,7 +165,7 @@ async def test_oversize_summary_retries_before_replacing_history(memory, monkeyp
         assert state.revisable.dialogue_refs == original_refs
         assert not store.records("compaction")
         if len(calls) == 1:
-            payload = {"results": [{"text": "x" * 3990}],
+            payload = {"results": [{"text": "x" * 3990, "sources": ["R1"]}],
                        "decisions_and_attempts": [], "critical_context": []}
         else:
             assert any("4000 characters" in str(m.get("content", ""))
@@ -185,4 +185,37 @@ async def test_oversize_summary_retries_before_replacing_history(memory, monkeyp
     assert len(store.read_dialogue(original_refs)) == 5
     saved = parse_summary(state.revisable.summary)
     assert saved.results[0].text == summary().results[0].text
+    assert saved.results[0].sources == [f"dialogue:{original_refs[0]}@1"]
+
+
+async def test_history_label_in_note_source_gets_specific_correction_without_dropping_history(memory, monkeypatch):
+    store, state = memory
+    for step in range(5):
+        state.step_number = step
+        store.save_dialogue([{"role": "user", "content": "Observed document passage " * 100}], state)
+    original_refs = list(state.revisable.dialogue_refs)
+    calls = []
+
+    async def complete(model, messages, **kwargs):
+        calls.append(messages)
+        assert state.revisable.dialogue_refs == original_refs
+        assert not store.records("compaction")
+        value = summary("The document was opened; the requested figure has not been read.")
+        if len(calls) == 1:
+            value.results[0].note_source = "R1"
+        else:
+            feedback = str([m for m in messages if m.get("role") == "tool"])
+            assert "omit note_source" in feedback
+            assert "labels in sources" in feedback
+            assert "Unknown or ambiguous observation" not in feedback
+        return GatewayResponse(content="", model="test", stop_reason="tool_calls", tool_calls=[
+            ToolCall(id=f"summary-{len(calls)}", name="save_summary", arguments=value.model_dump_json())])
+
+    monkeypatch.setattr("agent.session.complete", complete)
+    await restore_dialogue(store, state, model="test",
+        settings=Settings(_env_file=None, executor_context_tokens=1), meter=None, event_sink=None)
+    assert len(calls) == 2
+    assert len(store.read_dialogue(original_refs)) == 5
+    saved = parse_summary(state.revisable.summary)
+    assert saved.results[0].note_source == ""
     assert saved.results[0].sources == [f"dialogue:{original_refs[0]}@1"]

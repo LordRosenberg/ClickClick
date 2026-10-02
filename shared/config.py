@@ -57,13 +57,12 @@ class Settings(BaseSettings):
     executor_context_tokens: int = Field(default=16000, ge=1)
     compaction_attempt_notes: bool = False
     chatgpt_history_tokens: int | None = Field(default=None, ge=1)
-    screen_detail: bool = False
-    double_tap: bool = False
 
     # Storage and process bindings.
     data_dir: Path = Path("./data")
     api_host: str = "127.0.0.1"
     api_port: int = 8080
+    console_run_roots: str = ""
     # Optional TLS for the console. Both must be set to enable HTTPS.
     # LAN access over plain http:// is NOT a secure context, so browser
     # WebCodecs (Live mirror decoding) stays unavailable for remote viewers.
@@ -107,6 +106,27 @@ class Settings(BaseSettings):
     def artifacts_dir(self) -> Path:
         """Return the directory for screenshots, trees, and SoM frames."""
         return self.data_dir / "artifacts"
+
+    @property
+    def console_run_roots_resolved(self) -> list[Path]:
+        """Return extra read-only roots where Console discovers run DBs."""
+        raw = (self.console_run_roots or "").strip()
+        if not raw:
+            return []
+        parsed = _parse_json_container(raw, list)
+        values = parsed if parsed is not None else raw.split(";")
+        roots: list[Path] = []
+        seen: set[Path] = set()
+        for value in values:
+            text = str(value).strip()
+            if not text:
+                continue
+            path = Path(text).expanduser()
+            if path in seen:
+                continue
+            seen.add(path)
+            roots.append(path)
+        return roots
 
     @property
     def app_resolver_cache_path_resolved(self) -> Path:

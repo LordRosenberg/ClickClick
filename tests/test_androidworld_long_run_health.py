@@ -260,7 +260,8 @@ def test_maintenance_pause_finishes_case_and_resumes_without_replaying(tmp_path,
         (tmp_path / name).write_text(json.dumps(value))
     events, states = [], []
     missing_apps = ['tasks'] if missing_before else []
-    maintenance_checks = iter([preventive_due, post_due, preventive_due, post_due])
+    per_run_checks = [preventive_due, post_due] + ([False] if post_due else [])
+    maintenance_checks = iter(per_run_checks * 2)
     monkeypatch.setitem(sys.modules, 'run_emulator', SimpleNamespace(ADB='test-adb'))
 
     def save(path, value):
@@ -309,19 +310,14 @@ def test_maintenance_pause_finishes_case_and_resumes_without_replaying(tmp_path,
         run_one=run_one, encode=str,
     )
     exec(compile(ast.Module(body=[main], type_ignores=[]), str(source), "exec"), namespace)
-    if post_due:
-        with pytest.raises(RuntimeError, match='Insufficient uptime'):
-            namespace['main']()
-        assert events == [("close", None), ("restart", None), ("health", None),
-                          ("close", None), ("restore", None)]
-        assert states[-1][0] == 'error'
-        assert not (tmp_path / 'episodes').exists()
-        return
     namespace["main"]()
-    prefix = [("close", None), ("restart", None)] if preventive_due else []
+    expected = [("close", None), ("restart", None)] if preventive_due else []
+    expected += [("health", None)]
     if missing_before:
-        prefix += [("health", None), ("close", None), ("scoped_setup", None)]
-    assert events == prefix + [("health", None), ("start", "Case0"), ("score", "Case0"),
+        expected += [("close", None), ("scoped_setup", None), ("health", None)]
+    if post_due:
+        expected += [("close", None), ("restart", None), ("health", None)]
+    assert events == expected + [("start", "Case0"), ("score", "Case0"),
                       ("teardown", "Case0"), ("close", None), ("restore", None)]
     assert states[-1][0] == "paused_environment_review"
     assert states[-1][1]["restoration_ok"]

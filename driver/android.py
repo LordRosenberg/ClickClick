@@ -1500,7 +1500,7 @@ class AndroidDriver:
                 return ActionResult(success=False, message="double_tap missing x/y")
             before_dispatch()
             await adb.input_double_tap_async(self._serial, action.x, action.y)
-            return ActionResult(success=True, message="double_tap dispatched; zoom depends on app", detail={"x": action.x, "y": action.y})
+            return ActionResult(success=True, message="double_tap dispatched", detail={"x": action.x, "y": action.y})
         if atype == "long_press":
             x, y = self._resolve_xy(action)
             if x is None or y is None:
@@ -1537,9 +1537,11 @@ class AndroidDriver:
                 return ActionResult(success=False, message="drag missing coordinates")
             dur = action.duration_ms if action.duration_ms is not None else 500
             before_dispatch()
-            await adb.input_swipe_async(self._serial, action.x, action.y, action.x2, action.y2, dur)
+            gesture = adb.input_hold_drag_async if action.hold_before_move else adb.input_swipe_async
+            await gesture(self._serial, action.x, action.y, action.x2, action.y2, dur)
             return ActionResult(success=True, message="drag",
-                                  detail={"from": (action.x, action.y), "to": (action.x2, action.y2), "duration_ms": dur})
+                                  detail={"from": (action.x, action.y), "to": (action.x2, action.y2), "duration_ms": dur,
+                                          "hold_before_move": bool(action.hold_before_move)})
         if atype == "type":
             if not action.text:
                 return ActionResult(success=False, message="type missing text")

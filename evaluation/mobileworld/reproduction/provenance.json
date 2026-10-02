@@ -1,0 +1,563 @@
+{
+  "source_files": {
+    "agent/action_observation.py": {
+      "historical_sha256": "5a356ab349277a012f46b24eded0d93df700b2eb882eba32c0d4b9a6b89eb01c",
+      "published_sha256": "5a356ab349277a012f46b24eded0d93df700b2eb882eba32c0d4b9a6b89eb01c",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/context_projection.py": {
+      "historical_sha256": "56aa5726462504991dd56067fe79c818ddad7c5212b5cea125b507941f5a8025",
+      "published_sha256": "56aa5726462504991dd56067fe79c818ddad7c5212b5cea125b507941f5a8025",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/decision_context.py": {
+      "historical_sha256": "f63e39ecb914998823989f9d56c7370bcff3c952724d52c7f2edec1f20df860c",
+      "published_sha256": "f63e39ecb914998823989f9d56c7370bcff3c952724d52c7f2edec1f20df860c",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/decision_role.py": {
+      "historical_sha256": "9ff7b61c2c87fafcce5e7373603d7d0e114b47e5e50febd44e8c71cda1404a62",
+      "published_sha256": "9ff7b61c2c87fafcce5e7373603d7d0e114b47e5e50febd44e8c71cda1404a62",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/driver_client.py": {
+      "historical_sha256": "007c7d064ebd6c4fbd7ebe79fea44063737e74fff865eb1650687b90bc6a8942",
+      "published_sha256": "007c7d064ebd6c4fbd7ebe79fea44063737e74fff865eb1650687b90bc6a8942",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/executor.py": {
+      "historical_sha256": "bddd0f57a7625c759531a296859feda9d50625700b52bea06c522708b2913c82",
+      "published_sha256": "bddd0f57a7625c759531a296859feda9d50625700b52bea06c522708b2913c82",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/image_region_policy.py": {
+      "historical_sha256": "0e99112284304c3022201a14f16c89fbe5580f04f735ea2093fa1e6f805ba86c",
+      "published_sha256": "0e99112284304c3022201a14f16c89fbe5580f04f735ea2093fa1e6f805ba86c",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/main.py": {
+      "historical_sha256": "5ab10c1bc553bf731ac19dd1fa20c4725f823730f57e8d964213a7095a55d6c9",
+      "published_sha256": "5ab10c1bc553bf731ac19dd1fa20c4725f823730f57e8d964213a7095a55d6c9",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/observation_space.py": {
+      "historical_sha256": "9448750ef9a17722e024416321d1451cf502907e3c3b14d60fb40c85b3b8bb21",
+      "published_sha256": "9448750ef9a17722e024416321d1451cf502907e3c3b14d60fb40c85b3b8bb21",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/orchestrator.py": {
+      "historical_sha256": "2d656aafc3c4e35fcf183619fc89a11ad3ba54931b3f34d2f178eccf27ecaa8a",
+      "published_sha256": "2d656aafc3c4e35fcf183619fc89a11ad3ba54931b3f34d2f178eccf27ecaa8a",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/prompt_measurement.py": {
+      "historical_sha256": "3474da93e8e7f2c4b4aebd4eebd79d492821b914a1c94d6a757eb801b42ba3d9",
+      "published_sha256": "3474da93e8e7f2c4b4aebd4eebd79d492821b914a1c94d6a757eb801b42ba3d9",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/read_tools.py": {
+      "historical_sha256": "03231933ef63f2aef44dd1a2a15a8457c3382ff2eb4248db624c138ffe80c93e",
+      "published_sha256": "03231933ef63f2aef44dd1a2a15a8457c3382ff2eb4248db624c138ffe80c93e",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/runtime.py": {
+      "historical_sha256": "bcf23261ed03340a14986671bf1b419f3ba3a71a04aae2f74bacc5d6c9b3d2de",
+      "published_sha256": "bcf23261ed03340a14986671bf1b419f3ba3a71a04aae2f74bacc5d6c9b3d2de",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/screen_detail.py": {
+      "historical_sha256": "4ef3df7fa35d9102463b2c02e21310746269d1cc102f09456fb44ab13b8f7561",
+      "published_sha256": "4ef3df7fa35d9102463b2c02e21310746269d1cc102f09456fb44ab13b8f7561",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/session.py": {
+      "historical_sha256": "96d999a6900b7cafe51f0d1f5437c39708ee381aa34ae6bb94f90ed369367a30",
+      "published_sha256": "96d999a6900b7cafe51f0d1f5437c39708ee381aa34ae6bb94f90ed369367a30",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/targeted_input.py": {
+      "historical_sha256": "2a01691c712a8d229e73a085cfe17f4bb45dfc3d1e619197b90cca060253a2cb",
+      "published_sha256": "2a01691c712a8d229e73a085cfe17f4bb45dfc3d1e619197b90cca060253a2cb",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/tool_registry.py": {
+      "historical_sha256": "f69e8bbd4454caabb47035d910187d4e96cf10324aecdd9902587dd5e08752c0",
+      "published_sha256": "f69e8bbd4454caabb47035d910187d4e96cf10324aecdd9902587dd5e08752c0",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/traces.py": {
+      "historical_sha256": "89a277e3ce98fec0e45e97959417caf4d900ba184f73308901f17b35b5ddd3c0",
+      "published_sha256": "89a277e3ce98fec0e45e97959417caf4d900ba184f73308901f17b35b5ddd3c0",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/__init__.py": {
+      "historical_sha256": "12a30d565b2bbf15160109625adb72351159d5bebb12ccf04aa9a9a0fb1839a2",
+      "published_sha256": "12a30d565b2bbf15160109625adb72351159d5bebb12ccf04aa9a9a0fb1839a2",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/integrations/android_world.py": {
+      "historical_sha256": "db0bdbd7c26af177c3e51b6f8276c77d9da3cae1814cdf94d597d7aa18d13e55",
+      "published_sha256": "db0bdbd7c26af177c3e51b6f8276c77d9da3cae1814cdf94d597d7aa18d13e55",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/integrations/__init__.py": {
+      "historical_sha256": "ff5ea4c05530f23f48a4ff6561f9444333eac41f216d96b5580f75af1b188b6a",
+      "published_sha256": "ff5ea4c05530f23f48a4ff6561f9444333eac41f216d96b5580f75af1b188b6a",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/prompts/revisable_common.md": {
+      "historical_sha256": "e28abd71d662c72774f6fa4eeb76a269f79cb30b1fe026b59d7ac8f653847f25",
+      "published_sha256": "f801a08709edcd76369ca5dce3b0dbbd39221fb4f8e2d024d354b90f2a665101",
+      "historical_byte_match": false,
+      "distributed": true,
+      "adaptation": "Scored batch prompt override, not the unused working-tree prompt"
+    },
+    "agent/prompts/revisable_executor.md": {
+      "historical_sha256": "9f490b5f1c1deb5b4b0844b2b976b0bc11f28c8f8ff2d0d6dc2774b259b49c95",
+      "published_sha256": "9094af0550a32f7cd2fcb86f49f70043ede0ebb5e70e5b3b32992fcd871b274e",
+      "historical_byte_match": false,
+      "distributed": true,
+      "adaptation": "Scored batch prompt override, not the unused working-tree prompt"
+    },
+    "agent/prompts/revisable_planner.md": {
+      "historical_sha256": "d48e7c10c7ad0405bbb8fc01e17425e33cd0e6c1e18a4bb4c897e5a1c01dc179",
+      "published_sha256": "8b29c3d42d2dd80f525ab113660456d69b554fb81dea8df4f886059d0741e564",
+      "historical_byte_match": false,
+      "distributed": true,
+      "adaptation": "Scored batch prompt override, not the unused working-tree prompt"
+    },
+    "agent/prompts/revisable_reviewer.md": {
+      "historical_sha256": "0287880ef0a4fbbb51b5157258760d7eff22b929ad89dd252274f6dd9b5fb5c4",
+      "published_sha256": "0287880ef0a4fbbb51b5157258760d7eff22b929ad89dd252274f6dd9b5fb5c4",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/prompts/__init__.py": {
+      "historical_sha256": "6c528d2934d665cb3af0124f57e1c09e17225865b9a77ea757de483fe61a7e11",
+      "published_sha256": "6c528d2934d665cb3af0124f57e1c09e17225865b9a77ea757de483fe61a7e11",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/attempt_notes.py": {
+      "historical_sha256": "f47f10ec13e499fcae3a92fde5982700e1c4c3ee2923d14f77cccc0e97ad73e0",
+      "published_sha256": "f47f10ec13e499fcae3a92fde5982700e1c4c3ee2923d14f77cccc0e97ad73e0",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/dialogue.py": {
+      "historical_sha256": "fadaabc7cc97e60d6c71fda259719dea60727c8c157438eadd4214121b8f8661",
+      "published_sha256": "fadaabc7cc97e60d6c71fda259719dea60727c8c157438eadd4214121b8f8661",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/history.py": {
+      "historical_sha256": "f98905d37a6e68a20610af2a08bc4960a7560eca2b01cc04e0f33bb29a7384b0",
+      "published_sha256": "f98905d37a6e68a20610af2a08bc4960a7560eca2b01cc04e0f33bb29a7384b0",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/orchestrator.py": {
+      "historical_sha256": "eacbf511598e0ef1d1ba2d25256d8801cf3c742c62fa0a7ce465781912b9efd6",
+      "published_sha256": "eacbf511598e0ef1d1ba2d25256d8801cf3c742c62fa0a7ce465781912b9efd6",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/recall.py": {
+      "historical_sha256": "574d6b20819e980cbed2d377036a3d081d742b81d6ac4a493e281713d2018b13",
+      "published_sha256": "574d6b20819e980cbed2d377036a3d081d742b81d6ac4a493e281713d2018b13",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/roles.py": {
+      "historical_sha256": "9fa6b53b083be5419c59317d5e506e151b5c3007d8eae24f4771a64e2ab7d992",
+      "published_sha256": "9fa6b53b083be5419c59317d5e506e151b5c3007d8eae24f4771a64e2ab7d992",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/scope.py": {
+      "historical_sha256": "65e5ad8d25c56125207aeb79657828e2c4eb733d9eb70c468024ffeea95a9d32",
+      "published_sha256": "65e5ad8d25c56125207aeb79657828e2c4eb733d9eb70c468024ffeea95a9d32",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/session.py": {
+      "historical_sha256": "5362a31ed2519ba5cd22aea7ed0b96f6b85a6fa173d48bda093bf3b72806082d",
+      "published_sha256": "5362a31ed2519ba5cd22aea7ed0b96f6b85a6fa173d48bda093bf3b72806082d",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/store.py": {
+      "historical_sha256": "a748448b71679f8f9fb5259c03c3fd90ef0cd319219d1567b7c152784d2a7035",
+      "published_sha256": "a748448b71679f8f9fb5259c03c3fd90ef0cd319219d1567b7c152784d2a7035",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/summary.py": {
+      "historical_sha256": "458b079bc1d0b94b1ad9e64513797cdf039a09c1d2cc6846433cc26f5440c28d",
+      "published_sha256": "458b079bc1d0b94b1ad9e64513797cdf039a09c1d2cc6846433cc26f5440c28d",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/tools.py": {
+      "historical_sha256": "e09dacd393859731c527f02849b5dd973c741206648be0a8e7c32f37b9ec5c3c",
+      "published_sha256": "e09dacd393859731c527f02849b5dd973c741206648be0a8e7c32f37b9ec5c3c",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/revisable/__init__.py": {
+      "historical_sha256": "8c0fcc3c1f31bbe836cadbd2557108b363247845e647f103ebc2444f71ca8b51",
+      "published_sha256": "8c0fcc3c1f31bbe836cadbd2557108b363247845e647f103ebc2444f71ca8b51",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/skills/learner.py": {
+      "historical_sha256": "fa44e99c138e400227f87e0c0d642ff25a839f7cf2bb70b35b63fe9d8f4397e4",
+      "published_sha256": "fa44e99c138e400227f87e0c0d642ff25a839f7cf2bb70b35b63fe9d8f4397e4",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/skills/library.py": {
+      "historical_sha256": "7d43c188d78890ce6fe5f5c21618eb347880db6d329a951b2fdbcdfec7f2e387",
+      "published_sha256": "7d43c188d78890ce6fe5f5c21618eb347880db6d329a951b2fdbcdfec7f2e387",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/skills/pending.py": {
+      "historical_sha256": "ffb5a02ce2c79193b91b394a4670f00edd879bd35b2c46797c22f8811a78ed53",
+      "published_sha256": "ffb5a02ce2c79193b91b394a4670f00edd879bd35b2c46797c22f8811a78ed53",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/skills/scope.py": {
+      "historical_sha256": "c7e8379a9cc84f0cf2635ed6365ae6d8d79017f3cc47b11b4ae9152d246292f4",
+      "published_sha256": "c7e8379a9cc84f0cf2635ed6365ae6d8d79017f3cc47b11b4ae9152d246292f4",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "agent/skills/__init__.py": {
+      "historical_sha256": "1f3286eff9460c390c9633c1ca44ee2846de0ce5207ba86d860fcc65d897fa9f",
+      "published_sha256": "1f3286eff9460c390c9633c1ca44ee2846de0ce5207ba86d860fcc65d897fa9f",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/accessibility.py": {
+      "historical_sha256": "019f433f87c66de9804a14827643a19e336cb7ef1b2caed2b11245608d3aeb19",
+      "published_sha256": "019f433f87c66de9804a14827643a19e336cb7ef1b2caed2b11245608d3aeb19",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/adb.py": {
+      "historical_sha256": "d046ebcd3992d35887c07963869d7cc3922a54596b40e24be62528db9352b339",
+      "published_sha256": "d046ebcd3992d35887c07963869d7cc3922a54596b40e24be62528db9352b339",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/android.py": {
+      "historical_sha256": "e364cadea26f936a8725f22f159f0ceae73efa69e2c9b67c7373baebceb9efc4",
+      "published_sha256": "e364cadea26f936a8725f22f159f0ceae73efa69e2c9b67c7373baebceb9efc4",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/collector_release.py": {
+      "historical_sha256": "a7ad6509d527ff77bac9a5922379f0b23549a6aeab6cc1b5f197ca3e7c08842b",
+      "published_sha256": "a7ad6509d527ff77bac9a5922379f0b23549a6aeab6cc1b5f197ca3e7c08842b",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/environment.py": {
+      "historical_sha256": "6084cd734d3ad260bab013121ccda3f43ef8d9d749df9585b0ea6c9869a31d47",
+      "published_sha256": "6084cd734d3ad260bab013121ccda3f43ef8d9d749df9585b0ea6c9869a31d47",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/factory.py": {
+      "historical_sha256": "db87ca7abedaac1bd6d72645c43313479e6c7294d12c55fe905d71868c2b2d9d",
+      "published_sha256": "db87ca7abedaac1bd6d72645c43313479e6c7294d12c55fe905d71868c2b2d9d",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/fixture.py": {
+      "historical_sha256": "9c9e6997fcbe8b69e144b2c2df86c096c709e752574d9f4a76587088794ba40c",
+      "published_sha256": "9c9e6997fcbe8b69e144b2c2df86c096c709e752574d9f4a76587088794ba40c",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/main.py": {
+      "historical_sha256": "75981b6de66c1d05b8e7d9e188c59250ae3f6dd74fcac6c16dbc8371a23e406b",
+      "published_sha256": "75981b6de66c1d05b8e7d9e188c59250ae3f6dd74fcac6c16dbc8371a23e406b",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/observation_deadline.py": {
+      "historical_sha256": "eec9e43a2d1c9f1f2fdf8df21ad3adb7dac69b0711c4337b669957cbd2cfcc4c",
+      "published_sha256": "eec9e43a2d1c9f1f2fdf8df21ad3adb7dac69b0711c4337b669957cbd2cfcc4c",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/pool.py": {
+      "historical_sha256": "763efb339ea8f07c8471fd7bd1a822b71b2b6c609590210c1eb0b66847e91dbe",
+      "published_sha256": "763efb339ea8f07c8471fd7bd1a822b71b2b6c609590210c1eb0b66847e91dbe",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/rpc_server.py": {
+      "historical_sha256": "47ddadbb8dc1997a0ad45f4bfe46b753ca6f883d054800ad6ea88b1772c98f1b",
+      "published_sha256": "47ddadbb8dc1997a0ad45f4bfe46b753ca6f883d054800ad6ea88b1772c98f1b",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/scrcpy_mirror.py": {
+      "historical_sha256": "95f949b21301d30bf69a9b7b47ca6cdf0ab7c2b1c1e846d5b16ada82803255f2",
+      "published_sha256": "95f949b21301d30bf69a9b7b47ca6cdf0ab7c2b1c1e846d5b16ada82803255f2",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/scrcpy_observation.py": {
+      "historical_sha256": "7be8beacf1b824e51c07f6c853adb94de52ba56888f9eee94107ec6373730816",
+      "published_sha256": "7be8beacf1b824e51c07f6c853adb94de52ba56888f9eee94107ec6373730816",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/stubs.py": {
+      "historical_sha256": "42e667558dc333c9a3d47163ef1da1d87589caa1b6d2f2a5387d93a95df4fc34",
+      "published_sha256": "42e667558dc333c9a3d47163ef1da1d87589caa1b6d2f2a5387d93a95df4fc34",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/__init__.py": {
+      "historical_sha256": "74ce04d5786a304b82f4b650ecdcaaf5c4b977b238d071b535b03ba9965473b7",
+      "published_sha256": "74ce04d5786a304b82f4b650ecdcaaf5c4b977b238d071b535b03ba9965473b7",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "driver/vendor/README.md": {
+      "historical_sha256": "8d33edd330f705c3b3f360aad5e9f00c9cdfc2a029c5deec61b91e1d458e4b58",
+      "published_sha256": "8d33edd330f705c3b3f360aad5e9f00c9cdfc2a029c5deec61b91e1d458e4b58",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/app_resolver.py": {
+      "historical_sha256": "8f015777d1e307c562f13f0d73d803a20baa3bb4a48918184cab51434bb7c121",
+      "published_sha256": "8f015777d1e307c562f13f0d73d803a20baa3bb4a48918184cab51434bb7c121",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/artifacts.py": {
+      "historical_sha256": "723702d72f3da2a27147a054066302b52ee47319ca109c84c687316ffe205240",
+      "published_sha256": "723702d72f3da2a27147a054066302b52ee47319ca109c84c687316ffe205240",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/cancel_registry.py": {
+      "historical_sha256": "b1bc363f2b543192626a8a2fe632773afef34ecec9069f92d47d7a8994a28f27",
+      "published_sha256": "b1bc363f2b543192626a8a2fe632773afef34ecec9069f92d47d7a8994a28f27",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/chatgpt_auth.py": {
+      "historical_sha256": "3c09dd20452c58a18a4746d2f97a49f2ac8abf7ede875af32b517bab51150dfa",
+      "published_sha256": "3c09dd20452c58a18a4746d2f97a49f2ac8abf7ede875af32b517bab51150dfa",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/chatgpt_login.py": {
+      "historical_sha256": "11a307b57dc05e61095b725a7871efd1f344d11993b7d8f62a8863b9647360c2",
+      "published_sha256": "11a307b57dc05e61095b725a7871efd1f344d11993b7d8f62a8863b9647360c2",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/config.py": {
+      "historical_sha256": "3fc9201e62ea42872c20983f18978a8a71d6cfd19b8fd1eb58bd0eec33820e12",
+      "published_sha256": "3fc9201e62ea42872c20983f18978a8a71d6cfd19b8fd1eb58bd0eec33820e12",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/db.py": {
+      "historical_sha256": "754fd64f95a9773880ce5b9cef9c91e99d04a82ace10bb1084f48bc7078bc1c7",
+      "published_sha256": "754fd64f95a9773880ce5b9cef9c91e99d04a82ace10bb1084f48bc7078bc1c7",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/llm_gateway.py": {
+      "historical_sha256": "1e3454bb91bfa0e4e8023eb6c18007ba32aae9859cce454ce1ee9d153fc751c9",
+      "published_sha256": "1e3454bb91bfa0e4e8023eb6c18007ba32aae9859cce454ce1ee9d153fc751c9",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/model_catalog.py": {
+      "historical_sha256": "df141d02d4e1c8ac6d0cc293ae7b3d03a6b2b4774930a7bfafe880bf8e25e934",
+      "published_sha256": "df141d02d4e1c8ac6d0cc293ae7b3d03a6b2b4774930a7bfafe880bf8e25e934",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/model_router.py": {
+      "historical_sha256": "439dfd62510eac2e78273723ef4c650f7a970ae847ac7af4601c448da404383e",
+      "published_sha256": "439dfd62510eac2e78273723ef4c650f7a970ae847ac7af4601c448da404383e",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/protocol.py": {
+      "historical_sha256": "dceec50c6a62665c20bffd59dad04b4129f8e2a6e58af3d5fe4a9ab5701e48be",
+      "published_sha256": "dceec50c6a62665c20bffd59dad04b4129f8e2a6e58af3d5fe4a9ab5701e48be",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/revisable.py": {
+      "historical_sha256": "83b7d7dba25ae8de997059043606003298f4fdbac3769ffb4feb3c0935ca6fb1",
+      "published_sha256": "83b7d7dba25ae8de997059043606003298f4fdbac3769ffb4feb3c0935ca6fb1",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/schemas.py": {
+      "historical_sha256": "a1581098f60f30a27ab5e82f1af0ef7fcd65f2d0fc121e51f2b70490647a27bc",
+      "published_sha256": "a1581098f60f30a27ab5e82f1af0ef7fcd65f2d0fc121e51f2b70490647a27bc",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "shared/__init__.py": {
+      "historical_sha256": "cf2d2dbcf8cd90540e6764d7cb14117334b28eff29a1c5a73e0c97d16bc4cfee",
+      "published_sha256": "cf2d2dbcf8cd90540e6764d7cb14117334b28eff29a1c5a73e0c97d16bc4cfee",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/adb_proxy.py": {
+      "historical_sha256": "c963a6cc783d37d122b1a1b72ef6f64d17ab5aa3b5fba70c352b99622904ec67",
+      "published_sha256": "c963a6cc783d37d122b1a1b72ef6f64d17ab5aa3b5fba70c352b99622904ec67",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/app_session.py": {
+      "historical_sha256": "f3d560d2e2e4912108bdcb9ecdac7e39061306682b3ac71b05555081d4d213ba",
+      "published_sha256": "f3d560d2e2e4912108bdcb9ecdac7e39061306682b3ac71b05555081d4d213ba",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/budgets.py": {
+      "historical_sha256": "7b243d4b548b3379f1d8363db7dbc44937bf503922359c0bf0f8b7a1714f22a1",
+      "published_sha256": "7b243d4b548b3379f1d8363db7dbc44937bf503922359c0bf0f8b7a1714f22a1",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/clock_health.py": {
+      "historical_sha256": "f6561a7ca408d4f35ad6c49fa4a85ad63bbee8d90928bdf2c89d13dbdb8346da",
+      "published_sha256": "f6561a7ca408d4f35ad6c49fa4a85ad63bbee8d90928bdf2c89d13dbdb8346da",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/environment_fixes.py": {
+      "historical_sha256": "ce43cf2efe45586bfb61193f0012f704e891148acae4a2d67866d221eba536d0",
+      "published_sha256": "ce43cf2efe45586bfb61193f0012f704e891148acae4a2d67866d221eba536d0",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/export_submission.py": {
+      "historical_sha256": "2a4be74b744784c1fdd40f9de7350101960dc3f40bf1f93176e70af797037ee4",
+      "published_sha256": "37a2bd6626e20de3ef7fe326ceb140d03eebc108c791d53052dc610134a8aa4d",
+      "historical_byte_match": false,
+      "distributed": true
+    },
+    "evaluation/mobileworld/long_run_health.py": {
+      "historical_sha256": "38068e93a89dba57dc8d897df77f5e7e0dda9c549f4c18ab940c355545c2f074",
+      "published_sha256": "333ad3d68a51ca2d8c69f8ed33e67153bed8b0ee0af61c9960192a322475bc76",
+      "historical_byte_match": false,
+      "distributed": true,
+      "public_adaptation": "Default local device identifier removed; caller must supply its dedicated target serial"
+    },
+    "evaluation/mobileworld/patch_mattermost_readiness.py": {
+      "historical_sha256": "19e37e7243551dcaa9d98dd961dc2b3fb1bae5e16b2453cecdcd605a67dad168",
+      "published_sha256": "19e37e7243551dcaa9d98dd961dc2b3fb1bae5e16b2453cecdcd605a67dad168",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/preflight_all.py": {
+      "historical_sha256": "862ac469c53ea005a638de67b2eb006a86656e24c64cd1bcca13408d0bb23e63",
+      "published_sha256": "6a6fdb39ba71a43604ee969e5a985a91acd5a525546c99e5958603a5f3a2530b",
+      "historical_byte_match": false,
+      "distributed": true,
+      "public_adaptation": "Default local device identifier removed; caller must supply its dedicated target serial"
+    },
+    "evaluation/mobileworld/prepare_device.py": {
+      "historical_sha256": "b2d6a8ec23f277ab58c81b738017417c6a2ae7de79c8f6ab67fef6c125e632a3",
+      "published_sha256": "b2d6a8ec23f277ab58c81b738017417c6a2ae7de79c8f6ab67fef6c125e632a3",
+      "historical_byte_match": true,
+      "distributed": true,
+      "public_adaptation": "Default local device identifier removed; caller must supply its dedicated target serial"
+    },
+    "evaluation/mobileworld/README.md": {
+      "historical_sha256": "cf6460297c3e50354146d73888c7ddbad5cb35957b42d9b521494ea2d1dfa960",
+      "distributed": false
+    },
+    "evaluation/mobileworld/recording.py": {
+      "historical_sha256": "e382625007e171a4cb1cb5b6f21c6a6d212c156442c4796b23e64e780e326821",
+      "published_sha256": "e382625007e171a4cb1cb5b6f21c6a6d212c156442c4796b23e64e780e326821",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/recovery.py": {
+      "historical_sha256": "1a086d98998ed3122ab21dbb4d64e8400ba2bdeb65e41ad40ea1313a5f4561cb",
+      "published_sha256": "1a086d98998ed3122ab21dbb4d64e8400ba2bdeb65e41ad40ea1313a5f4561cb",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/run_full.py": {
+      "historical_sha256": "55fb993d6d40759925d61bcb2881ffbbe9add06c02b8f2463fe3126d0fe0030a",
+      "published_sha256": "ea12c6514683f7ea1732132d9e0afa74167b0c65f9dfdde467d8b504f8031ec0",
+      "historical_byte_match": false,
+      "distributed": true,
+      "public_adaptation": "Default local device identifier removed; caller must supply its dedicated target serial"
+    },
+    "evaluation/mobileworld/run_single.py": {
+      "historical_sha256": "074b056b24bf09c890aa9eb172f14363a17575c4cad601eb50e6541a25c13c47",
+      "published_sha256": "8478b318db70a4db5062b097c59ecb5a183dd9239e9b35e08ec1f13784dd0c8c",
+      "historical_byte_match": false,
+      "distributed": true,
+      "public_adaptation": "Default local device identifier removed; caller must supply its dedicated target serial"
+    },
+    "evaluation/mobileworld/taodian_fixture.py": {
+      "historical_sha256": "e21d214e92ce3fb7199170dd3f27affb2d225657aae4641f145c2ddc15d98ea3",
+      "published_sha256": "e21d214e92ce3fb7199170dd3f27affb2d225657aae4641f145c2ddc15d98ea3",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/TASK-CLARIFICATIONS.md": {
+      "historical_sha256": "33c293cb35be737b239c192335e44235f875e8e24c4e1a2056400fdafba0c46c",
+      "distributed": false
+    },
+    "evaluation/mobileworld/video_integrity.py": {
+      "historical_sha256": "6e73da760eb0f5e45393df236ac79955d1d14648e89f1e4e47926e4ca76d8678",
+      "published_sha256": "6e73da760eb0f5e45393df236ac79955d1d14648e89f1e4e47926e4ca76d8678",
+      "historical_byte_match": true,
+      "distributed": true
+    },
+    "evaluation/mobileworld/viewer_watchdog.py": {
+      "historical_sha256": "e8342886b77fbd8cf591c7c66e6019488e6660f277e2f06c029a970dcd425a30",
+      "published_sha256": "e8342886b77fbd8cf591c7c66e6019488e6660f277e2f06c029a970dcd425a30",
+      "historical_byte_match": true,
+      "distributed": true
+    }
+  },
+  "note": "Archived Agent/device Python source hashes match; model prompts use the separately frozen scored-batch override. Local default device identifiers are removed from harness files. run_full.py and export_submission.py use reviewed later copies. Public launcher and narrowly scoped fixture-context delivery are disclosed adaptations. Perception support comes from the evaluation-era commit.",
+  "collector_binary_sha256": "35f00caa6ef6aa93aa89ec6787940d7dedd961911795524f6e742b473d2a4795",
+  "perception_support_commit": "05d53c2"
+}

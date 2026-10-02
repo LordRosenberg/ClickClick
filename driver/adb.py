@@ -779,6 +779,14 @@ adb_bin(), *(["-s", serial] if serial else []), "shell", "input", "swipe",
     ])
 
 
+def input_hold_drag(serial: str | None, x1: float, y1: float, x2: float, y2: float, duration_ms: int) -> None:
+    """One continuous touch: Android long-press delay, movement, release."""
+    _run([
+        adb_bin(), *(["-s", serial] if serial else []), "shell", "input", "draganddrop",
+        str(int(x1)), str(int(y1)), str(int(x2)), str(int(y2)), str(int(duration_ms)),
+    ])
+
+
 def input_text(serial: str | None, text: str) -> None:
     """Type text into the focused field. Whitespace tokens are shell-escaped.
 
@@ -1144,6 +1152,12 @@ async def input_swipe_async(
 ) -> None:
     """Async wrapper around `input_swipe`."""
     await asyncio.to_thread(input_swipe, serial, x1, y1, x2, y2, duration_ms)
+
+
+async def input_hold_drag_async(
+    serial: str | None, x1: float, y1: float, x2: float, y2: float, duration_ms: int
+) -> None:
+    await asyncio.to_thread(input_hold_drag, serial, x1, y1, x2, y2, duration_ms)
 
 
 async def input_text_async(serial: str | None, text: str) -> None:

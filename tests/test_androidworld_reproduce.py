@@ -14,6 +14,8 @@ def test_published_instances_are_complete_and_hash_pinned():
     assert len(rows) == len({r["task"] for r in rows}) == 116
     assert all(r["max_seconds"] == 900 and r["max_steps"] > 0 for r in rows)
     assert data["upstream_commit"] == reproduce.UPSTREAM
+    assert "official_trajectory.py" in reproduce.RUNNER_FILES
+    assert "host_recording_sidecar.py" in reproduce.RUNNER_FILES
 
 
 def test_fixture_pin_accepts_windows_checkout_line_endings(tmp_path):
@@ -84,6 +86,12 @@ def test_upstream_repair_is_scoped_and_fails_on_changed_source(tmp_path):
 def test_prepare_requires_new_batch_inside_data(tmp_path):
     with pytest.raises(ValueError, match="direct child"):
         reproduce.prepare(tmp_path, tmp_path / "outside")
+
+
+def test_reusable_oracle_requires_identical_adjacent_source():
+    source = (reproduce.HERE / "reproduce.py").read_text(encoding="utf-8")
+    assert "verified-identical-source-reuse" in source
+    assert "digest(sibling_source) != digest(oracle_source)" in source
 
 
 def test_seal_verification_rejects_drift_and_manifest_escape(tmp_path):

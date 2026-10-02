@@ -91,15 +91,19 @@ packages to `app`, and app-independent skills to `generic`. This is not a packag
 prefix or APK-preinstalled classifier. New skills must explicitly identify their
 interface owner, especially new system components and cross-app system surfaces.
 
-Executor cannot load or replace Skills. Planner may load an exact generic Skill
-id from its index, but workflow selection uses the supplied cards rather than
-free-text search. Referenced resources are not auto-loaded.
+Planner and Executor may load an advertised generic Skill by exact ID. Planner
+owns App workflow selection, using supplied cards rather than free-text search.
+Executor cannot replace App workflows. Referenced resources are not auto-loaded.
 
 Stages can select up to four generic/workflow IDs in total (at most two owned
 workflows). For multi-screen record lists, select `adaptive-list-traversal`
 alongside the applicable App workflow. It owns anchor-based scroll sizing and
 coverage accounting; App skills retain ordering, field comparisons and local
-controls. Mentioning a generic skill in an App body does not auto-load it.
+controls. For visually indistinguishable, viewport-sized rows in a vertical
+single-column list, additionally select `identical-row-traversal`. Its detailed
+procedure is delivered only to Executor; Planner receives applicability and
+scope guidance. Ordinary lists and grids do not need that procedure. Mentioning
+a generic skill in an App body does not auto-load it.
 
 ## Layout
 

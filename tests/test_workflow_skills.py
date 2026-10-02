@@ -311,6 +311,26 @@ def test_tasks_date_workflow_is_discoverable_for_androidworld_tasks_app():
     assert card["capability"] == "find_tasks_by_date"
 
 
+def test_documentsui_environment_workflows_do_not_cross_load():
+    root = Path(__file__).resolve().parents[1] / "skills"
+    aw = SkillLibrary(root, device_profiles=["androidworld_api33"])
+    mw = SkillLibrary(root, device_profiles=["mobileworld_api34"])
+    aw_ids = {row["id"] for row in aw.workflow_catalog(["com.google.android.documentsui"])}
+    mw_ids = {row["id"] for row in mw.workflow_catalog(["com.google.android.documentsui"])}
+    assert "documentsui-manage-local-files" in aw_ids
+    assert "mobileworld-documentsui-file-selection" not in aw_ids
+    assert "mobileworld-documentsui-file-selection" in mw_ids
+    assert "documentsui-manage-local-files" not in mw_ids
+    aw_core = aw.app_core("com.google.android.documentsui")
+    mw_core = mw.app_core("com.google.android.documentsui")
+    assert aw_core is not None and aw_core.id == "documentsui-location-evidence"
+    assert mw_core is not None and mw_core.id == "mobileworld-documentsui-date-ordering"
+    for role in ("planner", "executor"):
+        assert "ordinary oldest/newest" in mw_core.section_for(role)
+        assert "explicitly distinguishes" in mw_core.section_for(role)
+        assert "ordinary oldest/newest" not in aw_core.section_for(role)
+
+
 def test_bilibili_core_explains_player_action_labels_without_general_retry_policy():
     path = (
         Path(__file__).resolve().parents[1]
@@ -664,6 +684,46 @@ def test_list_traversal_is_selected_cross_app_and_retired_with_stage(app, workfl
                for message in session._k_wire())
     session.set_stage_skills(app, [workflow] if workflow else [])
     assert generic.id not in {p["skill_id"] for p in session.active_skill_metadata}
+
+
+@pytest.mark.parametrize("role", ["planner", "executor", "reviewer"])
+def test_identical_row_procedure_requires_selection_and_executor_role(role):
+    library = SkillLibrary(Path(__file__).resolve().parents[1] / "skills")
+    general = library.get("adaptive-list-traversal")
+    special = library.get("identical-row-traversal")
+    assert general is not None and special is not None
+    assert special.kind == "generic" and not special.app
+    assert not special.verified_actions
+    assert special.id in library.index_summaries(allow_dirs=["generic"])
+    assert not [error for error in library.lint_authored_modules()
+                if any(name in error for name in (general.id, special.id))]
+
+    session = AgentSession(role, "m", library=library)
+    session.reset_lifecycle("task:split-traversal")
+    session.freeze_allow_dirs(["generic"])
+    session.set_stage_skills("com.flauschcode.broccoli", [general.id])
+    procedure = special.section_for("executor").split("## Execution", 1)[1].strip()
+    assert procedure not in json.dumps(session._k_wire())
+    assert special.id not in {row["skill_id"] for row in session.active_skill_metadata}
+
+    session.set_stage_skills("com.flauschcode.broccoli", [general.id, special.id])
+    contents = [m.get("content", "") for m in session._k_wire()]
+    assert any(special.section_for(role).strip() in content for content in contents)
+    assert any(procedure in content for content in contents) == (role == "executor")
+    assert "## Execution" not in special.section_for("planner")
+    assert "## Execution" not in general.section_for("planner")
+
+    session.set_stage_skills("gallery.photomanager.picturegalleryapp.imagegallery", [general.id])
+    assert special.id not in {row["skill_id"] for row in session.active_skill_metadata}
+    assert all(procedure not in m.get("content", "") for m in session._k_wire())
+
+    if role == "executor":
+        fresh = AgentSession(role, "m", library=library)
+        fresh.reset_lifecycle("task:load-on-observed-layout")
+        fresh.freeze_allow_dirs(["generic"])
+        result, ok = fresh._exec_load_skill_args({"skill_id": special.id})
+        assert ok and procedure in result
+        assert special.id in {row["skill_id"] for row in fresh.active_skill_metadata}
 
 
 @pytest.mark.parametrize("skill_id", [

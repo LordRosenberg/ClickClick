@@ -23,9 +23,9 @@ class SummaryItem(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_CHARACTERS,
                       description="Concise historical information, retaining scope, attribution and uncertainty.")
     note_source: str = Field(default="", max_length=512,
-                            description="Optional exact versioned note source copied from history, only when text copies that note's retained text verbatim. Otherwise omit.")
-    sources: list[str] = Field(default_factory=list,
-                              description="Copy short source labels from the supplied records or previous items. Sources identify history, not proof that an inference is true.")
+                            description="Omit unless copying a supplied note_source value (note:...@version) and its retained text verbatim. R/P/N source labels belong in sources, never note_source.")
+    sources: list[str] = Field(min_length=1,
+                              description="Required: copy one or more short source labels from the supplied records or previous items. Sources identify history, not proof that an inference is true.")
 
 
 class StructuredSummary(BaseModel):
@@ -63,8 +63,12 @@ class StructuredSummary(BaseModel):
         """Validate model references before committing; preserve original provenance."""
         for key, _ in SECTIONS:
             for item in getattr(self, key):
-                if not item.sources or any(not labels.get(ref) for ref in item.sources):
-                    raise ValueError("Each summary item needs supplied source labels; copy them from records or previous items.")
+                unknown = [ref for ref in item.sources if not labels.get(ref)]
+                if not item.sources or unknown:
+                    raise ValueError(
+                        "Each summary item needs supplied source labels; copy them from records or previous items. "
+                        f"Unknown labels: {unknown}. Current state supplied separately is not historical evidence."
+                    )
         for key, _ in SECTIONS:
             for item in getattr(self, key):
                 item.sources = list(dict.fromkeys(ref for label in item.sources for ref in labels[label]))

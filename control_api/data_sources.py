@@ -18,11 +18,34 @@ from shared.schemas import TaskRecord, TaskStatus
 logger = logging.getLogger("control_api.data_sources")
 
 
+class ConsoleReadOnlyDatabase:
+    """Do not retain Windows file handles for external evaluation histories."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self.read_only = True
+
+    def close(self) -> None:
+        pass
+
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+
+        def query(*args, **kwargs):
+            db = Database(self.path, read_only=True)
+            try:
+                return getattr(db, name)(*args, **kwargs)
+            finally:
+                db.close()
+        return query
+
+
 @dataclass(frozen=True)
 class ConsoleDataSource:
     """One Console-readable SQLite/artifact pair."""
 
-    db: Database
+    db: Database | ConsoleReadOnlyDatabase
     artifacts: ArtifactStore
     label: str
     read_only: bool
@@ -41,6 +64,7 @@ class ConsoleDataSources:
         primary_artifacts: ArtifactStore,
         *,
         temp_root: Path | None,
+        extra_roots: list[Path] | None = None,
     ) -> None:
         self.primary = ConsoleDataSource(
             db=primary_db,
@@ -50,6 +74,9 @@ class ConsoleDataSources:
         )
         self.temp_root = temp_root.resolve() if temp_root is not None else None
         self.data_root = primary_db.path.parent.resolve()
+        self.extra_roots = [
+            root.resolve() for root in (extra_roots or []) if root.exists()
+        ]
         self._external: dict[Path, ConsoleDataSource] = {}
         self._task_sources: dict[str, ConsoleDataSource] = {}
         self._next_discovery_at = 0.0
@@ -85,9 +112,8 @@ class ConsoleDataSources:
                 paths.add(accepted)
         return paths
 
-    def _discover_data_dir_paths(self) -> set[Path]:
-        """Find isolated eval DBs below the data root without walking artifacts."""
-        root = self.data_root
+    def _discover_root_paths(self, root: Path) -> set[Path]:
+        """Find isolated eval DBs below a root without walking artifacts."""
         if not root.is_dir():
             return set()
         paths: set[Path] = set()
@@ -115,8 +141,21 @@ class ConsoleDataSources:
                 paths.add(accepted)
         return paths
 
+    def _discover_data_dir_paths(self) -> set[Path]:
+        return self._discover_root_paths(self.data_root)
+
+    def _discover_extra_root_paths(self) -> set[Path]:
+        paths: set[Path] = set()
+        for root in self.extra_roots:
+            paths.update(self._discover_root_paths(root))
+        return paths
+
     def _discover_paths(self) -> set[Path]:
-        return self._discover_temp_paths() | self._discover_data_dir_paths()
+        return (
+            self._discover_temp_paths()
+            | self._discover_data_dir_paths()
+            | self._discover_extra_root_paths()
+        )
 
     def _label_for(self, path: Path) -> str:
         parent = path.parent
@@ -128,7 +167,13 @@ class ConsoleDataSources:
         try:
             return f"eval/{parent.relative_to(self.data_root).as_posix()}"
         except ValueError:
-            return parent.as_posix()
+            pass
+        for root in self.extra_roots:
+            try:
+                return f"external/{root.name}/{parent.relative_to(root).as_posix()}"
+            except ValueError:
+                continue
+        return parent.as_posix()
 
     def refresh(self) -> None:
         """Open new isolated DBs read-only and forget DBs whose files were deleted."""
@@ -144,7 +189,7 @@ class ConsoleDataSources:
         for path in sorted(discovered - set(self._external)):
             db: Database | None = None
             try:
-                db = Database(path, read_only=True)
+                db = ConsoleReadOnlyDatabase(path)
                 # Fail closed on unrelated/corrupt SQLite files before cataloging.
                 tasks = db.task_headers()
             except Exception as exc:  # noqa: BLE001
@@ -277,7 +322,7 @@ class ConsoleDataSources:
         source = self._external.get(path)
         if source is None:
             source = ConsoleDataSource(
-                db=Database(path, read_only=True),
+                db=ConsoleReadOnlyDatabase(path),
                 artifacts=ArtifactStore(path.parent / "artifacts", create=False),
                 label=self._label_for(path), read_only=True,
             )

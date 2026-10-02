@@ -41,9 +41,9 @@ Planner 优先提供应用名或别名；runtime 在接受新计划、绑定 ski
 
 Skill ID 全局唯一。加载时发现重复激活 ID 会拒绝继续，而不是静默隐藏前台工作流。交付通过通用 active-skill 元数据记录：ID、版本、内容哈希、范围、激活来源及规则类别。
 
-Executor 不能加载或替换 skills。Planner 可从索引按精确 ID 加载 generic skill，但选择 workflow 使用已提供卡片，不依赖自由文本搜索。引用资源不会自动加载。
+Planner 和 Executor 可按精确 ID 加载已提供的 generic skill。App workflow 由 Planner 根据卡片选择，Executor 不能替换；不依赖自由文本搜索。引用资源不会自动加载。
 
-每个阶段最多选择四个 generic/workflow ID，其中应用 workflow 最多两个。跨屏记录列表可将 `adaptive-list-traversal` 与相应 App workflow 一起选择：通用技能维护按锚点调整滚动幅度和遍历覆盖规则，App 技能保留排序、字段比较及控件知识。App 正文提到通用技能不代表它已自动加载，需验证实际阶段交付。
+每个阶段最多选择四个 generic/workflow ID，其中应用 workflow 最多两个。跨屏列表或网格可选择 `adaptive-list-traversal`：按可见锚点调整滑动、保留覆盖进度；App 技能保留排序、字段比较及控件知识。只有垂直单列中连续出现无法区分、且单行能完整放入屏幕的记录时，才额外选择 `identical-row-traversal`。专项操作流程仅提供给 Executor，Planner 接收适用条件和范围说明。App 正文提到其他技能不代表自动加载。
 
 ## 界面归属与系统绑定
 

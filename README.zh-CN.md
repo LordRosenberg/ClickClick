@@ -174,6 +174,11 @@ ClickClick 自动检测设备并部署 Accessibility Collector。保持设备解
 
 ## 评测与复现
 
+MobileWorld 已公开[完整运行指南](docs/mobileworld-reproduction.zh-CN.md)，包含冻结运行时、117 道原题与九道变体、离线准备和恢复运行。先执行 `python -m evaluation.mobileworld.reproduce --prepare-only`；准备好专用环境后提供设备序列号和两个本地 APK，运行配对评测。
+
+[评测架构及相对 AndroidWorld 的升级](docs/mobileworld-evaluation-architecture.md)：结构化摘要、带来源的记忆恢复与原生细节观测。
+
+
 准备好模型与 AndroidWorld 模拟器后，可一键运行公开的 116 个任务实例：
 
 ```bash

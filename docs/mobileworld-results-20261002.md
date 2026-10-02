@@ -6,6 +6,10 @@ ClickClick passes **112/117 tasks (95.73%) with locally clarified instructions**
 
 ClickClick 在本地澄清指令后通过 **112/117（95.73%）**；**原题措辞未修改版也达到 106/117（90.60%）**。分母均为同一组 117 道纯 GUI 任务，没有剔除失败项。两个口径均披露两道 Mastodon 任务补充官方测试账号环境信息；“原题未修改”指题目措辞，不意味着整个执行环境没有适配。
 
+## MobileWorld reproduction / MobileWorld 复现
+
+The [complete public entry](mobileworld-reproduction.md) / [中文完整运行指南](mobileworld-reproduction.zh-CN.md) freezes this evaluation configuration, runs 117 original tasks plus nine variants, and preserves results on resume. [Architecture changes / 架构升级](mobileworld-evaluation-architecture.md) explain structured summaries, memory/context and native-detail observations.
+
 ## Configuration and score construction
 
 | Item | Configuration |

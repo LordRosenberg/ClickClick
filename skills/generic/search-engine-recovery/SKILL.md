@@ -1,11 +1,11 @@
 ---
 name: search-engine-recovery
-description: Recover from blocked or misleading search-engine entry points, including CAPTCHA.
-version: 1.0.5
+description: Find an alternative search entry when the current search engine is blocked or leads to unrelated results.
+version: 1.0.8
 interface_scope: generic
 kind: generic
 role_sections: true
-tags: [search, web, captcha, recovery]
+tags: [search, web, recovery]
 source: authored
 ---
 
@@ -15,20 +15,15 @@ source: authored
 
 ### Hints
 
-- A blocked search entry is a routing problem. Prefer another reachable entry
-  or a known direct source within the remaining task budget.
+- If access remains blocked after handling the displayed verification or error,
+  use another reachable search entry or a known direct source. A result still
+  loading is not a blocked entry.
 
 ## Execution
 
 ### Hints
 
-- Follow links that address the missing information. Check the actual destination
-  and its scope; a familiar domain or matching title does not establish relevance.
-- When verification appears, distinguish a simple visible confirmation from a
-  persistent access barrier. A single supported confirmation attempt may restore
-  access; inspect its outcome. For complex or repeated challenges, use another
-  reachable search entry or direct source. If the required source remains blocked,
-  report the need for user assistance rather than repeatedly attempting verification.
-- Retain an access obstacle across route changes when it affects later choices.
-  Reuse the blocked entry only with evidence of changed access; a different query
-  does not establish recovery. A new lead may instead support a different route.
+- Follow a result relevant to the requested information; if the loaded destination
+  is unrelated, choose another result.
+- A different query does not remove an access block. Retry the blocked entry
+  only when access has changed.

@@ -127,6 +127,7 @@ def create_app(
         db,
         artifacts,
         temp_root=temp_runs_root if include_temp_runs else None,
+        extra_roots=settings.console_run_roots_resolved,
     )
     bus = EventBus()
     traces = TraceWriter(db, artifacts, bus=bus)

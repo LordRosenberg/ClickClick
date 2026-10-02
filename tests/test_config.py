@@ -7,8 +7,9 @@ from shared.config import Settings
 
 def test_settings_contains_only_operator_controlled_fields():
         assert set(Settings.model_fields) == {
-            "data_dir", "api_host", "api_port", "api_ssl_certfile", "api_ssl_keyfile",
-            "driver_url", "driver_urls_json", "platform", "use_fixture_driver",
+        "data_dir", "api_host", "api_port", "api_ssl_certfile", "api_ssl_keyfile",
+        "console_run_roots",
+        "driver_url", "driver_urls_json", "platform", "use_fixture_driver",
         "default_model", "manager_model", "executor_model",
         "skill_learner_model",
         "models_json", "gateway_user_agent", "chatgpt_token_dir",
@@ -16,7 +17,7 @@ def test_settings_contains_only_operator_controlled_fields():
         "accessibility_collector_enabled", "accessibility_collector_apk_path",
         "device_stay_awake_while_plugged", "task_cancel_hard_timeout_s",
         "app_resolver_cache_path", "agent_architecture", "executor_context_tokens",
-        "compaction_attempt_notes", "chatgpt_history_tokens", "screen_detail", "double_tap",
+        "compaction_attempt_notes", "chatgpt_history_tokens",
     }
 
 
@@ -81,6 +82,22 @@ def test_operator_switch_still_overrides_via_env(monkeypatch):
     monkeypatch.setenv("CLICKCLICK_IME_AUTO_SETUP", "0")
     s = Settings()
     assert s.ime_auto_setup is False
+
+
+def test_console_run_roots_parse_from_env(monkeypatch, tmp_path):
+    first = tmp_path / "eval-a"
+    second = tmp_path / "eval-b"
+    monkeypatch.setenv("CLICKCLICK_CONSOLE_RUN_ROOTS", f"{first}; {second};")
+    s = Settings()
+    assert s.console_run_roots_resolved == [first, second]
+
+
+def test_console_run_roots_parse_json_array(tmp_path):
+    import json
+
+    paths = [tmp_path / "run-a", tmp_path / "run-b"]
+    s = Settings(console_run_roots=json.dumps([str(path) for path in paths]))
+    assert s.console_run_roots_resolved == paths
 
 
 def test_apply_chatgpt_token_dir_sets_env(monkeypatch, tmp_path):

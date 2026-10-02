@@ -1,6 +1,7 @@
 """One persistent emulator episode; only public goal and limits cross this boundary."""
 import argparse
 import asyncio
+import copy
 from contextlib import suppress
 import hashlib
 import json
@@ -105,6 +106,14 @@ async def main(args):
         executor_model=model, skill_learner_model=model,
         driver_url='', driver_urls_json='', use_fixture_driver=False,
         executor_context_tokens=args.history_tokens, device_stay_awake_while_plugged=True)
+    providers = settings.model_providers()
+    template_id = os.environ.get('CLICKCLICK_EVAL_PROVIDER_TEMPLATE')
+    if model not in providers and template_id:
+        template = providers.get(template_id)
+        if template is None:
+            raise ValueError('Missing requested provider template')
+        providers[model] = copy.deepcopy(template)
+        settings.models_json = json.dumps(providers)
     provider = settings.provider_for(model)
     # Isolate the experiment from deployment-specific model context overrides.
     providers = settings.model_providers()
@@ -123,7 +132,7 @@ async def main(args):
         driver=driver, artifacts=artifacts, max_steps=request['max_model_calls'],
         max_role_invocations=request['max_model_calls'])
     if getattr(args, 'official_records', False):
-        from evaluation.androidworld.official_trajectory import install_observation_recorder
+        from official_trajectory import install_observation_recorder
         install_observation_recorder(orch, output / 'official-observations')
     record = db.create_task(request['goal'], androidworld_agent_state(request['goal']),device_serial='emulator-5554')
     save(output/'runtime-manifest.json', {'task_id':record.id,'branch':str(branch),

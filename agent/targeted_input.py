@@ -8,8 +8,17 @@ from perception.observation import ObservationPackage
 from shared.schemas import Action, ActionResult, ActionTargetSnapshot, CanonicalUI, UIElement, EffectOutcome
 
 
-def _key(ui: CanonicalUI, element: UIElement) -> tuple:
-    return (ui.app_id, element.display_id, element.window_id, element.resource_id, element.role)
+def _key(ui: CanonicalUI, element: UIElement) -> tuple | None:
+    if element.resource_id:
+        # Preserve the established resource-id path unchanged.
+        return (ui.app_id, element.display_id, element.window_id, element.resource_id, element.role)
+    # A native hint is separate from the editable value. Do not substitute
+    # text, generated context, index, coordinates, or a transient node handle.
+    if (not element.hint.strip() or not ui.app_id or not ui.activity
+            or element.display_id is None or element.window_type != 1):
+        return None
+    return ("native_hint", ui.app_id, ui.activity, element.display_id,
+            element.window_id, element.window_type, element.role, element.hint)
 
 
 def _ancestors(ui: CanonicalUI, element: UIElement) -> tuple:
@@ -31,19 +40,25 @@ def supported_target(package: ObservationPackage, index: int) -> UIElement | Non
     if not package.accepted or not package.index_actionable or not package.ui.capture_complete:
         return None
     target = next((node for node in package.ui.elements if node.index == index), None)
-    if target is None or not is_editable(target) or not target.resource_id or target.window_id is None:
+    if target is None or not is_editable(target) or target.window_id is None:
         return None
     if target.states.get("password") or target.states.get("enabled") is False or len(target.bounds) != 4:
         return None
     x1, y1, x2, y2 = target.bounds
     if x1 >= x2 or y1 >= y2:
         return None
-    matches = [node for node in package.ui.elements if _key(package.ui, node) == _key(package.ui, target)]
+    key = _key(package.ui, target)
+    if key is None or (not target.resource_id and not _ancestors(package.ui, target)):
+        return None
+    matches = [node for node in package.ui.elements if _key(package.ui, node) == key]
     return target if len(matches) == 1 else None
 
 
 def focused_same_target(before: ObservationPackage, target: UIElement, after: ObservationPackage) -> UIElement | None:
-    candidates = [node for node in after.ui.elements if _key(after.ui, node) == _key(before.ui, target)]
+    key = _key(before.ui, target)
+    if key is None or (not target.resource_id and supported_target(before, target.index) is None):
+        return None
+    candidates = [node for node in after.ui.elements if _key(after.ui, node) == key]
     if len(candidates) != 1:
         return None
     candidate = supported_target(after, candidates[0].index)
@@ -143,7 +158,15 @@ async def replace_target_text(transaction, action: Action, before: ObservationPa
     result.detail.update(input_steps=stages, device_action_units=1)
     if focus_receipt is not None:
         result.detail["focus_receipt"] = focus_receipt
-    if result.success and stages["readback"] == "different":
+    if result.success and not target.resource_id and actual is None:
+        # A dispatched write is not proof that the requested no-id field now
+        # contains the value. Report uncertainty; never replay the write.
+        result.success = False
+        result.message = "replace_text: readback_unverified"
+        if result.receipt is not None:
+            result.receipt.effect_outcome = EffectOutcome.UNKNOWN
+            result.receipt.effect_reason = "replace_text_readback_unverified"
+    elif result.success and stages["readback"] == "different":
         result.success = False
         result.message = "replace_text: readback_mismatch"
         if result.receipt is not None:

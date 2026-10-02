@@ -213,7 +213,7 @@ async def test_executor_image_only_mode_receives_clean_coordinate_guidance(monke
 
 def test_1080_som_reference_style_and_supported_token_estimate():
     assert MIN_FONT_SIZE == 12
-    assert _outline_width(486, 1080) == 2
+    assert _outline_width(486, 1080) == 1
     assert _effective_font_size("123", [0, 0, 12, 12], 486, 1080) >= 12
     image = Image.new("RGB", (100, 100))
     draw = ImageDraw.Draw(image)

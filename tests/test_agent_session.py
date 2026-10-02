@@ -127,7 +127,7 @@ def test_executor_submit_schema_is_flat_portable_action_superset() -> None:
     action_types = set(action["properties"]["type"]["enum"])
     assert action_types == {
         "tap", "tap_xy", "skill_authorized_action", "type", "replace_text", "swipe", "long_press",
-        "scroll", "drag", "key", "launch", "back", "home", "sleep",
+        "scroll", "drag", "double_tap", "key", "launch", "back", "home", "sleep",
     }
     assert not {"complete", "remember", "claim", "replan"} & action_types
     assert action["properties"]["key"]["enum"] == [

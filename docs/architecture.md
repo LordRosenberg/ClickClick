@@ -6,6 +6,12 @@ This guide describes **module boundaries, interfaces and task execution flow**, 
 
 ![System architecture](assets/clickclick-architecture.svg)
 
+## MobileWorld scored profile
+
+The October 2026 evaluation upgrades structured historical summaries, item provenance, retained-note restoration and native detail observations. See the [verified comparison with AndroidWorld](mobileworld-evaluation-architecture.md) and [complete reproduction guide](mobileworld-reproduction.md).
+
+![MobileWorld evaluation memory and observation architecture](assets/mobileworld-evaluation-architecture.svg)
+
 ## What harness means here
 
 The **agent harness** is the runtime surrounding model inference: it builds requests, manages role transitions, selects skills and history, validates tool submissions, dispatches actions and returns feedback. **Session** is the durable task record. **Device tools** interact with the phone and construct observations.

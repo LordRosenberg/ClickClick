@@ -25,6 +25,7 @@ RUNNER_FILES = (
     "run_emulator.py", "agent_worker.py", "device_settings.py", "scoring.py",
     "result_classification.py", "quota_resume.py", "episode_cleanup.py",
     "long_run_health.py", "setup_full.py", "portable.py",
+    "official_trajectory.py", "host_recording_sidecar.py",
 )
 
 
@@ -104,7 +105,7 @@ def snapshot_runtime(project, target):
     shutil.copytree(HERE / "skills", target / "evaluation/androidworld/skills")
 
 
-def prepare(project, output, upstream=None):
+def prepare(project, output, upstream=None, oracle_jar=None):
     """Create all inputs from public source; no historical batch is required."""
     from evaluation.androidworld import fixture_codec
     from evaluation.androidworld.audit_observation_contract import audit_observation_contract
@@ -149,7 +150,23 @@ def prepare(project, output, upstream=None):
     snapshot_runtime(project, output / "runtime")
     contract = audit_observation_contract(official / "android_world", runner / "oracle/OracleDump.java")
     write_json(output / "observation-contract.json", contract)
-    build_oracle(runner / "oracle/OracleDump.java", runner / "oracle/oracle.jar")
+    oracle_source = runner / "oracle/OracleDump.java"
+    oracle_output = runner / "oracle/oracle.jar"
+    if oracle_jar is not None:
+        oracle_jar = oracle_jar.resolve()
+        sibling_source = oracle_jar.with_name("OracleDump.java")
+        if (not oracle_jar.is_file() or not sibling_source.is_file()
+                or digest(sibling_source) != digest(oracle_source)):
+            raise ValueError("Reusable oracle must accompany byte-identical OracleDump.java")
+        shutil.copy2(oracle_jar, oracle_output)
+        oracle_build = {"mode": "verified-identical-source-reuse",
+                        "source_sha256": digest(oracle_source),
+                        "jar_sha256": digest(oracle_output), "source_jar": str(oracle_jar)}
+    else:
+        build_oracle(oracle_source, oracle_output)
+        oracle_build = {"mode": "built-from-source", "source_sha256": digest(oracle_source),
+                        "jar_sha256": digest(oracle_output)}
+    write_json(output / "oracle-build.json", oracle_build)
     write_json(output / "protocol.json", {
         "upstream_commit": UPSTREAM, "task_count": 116, "fixture_sha256": FIXTURE_SHA256,
         "seed": 20260914, "history_tokens": 16000, "architecture": "plan_executor",
@@ -211,7 +228,9 @@ def main(argv=None):
     parser.add_argument("--env-file", type=Path, default=PROJECT / ".env")
     parser.add_argument("--adb", help="ADB executable; otherwise resolve from PATH or Android SDK environment")
     parser.add_argument("--model", default="chatgpt/gpt-5.6-sol")
+    parser.add_argument("--provider-template", help="Existing model entry whose connection settings are cloned for the requested model ID")
     parser.add_argument("--upstream", type=Path, help="Optional clean offline checkout at the pinned AndroidWorld revision")
+    parser.add_argument("--oracle-jar", type=Path, help="Reuse a frozen oracle only when its adjacent source is byte-identical")
     parser.add_argument("--prepare-only", action="store_true", help="Freeze inputs and build the oracle without device changes or model calls")
     parser.add_argument("--resume", action="store_true", help="Continue the existing sealed batch without discarding completed attempts")
     parser.add_argument("--resume-after-quota", action="store_true")
@@ -225,6 +244,8 @@ def main(argv=None):
     environment.update(CLICKCLICK_EVAL_AGENT_PYTHON=str(args.agent_python.resolve()),
                        CLICKCLICK_EVAL_ENV_FILE=str(args.env_file.resolve()), CLICKCLICK_EVAL_MODEL=args.model,
                        PYTHONIOENCODING="utf-8")
+    if args.provider_template:
+        environment["CLICKCLICK_EVAL_PROVIDER_TEMPLATE"] = args.provider_template
     if args.adb:
         environment["CLICKCLICK_EVAL_ADB"] = args.adb
     eval_python = args.eval_python
@@ -244,7 +265,7 @@ def main(argv=None):
             del forwarded[index:index + 2]
         if "--agent-python" not in forwarded:
             forwarded += ["--agent-python", str(args.agent_python.resolve())]
-        for option in ("--output", "--env-file", "--agent-python", "--upstream"):
+        for option in ("--output", "--env-file", "--agent-python", "--upstream", "--oracle-jar"):
             if option in forwarded:
                 index = forwarded.index(option) + 1
                 forwarded[index] = str(batch if option == "--output" else Path(forwarded[index]).resolve())
@@ -255,7 +276,7 @@ def main(argv=None):
     if any(importlib.util.find_spec(name) is None for name in ("android_env", "grpc_tools", "numpy", "PIL")):
         parser.error("Evaluation dependencies missing: rerun with --install")
     if not (args.resume or args.resume_after_quota):
-        prepare(PROJECT, batch, args.upstream)
+        prepare(PROJECT, batch, args.upstream, args.oracle_jar)
     else:
         protocol = json.loads((batch / "protocol.json").read_text(encoding="utf-8"))
         if protocol["model"] != args.model:
@@ -267,6 +288,8 @@ def main(argv=None):
     from evaluation.androidworld.portable import adb_executable
     environment["CLICKCLICK_EVAL_ADB"] = adb_executable()
     environment["CLICKCLICK_EVAL_MODEL"] = args.model
+    if args.provider_template:
+        environment["CLICKCLICK_EVAL_PROVIDER_TEMPLATE"] = args.provider_template
     if not (batch / "launch_full.py").is_file():
         parser.error("This batch predates the v6 startup entry point; prepare a fresh output directory")
     command = [sys.executable, str(batch / "launch_full.py")]

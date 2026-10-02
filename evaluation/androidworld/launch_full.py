@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -34,7 +35,15 @@ def state(status, **extra):
     print("LAUNCH", json.dumps(value), flush=True)
 
 
-def main(resume_after_quota=False):
+def ffmpeg_executable():
+    configured = os.environ.get("CLICKCLICK_EVAL_FFMPEG")
+    if configured:
+        return configured
+    import imageio_ffmpeg
+    return imageio_ffmpeg.get_ffmpeg_exe()
+
+
+def main(resume_after_quota=False, resume_after_environment=False):
     try:
         for relative, digest in json.loads((ROOT / "source-hashes.json").read_text(encoding="utf-8")).items():
             path = (ROOT / relative).resolve()
@@ -62,11 +71,32 @@ def main(resume_after_quota=False):
                 restart_same_avd_and_initialize(ROOT, adb_path, python=Path(sys.executable), apps=window["apps"])
             if preventive_restart_check(adb, records[0])["restart_due"]:
                 raise RuntimeError("Insufficient uptime allowance after startup preparation")
+        recording_stdout = (ROOT / "host-recording-sidecar.stdout.log").open("ab")
+        recording_stderr = (ROOT / "host-recording-sidecar.stderr.log").open("ab")
+        recording = subprocess.Popen([
+            agent_python(), "-u", str(ROOT / "runner/host_recording_sidecar.py"),
+            "--batch", str(ROOT), "--ffmpeg", ffmpeg_executable(),
+        ], cwd=PROJECT, stdout=recording_stdout, stderr=recording_stderr,
+           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        time.sleep(1)
+        if recording.poll() is not None:
+            raise RuntimeError("Host recording sidecar failed before the runner started")
         state("full_runner_started", first_case=records[0]["task"], total=len(records))
         command = [sys.executable, "-u", str(ROOT / "run_full.py")]
         if resume_after_quota:
             command.append("--resume-after-quota")
-        result = subprocess.run(command, cwd=PROJECT)
+        if resume_after_environment:
+            command.append("--resume-after-environment")
+        try:
+            result = subprocess.run(command, cwd=PROJECT)
+        finally:
+            try:
+                recording.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                recording.terminate()
+                recording.wait(timeout=10)
+            recording_stdout.close()
+            recording_stderr.close()
         state("full_runner_exited", returncode=result.returncode)
         return result.returncode
     except Exception as exc:
@@ -77,4 +107,6 @@ def main(resume_after_quota=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--resume-after-quota", action="store_true")
-    raise SystemExit(main(parser.parse_args().resume_after_quota))
+    parser.add_argument("--resume-after-environment", action="store_true")
+    args = parser.parse_args()
+    raise SystemExit(main(args.resume_after_quota, args.resume_after_environment))

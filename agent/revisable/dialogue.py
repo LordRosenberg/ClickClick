@@ -1,6 +1,7 @@
 """Compact closed interaction blocks; keep the originals in task storage."""
 
 import json
+import re
 
 from pydantic import Field
 
@@ -104,10 +105,21 @@ async def restore_dialogue(store, state, *, model, settings, meter, event_sink):
             for key, _ in SECTIONS:
                 for item in getattr(value, key):
                     if item.note_source:
+                        if not re.fullmatch(r"note:[^@#]+@[1-9][0-9]*", item.note_source):
+                            raise ValueError(
+                                "note_source must copy a supplied note_source value (note:...@version), "
+                                "not an R/P/N source label or observation ID. "
+                                "If this item does not copy supplied retained note text, omit note_source "
+                                "and keep the historical labels in sources."
+                            )
                         from agent.revisable.recall import resolve_source
                         kind, note, _ = resolve_source(store, item.note_source)
                         if kind != "note" or note["payload"].get("retained") != item.text:
-                            raise ValueError("note_source requires exact retained text from that note version")
+                            raise ValueError(
+                                "note_source requires exact retained text from that note version. "
+                                "For a paraphrase, omit note_source and keep its supplied source labels; "
+                                "otherwise copy the retained text exactly."
+                            )
             return AgentToolResult(terminal_value=value)
 
         registry = terminal_registry(

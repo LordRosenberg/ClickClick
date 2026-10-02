@@ -24,6 +24,7 @@ export interface Action {
     app?: string | null;
     direction?: "up" | "down" | "left" | "right" | null;
     duration_ms?: number | null;
+    hold_before_move?: boolean | null;
 }
 export interface ActionResult {
     success: boolean;

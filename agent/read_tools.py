@@ -855,11 +855,10 @@ async def _stream_temporal(
 def make_observe_screen_handler(
     *, driver: Any, builder: ObservationBuilder, artifacts: Any | None,
     baseline_package: ObservationPackage,
-    detail_enabled: bool = False,
 ):
     async def observe_screen(args: dict[str, Any], context: ToolExecutionContext) -> AgentToolResult:
         mode = str(args.get("mode") or "")
-        detail = mode == "detail" and detail_enabled
+        detail = mode == "detail"
         extras = set(args) - ({"mode", "region"} if detail else {"mode", "frames", "duration_ms"})
         region = None
         if detail:
@@ -873,7 +872,7 @@ def make_observe_screen_handler(
         if (mode not in {"snapshot", "sequence"} and not detail) or extras:
             return AgentToolResult(
                 status=ToolStatus.INVALID_ARGUMENTS,
-                summary="mode must be snapshot|sequence and only documented global arguments are allowed",
+                summary="mode must be snapshot|sequence|detail with the documented arguments for that mode",
                 error="invalid_arguments",
             )
         if mode == "snapshot":

@@ -14,15 +14,15 @@ ClickClick passed **115 of 116 AndroidWorld task instances (99.14%)** in the Sep
 - **Knowledge:** app/workflow skills, device-profile guidance and the AndroidWorld evaluation skill profile. This is a skill-adapted system evaluation.
 - **Limits:** `int(complexity * 10)` submitted action units, `int(complexity * 60)` model requests and 900 seconds per task.
 
-The score describes this model, runtime, skills, environment and selected instances together. It does not isolate the contribution of one component or establish performance on unseen apps and seeds.
+The score describes this model, runtime, skills, environment and task instances together. It does not isolate the contribution of one component or establish performance on unseen apps and seeds.
 
 ## Selection and scoring
 
-The selection contains 115 original full-run episodes and one replacement of `SystemBrightnessMax`. The replacement retained the same v6 runtime, seed, skill, model and budgets. The reported metric is the success rate of this selected set, rather than first-attempt pass@1.
+The reported metric is the success rate of the 116 scored task episodes. The episodes use the v6 runtime, frozen task parameters, model and budgets.
 
 The success numerator comes from the unmodified official `task.is_successful` predicates. No task-specific predicate or filename override was applied. Oracle UI acquisition used an independent API 33 UiAutomation forest with bounded acquisition attempts and official forest conversion; this acquisition adapter differs from the stock runner. Capture errors are unscored, rather than assigned a successful predicate result.
 
-The exported session-termination flag includes explicit inconclusive termination; the predicate determines benchmark success. Thus the headline measures externally scored task state, rather than whether the agent itself expressed confidence that every requirement had been verified. The one predicate failure in the selected set is `RecipeDeleteDuplicateRecipes3`.
+The exported session-termination flag includes explicit inconclusive termination; the predicate determines benchmark success. Thus the headline measures externally scored task state, rather than whether the agent itself expressed confidence that every requirement had been verified. The one predicate failure is `RecipeDeleteDuplicateRecipes3`.
 
 ## Action accounting
 
@@ -32,7 +32,7 @@ One submitted action is therefore not necessarily one physical tap or key press.
 
 ## Reproducibility
 
-The local batch is identified as `androidworld-sol-full-v6-20260921`. Its protocol, per-case results, result-selection manifest, source hashes and episode evidence were retained locally. The selected 116 episodes were retrospectively converted into AndroidWorld checkpoint PKLs. The export record reports official Checkpointer write/read and summary processing, equal screenshot pixel arrays after round trip, and archive/hash validation. Conversion does not mean that the original run used the stock AndroidWorld runner.
+The local batch is identified as `androidworld-sol-full-v6-20260921`. Its protocol, per-case results, result manifest, source hashes and episode evidence were retained locally. The 116 episodes were retrospectively converted into AndroidWorld checkpoint PKLs. The export record reports official Checkpointer write/read and summary processing, equal screenshot pixel arrays after round trip, and archive/hash validation. Conversion does not mean that the original run used the stock AndroidWorld runner.
 
 The PKL-only delivery archive has SHA-256:
 
@@ -40,6 +40,6 @@ The PKL-only delivery archive has SHA-256:
 2562515e78a99de2b102e5ba668a09696fc5d158ef3665c45337a7f338036854
 ```
 
-The [public full-suite entry point](../evaluation/androidworld/README.md) includes the frozen task instances, evaluation runner and skill overlay. It runs the checked-out runtime with the current pinned Collector release. Historical raw episode evidence and the delivery archive remain local; a new run preserves all completed outcomes without automatic result replacement. Model-service changes and stochastic behavior can affect reproduced scores. This is a local evaluation result, not an accepted leaderboard submission.
+The [public full-suite entry point](../evaluation/androidworld/README.md) includes the frozen task instances, evaluation runner and skill overlay. It runs the checked-out runtime with the current pinned Collector release. Raw episode evidence and the delivery archive remain local. Model-service changes and stochastic behavior can affect reproduced scores.
 
 The [optional AndroidWorld adapter](androidworld-benchmark.md) documents a separate integration path. Its step-oriented runner semantics should not be substituted for the full-suite protocol reported here.

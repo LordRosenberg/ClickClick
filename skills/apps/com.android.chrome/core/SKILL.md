@@ -1,7 +1,7 @@
 ---
 name: chrome-page-navigation
-description: Chrome navigation, download handling, and compact browsing of web search results.
-version: 1.0.3
+description: Chrome loading states, verification pages, Google source links, downloads, and compact search results.
+version: 1.0.11
 app_aliases: [Chrome]
 app: com.android.chrome
 interface_scope: app
@@ -16,15 +16,24 @@ source: authored
 
 ### Hints
 
+- Chrome's thin progress bar below the address bar, a new URL with the old page,
+  or Thinking/Generating/Loading or animated placeholders in the requested result
+  indicates loading. Use `observe_screen` to check completion before changing
+  the URL/query or acting on changing page controls. Continue when the
+  relevant content is ready; unrelated ads/videos do not require waiting.
+  A persistently stalled load or an explicit error allows recovery.
+- On a CAPTCHA or Cloudflare page, click the visible verification checkbox or
+  confirmation and follow the displayed instructions. While verification is
+  running, use `observe_screen` to check its state; do not click or reload mid-check.
+  If the checkbox resets, retry once after it settles. Continue when destination
+  content appears; only persistent resets or errors justify another route.
+- When checking information from Google AI Overview, open the citation/link icon
+  beside that statement; it may be labelled `Related results`. For a search
+  snippet, open that result.
 - Bare queries in the address bar use the default search engine. Changing query
-  words does not change that provider; if it is blocked, navigate explicitly to
+  words does not change that provider; if access remains blocked after handling
+  the displayed verification or error, navigate explicitly to
   an alternative search engine rather than sending another bare query.
-- The address bar can show a new URL while the previous document remains visible.
-  With a visible loading indicator or mismatched destination/body, allow the pending
-  navigation to settle and take a fresh observation before treating it as a failed
-  lookup or replacing the destination. If still loading, a bounded `sleep` can
-  allow more time; inspect the subsequent screen. A persistent error or stalled
-  load can justify another route, not endless waiting.
 - A direct image or document link may download instead of replacing the page.
   Use the download banner's Open/Details control or Downloads to open the completed
   intended file. A pending download is not proof the source is unreadable; inspect

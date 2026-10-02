@@ -56,6 +56,21 @@ def capture_rows(task, env, out, phase):
     if callable(getattr(task, 'list_rows', None)):
         save(out/f'{phase}-rows.json', task.list_rows(env))
 
+
+def wait_for_host_recording(out, timeout_s=10.0):
+    deadline = time.monotonic() + timeout_s
+    state_path = ROOT/'host-recording-state.json'
+    while time.monotonic() < deadline:
+        if state_path.exists():
+            recording = json.loads(state_path.read_text(encoding='utf-8'))
+            if recording.get('status') == 'error':
+                raise RuntimeError(f'Host recording failed: {recording.get("error")}')
+            if (recording.get('status') == 'recording'
+                    and Path(recording.get('episode_dir', '')).resolve() == out.resolve()):
+                return recording
+        time.sleep(.25)
+    raise RuntimeError(f'Host recording did not start for {out}')
+
 def run_one(spec, cls, env):
     out = ROOT/'episodes'/spec['task']/'plan_executor'
     if out.exists() and any(out.iterdir()):
@@ -99,12 +114,14 @@ def run_one(spec, cls, env):
             result['stop_cause'] = 'operator_stop'
             return result
         state('running',case=spec['task'],episode_dir=str(out))
+        save(out/'host-recording-start.json', wait_for_host_recording(out))
         worker_env = os.environ.copy()
         worker_env.update(PYTHONPATH=str(RUNTIME),PYTHONIOENCODING='utf-8')
         with (out/'worker.log').open('w',encoding='utf-8') as log:
             proc = subprocess.Popen([agent_python(),'-u',str(ROOT/'runner/agent_worker.py'),
                 '--architecture','plan_executor','--request',str(out/'request.json'),'--runtime',str(RUNTIME),
-                '--env-file',env_file(PROJECT),'--output-root',str(ROOT),'--history-tokens','16000'],
+                '--env-file',env_file(PROJECT),'--output-root',str(ROOT),'--history-tokens','16000',
+                '--official-records'],
                 stdout=log,stderr=subprocess.STDOUT,cwd=RUNTIME,env=worker_env)
             save(out/'worker-pid.json',{'pid':proc.pid})
             try:
@@ -168,7 +185,8 @@ def run_one(spec, cls, env):
         save(out/'result.json',result)
     return result
 
-def main(continue_on_oracle_error=None, resume_after_quota=False, accuracy_floor=None):
+def main(continue_on_oracle_error=None, resume_after_quota=False,
+         accuracy_floor=None, resume_after_environment=False):
     # OS releases this lock after normal exit or a crash.
     lock = (ROOT/'run.lock').open('a+b')
     lock_file(lock)
@@ -207,6 +225,28 @@ def main(continue_on_oracle_error=None, resume_after_quota=False, accuracy_floor
         probe = subprocess.run([agent_python(), '-u', str(ROOT/'probe_model.py')], cwd=PROJECT)
         if probe.returncode != 0 or not json.loads((ROOT/'model-probe.json').read_text())['available']:
             raise RuntimeError('Model is still unavailable; keep all interrupted evidence and retry resume after recovery')
+    if resume_after_environment:
+        previous_state = json.loads((ROOT/'run-state.json').read_text())
+        error_path = ROOT/'run-error.txt'
+        error_text = error_path.read_text(encoding='utf-8') if error_path.exists() else ''
+        expected = 'Insufficient uptime allowance after environment preparation; no task started'
+        verified_stop = (previous_state.get('status') == 'error'
+                         and previous_state.get('restoration_ok') and expected in error_text)
+        retrying_preflight = (previous_state.get('status') == 'resuming_environment_boundary'
+                              and previous_state.get('reason') == 'verified_pre_task_uptime_stop')
+        maintenance_case = previous_state.get('case')
+        retrying_maintenance = (previous_state.get('status') in {
+            'preventive_environment_restart', 'health_check', 'preparing_environment'}
+            and maintenance_case
+            and not (ROOT/'episodes'/maintenance_case/'plan_executor').exists())
+        if not (verified_stop or retrying_preflight or retrying_maintenance):
+            raise RuntimeError('Environment resume requires the verified pre-task uptime stop and successful restoration')
+        # This is batch maintenance, not a scored attempt.  Keep no failed
+        # episode or error artifact that could enter result selection/export.
+        if error_path.exists():
+            error_path.unlink()
+        state('resuming_environment_boundary', completed=previous_state.get('completed', 0),
+              reason='verified_pre_task_uptime_stop')
     assert adb('get-state').decode().strip() == 'device'
     assert adb('shell','getprop','ro.build.version.sdk').decode().strip() == '33'
     saved = capture(adb)
@@ -303,12 +343,32 @@ def main(continue_on_oracle_error=None, resume_after_quota=False, accuracy_floor
                     raise RuntimeError('Current task dependencies remain missing after scoped setup')
                 health = ensure_channels(env, ROOT, adb, allow_full_restart=False)
                 save(ROOT/'health/latest-ready.json', health)
-            # Health/setup may be slow. Recheck once and stop rather than enter
-            # an unbounded reboot loop or start a case outside the policy.
+            # Health/setup may be slow. If it consumed the remaining uptime,
+            # restart at this still-clean boundary and initialize the same
+            # bounded dependency window on the fresh AVD. This is one bounded
+            # restart, never a scored attempt or an unbounded reboot loop.
             maintenance['before_initialize'] = preventive_restart_check(adb, spec)
             save(maintenance_path, maintenance)
             if maintenance['before_initialize']['restart_due']:
-                raise RuntimeError('Insufficient uptime allowance after environment preparation; no task started')
+                state('preventive_environment_restart', case=spec['task'],
+                      reason='uptime_consumed_by_environment_preparation',
+                      evidence=str(maintenance_path))
+                env.close()
+                env = None
+                import run_emulator as frozen_runner
+                restart = restart_same_avd_and_initialize(
+                    ROOT, Path(frozen_runner.ADB), python=Path(sys.executable),
+                    apps=setup_window['apps'])
+                maintenance['post_setup_restart'] = restart
+                maintenance['after_post_setup_restart'] = preventive_restart_check(adb, spec)
+                save(maintenance_path, maintenance)
+                if maintenance['after_post_setup_restart']['restart_due']:
+                    raise RuntimeError('Insufficient uptime allowance after bounded post-setup restart; no task started')
+                env = load_env(android_world_controller.A11yMethod.UIAUTOMATOR)
+                health = ensure_channels(env, ROOT, adb, allow_full_restart=False)
+                save(ROOT/'health/latest-ready.json', health)
+                if missing_task_baselines(spec['apps'], env):
+                    raise RuntimeError('Current task dependencies missing after bounded post-setup restart')
             # An operator may request a pause while full setup is running.
             if (ROOT/'STOP').exists():
                 ending = 'stopped'; break
@@ -353,9 +413,12 @@ if __name__ == '__main__':
         help='Exclude failed oracle captures and continue only after successful teardown; other infrastructure errors still stop.')
     parser.add_argument('--resume-after-quota', action='store_true',
         help='Probe model recovery, preserve quota-interrupted evidence, and retry that case from official initialization.')
+    parser.add_argument('--resume-after-environment', action='store_true',
+        help='Continue after a verified pre-task uptime stop; remove its non-episode error artifact.')
     parser.add_argument('--accuracy-floor', type=float, default=None,
         help='Pause for operator review below this budgeted success rate, or on a 20-point decline between successive 10-case windows.')
     args = parser.parse_args()
-    main(args.continue_on_oracle_error, args.resume_after_quota, args.accuracy_floor)
+    main(args.continue_on_oracle_error, args.resume_after_quota, args.accuracy_floor,
+         args.resume_after_environment)
 
 

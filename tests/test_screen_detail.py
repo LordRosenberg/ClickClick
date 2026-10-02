@@ -33,12 +33,21 @@ def test_invalid_region_is_rejected(region):
         validate_region(region)
 
 
-def test_experimental_tools_do_not_change_default_catalog():
-    for enabled in [False, True]:
-        session = AgentSession("executor", "test", settings=Settings(_env_file=None, screen_detail=enabled, double_tap=enabled))
-        catalog = {s.name: s for s in session._build_registry({}).specs_for_role("executor")}
-        assert ("detail" in catalog["observe_screen"].parameters["properties"]["mode"]["enum"]) == enabled
-        assert ("double_tap" in catalog["submit_executor_step"].parameters["properties"]["action"]["properties"]["type"]["enum"]) == enabled
+def test_detail_and_double_tap_are_available_without_a_feature_switch():
+    from agent.revisable.session import executor_submission_schema
+    from jsonschema import Draft202012Validator
+
+    session = AgentSession("executor", "test", settings=Settings(_env_file=None))
+    catalog = {s.name: s for s in session._build_registry({}).specs_for_role("executor")}
+    assert "detail" in catalog["observe_screen"].parameters["properties"]["mode"]["enum"]
+    assert "double_tap" in catalog["submit_executor_step"].parameters["properties"]["action"]["properties"]["type"]["enum"]
+    assert "screen_detail" not in Settings.model_fields
+    validator = Draft202012Validator(executor_submission_schema())
+    payload = {"decision": "act", "summary": "Use a double-tap gesture",
+               "observation_id": "current", "action": {"type": "double_tap", "x": 20, "y": 30}}
+    validator.validate(payload)
+    assert list(validator.iter_errors({**payload, "action": {"type": "double_tap", "x": 20}}))
+    assert "double_tap" not in Settings.model_fields
 
 
 @pytest.mark.asyncio
@@ -51,7 +60,7 @@ async def test_detail_promotes_fresh_global_basis_and_delivers_readonly_native_t
             return tree, image, tree["_capture"]
 
     driver = Driver()
-    executor = Executor(driver, model="test", settings=Settings(_env_file=None, screen_detail=True, double_tap=True))
+    executor = Executor(driver, model="test", settings=Settings(_env_file=None))
     calls = []
 
     async def complete(model, messages, **kwargs):
@@ -104,7 +113,7 @@ async def test_unsupported_native_driver_leaves_action_basis_intact():
     context = ToolExecutionContext(role=AgentRole.EXECUTOR, invocation_id="unsupported",
                                    state={"active_package": baseline, "active_observation_id": "existing"})
     handler = make_observe_screen_handler(driver=_MixedSizeDriver(), builder=ObservationBuilder(),
-                                         artifacts=None, baseline_package=baseline, detail_enabled=True)
+                                         artifacts=None, baseline_package=baseline)
     result = await handler({"mode": "detail"}, context)
     assert result.status == ToolStatus.UNAVAILABLE
     assert context.state["active_observation_id"] == "existing"

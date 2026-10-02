@@ -73,6 +73,7 @@ def _submitted_action_snapshot(
         app=action.app,
         direction=action.direction,
         duration_ms=action.duration_ms,
+        hold_before_move=action.hold_before_move,
         skill_action_id=action.skill_action_id,
     )
 
@@ -330,6 +331,7 @@ def rescale_action_xy(action: Action, sx: float, sy: float) -> Action:
         "app": action.app,
         "direction": action.direction,
         "duration_ms": action.duration_ms,
+        "hold_before_move": action.hold_before_move,
         "skill_action_id": action.skill_action_id,
     }
     if action.x is not None:
@@ -823,7 +825,7 @@ class Executor:
         handlers = {
             "observe_screen": make_observe_screen_handler(
                 driver=self.driver, builder=ObservationBuilder(), artifacts=self.artifacts,
-                baseline_package=package, detail_enabled=self.settings.screen_detail,
+                baseline_package=package,
             ),
             "search_installed_apps": make_search_installed_apps_handler(
                 driver=self.driver, ticket_store=self._ticket_store,

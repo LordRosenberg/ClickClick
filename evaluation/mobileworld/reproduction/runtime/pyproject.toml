@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clickclick"
+version = "0.1.0"
+description = "Local multi-process Computer Use Agent (Android-first MVP)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = [
+  # Keep the minor line reproducible while retaining current ChatGPT subscription
+  # model support. ClickClick consumes the forced Responses stream directly.
+  "litellm>=1.100.1,<1.101.0",
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.32.0",
+  "pydantic>=2.9.0",
+  "pydantic-settings>=2.6.0",
+  "httpx[socks]>=0.27.0",
+  "websockets>=12.0",
+  "cryptography>=43.0.0",
+  "pillow>=10.4.0",
+  "aiofiles>=24.1.0",
+  "pyyaml>=6.0",
+  "tiktoken>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "pytest-asyncio>=0.24.0",
+]
+decode = [
+  "av==14.0.1",
+]
+
+[project.scripts]
+clickclick-driver = "driver.main:main"
+clickclick-agent = "agent.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["shared*", "driver*", "agent*", "control_api*", "perception*"]
+
+[tool.setuptools.package-data]
+driver = ["vendor/*.jar", "vendor/README.md"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+  "device: requires a connected Android device and Portal",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

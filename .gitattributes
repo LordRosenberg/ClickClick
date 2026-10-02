@@ -1,0 +1,2 @@
+# Frozen reproduction hashes must survive Windows and Unix checkouts unchanged.
+evaluation/mobileworld/reproduction/** -text whitespace=cr-at-eol

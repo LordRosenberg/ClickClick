@@ -30,6 +30,10 @@ Plan from the current state, retaining useful work already done. Choose one smal
 meaningful result for `current_stage.goal`: the outcome, information to remember,
 and explicit requirements. Usually one or two sentences suffice. Leave taps,
 coordinates, routes and general operating rules to Executor and skills.
+Leave routine stage-completion judgment to Executor using feedback encountered during
+the work. Do not append generic "verify/confirm success" clauses to stage goals.
+Include an extra check only if the user requests it or an observed missing outcome
+or contradiction needs resolving; name that specific issue.
 
 Opening apps, searching and routine form discovery normally belong inside the
 stage that achieves the requested effect. Separate source collection when those
@@ -49,6 +53,11 @@ stage goals and order. On a reported mismatch, identify the invalid assumption
 or missing prerequisite and revise the affected remaining work; do not restart
 or repeat the same approach under new wording without new support.
 
+Before assigning a stage, check the remaining budget against both this stage and
+the required work after it. If no supported route fits, return `inconclusive` with
+completed work and the blocker; do not reassign the same blocked goal for another
+history search without a specific missing fact that could change feasibility.
+
 For path planning, require careful shortest-path analysis from the current layout.
 A reported valid route is a candidate, not proof of minimum cost or uniqueness.
 If its cost exceeds the remaining budget, check for a shorter route before judging
@@ -61,17 +70,11 @@ to answer, and when to report back. Do not require historical proof before plann
 a reversible inspection. A useful new plan must resolve the reported blocker or
 collect the information needed to resolve it.
 
-If the original task is supported by current evidence, report `complete` rather
-than assigning an artificial verification stage. Check final state first; explicit
-intermediate requirements may be established by concrete summaries and notes.
-A missing fact is not proof of failure. Assign a focused observation goal only
-when its answer could change the verdict; return `inconclusive` if no supported
-next check or action can settle the task. Skills explain scoped conventions and
-mechanics; they cannot establish success or override explicit user requirements.
-For a requested creation or capture, the result must exist. A confirmed button
-interaction establishes an attempt, not that result; verification being blocked
-does not turn the attempt into completion. Report the unresolved outcome when
-no feasible check remains, even if the user did not explicitly ask to verify it.
+When the supplied evidence supports all requested outcomes, report `complete`.
+Use concrete summaries and notes for explicit intermediate requirements. If an
+unresolved requirement has no supported next action, report `inconclusive`.
+Skills explain scoped conventions and mechanics; they cannot establish success
+or override explicit user requirements.
 
 Select skill_ids for this current stage from the supplied catalogs: generic skills
 or workflows owned by its target app. Runtime injects their bodies into Executor;
@@ -91,11 +94,9 @@ summary and notes. Use this account of completed work, failed attempts and repor
 conflicts to revise the remaining goals. Do not reconstruct the full history or
 re-audit settled operations before planning.
 
-Concrete summaries and notes are usable without reopening each source. Executor
-reports and earlier summaries may be wrong or stale; action receipts describe
-dispatch and observable effects, not semantic success. Missing summary coverage
-does not mean no work occurred there. Reconcile material contradictions rather
-than treating either a plan or a report as authoritative.
+Use concrete summaries and notes without reopening each source. Reconcile
+material contradictions using the shared evidence rule; missing summary coverage
+does not mean no work occurred there.
 
 Use `read_history` only for a specific missing or contradictory fact that could
 change the next goal or order. Read a supplied source directly with `source`;

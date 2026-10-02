@@ -279,3 +279,46 @@ async def test_console_exposes_deeply_nested_eval_db_under_data_dir(
         )
 
     run_db.close()
+
+
+@pytest.mark.asyncio
+async def test_console_exposes_extra_run_root_from_settings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    primary_root = tmp_path / "data"
+    external_root = tmp_path / "external-evals"
+    run_root = external_root / "mobileworld-full" / "001-Case"
+    run_db = Database(run_root / "clickclick.db")
+
+    state = AgentState(instruction="external eval", step_number=3)
+    task = run_db.create_task(state.instruction, state, device_serial="device-1")
+    run_db.update_task(task.id, status=TaskStatus.SUCCEEDED, state=state)
+
+    monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(primary_root))
+    monkeypatch.setenv("CLICKCLICK_CONSOLE_RUN_ROOTS", str(external_root))
+    from control_api.main import create_app
+
+    app = create_app(include_temp_runs=False)
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        listed = (await client.get("/api/tasks")).json()
+        external = next(item for item in listed if item["id"] == task.id)
+        assert external["read_only"] is True
+        assert external["data_source"] == "external/external-evals/mobileworld-full/001-Case"
+
+    app.state.data_sources.close()
+    run_db.close()
+def test_external_console_query_releases_database_for_archive(tmp_path):
+    from control_api.data_sources import ConsoleReadOnlyDatabase
+    from shared.db import Database
+    directory = tmp_path / "case"
+    writer = Database(directory / "clickclick.db")
+    task = writer.create_task("sample")
+    writer.close()
+    reader = ConsoleReadOnlyDatabase(directory / "clickclick.db")
+    assert reader.get_task(task.id).instruction == "sample"
+    # On Windows this fails if the viewer retains an SQLite connection.
+    archive = tmp_path / "case.environment-failure"
+    directory.rename(archive)
+    assert (archive / "clickclick.db").exists()

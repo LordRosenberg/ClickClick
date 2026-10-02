@@ -37,7 +37,10 @@ class PlanOrchestrator(Orchestrator):
             remaining["prediction_rounds"] = max(0, limits.prediction_rounds - runtime.prediction_round_count)
             remaining["prediction_round_accounting"] = (
                 "Each submitted act consumes one round, including rejected actions. "
-                "The final task answer or terminal verdict also consumes one round. "
+                "A final answer or terminal verdict consumes one round if submitted. "
+                "It is not mandatory for tasks completed through saved device state: the environment "
+                "scores that state when the round limit is reached. Any user-requested answer must "
+                "still be submitted within the limit. "
                 "Internal planning, observations and tool calls do not consume prediction rounds. "
                 "No extra final-answer round is available after the limit."
             )

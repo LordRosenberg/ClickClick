@@ -437,8 +437,9 @@ async def test_compression_keeps_notes_and_raw_history_and_restores_state(setup,
 @pytest.mark.parametrize("architecture", ["plan_reviewer", "plan_executor"])
 @pytest.mark.parametrize("boundary,zero_units", [("max_device_actions", False), ("max_action_attempts", False), ("max_action_attempts", True), ("prediction_rounds", True)])
 @pytest.mark.parametrize("continuous", [False, True])
+@pytest.mark.parametrize("device_action", [{"type": "home"}, {"type": "double_tap", "x": 100, "y": 100}])
 async def test_task_dialogue_survives_pause_resume_and_stage_change(
-    tmp_path, monkeypatch, architecture, boundary, zero_units, continuous
+    tmp_path, monkeypatch, architecture, boundary, zero_units, continuous, device_action
 ):
     from agent.runtime import create_orchestrator
     from agent.traces import TraceWriter
@@ -543,7 +544,7 @@ async def test_task_dialogue_survives_pause_resume_and_stage_change(
         if directive == "advance":
             args["completed_stage_id"] = anchor["stage_id"]
         if directive == "act":
-            args["action"] = {"type": "home"}
+            args["action"] = device_action
             args["notes"] = [
                 {
                     "note_key": "handoff",
@@ -582,6 +583,8 @@ async def test_task_dialogue_survives_pause_resume_and_stage_change(
     assert db.get_task(record.id).state.revisable.completed_stage_ids == ["plan_1_stage_1"]
     assert calls[:4] == ["planner", "executor", "executor", "planner"]
     assert len(driver.actions) == 1
+    assert driver.actions[0].type == device_action["type"]
+    assert db.get_task(record.id).state.revisable.execution_count == (0 if zero_units else 1)
     db.close()
 
 

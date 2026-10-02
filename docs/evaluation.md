@@ -4,6 +4,10 @@
 
 There are two useful starting points: run your own task through Console, or connect ClickClick to AndroidWorld for state-based scoring. The published 115/116 result uses a separately frozen full-suite protocol described in the result report.
 
+## MobileWorld reproduction / MobileWorld 复现
+
+The [complete public entry](mobileworld-reproduction.md) / [中文完整运行指南](mobileworld-reproduction.zh-CN.md) freezes this evaluation configuration, runs 117 original tasks plus nine variants, and preserves results on resume. [Architecture changes / 架构升级](mobileworld-evaluation-architecture.md) explain structured summaries, memory/context and native-detail observations.
+
 ## Run the full suite
 
 After configuring ClickClick, model access, and the dedicated API 33 emulator with Collector, run from the project directory:

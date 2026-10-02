@@ -94,6 +94,32 @@ def test_invalid_source_rejected_without_mutating_other_items():
     assert value.model_dump() == before
 
 
+@pytest.mark.parametrize("item", [{"text": "A"}, {"text": "A", "sources": []}])
+def test_summary_tool_schema_and_runtime_both_require_provenance(item):
+    from jsonschema import Draft202012Validator
+    from pydantic import ValidationError
+
+    payload = dict(results=[item], decisions_and_attempts=[], critical_context=[])
+    # The model must see the same constraint that saving the summary enforces.
+    validator = Draft202012Validator(StructuredSummary.model_json_schema())
+    assert list(validator.iter_errors(payload))
+    with pytest.raises(ValidationError):
+        StructuredSummary.model_validate(payload)
+    payload["results"][0] = {"text": "A", "sources": ["R1"]}
+    validator.validate(payload)
+    value = StructuredSummary.model_validate(payload)
+    value.bind_sources({"R1": ["dialogue:original@1"]})
+    assert value.results[0].sources == ["dialogue:original@1"]
+
+
+def test_summary_rejects_current_state_as_historical_source():
+    value = StructuredSummary(results=[{"text": "A", "sources": ["separately_supplied"]}],
+                              decisions_and_attempts=[], critical_context=[])
+    with pytest.raises(ValueError, match="Unknown labels: .*separately_supplied"):
+        value.bind_sources({"R1": ["dialogue:original@1"]})
+    assert value.results[0].sources == ["separately_supplied"]
+
+
 def test_summary_retry_requests_margin_instead_of_tiny_trimming():
     with pytest.raises(ValueError, match="Rewrite toward 3200"):
-        StructuredSummary(results=[{"text": "x" * 3995}], decisions_and_attempts=[], critical_context=[])
+        StructuredSummary(results=[{"text": "x" * 3995, "sources": ["R1"]}], decisions_and_attempts=[], critical_context=[])

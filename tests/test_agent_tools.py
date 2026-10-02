@@ -145,8 +145,9 @@ def test_generated_submit_schema_drops_titles_defaults_and_model_docstrings():
     assert "title" not in all_keys
     assert "default" not in all_keys
     serialized = stable_json(tools_for_role("executor"))
-    # Keep the focused Executor catalog bounded and free of removed witness schema.
-    assert len(serialized) < 8_000
+    # The catalog now always exposes screen detail and double-tap support.
+    # Keep it bounded and free of the removed witness schema.
+    assert len(serialized) < 9_000
     assert "CompletionWitnessSubmit" not in serialized
     assert "completion_witness" not in serialized
 

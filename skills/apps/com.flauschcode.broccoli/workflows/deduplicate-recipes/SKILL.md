@@ -1,7 +1,7 @@
 ---
 name: broccoli-deduplicate-recipes
 description: Compare same-title recipe groups in Broccoli and remove exact duplicates. Pair with adaptive-list-traversal for multi-screen group coverage.
-version: 0.3.5
+version: 0.3.6
 app: com.flauschcode.broccoli
 interface_scope: app
 kind: workflow
@@ -32,22 +32,12 @@ verified_actions:
 
 1. Use `All recipes` for collection-wide deduplication. Pair this workflow with `adaptive-list-traversal` for scroll sizing, row accounting and group boundaries. Each same-title group is the comparison scope; matching card fields make individual occurrences ambiguous, so process those candidates in list order.
 
-   When matching cards fill the usable list or continue at its bottom, enter
-   the shared bottom-complete-row cycle immediately; more off-screen matches
-   need not already be proven. Keep small reveals active until the screenshot
-   shows a clearly different next card (title or visible comparison fields),
-   or the actual list bottom is confirmed, with every preceding pending card
-   processed. A visually different card can end the ambiguous segment without
-   ending a same-title comparison group. Distinct detail signatures for every
-   currently visible card do not establish the group's end or permit a large boundary-
-   seeking swipe. No advance group count or search of every group is needed.
-   Different detail signatures do not create visible anchors on identical list
-   cards. In this title-ordered list,
-   the next different title identifies a group boundary only after the last
-   preceding same-title occurrence and all earlier pending candidates have been
-   processed; the final group instead ends at the established list end.
-   If that different title first appears during a reveal, inspect the fixed
-   pending same-title card above it before ending or handing off the group.
+   When matching cards fill the usable vertical list or continue at its bottom,
+   also select or load `identical-row-traversal`. A visibly different card may end an
+   ambiguous segment without ending the same-title comparison group. Detail
+   differences do not create visible anchors on identical list cards. The next
+   different title ends the group only after the last preceding same-title
+   candidate has been processed; the final group ends at the actual list end.
 
 2. Compare the description, source, and image shown on the cards first. If any of these fields differ, the records are not exact duplicates and do not need detail inspection.
 

@@ -1,5 +1,9 @@
 ## Operation, evidence and budget
 
+AskUser and interactive user replies are unavailable. Complete the supplied task
+autonomously using available tools; if a required prerequisite cannot be obtained,
+report the blocker through the existing unsuccessful outcome instead of asking or waiting for the user.
+
 Treat `current_device_date` in runtime context as authoritative when resolving
 relative dates; never substitute the host or model-provider date. Resolve the
 original wording using the question's tense and requested date field. Apply
@@ -23,9 +27,11 @@ Not found, established absence and observed deletion are different. Empty search
 supports absence only if query syntax, indexed fields and coverage justify it;
 otherwise use a targeted alternative and report unchecked scope.
 
-`remaining_budget` separately counts device actions, Executor decisions, model calls
-and seconds; null means no configured limit. Choose feasible stages with room to
-save and verify. A submitted targeted replacement counts as one device action,
+`remaining_budget` contains task-wide limits: device actions, Executor decisions,
+model calls, seconds and, when configured, prediction rounds under the supplied
+accounting rule. Null means no limit for that field, not for other fields. Replanning
+does not replenish these budgets. Allow for the remaining required work, including
+saving or sending the result. A submitted targeted replacement counts as one device action,
 including its internal focus tap when needed. Complete verified independent targets within the stage as encountered;
 defer for a full scan only when later findings can change the action or the
 instruction requires it. Limits never relax requirements;
@@ -43,7 +49,11 @@ observation_ids/source_refs supporting the facts or why the question no longer
 matters. Replanning or attempted work alone cannot resolve it. Track only questions
 that affect later decisions or the verdict; do not demand optional stronger checks.
 
-A missing result message does not prove feedback is unavailable. Match actual
-effects to exact requirements; dispatch alone is insufficient. Check only when the
-answer could change the decision. If no supported check can settle it, report
-uncertainty. Do not invent extra acceptance requirements.
+Match outcomes to the user's requirements. Known correct targets and values,
+together with relevant app success feedback or an observed resulting state, can
+establish completion; reuse that evidence without reopening or checking elsewhere.
+A tool's dispatch acknowledgement alone cannot establish the outcome. Add a check
+only for a user-requested verification, a specific missing outcome, or a material
+contradiction; check that gap, not the whole task again. Pending work is neither
+success nor failure. If a required outcome remains unknown and no supported check
+can settle it, report uncertainty. Do not invent extra acceptance requirements.
