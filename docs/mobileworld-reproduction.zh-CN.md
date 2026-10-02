@@ -1,6 +1,6 @@
 # 复现 MobileWorld 纯 GUI 评测
 
-[English](mobileworld-reproduction.md) · [成绩与澄清](mobileworld-results-20261002.md) · [评测架构与升级](mobileworld-evaluation-architecture.md)
+[English](mobileworld-reproduction.md) · [成绩与澄清](mobileworld-results-20261002.md) · [系统架构](architecture.zh-CN.md)
 
 公开入口包含完整的 **117 道原题运行与 9 道已披露变体**，使用独立冻结的运行时、提示词和技能。官方环境负责初始化和最终评分，ClickClick 负责模型调用、观察、记忆和 GUI 操作。澄清成绩将九道变体结果全部替换到原题集合中，失败也替换，不按较好结果择优。
 

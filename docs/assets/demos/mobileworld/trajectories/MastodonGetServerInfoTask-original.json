@@ -1,0 +1,281 @@
+{
+  "task": "MastodonGetServerInfoTask",
+  "variant": "original",
+  "screenCount": 26,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 27
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Switch the native Mastodon app to the owner account, then access the Mastodon settings/admin backend as owner and read the database size, preserving the displayed value and unit for conversion to MB if necessary.",
+      "action": "execute",
+      "reason": "First obtain the authoritative database-size value while ensuring both the native posting account and the independent backend session are the owner account; the resulting value is required before composing the toot.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to switch the native account to owner before accessing backend metrics.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the native Mastodon account switcher from the Profile tab.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/23913c8ccdcc0ebc4e23334d5b4db4272d1450ffa02284eb7d636446c72d4271.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the owner account in the native Mastodon account switcher.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/30997b62cb3e06abf667a517e0b88174cc705f8ee74fb4446eb4d688f5436dec.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Native Mastodon is now on owner; open Chrome to access the independent settings/admin backend.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/d1c6de0797cb50bc6cebabd285f16b21dc5470704cb485742137147bd99edfc1.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to the PgHero Space backend page to inspect the authenticated session and database size.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/5e0d05c177c4b52e1249bb5667e1eea000ea762914b38f92d8be72a8851f8337.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the PgHero Space URL in Chrome.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/067c81d9a4ef1c3fa475c3164b896e86d00775a90f02849bd9b311c8eb0c4fb5.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The guessed direct PgHero route returned Mastodon's not-found page; open the admin root to use the authenticated backend menu and locate PgHero > Space.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/8ded2a6f5ecb52edc1332a9c7dafd87e8bc35764ae659c7885bfb556b6b72367.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the Mastodon admin-root URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/6a51a822188134b31978867c901c74cc5c06d0fde05b2409a9359ff1275f5fe3.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The admin page shows the browser session lacks permission, so return to web Preferences to open its menu, log out, and sign in as owner.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/5cdecc96af2c5d26d2160e9326818de58d37e394e314a48705f506bb317dba5f.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open web Preferences so its account menu can be used to log out of the unauthorized browser session.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/5f2700b40a37766ce4d2fd9eb0ebc0f4439107e028ea41a403ba2bc3e7efb74d.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Expand the Mastodon web menu to find Logout and switch the independent browser session to owner.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/81a97bcbfc457684f7b9868abb64252c2a4b2997b1b5f87085ebd394b7278b09.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Log out of the current Mastodon web session so the backend can be authenticated as owner.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/1fc5b8502a42ce55e898f3bdc09021076bb71d796a5fbc13865b7f1caebcabf7.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the owner account email in the Mastodon web login form.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/4d055b004c251ca4d13d697afa2a685d4e2c1c7ef74e679ea2995e86835c6454.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the owner account [REDACTED] in the Mastodon web login form.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/19aa559f416f89567a044eb3cf0ac91cd909c284522fa2c5a4067b0ead9f1a9a.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the password field before entering the owner account password, as required by the web form's targeted-input behavior.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/19aa559f416f89567a044eb3cf0ac91cd909c284522fa2c5a4067b0ead9f1a9a.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the fixture owner [REDACTED] into the currently focused [REDACTED] field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/eb70835a4abab174132c7f1a5698320416d08ad95a923d74247ce11bca1b92f9.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the completed owner login form to access the authenticated settings/admin backend.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/33607a3bb9f1583c10ee2fc0f62b56de54072415cba5c2b6656728499838893c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the authenticated Mastodon settings navigation menu to reach the admin backend and PgHero metrics.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/7e24a27abd742d9b95500df851ec551e1f4c8e31e4c4d71dce477e8c7fc4162a.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the expanded Mastodon settings menu to reveal lower administrative entries, including PgHero.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/821827ae42e32b9b95f7c5ceac0c6a032cfd0dfef14e561bbcb9bafaad2c1320.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open PgHero from the authenticated owner settings menu to access database metrics.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/eaf7024ed8f82ed80e5cc5a624c60475e1d93ebf37367bda7b492bd7fbdd6fc1.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open PgHero Space to read the authoritative database size and displayed unit.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/f8b2a61386afd9631751adbb89f353a18a9e963d395cafec79eb6cf90c8f813f.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Owner-authenticated PgHero Space is open and shows the authoritative metric `Database Size: 15.6 MB`. The native Mastodon app had already been switched to `@owner@10.0.2.2`; the value is ready for the posting stage.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8298cd8f45eb92a84b5c89e2b4939bab0d98be8b9fcd665dd0a44ff4662d9404.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In the native Mastodon app, publish a new toot from the already selected owner account that states the database size is 15.6 MB.",
+      "action": "execute",
+      "reason": "The owner account is selected and the authoritative backend value is now established as 15.6 MB, so the remaining obligation is to publish it.",
+      "screenshot": "screens/fe6e2da68ace800789a949b9d8ebe30d9c944d88073256bb1a5e86b238532d3c.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the native Mastodon app to compose and publish the required owner-account toot.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/fe6e2da68ace800789a949b9d8ebe30d9c944d88073256bb1a5e86b238532d3c.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-post composer from the confirmed owner account.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/d98bdd4d021ca739ec6306b3864e913fe85b47509fa1d1b51b91c6cf156a1171.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a concise toot stating the authoritative database size in MB.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/30280e02a392b763e7c081a6ead3d2ea3ae7d7bec7e3386d89eba034c9b3d3e5.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Publish the composed public toot from @owner stating the database size is 15.6 MB.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/10122bc47051e962f4d71cb59d033639b404e9954d4ccaff3f9db91306d012a2.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Published a new public toot from @owner reading “The database size is 15.6 MB.” The new post is visibly present at the top of the owner home timeline with timestamp “now”; no unresolved questions remain.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/5f5f3796e374255decda85eef75b9bc52179b42a4468e1d6b76d468d16ce000b.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Switched to the owner account, queried the owner-authenticated backend database size as 15.6 MB, and published a public toot from @owner reading “The database size is 15.6 MB.”",
+      "action": "complete",
+      "reason": "Switched to the owner account, queried the owner-authenticated backend database size as 15.6 MB, and published a public toot from @owner reading “The database size is 15.6 MB.”",
+      "screenshot": "screens/5f5f3796e374255decda85eef75b9bc52179b42a4468e1d6b76d468d16ce000b.webp",
+      "screenNumber": 25
+    }
+  ]
+}

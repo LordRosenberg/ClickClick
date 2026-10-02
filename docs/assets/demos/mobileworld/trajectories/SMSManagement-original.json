@@ -1,0 +1,299 @@
+{
+  "task": "SMSManagement",
+  "variant": "original",
+  "screenCount": 29,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 29
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Messages, cover all unread SMS messages; delete those that are clearly spam, and retain accurate summary details for recruitment messages only when they concern an open data scientist role. Preserve unrelated and ambiguous messages.",
+      "action": "execute",
+      "reason": "First inspect every unread SMS, remove messages that are clearly spam, and collect the details of recruitment messages concerning currently open data scientist roles for the requested email summary.",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to begin covering all unread SMS messages.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the unread PayPal impersonation message, which is clearly phishing spam, for deletion.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/0d7bc29a696535fb5fe9b23464c2cae6ac691d925e0dddc53737f2f62cd4b122.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the unread no-credit-check personal-loan solicitation, also clearly spam, to the deletion selection.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/0e5362db54c54b6471f4ad8f24f3dca2ab3a320099d97646c8f3153b67bdc175.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the two selected unread conversations that are clearly spam.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/979ae756cdf9a344151350303de987f71d5af1d9571d7108a8ab68bfa8df5b51.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm permanent deletion of the two clearly spam unread conversations.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/49c4fa8aca7fea360703e8fcf0fc1f351a898065f869f034f0f5c5b58be64b0e.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the conversation list with overlap to inspect all remaining unread SMS threads.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/f3acbed7c4c37e4c09f3cdcdc6b25d2339dced8145d84017e04d60a69efa06c8.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the clearly fraudulent unread Amazon account-lock phishing conversation for deletion while preserving the non-data-scientist and ambiguous LinkedIn messages.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/4448181bb9842c07af96e2a1eca6fad9070825aeb5d25021325a50369d101dd0.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Delete for the selected clearly fraudulent Amazon phishing conversation.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/2bc6a0c50e402da31551ba02ac1f3ba44a220808a90746aefbc639fa30cd18fd.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm permanent deletion of the selected Amazon account-lock phishing conversation.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/490a4fe6a72279e701ec1ee139652b9b1244224de0e1b09f1c0a6c6200ea4723.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through older conversations with overlap to cover every remaining unread SMS after deleting the Amazon phishing thread.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/91dfb2a3320b9622ffc118ae731609f8816dd2ca453dcc1bd4e419f43e511675.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the clearly spam unread car-warranty conversation for deletion; retain the Meta Data Scientist recruitment details separately from non-qualifying roles.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/16f8a9f802df6b5d384355ad6c2071d96887d937b37f486aa5138e109e8dea70.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the unread free-cruise scam conversation to the current spam selection so both clearly spam threads can be deleted together.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/26d4cb83f2143a8660f2efe0d68b7fe0edf660eb774ab446dac89ee784c4ef3b.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the two selected clearly spam unread conversations: the car-warranty solicitation and free-cruise scam.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/32bd7ef228c6f3dd5045da462d070339693b416ac12ffeab12c083b197058a18.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm permanent deletion of the two selected clearly spam conversations.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d3fb1435ab392e85fbf301646b31166a89cfd4852a90db9787c57f55d4b8309b.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue traversing toward older conversations with overlap to cover remaining unread SMS messages.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/e2d42bdb3ddaec5cf45c8ce44e9b09bdbcfa15e6d3a318aa0f7a8a83a24d4248.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the unread fake package-delivery phishing conversation for deletion.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/fe4a6eae8d8a14d658b86ba1e6070ea746785281a9097ab7f8c3a62b0d6b393c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the unread fake Walmart gift-card scam conversation to the current spam selection.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/0a9b5cc77f6a373184c02850f67a687e99b66909b2bd7b06f2d401b4bdeec675.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the two selected clearly spam unread conversations: fake package redelivery and fake Walmart gift-card prize.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/bbbd528b5187bf16daeec781983cd9d32dff9faa5ea487d5f147b69f317bea3f.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm permanent deletion of the two selected clearly spam conversations.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/081775bd68ad54f9726d52f1b37132fc076fca9f3b0461b93c583489322214f2.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue downward through the conversation list past Oct 1 to establish full unread-message coverage and inspect any older unread SMS.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/25242708655b64888ca616ecab04a45c46ee6fef8781a0ee30f51051143ee859.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use the list's native downward scroll to distinguish a missed swipe from the actual end of the conversation list.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/9ea8c7794461e4031018a4f506ead59ff27b05cd5cb8cebd7126003483ae7090.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed unread SMS review through the established end of the conversation list. Clearly spam conversations were deleted; unrelated and ambiguous messages were preserved. One qualifying open data scientist recruitment message was retained for email: RECRUITER, Oct 7, Meta Data Scientist position, asking whether the recipient is open to new opportunities and noting a competitive compensation package. Other recruitment messages concerned non-data-scientist roles and were excluded.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/756913d61875dba857829b3889b699e03c7b58f6cdff15f8df9d817ec3843bcd.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Compose and send an email to dylan@gmail.com summarizing the qualifying unread recruitment SMS: RECRUITER on Oct 7 described a Meta Data Scientist position, asked whether the recipient is open to new opportunities, and noted a competitive compensation package; do not include non-data-scientist recruitment messages.",
+      "action": "execute",
+      "reason": "Unread SMS review is complete and yielded one qualifying open data scientist recruitment message; the remaining required outcome is to email that summary.",
+      "screenshot": "screens/48e00c4a5846d29c54484b77173a4a1493085649157100a5a2e2c74ddc865e45.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the email app to compose the requested data scientist recruitment summary.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/48e00c4a5846d29c54484b77173a4a1493085649157100a5a2e2c74ddc865e45.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new email for the requested recruitment summary.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/9a86e5cd3b8e761273eddb234efc89a40862109ea98bb054c8e81925e6ee697d.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the email to dylan@gmail.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/5a1784a1f9713a0c3785d804bc0e14bfbc10a8a5203e7cafc670455fb3329ea0.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add a subject specific to the qualifying Meta Data Scientist recruitment message.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/386e844ed21006b5ddec721d5acb2811d2fedf28f4c897f42f70eef19e258063.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Write the email body with only the qualifying Meta Data Scientist recruitment summary.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/23d295413b41139e79a451100c80d1bf20f35a7c6b29e730dcc172b703c6a0c1.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed Data Scientist recruitment summary email to dylan@gmail.com.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/42659034c8b4f8fff6ae105ebb99c85d2d09dc53f334ca9b852034b4eaf3c86e.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email was sent successfully to dylan@gmail.com with subject “Meta Data Scientist recruitment opportunity” and a summary limited to the qualifying Oct 7 Meta Data Scientist recruitment SMS. The Gmail confirmation explicitly shows “Email Sent.”",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/faf21b00253e8ab019375e1a36c0bd6b22e2f79b5c50f5218fb650bd3383e2a2.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "All unread SMS messages were reviewed, clearly identified spam was deleted, and the qualifying recruitment summary was emailed to dylan@gmail.com. The email covered the Oct 7 Meta Data Scientist opportunity, including the recruiter’s question about openness to new opportunities and the competitive compensation package, while excluding non-data-scientist roles. Gmail confirmed “Email Sent.”",
+      "action": "complete",
+      "reason": "All unread SMS messages were reviewed, clearly identified spam was deleted, and the qualifying recruitment summary was emailed to dylan@gmail.com. The email covered the Oct 7 Meta Data Scientist opportunity, including the recruiter’s question about openness to new opportunities and the competitive compensation package, while excluding non-data-scientist roles. Gmail confirmed “Email Sent.”",
+      "screenshot": "screens/faf21b00253e8ab019375e1a36c0bd6b22e2f79b5c50f5218fb650bd3383e2a2.webp",
+      "screenNumber": 28
+    }
+  ]
+}

@@ -6,12 +6,6 @@ This guide describes **module boundaries, interfaces and task execution flow**, 
 
 ![System architecture](assets/clickclick-architecture.svg)
 
-## MobileWorld scored profile
-
-The October 2026 evaluation upgrades structured historical summaries, item provenance, retained-note restoration and native detail observations. See the [verified comparison with AndroidWorld](mobileworld-evaluation-architecture.md) and [complete reproduction guide](mobileworld-reproduction.md).
-
-![MobileWorld evaluation memory and observation architecture](assets/mobileworld-evaluation-architecture.svg)
-
 ## What harness means here
 
 The **agent harness** is the runtime surrounding model inference: it builds requests, manages role transitions, selects skills and history, validates tool submissions, dispatches actions and returns feedback. **Session** is the durable task record. **Device tools** interact with the phone and construct observations.
@@ -64,7 +58,7 @@ Source: [runtime selection](../agent/runtime.py), [orchestration](../agent/revis
 
 ## A device interaction
 
-An observation package has an identity, pixels, UI structure, geometry and capture metadata. Executor must reference the current observation when acting; retrieved historical images cannot replace that action basis.
+An observation package binds a capture identity to global pixels, normalized UI structure, frame/model geometry and capture metadata. `accepted`, `actionable` and `index_actionable` distinguish an accepted capture, usable coordinate actions and usable indexed targets. Executor must reference the current observation when acting; retrieved historical images cannot replace that action basis.
 
 For supported local indexed taps, a private handle binds the selected index to the observed native node. The driver refreshes and checks the retained node before a single native click. Invalid or uncertain native results return feedback without silently reusing old coordinates. Other actions retain their documented coordinate paths.
 
@@ -78,13 +72,25 @@ The shared scrcpy stream serves Console Live and agent pixels. PyAV decodes fram
 
 Freshness checks use capture request boundaries and window generations. Bounded resampling handles transitions; usable pixels can remain available when structure is missing. Pixels and accessibility state are asynchronous, so this is not an atomic snapshot of every animated interface. See [capture design](design-decisions.md#scrcpy-collector-and-python).
 
+`observe_screen` offers three views through the same capture boundary:
+
+| Mode | Model input | Action basis |
+| --- | --- | --- |
+| `snapshot` | Current global screen and available UI structure | Accepted fresh global observation |
+| `sequence` | A bounded sequence showing change over time | The latest accepted global observation |
+| `detail` | Fresh native capture, locator overview and either a selected crop or four overlapping tiles | The paired fresh global observation; reading tiles are not actionable coordinates |
+
+The detail path preserves observation identity, native frame geometry and crop bounds on its attachments. It avoids reusing old tree overlays or enlarging reduced pixels. See [native detail capture](../agent/screen_detail.py) and [ObservationPackage](../perception/observation.py).
+
 ## Context, memory and skills
 
-Memory has three layers: original records preserve sources, versioned notes retain information needed later, and process summaries connect earlier execution history. Models receive a bounded context and retrieve missing details by source.
+Memory has three layers: original records preserve sources, versioned notes retain information needed later, and structured summaries connect earlier execution history. The original instruction, current stage, budget, fresh observation, historical summary, recent steps, retained notes and applicable skills are assembled independently for each role.
 
 ![Memory layers and context flow](assets/memory-overview.svg)
 
-Compaction keeps the newest two execution steps; notes, unresolved questions and measurements are restored separately. Summaries cannot edit notes, and retained content is not verified truth. See [Memory and context design](memory-and-context.md) for lifecycles, fields, budgets and risks.
+Compaction keeps the newest two complete execution steps. `clickclick.summary.v2` separates `results`, `decisions_and_attempts` and `critical_context`; every item binds to durable source references. The summary targets 3,000 characters with a 4,000-character hard limit. Schema, length and reference validation establish a mechanically valid summary, not semantic truth.
+
+Each note has a versioned full body and an optional `retained` excerpt of at most 600 characters. A bounded 3,000-character packet restores selected excerpts alongside the note directory; unresolved questions and measurements are restored separately. Exact note-version and retained-text matches allow reversible display deduplication. `summary_source` and `read_history` retrieve the original evidence when detail is needed. Summaries cannot edit notes or delete raw records. See [Memory and context design](memory-and-context.md) for lifecycles, fields and budgets.
 
 Planner selects stage skills from the catalog. Device profiles filter system-specific guidance; target and observed foreground identities determine applicable app knowledge. Role sections tailor the delivered body, with skill IDs, versions and content hashes recorded. App-owned compound recipes additionally require matching active stage and foreground scope. See the [skill authoring guide](../skills/README.md).
 

@@ -1,0 +1,101 @@
+{
+  "task": "AdjustFontIconMinimumTask",
+  "variant": "original",
+  "screenCount": 8,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 8
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Settings, set both font size and display/icon size to their minimum endpoints, preserving all unrelated settings.",
+      "action": "execute",
+      "reason": "Both requested display scaling settings remain to be changed.",
+      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Settings directly to change the font and display/icon size settings.",
+      "action": "launch(app=com.android.settings)",
+      "reason": "",
+      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Settings search to locate the font and display size controls directly.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/59af08997e1aa5b02c3f55188845330e384f6f6b5d094cac986bf60440e13624.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Settings for the font size control.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/ba411e12df2c22db2a6af9d427df506a310e62b07660fb10fdff18d24e2fee38.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Font size result within Display size and text.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/a476a0fe44672b23628933d29f152a4027417650b2ebff2527049de24c2a39e3.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Decrease font size one step from its current second position to the minimum endpoint.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/2c7adc992530aae433ceb2102cbbe08fb598a062b14123e00595df784b8fa532.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Decrease display/icon size one step from its current second position to the minimum endpoint.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/e39c39c9dc7e9c2b72c6b38aaf015a7a060ef20e4ed071c8730f5fe0b536dd7d.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The display size slider remains at its second position; tap its indexed Make smaller control to move it to the minimum.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/04b20a71007fec5af51a445dd8ca2b6aa56cf3e6f3823a41f2298f2ee05e1af5.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Both settings are now at their minimum endpoints: the Font size and Display size slider thumbs are each visibly positioned at the far-left end. Unrelated Bold text and High contrast text settings remain unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/718364bf99440c2e79b810a631de1e2ee9c4a44c036992949ba7afb9a7c8ed14.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Font size and display/icon size are both set to their minimum endpoints.",
+      "action": "complete",
+      "reason": "Font size and display/icon size are both set to their minimum endpoints.",
+      "screenshot": "screens/718364bf99440c2e79b810a631de1e2ee9c4a44c036992949ba7afb9a7c8ed14.webp",
+      "screenNumber": 7
+    }
+  ]
+}

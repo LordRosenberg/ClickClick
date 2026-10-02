@@ -1,0 +1,74 @@
+{
+  "task": "CheckDeduplicatedEventsTask",
+  "variant": "original",
+  "screenCount": 5,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 5
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect Calendar events from October 20 through October 26, 2025 inclusive, using the chronological event list where helpful; identify distinct records and collapse exact duplicates based on their visible event details, then report the deduplicated event count without modifying the calendar.",
+      "action": "execute",
+      "reason": "The requested count requires complete coverage of the specified inclusive date range and comparison of records for exact duplicates.",
+      "screenshot": "screens/109f574ac25268a1657fc56ff384f05b78d7972e19b39fd9d161c2dbb22f9671.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the target Calendar app to inspect the requested date range.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/109f574ac25268a1657fc56ff384f05b78d7972e19b39fd9d161c2dbb22f9671.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Change view to switch to the chronological Simple event list.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/aebdd65ad1122057262fe9965953466b88a0425d2acebbb7ad192bf81b4c39b7.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Simple event list for chronological range coverage.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/533489e8b65bdc56a562f71a8608d932a9d48981411cab5f827250c8a20413b6.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the chronological list with overlap to cover October 24 through 26 and check all in-range records.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/8ad185d004669833256496c4a456606f36d60a787fe05a3898dc2be07c661434.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "There are 15 deduplicated calendar events from October 20 through October 26, 2025 inclusive. Coverage reached the October 27 boundary. Daily counts by event start date are Oct 20: 4, Oct 21: 2, Oct 22: 2, Oct 23: 2, Oct 24: 2, Oct 25: 2, Oct 26: 1. The Weekend Trip to Mountains is one multi-day event spanning Oct 25-26 and was counted once; no exact duplicate records were visible.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/be55a08d2fe6d692add9cce19f3450979cf8cb04de34bcc6a8eca38cd1824ef6.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "There are 15 deduplicated events in the calendar from October 20 through October 26, 2025, inclusive.",
+      "action": "complete",
+      "reason": "There are 15 deduplicated events in the calendar from October 20 through October 26, 2025, inclusive.",
+      "screenshot": "screens/be55a08d2fe6d692add9cce19f3450979cf8cb04de34bcc6a8eca38cd1824ef6.webp",
+      "screenNumber": 4
+    }
+  ]
+}

@@ -1,0 +1,308 @@
+{
+  "task": "MastodonMallShareOrderTask",
+  "variant": "original",
+  "screenCount": 28,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 28
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在淘店“我的订单”中找到手表商品，记录其准确商品名称和购买价格，并保留该订单对应的商品图片以供后续发布；不要修改订单或其他记录。",
+      "action": "execute",
+      "reason": "先从淘店订单取得手表商品的准确名称、购买价格和对应商品图片，供后续发布使用。",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开淘店以进入“我的订单”查找手表商品。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "关闭首页现金弹窗，以便进入“我的”订单页面。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/78eddb48aa34806b583c12817f89403a1ca66bd2b52a346fb5ae050a2fc8e407.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入“我的”页面以查找“我的订单”。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/9fc66124d237e35a922281f21d6857a0dff537e18bde1c01be8c5cded24bb4fd.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开“我的订单”的全部订单列表，查找手表商品。",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/17008148ef39eab351cbbde2c6472c51d416fb3befe9f9c9f7294cab4748e993.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "向下浏览全部订单，继续查找手表商品及其订单价格和图片。",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/ef44a3a890cc0957758c65cb9d42df51b7a8a51d7904abc7de99f151cb9e3cb1.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续向下浏览订单列表，查找名称为手表类的商品及对应价格和图片。",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/4ee8703cf0c1532e102020704e7d666db8a49aaf735796d4cbcb02f892c21ef1.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续向下浏览剩余订单，寻找手表商品的准确名称、成交价格与对应图片。",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/63029d12f53cdb091bfd74420c90545dcce70ffae41de8c022fdafb4182b2f14.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在淘店“我的订单”中找到手表订单：商品名称“智能手表”，规格“42mm 黑色”，订单编号 682513047925861；商品标价￥1299.00，订单共1件、实际合计/购买价格￥1199.00。对应商品图片已在当前订单中明确识别，图片标识为 unsplash-1523275335684-37898b6baf30，可据当前观察用于后续发布。未修改任何订单或记录。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/3fa658e29248a2969f323fba05ba0a7456d8ccb0197f9151303b2e746a3bfec7.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "使用淘店订单中已取得的素材，在 Mastodon 当前登录账号发布一条介绍“智能手表”的推文，正文明确包含商品名称“智能手表”和购买价格“￥1199.00”，并附上该订单对应的商品图片（图像标识 unsplash-1523275335684-37898b6baf30）；发布前确保编辑器显示的账号正确且附件预览为该手表图片，并以发布回执确认成功。",
+      "action": "execute",
+      "reason": "淘店订单素材已取得；现完成 Mastodon 发布，并依据分享工作流核对发帖账号、附件预览和发布回执。",
+      "screenshot": "screens/0495f5c5cf186485821f2a419dc7aeb0dd861fa0f16dd827cd8ad61c26204cd4.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Mastodon，准备在当前登录账号中创建包含智能手表名称、购买价和对应图片的帖子。",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/0495f5c5cf186485821f2a419dc7aeb0dd861fa0f16dd827cd8ad61c26204cd4.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开新帖子编辑器，随后核对发布账号、填写商品名称与购买价格并添加订单对应图片。",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/92deac79fc52146523e860e01af4f52b4cd57ae469a92863ad83c7909ac72b6f.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "编辑器显示当前账号为 TEST（@test@10.0.2.2）；打开媒体选择器以附加订单对应的智能手表图片。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/5d916be6d3da3c14daec6ced5e4a1960e4c0cd0501a26c230ca704051e3485ac.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "近期照片中未显示订单对应的智能手表图片；切换到相册列表查找该商品图片所在目录。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/b3767239bac85229abd1ed578a846e53fe4137e8f98f21653b77183866898901.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "发布所需图片文件这一前置条件未满足：Mastodon 的系统媒体选择器中，Photos 全部近期项与唯一的 Camera 相册均无智能手表图片，只有订单中的图像标识并不等于可附加的本地媒体。需要先回到淘店将 `unsplash-1523275335684-37898b6baf30` 对应图片保存到设备或从淘店直接分享给 Mastodon，再继续编辑和发布；当前未选择任何错误图片。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f01e76329850dbf1a206a30d791d14d05ffd3dcee483df1ccf6c743df80cbd44.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "返回淘店中订单号 682513047925861 的“智能手表”订单，取得与图像标识 unsplash-1523275335684-37898b6baf30 对应的商品图片并保存到设备，或通过淘店的分享能力将该图片直接送入 Mastodon；不得选择其他图片或修改订单。若无法取得，报告淘店详情页可用的图片保存/分享入口。",
+      "action": "execute",
+      "reason": "Mastodon 媒体选择器已确认设备中没有目标手表图片；先补齐可附加媒体这一前置条件，再继续发布。",
+      "screenshot": "screens/5790f67188bb03e4a8f6a17fdea4e09954672cd3b5f246d7413b6107cda12d70.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "离开不含目标图片的系统媒体选择器，直接返回淘店以定位订单详情中的商品图保存或分享入口。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/5790f67188bb03e4a8f6a17fdea4e09954672cd3b5f246d7413b6107cda12d70.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开订单号 682513047925861 的智能手表商品卡片，查找商品详情中的图片保存或分享入口。",
+      "action": "tap(index=48)",
+      "reason": "",
+      "screenshot": "screens/8edf29e409a07548235e9ec4f9184777a5488347fa5c6bc80b0672cbdc89db55.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "订单详情未显示显式保存或分享按钮；长按目标智能手表商品图，检查 WebView 是否提供图片保存或分享菜单。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/83b6ed9c5b92b5962ae034d72145ea15dfbdfa976944550277aaa0f37b78ebda.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "长按商品图未出现任何菜单；点击订单详情中的智能手表商品卡片，尝试进入商品详情页寻找分享或更完整图片入口。",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/3a4164fd3ce63cf2ac00c1f0c795f98b6de34709f1d338253abf070d15566e88.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已进入智能手表商品详情页；长按与目标标识完全匹配的大图，尝试调出保存图片或分享菜单。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/e0bb44df9f2cc59a082b249b176ca855a7bb8b0d2079c04dd9fef61966396369.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认保存与目标标识对应的智能手表商品大图到设备相册。",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/fa630c14273af1bd2edf4a570b2defb286fad3571e3af107b3d2a723d59222b9.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在智能手表商品详情页长按与标识 unsplash-1523275335684-37898b6baf30 对应的大图，并确认保存；界面明确显示“保存成功”。目标商品图片现已保存到设备，可供 Mastodon 附加。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1322d78136ce21a012caa6ae371ce9191bde77288f4b048f455245f8b00ea647.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Mastodon 当前登录账号 TEST（@test@10.0.2.2）发布一条介绍淘店订单商品的帖子，正文明确包含商品名称“智能手表”和购买价格“￥1199.00”，并附上刚保存的对应商品图片（标识 unsplash-1523275335684-37898b6baf30）；确认附件预览确为该白色智能手表图片，并以发布成功反馈为准。",
+      "action": "execute",
+      "reason": "目标商品图片已明确保存成功，现可继续完成 Mastodon 发布。",
+      "screenshot": "screens/5964e0f44212644bfbaf84e21048596a3b7cfa0850e0cc24e2ebdeeeb8b1ae6d.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "启动 Mastodon，以当前登录账号 TEST 创建包含商品名称、购买价格和已保存目标图片的帖子。",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/5964e0f44212644bfbaf84e21048596a3b7cfa0850e0cc24e2ebdeeeb8b1ae6d.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在 TEST（@test@10.0.2.2）的新帖子编辑器中填写正文，明确包含商品名称“智能手表”和购买价格“￥1199.00”。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/b6d64aab40837f74f7f106241b119fbd0af79fc38b608bb8cc5d8b78dec5c676.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开系统媒体选择器，选择刚保存的白色智能手表商品图片作为帖子附件。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/1fdd6433ad440f42e58c38bf80b3852566e8e515f00fffd543ec56cc85a91999.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择“Recent”中可见的目标附件：白色表带、黑色圆形表盘的智能手表图片。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/acf487a3ca299be03df6d85a60453af2c33615b8721001cd60fad09ddf2d43a6.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将已选中的白色智能手表图片添加到 Mastodon 帖子，随后检查编辑器中的附件预览。",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/7c07ed07e317daae9a0505969641840039ae5593db475768466e0456fddd9a2f.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "正文已准确包含“智能手表”和“￥1199.00”，附件预览确认是白色表带、黑色圆形表盘的目标商品图；点击 Publish 发布。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/74339f3b0a00f18484938a7f19424f9bf0ab23e432e823af1454ce88aad8c38d.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "发布操作已返回主页，但当前时间线顶部未显示目标帖子；进入 TEST 个人资料核实刚发布的正文与图片，避免仅凭返回主页判定成功。",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/faf94cd564539d0049ec95461103f29f1a394485eb2eea01a2a58ecf95b36a69.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在 TEST（@test@10.0.2.2）个人时间线确认新帖子发布成功：正文为“智能手表，购买价格￥1199.00。”，并附有已核对的白色表带、黑色圆形表盘智能手表商品图片。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/00b4a3f269f62fc671a0204c1ae28a55b0933609abedc7f978561f185c02a458.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：在 Mastodon 的 TEST（@test@10.0.2.2）账号成功发布帖子“智能手表，购买价格￥1199.00。”，并附上对应的白色表带、黑色圆形表盘智能手表商品图片。",
+      "action": "complete",
+      "reason": "已完成：在 Mastodon 的 TEST（@test@10.0.2.2）账号成功发布帖子“智能手表，购买价格￥1199.00。”，并附上对应的白色表带、黑色圆形表盘智能手表商品图片。",
+      "screenshot": "screens/00b4a3f269f62fc671a0204c1ae28a55b0933609abedc7f978561f185c02a458.webp",
+      "screenNumber": 27
+    }
+  ]
+}

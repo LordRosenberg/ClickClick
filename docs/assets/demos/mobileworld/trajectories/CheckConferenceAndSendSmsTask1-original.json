@@ -1,0 +1,137 @@
+{
+  "task": "CheckConferenceAndSendSmsTask1",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the calendar to identify the dates of the user's arrival in Paris and departure from Paris, retaining which date is arrival and which is departure.",
+      "action": "execute",
+      "reason": "The travel dates must be obtained from the calendar before composing the SMS.",
+      "screenshot": "screens/bd7d08cfc050d9fed562eacc60b37887a589a07f898c79d684b9a3a9970d25f3.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to search for Paris arrival and departure events.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/bd7d08cfc050d9fed562eacc60b37887a589a07f898c79d684b9a3a9970d25f3.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search calendar entries for Paris to identify the exact travel span.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/464910ae1123e5586f20ca68ef30d2acb8e594035d589cac725e343a04cbbbdd.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Conference in Paris event to read its exact start and end dates.",
+      "action": "tap(index=57)",
+      "reason": "",
+      "screenshot": "screens/4e313b1f30a238b35d94231c1e51562af96fe8b1579c537a3f7aa37d244eaf96.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Calendar event “Conference in Paris” is an all-day event from October 11 (Sat) through October 15 (Wed), in the currently displayed October 2025 calendar. Arrival is 10/11/2025 and departure is 10/15/2025.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2f0004858875d30eb197755b846ce75c2095c4c16787341a52398cceb2020737.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send Mia one SMS with the entire message body exactly `10/11/2025,10/15/2025` and no additional text.",
+      "action": "execute",
+      "reason": "The calendar evidence establishes arrival as 10/11/2025 and departure as 10/15/2025; the remaining work is to send the required SMS to Mia.",
+      "screenshot": "screens/546164b97a22574ab393272de714c0d86f5eaa60046e9b13b87fa21ccb739101.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to send Mia the exact two-date SMS.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/546164b97a22574ab393272de714c0d86f5eaa60046e9b13b87fa21ccb739101.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new SMS conversation to select Mia.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/9de03c8c2a3186fa5abfd5484cc8cd58c80ac20ac1a747a8fc98109fc95826f2.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search contacts for Mia.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/e7703d259294c51111be9a52759380a540dc3ea62141ec00a77ab52eee5a4ee0.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the matching Mia Scott contact as the SMS recipient.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/4ea118d43b96273c28f5957ecfacdcd026f3b468b322bcc9e3c6b06176d01a9e.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact two-date SMS body with no extra text.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/269a032adc2a0e99fa23a24c9f61538b0513d937ba845ca9943fc3b7f600dec2.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact SMS to Mia Scott.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/f72777256fc77d94242357125bdc5ed55434f5f767a7cdbf91e6e2ca71b6cfdf.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent one SMS to Mia Scott with the exact body `10/11/2025,10/15/2025`; the conversation now shows the outgoing SMS and the composer is empty.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/7b0eec9f75644993a6340ae5a429a2509c417fef0ff004362f9bfd506798f071.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Calendar dates were identified as arrival 10/11/2025 and departure 10/15/2025, and one SMS containing only `10/11/2025,10/15/2025` was sent to Mia Scott.",
+      "action": "complete",
+      "reason": "Calendar dates were identified as arrival 10/11/2025 and departure 10/15/2025, and one SMS containing only `10/11/2025,10/15/2025` was sent to Mia Scott.",
+      "screenshot": "screens/7b0eec9f75644993a6340ae5a429a2509c417fef0ff004362f9bfd506798f071.webp",
+      "screenNumber": 10
+    }
+  ]
+}

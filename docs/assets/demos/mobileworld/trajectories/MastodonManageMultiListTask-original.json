@@ -1,0 +1,290 @@
+{
+  "task": "MastodonManageMultiListTask",
+  "variant": "original",
+  "screenCount": 27,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 27
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, view the account's lists and delete every currently existing list, preserving all unrelated account data; report when no prior lists remain.",
+      "action": "execute",
+      "reason": "Begin with the required cleanup so the two requested lists are created from a clean state without overwriting existing records.",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon directly to begin reviewing and deleting the account's existing lists.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home timeline selector to navigate to Lists.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/eff72cb9c125fade145e30f82fa4f486f4edb1d0588ce76513801d668f0426ee.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Lists from the Home navigation menu.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/c04b3f957ae4cb3f1f0ea3e829fb4176727da085c951351a5a8afc8efa867556.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Viewed Mastodon's Lists menu. It shows the empty-state message “Yours will appear here,” so there are no previously created lists remaining; unrelated account data was left unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2d62ab3c5401da046f382e5d9f94c1843748de19d555cc5594239bdef43dbe6d.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct new Mastodon list named 'open', set replies to allow only users the account follows, and add every eligible user whose username contains the literal substring 'open'; preserve unrelated account data and retain the configured list for the next stage.",
+      "action": "execute",
+      "reason": "The prior-list cleanup is complete. Proceed with the first requested replacement list and its membership/settings criteria.",
+      "screenshot": "screens/2d62ab3c5401da046f382e5d9f94c1843748de19d555cc5594239bdef43dbe6d.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Create list flow to create the distinct 'open' list.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/2d62ab3c5401da046f382e5d9f94c1843748de19d555cc5594239bdef43dbe6d.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the new list's exact name to 'open'.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/8f796fdb81dbf6d851c4bcca9c491a6e451d32f2903717289e007104007421e1.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the reply-visibility selector so the 'open' list can be set to users the account follows.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/948e77b31e815d397c886e214f490ef4c124d6a78343d7cab805060f92946016.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 'Anyone I follow' as the reply audience for the 'open' list.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/127a8d6ed0db193d945e993212705644e37720350ebacd3c8a3d18f06b9fc5f9.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the 'open' list with replies limited to anyone the account follows and hide-members left disabled.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/8b02562f256971f07bed0c51586135f7f70a8a3924f8c88ce1da8a9b0eda48b8.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the member search to find every eligible account whose username contains 'open'.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/98e09a514b07eb38ca29dbb31d1efa5bac5bad4a791db4323cc11d3d4dfa1472.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Filter followed accounts by the literal username substring 'open' before adding all matching users.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/051a40b6e17e8bf00bd2d18eaae48619486079f966b4607f6049126b619274fc.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the first filtered username match, @openCompany, to the 'open' list.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/23aeca568196336e7d323b645f2a2748370bfe8a45d0d8d3ba5872ee70df46d3.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the second and final filtered username match, @openUniversity, to the 'open' list.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/40ff43f730bfb4bd6115da83aab29bdb064da6522e08e2f5d5f3c5f52388d8c1.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created the distinct 'open' list with replies limited to anyone the account follows and hide-members disabled. Searching followed users for literal 'open' returned exactly @openCompany and @openUniversity; both now show Remove, confirming both were added. No unresolved issue remains for this stage.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/065d6081b874f027ae20fbd04c38f3f4b9ccc5f7cae36065c8e0cd003d2b6979.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct new Mastodon list named 'cute', set replies to allow only members of that list, enable Hide members in Following, and add every eligible followed user whose avatar is a dog or cat; preserve the completed 'open' list and all unrelated account data.",
+      "action": "execute",
+      "reason": "The existing lists were cleared and the new 'open' list is complete. Proceed with the remaining distinct 'cute' list, using adaptive traversal to cover the followed-user collection by visual avatar criterion.",
+      "screenshot": "screens/011fb88063422ee25f0080b2549f6ca91150b9df942818db93673b89e97f7669.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave the 'open' member search and return toward the Lists screen to create the distinct 'cute' list.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/011fb88063422ee25f0080b2549f6ca91150b9df942818db93673b89e97f7669.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Finish the completed 'open' list flow so the Lists screen can be used to create 'cute'.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/51f4b03106c23443f1b48cdb3690e26d37e58f0494516fea5fa01c2ef3507924.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home feed selector to navigate back to Lists and create the new 'cute' list.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/fb112997e391513b12b3644bb93f09ff419aeee9dc10d78a320dc7f4f4844d9f.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Lists submenu from the Home feed selector.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/8dcb6f86672df4b8515654835f8127f0893df31a99dbf3bbbb45f298573d6ee6.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Create list to begin creating the distinct 'cute' list.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/c2f82554b18bf70e6b9431fda2b08368199639f9c3ec18c6719daf6294e1191b.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the new list's exact name to 'cute'; the reply setting is already 'Members of the list'.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/b42553fc5a111695acf94263457e834e36a2bc452de454ee613081455d1d9afc.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enable 'Hide members in Following' for the 'cute' list while preserving the already correct members-only reply setting.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/4428ca21cdfd8e7019f8cbe9bdb94fcad73947264dd4392a83c5b46121c2fe43.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the distinct 'cute' list with members-only replies and Hide members in Following enabled, proceeding to member selection.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/a5de0ffb54674c087f271ca04a0ae2902516168db4af59b4a9eac9e9e52771c1.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the followed-user picker to identify and add every user whose avatar is a dog or cat.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/8836d0d86790fc1d15d501751ef6ca242083e741b1b33c104fa484494bc6a757.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add @kitty, whose visible avatar is a cat, to the 'cute' list.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/5b0a9292a359b5c70272ab4bf961fc9477d65f5cd35a43860b59df5fe04675d5.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add @olivia, whose visible avatar is a cat, to the 'cute' list.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/0e5db59164c73be53fcee2df863805858563efb5b564a835cb6ceddaf46ee8df.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add @pupper, whose visible avatar is a dog, to the 'cute' list.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/52afcd4d5448e18d5e02b39f231d80924375cbd64df98031baa3310956515538.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the distinct 'cute' list. The full followed-user collection is visible through its end; @kitty and @olivia have cat avatars and @pupper has a dog avatar, and all three show Remove, confirming they are members. Prior setup evidence confirms replies are limited to list members and Hide members in Following is enabled. The completed 'open' list and unrelated data remain preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/e537b6cc931edf927d5faa97ded1fa32c0579c5ffc49ba1adb6a0737dd0667ca.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed the Mastodon list cleanup and setup. No previously created lists were present to delete. Created `open` with replies allowed from anyone followed and added @openCompany and @openUniversity, the followed users whose usernames contain `open`. Created `cute` with replies limited to list members, enabled Hide members in Following, and added @kitty, @olivia, and @pupper based on their cat or dog avatars.",
+      "action": "complete",
+      "reason": "Completed the Mastodon list cleanup and setup. No previously created lists were present to delete. Created `open` with replies allowed from anyone followed and added @openCompany and @openUniversity, the followed users whose usernames contain `open`. Created `cute` with replies limited to list members, enabled Hide members in Following, and added @kitty, @olivia, and @pupper based on their cat or dog avatars.",
+      "screenshot": "screens/e537b6cc931edf927d5faa97ded1fa32c0579c5ffc49ba1adb6a0737dd0667ca.webp",
+      "screenNumber": 26
+    }
+  ]
+}

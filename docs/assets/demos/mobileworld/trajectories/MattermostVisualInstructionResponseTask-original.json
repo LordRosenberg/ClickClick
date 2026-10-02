@@ -1,0 +1,353 @@
+{
+  "task": "MattermostVisualInstructionResponseTask",
+  "variant": "original",
+  "screenCount": 34,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 34
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open Mattermost, inspect the operations manager's posts in the 'emergency-response' channel, and accurately transcribe every first name and phone number from the 'Emergency Contacts' image plus every shift name and start time from the 'Shift Schedule' image; retain these mappings for later creation.",
+      "action": "execute",
+      "reason": "First retrieve and transcribe the source details from the specified Mattermost channel before creating any records.",
+      "screenshot": "screens/79a2ae328b5c771363a216d2b74eb84e335d9366c71ce8f1bcd73bb52ac3349e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to inspect the specified channel posts and images.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/79a2ae328b5c771363a216d2b74eb84e335d9366c71ce8f1bcd73bb52ac3349e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Emergency Response channel.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/7038cc8b041f76a91fa9b09b39527042f633937164064317a3d244a6def04322.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened Emergency Response and obtained a detailed view of both operations images. Emergency Contacts lists 'Dr. Smith: 555-1010' and 'Safety Officer: 555-2020'. Shift Schedule lists 'Morning Shift: 08:00 AM' and 'Evening Shift: 08:00 PM'.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/6279380c2c884a57c403ba87eb281edc956cfe1c1fd9f39cf6b603ad61cc0549.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create two distinct new contacts: first name 'Dr. Smith' with phone number '555-1010', and first name 'Safety Officer' with phone number '555-2020'. Fill only the first-name and phone-number fields and preserve unrelated contacts.",
+      "action": "execute",
+      "reason": "The source details are transcribed; create the two requested contact records next while preserving the image labels as the first-name values.",
+      "screenshot": "screens/e0faca18b843d8b407bba54a26223954dfdda476de7a7dbf51343af11d041f55.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Contacts to create the two distinct requested records.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/e0faca18b843d8b407bba54a26223954dfdda476de7a7dbf51343af11d041f55.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google sign-in so contacts can be created locally.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/22c54fd7c16480d350d7043ffe403e035996fa6d04cd417931a6d0fe286e12d7.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the onboarding tooltip before using Create contact.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/11133558b9195c324946c67e9235e831f2d8521ff81e1da4889dbd91baa49928.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the persistent onboarding tooltip with Back so the Create contact control is usable.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/4ec41f0f936dee412aca9f467a015bac292f0eb385ee1321578fac2a83743515.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return directly to Contacts after Back unexpectedly switched to Mattermost.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/44b566dada1ea34e3c7615ae1be847d720778250f1b794f9669ce8d6ca354ef1.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Decline the unrelated notification permission prompt so contact creation can continue.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/c6f077ce7f9eaea4b0f50029981d2473f720ded41253f785fec93494b4db6480.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-contact form for the first requested contact.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/4649d0b3c4434f3fbad3fe35542b8c8c1a0f3f92197d29e536ad0e55625ec44b.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Fill the first-name field with the exact requested value for the first contact.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/55e1abffc293d7dff254de3795e5930699cbbc4817ad02f296be43ffc3cf059d.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Fill the first contact's phone-number field with the exact requested number.",
+      "action": "replace_text(index=11)",
+      "reason": "",
+      "screenshot": "screens/c9e47fa77ac9845eae3aa2e8b6e1eec741270c60f7a56d17fa2dd0b4e31157ed.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the first contact now that the first-name and phone fields are visibly correct and all other fields remain empty.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/06f9ee13c3d484fecfc4c055a5338d56a96e06274b1400f72ac89488c1f159ea.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the contacts list to create the second distinct requested contact.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/c33dc6a9e1f60ed62c206fe0edbc26662927536f784382adc62ef2e33543e6bd.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a fresh contact form for the second distinct contact, Safety Officer.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/c2166573cb8ac5af96c0f00a4180ee3d14ece51de1e5f2ae2c891ee47ccd17de.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact first-name value for the second contact while leaving all other fields unchanged.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/ec1dd24ee209a1f8d5d1e24e8f0c3522886abc0c6f1fbbd9c776ea7fda034ee4.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact phone number for Safety Officer, keeping all optional fields empty.",
+      "action": "replace_text(index=11)",
+      "reason": "",
+      "screenshot": "screens/4a3674ac2f4fce7a0c669305cbd3cb11b0116d4506675a9b4361779523e8bc74.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save Safety Officer now that the current screen visibly confirms the exact first name and phone number with optional fields empty.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/001cdd5c94482e59cc477450001ddfe8ca1e6fb40b7006157017778c40b9606b.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Both distinct contacts are complete. Dr. Smith was previously verified with Mobile 555-1010. The current contact detail screen verifies Safety Officer with Mobile 555-2020 and shows the saved confirmation. Only first-name and phone fields were populated; unrelated contacts were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/058533d19cf2b1c95d44af2a645c9a0025c92160240223ca095c2dfa3cd405e2.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create two distinct alarms: 08:00 AM labeled 'Morning Shift' and 08:00 PM labeled 'Evening Shift'. Preserve unrelated alarms and ensure each requested label is attached to its corresponding start time.",
+      "action": "execute",
+      "reason": "The contact-creation stage is complete; the remaining work is to create the two alarms transcribed from the Shift Schedule image.",
+      "screenshot": "screens/210de1a4c4b017108e8d3d59b50f0de8633ff8b42859d401d844a2ec5f5cd0dc.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Clock app directly to create the two requested labeled alarms.",
+      "action": "launch(app=com.google.android.deskclock)",
+      "reason": "",
+      "screenshot": "screens/210de1a4c4b017108e8d3d59b50f0de8633ff8b42859d401d844a2ec5f5cd0dc.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-alarm time picker to create the first requested alarm, Morning Shift at 08:00 AM.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/604d1013bb669b1f463449f7bb10c2e4acdc97dd68c7bd8341f6172a6acb7cd1.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the first alarm's hour to 8; minutes are already 00.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/798b4f056667d2e7bbe8627ab39f85a3e7c8776511e4b2bdb2a06e029978c8a5.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select AM for the 08:00 Morning Shift alarm before confirming the time.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/b274f485159389a9f33d5ca3739f96a3730ef5e158007fff56d46ae1f77d4cd1.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm 08:00 AM and create the first alarm so its label can be set.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/7d16ddbe9f1f856b93b1c264011de6c5d8c7c5692b562d6e72dcc65791c5a704.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the label editor for the newly created 08:00 AM alarm.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/a414f814d7e81d881c324a29f5ac8a6fcccab38bd190bb5a900bf79ea4d4c6ff.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the requested Morning Shift label in the focused label field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/b009485ef5c0baa4710911038dc475d54845cefcbea2f690ed9e3a718ed221cf.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm and save the Morning Shift label on the 08:00 AM alarm.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/fc3d2549aacdd40a6d1eebc81e17ccf18d15ae71783b424d8949ddf6813b01aa.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the time picker to create the distinct 08:00 PM Evening Shift alarm.",
+      "action": "tap(index=26)",
+      "reason": "",
+      "screenshot": "screens/e7ab2dfbc35f2b4b8f138728c59f549acb5ee0e9ec65de46b25bd0213bdd6a8f.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the hour to 8; PM is already selected and minutes are 00.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/d9de85d6f1ac9aa304bd865cfa5e8329643c204ea1885520eea7fb4f2fb479d2.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm creation of the 08:00 PM alarm with the selected 8:00 PM time.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/c9804bd6fa3279d740f603e98e99e1d4fa0a8a9460a021297b309d7a3a32768b.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the label editor for the newly created 8:00 PM alarm.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/e512add71fe00a8ebc4b26d6ce4a5f1e950bd06398f6fe3b5e9eaa92bf2b3b88.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact label 'Evening Shift' in the focused empty label field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/16c8225d8d507b803365557205a71feedf96a0ac9935f165d9e941e934f5da4b.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the exact 'Evening Shift' label on the 8:00 PM alarm.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/9054debc5cd1f7598bf7675a00a90918295472b163d968f7ca2eeeeee1aa3a26.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed both requested alarms while preserving unrelated alarms. The existing 08:00 AM alarm is verified as labeled 'Morning Shift'; the current observation verifies a distinct enabled 08:00 PM alarm labeled 'Evening Shift' (card accessibility label: '8:00 PM Evening Shift').",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/9e19861f28ee6afbca2870648e6ef041bc553ce985dc829b06c76207fd1147c7.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed the emergency-response setup: created contacts Dr. Smith (555-1010) and Safety Officer (555-2020) with only first name and phone number populated, and created enabled alarms for Morning Shift at 08:00 AM and Evening Shift at 08:00 PM while preserving unrelated contacts and alarms.",
+      "action": "complete",
+      "reason": "Completed the emergency-response setup: created contacts Dr. Smith (555-1010) and Safety Officer (555-2020) with only first name and phone number populated, and created enabled alarms for Morning Shift at 08:00 AM and Evening Shift at 08:00 PM while preserving unrelated contacts and alarms.",
+      "screenshot": "screens/9e19861f28ee6afbca2870648e6ef041bc553ce985dc829b06c76207fd1147c7.webp",
+      "screenNumber": 33
+    }
+  ]
+}

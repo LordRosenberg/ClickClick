@@ -1,0 +1,173 @@
+{
+  "task": "MastodonFollowTask",
+  "variant": "original",
+  "screenCount": 15,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 15
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find Robert's contact in Contacts and record his nickname exactly; do not modify the contact.",
+      "action": "execute",
+      "reason": "First obtain the exact nickname from Robert's contact before using it for the Mastodon search.",
+      "screenshot": "screens/8962de32929539e4286a945e11ba64ab38801a2eab540bbc0f58b3e61e5513c6.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Contacts directly to find Robert's exact nickname without modifying the contact.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/8962de32929539e4286a945e11ba64ab38801a2eab540bbc0f58b3e61e5513c6.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google sign-in so the existing local contacts can be searched.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/0e4ee608e180fda0c7b72d5e2bc81469a67dac5e014faacf8df7a36ea1fc3dce.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the informational tooltip so the contacts search field can be used.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/da71003db991513c5a4e57a6d94dff0e94073549013129db5acd2cddf7975e74.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap the contacts search field; this should dismiss the tooltip and focus search.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/d190308c218d64113cb7fd7559ea49016ddaad71d601c621416663a9e46cb604.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the focused Contacts field for Robert.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/d5f44c66fa2dc3155cd69a20e02fc96283d21de4a07771c94e9b0fde1a200e04.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the sole Robert search result, Robert Pattinson, to inspect the contact's nickname.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/fc6ceac185bba0ee724e21d116feb28f501607c6a6b3c067c63e6aeff550a3b7.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened Robert Pattinson's contact without modifying it. The About Robert card shows the exact nickname `rainbow123`.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/ae1568e550739e91503ba575c745c126040f0f47b3bfc1d41170d235bde099b7.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Search Mastodon for the exact nickname `rainbow123`, identify the account matching Robert, and follow him without changing any unrelated follow state.",
+      "action": "execute",
+      "reason": "The exact nickname is established, so the remaining stage is to search Mastodon and follow the matching Robert account.",
+      "screenshot": "screens/a1113de25e5fb2b739b8e94e4f3a52bbb8fed23b35eca189ed32f310ff0944df.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch Mastodon to search for the exact nickname `rainbow123`.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a1113de25e5fb2b739b8e94e4f3a52bbb8fed23b35eca189ed32f310ff0944df.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon's Explore/Search tab.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/dde652261cd16f56dc80f21eca8dbb36f3ac5b3257ad6a0b537402880c104b4a.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Search Mastodon field so the exact nickname can be entered.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/aab0ed59583ade3f740f50296985a9d9987ca00aa70775b779210c04b2c11477.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact nickname `rainbow123` in Mastodon search.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/bc4e32e88951c1ccf5abf163fdfc2661f07219fd96e93da2fa0f1968cd462036.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact `@rainbow123` people result to inspect the account and confirm it matches Robert before following.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/50e868e7ab1c0841374bf10d3509959ed8a1bb1bc3ac080c1859140a0764631f.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the account's About tab to check for Robert-identifying details before changing follow state.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/3c45cba043fccafb39b7872d2674179e143929329da276996e1a5c17cf334886.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Follow the exact `rainbow123` account identified by Robert's contact nickname; no unrelated follow state is touched.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/4112243c1d5f3c988e22e223022aa70ffe9b93fb1619b991fd7d81f036d5ee5d.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found Robert Pattinson's contact nickname as `rainbow123`, searched Mastodon for that exact nickname, opened the matching `@rainbow123@10.0.2.2` profile, and followed it. The profile now shows `Following`; no unrelated follow state was changed.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/af054b7fb10c773cbd0b12b429ffc4b3feed93ab9420855ef7836e3214b5d9a3.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found Robert Pattinson's nickname `rainbow123` in Contacts, searched for it on Mastodon, and followed the matching `@rainbow123@10.0.2.2` account. The profile now shows `Following`.",
+      "action": "complete",
+      "reason": "Found Robert Pattinson's nickname `rainbow123` in Contacts, searched for it on Mastodon, and followed the matching `@rainbow123@10.0.2.2` account. The profile now shows `Following`.",
+      "screenshot": "screens/af054b7fb10c773cbd0b12b429ffc4b3feed93ab9420855ef7836e3214b5d9a3.webp",
+      "screenNumber": 14
+    }
+  ]
+}

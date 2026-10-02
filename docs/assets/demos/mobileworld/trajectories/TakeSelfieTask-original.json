@@ -1,0 +1,74 @@
+{
+  "task": "TakeSelfieTask",
+  "variant": "original",
+  "screenCount": 5,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 5
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open Camera and capture one new photo, preserving the resulting saved photo.",
+      "action": "execute",
+      "reason": "A new photo still needs to be captured.",
+      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Camera app directly to prepare to capture one new photo.",
+      "action": "launch(app=com.android.camera2)",
+      "reason": "",
+      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through Camera setup so the app can reach the capture screen.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/a13b658d8833d9730e85b512bbfad1639094c5018741b84b5a138ea9fa2678f1.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Decline optional location access and continue Camera setup without geotagging.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/ac355bc7037123d983b56aa3ea69912a442d67281a55678405940c22778ff65a.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Press the Camera shutter to capture and save one new photo.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/c3be18e1cace03c965b71b7dff09242326bd114e50f61388c03b3080d8762889.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Captured one new photo. The Camera UI now shows a newly populated thumbnail, supporting that the photo was saved and preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/41adf27357daca3ed3d2be147a1fc5633376cebfc82a1eb907304e76d36d3afe.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Captured and saved one new photo.",
+      "action": "complete",
+      "reason": "Captured and saved one new photo.",
+      "screenshot": "screens/41adf27357daca3ed3d2be147a1fc5633376cebfc82a1eb907304e76d36d3afe.webp",
+      "screenNumber": 4
+    }
+  ]
+}

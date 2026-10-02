@@ -1,0 +1,236 @@
+{
+  "task": "DownloadSendReceiptTask",
+  "variant": "clarified",
+  "screenCount": 21,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 21
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mail, find the email containing the attachment titled exactly `receipt.jpg` and download that file, preserving the email and all unrelated content.",
+      "action": "execute",
+      "reason": "First retrieve the requested attachment from email; the downloaded receipt will then provide the amount needed for the outgoing message.",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Mail app to begin locating the email with the exact `receipt.jpg` attachment.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mail for the exact attachment filename `receipt.jpg`.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/14e26470fbf34800debb082a517c711eafc69fb56c985b1ceb00a2ffd6e9ec81.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open William's matching reimbursement email to inspect and download its exact `receipt.jpg` attachment.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/20214358749e08548f1c6dc9e13dfe26ea017fc163c669e12b8dd97182f1458f.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the attachment titled exactly `receipt.jpg` from the matching email.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/c7418296fe5eaf1ca1be2ac523accf2504866b3abf8dba8b2887e8e040c59a6b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The matching email from William was found, its attachment was verified as exactly `receipt.jpg`, and Mail confirmed `Saved receipt.jpg to Downloads`. The source email and unrelated content were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4f79634d18e4c87a7249c42df3d953d305098adfc956cf296dcdddc94ec08dfd.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open the downloaded `receipt.jpg` from Downloads and read the receipt's exact total amount spent, retaining that value for the outgoing email.",
+      "action": "execute",
+      "reason": "The downloaded receipt must now be inspected to obtain the exact total before composing the requested email.",
+      "screenshot": "screens/01ca6820939881bcdf73d0160df238b3925c79c3ca1e22284b1f165507609587.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to access the downloaded `receipt.jpg` in Downloads and read its total.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/01ca6820939881bcdf73d0160df238b3925c79c3ca1e22284b1f165507609587.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the downloaded `receipt.jpg` for detailed reading of its exact total amount.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/89738f7ca537e1d4d33ceafd196cc16acf55405c4bbccf04f6a83771cfda8461.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Gallery as the image viewer for `receipt.jpg`.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/abbe002970ffe26e86b50cbf94b42aa3fe7abd09f3ae80629850107a5ac85e29.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm opening `receipt.jpg` in Gallery just once.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/115808351d8a414deed6b4f7457ec9034b2b756a2a0ae20ce594bd9417c29850.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened downloaded `receipt.jpg` and read the labeled receipt total as exactly £5.08.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/dbe88c6490eb1ddfd601809b484a8d8a37484e3a559f7c35f034ac80f4d87021.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a new email to `treasurer@gmail.com` with subject `Proof of purchase`, attach the downloaded `receipt.jpg`, mention that the total amount spent was exactly £5.08 in the email body, and send it.",
+      "action": "execute",
+      "reason": "The receipt is downloaded and its exact total has been established as £5.08; the remaining work is to compose and send the requested email with the file attached.",
+      "screenshot": "screens/66548f7b9e978b03488e808f8871ad6a3a69869bbeda08721affc9bc68ca5338.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the target Gmail app to compose and send the requested email.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/66548f7b9e978b03488e808f8871ad6a3a69869bbeda08721affc9bc68ca5338.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the mailbox so a distinct new email can be composed rather than replying to the source message.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/ae1cc3f4fba41ff994dbec5f93c224077edfb8ac1d6ecf6930fb6e35e0eb4ea3.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a distinct new message using Compose.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/6f8f243cc1154f9483127118ff374568395758f3356638187785cef5c3e47664.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested recipient address.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/ddee6f71acf215bd80e47b5b271b00f44507c864a913129eec692ee1ab89e026.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested subject.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/ef30c9baec95ca901acae43a59779f7d421fdeed2d853e4c301acb9e0120e87b.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a body that explicitly states the exact total amount spent.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/3a02e962b0f3f7e920ddeb989f374543c4a5b612b73328e631a7399c364dd231.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker to add the downloaded receipt.jpg before sending.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/3bff451a8a73d654ebbe3348418ddc0c92ac7f5294b2e1f50726740ff41dade4.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Files so the downloaded receipt.jpg can be attached.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/3d8d59b57d1487e0db12ed054ab27a9a4d1d857ad71697de7bbb8f2c17954aea.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the visible downloaded receipt.jpg file to attach it to the composed email.",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/be90889aaa47dc4e66412d0c73d6c98d2d7a60e6e096902da24cf857691cd659.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed email with the exact recipient, subject, £5.08 total in the body, and receipt.jpg attached.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/a102d2963721f4ac424db0f278ccf5bedf6731450ca1835f282512be44006138.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed: downloaded receipt.jpg and sent it to treasurer@gmail.com with subject “Proof of purchase”; the email body states the exact total spent was £5.08. Gmail confirmed “Email Sent.”",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/10f4817898d0549bd4cf5d06f1b49c890b6ed582df4f6281370fa1c78ba0aaeb.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Downloaded `receipt.jpg`, read the receipt total as £5.08, and sent the file to `treasurer@gmail.com` with subject `Proof of purchase` and the total stated in the email body. Gmail confirmed “Email Sent.”",
+      "action": "complete",
+      "reason": "Downloaded `receipt.jpg`, read the receipt total as £5.08, and sent the file to `treasurer@gmail.com` with subject `Proof of purchase` and the total stated in the email body. Gmail confirmed “Email Sent.”",
+      "screenshot": "screens/10f4817898d0549bd4cf5d06f1b49c890b6ed582df4f6281370fa1c78ba0aaeb.webp",
+      "screenNumber": 20
+    }
+  ]
+}

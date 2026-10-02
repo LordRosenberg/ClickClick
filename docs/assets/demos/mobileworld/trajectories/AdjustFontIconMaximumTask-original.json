@@ -1,0 +1,128 @@
+{
+  "task": "AdjustFontIconMaximumTask",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Set both Font size and Display size (which controls icons and other screen elements) to their maximum available settings, preserving all unrelated settings.",
+      "action": "execute",
+      "reason": "The requested accessibility/display settings have not yet been changed; both can be completed together in Settings.",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Settings to adjust font and display scaling.",
+      "action": "launch(app=com.android.settings)",
+      "reason": "",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Settings search to locate font and display size controls.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/9586a9b43ef364330a4aeaddc8d77b58378e886f0be5206752f1ea04206b768e.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for the Font size setting.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/5d24f43cb43e4d40dd77406781e0da9d430702b0e6c6391e23afb0214268d2fe.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Font size within Display size and text.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/d05039359c5c95f88a78276addd5a420a5cb05f457473128deddf92f257f1503.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Drag the Font size slider to its maximum position.",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/f87b6c1fcb03a575acf75ad96ab5350ea6def4a37cd6066a1580822af897b118.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Drag the Display size slider to its maximum position to maximize icons and screen elements.",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/336c63482694319ea8c794223de8ebe5458322b8c7a4c23663ca2cd5d0dafbc2.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Increase Display size by one step using its indexed Make larger control; Font size is already visibly at maximum.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/66e6580880847486a6f4a5de13bc62ee2b89170999f18b2779a757f4b524da79.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Increase Display size one more step toward its maximum; its slider is currently at the middle position.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/911a9d21fd340fabda96c32455a5d384242e57a238e5f1780cf9e5e859616baf.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down to bring the Display size slider and its increase control back into view.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/5e4f4f5f81b72ef8964ed04846e420ca67d913363790b3acb855df970f761248.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Increase Display size from its current second-highest position to the maximum.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/439b536550796c0d15a8d5617f9cd6b62cd5de2df14d14fe44748e1a378582f0.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Font size and Display size are both visibly set to their rightmost maximum positions. Unrelated settings were left unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/eb8da3933d5c137f80fb1cd10becdf3a532f5605ea094b9f35fecc68ec5da746.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Font size and Display size are both set to their maximum available positions.",
+      "action": "complete",
+      "reason": "Font size and Display size are both set to their maximum available positions.",
+      "screenshot": "screens/eb8da3933d5c137f80fb1cd10becdf3a532f5605ea094b9f35fecc68ec5da746.webp",
+      "screenNumber": 10
+    }
+  ]
+}

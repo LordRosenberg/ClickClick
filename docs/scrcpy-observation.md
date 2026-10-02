@@ -146,6 +146,19 @@ records. For the Console workflow, see the [observability guide](observability.m
 
 ## Runtime fallback
 
+### Native detail reading
+
+`observe_screen(mode="detail")` obtains a fresh native frame through the existing
+capture deadline and fences. It delivers a locator overview and either a
+normalized crop or four overlapping reading tiles. Attachments retain the
+observation identity, native frame size and crop bounds; no old tree overlay is
+applied. Reading tiles are not actionable coordinate references. The paired
+accepted global observation remains the basis for subsequent actions. See
+[observation modes](architecture.md#observation-path) and the
+[detail implementation](../agent/screen_detail.py).
+
+### Provider fallback
+
 Monitor per-device dependency availability, source/consumer health, generation,
 visual age, validation, latency, and fallback edges. Current and direct
 screenshot requests select the newest valid ring frame; temporal requests

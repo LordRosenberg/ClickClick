@@ -1,0 +1,155 @@
+{
+  "task": "MastodonCreateListTask",
+  "variant": "original",
+  "screenCount": 14,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 14
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct Mastodon list named \"Family\", configure it so only followed users can reply, and add Alex, Emma, and Jack as list members while preserving unrelated lists and follows.",
+      "action": "execute",
+      "reason": "Proceed with the requested Mastodon list configuration using the supplied navigation guidance.",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon directly to begin creating and configuring the requested list.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home timeline selector to locate Mastodon lists.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/bed02ad865cae40b0664689263d611e606d640fbf8edce19621829a81f214911.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Lists section from the timeline selector.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/52a94f3142e09b518e719d409f5714739e081a5d0a354f8392892e5aabb6e071.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Create list to start a distinct Family list.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/744bf7f5de0e811d2fed2df1e072b50e210387dd220d4b3b3264998be8d44fc9.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the new list name exactly to Family.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/2b8f15af2a5251905ef5cfab3a5c4f333f14687458edcd420f62d43403a00bff.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Family into the already-focused empty list name field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/00c6b338bc9513ce9e39195a23bbedf6cfbaf5a744ff95f9d0958393b949a103.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the reply-visibility selector to choose only followed users.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/48d6c782a56f7b4773f2119ab1c11c8a6184d26f9af68ad2baaf06aa2586059d.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select “Anyone I follow,” which matches the requested followed-users-only reply setting.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/28642c625a43f7a255e5ec8b5b9dc4e6f987ea11ca7d8ffa858866dc5f4fbfda.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the Family list with the confirmed “Anyone I follow” reply setting.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/a2037f3b7373529ff276147bac17c90ed2963d0ce31a11165be8292734b9df54.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the member search to add Alex, Emma, and Jack.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/4004675e87896213ae93d254502ca17d36229abfc841df0b6b38206ad22f49d0.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Alex to the Family list.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/6760697a2ac6666e24d018eeab4be3523151592c3dbfb8676a6d5238967cd70c.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Emma to the Family list.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/12ac71cdc0f1665b3f369215afe33ee5f70ca93ed64b6a1ee9f426243632c467.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Jack, the remaining requested member, to the Family list.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/8dec0d51f7a142c00ef938d6a240de725b07d88a16cfcb67395c460654bbd8fb.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created the distinct Mastodon list \"Family\", configured replies to \"Anyone I follow\" (followed users only), and added Alex, Emma, and Jack. The current screen confirms all three memberships with Remove controls; unrelated users remain unmodified.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2ba5a71e50af27a2c8a1540ccdd924e863559be4c886c1665e2b6f84672d9cf3.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created the Mastodon list \"Family\", set replies to \"Anyone I follow\" (followed users only), and added Alex, Emma, and Jack. The current member screen confirms all three are in the list.",
+      "action": "complete",
+      "reason": "Created the Mastodon list \"Family\", set replies to \"Anyone I follow\" (followed users only), and added Alex, Emma, and Jack. The current member screen confirms all three are in the list.",
+      "screenshot": "screens/2ba5a71e50af27a2c8a1540ccdd924e863559be4c886c1665e2b6f84672d9cf3.webp",
+      "screenNumber": 13
+    }
+  ]
+}

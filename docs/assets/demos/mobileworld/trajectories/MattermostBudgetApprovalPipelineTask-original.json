@@ -1,0 +1,182 @@
+{
+  "task": "MattermostBudgetApprovalPipelineTask",
+  "variant": "original",
+  "screenCount": 16,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 16
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the entire 'budget-approvals-q4' Mattermost channel and record each distinct department's requested amount and projected ROI/NPV formula result, preserving all requests and identifying any missing or ambiguous values; do not post yet.",
+      "action": "execute",
+      "reason": "First gather every department request and its posted NPV result from the specified channel so the threshold classifications and highest ROI can be computed before publishing.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to inspect the specified budget channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Budget Approvals Q4 to inspect all requests.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/1a8b0ee00a05d103efcb053f3f04200bfab190cc5f12fa5c2fe0ecb901a63f6b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll upward to inspect earlier budget request posts and capture complete department data.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/2be0e32a051b46d79bc900a4a298f627c9ce0cdd94905fe11adc5a9bedc3e300.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward through the channel to inspect earlier department requests.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/9f99973aaa215902480279aac6b2a11cd072b20ce2bb7ee18f0af46a7872c385.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reveal the full preceding request to capture its department and complete amount breakdown.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/c7b95b9b904c1bd6c7cfcb481bed9a539f251b5afe538cf62817fe9e9e97a1c4.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward to inspect additional earlier department requests in the channel.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/dd94e95c23a32de76a31c298106879fa0c7b2536d0311e5d6e0d9c54bdb7fe16.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reveal the engineering request heading and full itemized amount above its visible NPV/ROI result.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/ab9af9e7dc52b3e91e756cd8438463a984e562c5d8a9fcf7dd8012151e99274c.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Record Marketing and continue upward to inspect earlier requests, including the still-missing Engineering request.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/9b1e0305db4eeb3cc069da5929e5f886983f62c423d3bdcd61331d14a3656d3d.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward to reveal the department heading and remaining line items for the $85,000 request with NPV $127,500 and ROI 50%.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/7015232231f09dc93683305e4239cb030dde24de831afdf04da25cd3ac2c35df.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Record the complete Engineering request and continue upward to inspect any earlier department requests.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/e3d134241b1cb05feba6fee38275ed57ae90c96da7fd029a7b720aa461817585.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward past the formula explanation to verify whether any additional requests appear earlier and establish the channel's top boundary.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/b33c8ffebcabb45331fdc522e30d57908692e95293b14b9fe8ec9ea43500be7e.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll once more toward the channel start to confirm the pipeline introduction is the top boundary and no earlier requests are omitted.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/ce05c6750474b7543c6cfd94ad2e60bace0bded89531d12fe1c86ff40476dd20.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed full-channel inspection from the Oct 1 channel-start/system activity through all request posts. Found exactly five distinct department requests with no missing or ambiguous values: Research $45,000, NPV $58,500, ROI 30%; Operations $78,000, NPV $93,600, ROI 20%; HR $35,000, NPV $42,000, ROI 20%; Marketing $62,000, NPV $77,500, ROI 25%; Engineering $85,000, NPV $127,500, ROI 50%. No summary has been posted yet.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/63f15b0a3977cf814f3f5ee2334fd36f23c5876c41a7336d5ddbbefc5b6e4d57.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Post one consolidated summary in the 'budget-approvals-q4' Mattermost channel stating that Engineering ($85,000), Operations ($78,000), and Marketing ($62,000) exceed $50,000 and require executive approval; identify Engineering as highest projected ROI at 50% (posted NPV $127,500); and include a markdown table for all five departments with requested amount, projected ROI, and approval status: Engineering $85,000/50%/Executive Required; Marketing $62,000/25%/Executive Required; HR $35,000/20%/Standard; Operations $78,000/20%/Executive Required; Research $45,000/30%/Standard.",
+      "action": "execute",
+      "reason": "The full channel inventory is complete, so the remaining work is to publish the consolidated results and explicitly call out the executive-approval requests and highest projected ROI.",
+      "screenshot": "screens/07f838da3e8cdb0ca340298d1aad21d788c5ca5ad812329be2cc03514d56639b.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the complete consolidated budget summary and markdown table in the Budget Approvals Q4 channel draft.",
+      "action": "replace_text(index=13)",
+      "reason": "",
+      "screenshot": "screens/07f838da3e8cdb0ca340298d1aad21d788c5ca5ad812329be2cc03514d56639b.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed consolidated budget summary to the Budget Approvals Q4 channel.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/6094ebabe908edfce21d821f1bad866921d012c8fae7310a01896ccb156122db.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Posted the consolidated Q4 Budget Summary in Budget Approvals Q4. The rendered post identifies Engineering ($85,000), Operations ($78,000), and Marketing ($62,000) as requiring executive approval; names Engineering as the highest projected ROI at 50% with posted NPV $127,500; and includes the requested markdown table for all five departments with amount, ROI, and approval status.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/51aa24f8729c2ce89ccc3c88d581a0708a7835a7ff5cf41369c5f1e7ebe86ec6.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Reviewed all five budget requests and posted the consolidated Q4 Budget Summary in Budget Approvals Q4. Engineering ($85,000), Operations ($78,000), and Marketing ($62,000) require executive approval; Engineering has the highest projected ROI at 50% (NPV $127,500). The post includes the requested markdown table for all departments with amounts, ROI, and approval status.",
+      "action": "complete",
+      "reason": "Reviewed all five budget requests and posted the consolidated Q4 Budget Summary in Budget Approvals Q4. Engineering ($85,000), Operations ($78,000), and Marketing ($62,000) require executive approval; Engineering has the highest projected ROI at 50% (NPV $127,500). The post includes the requested markdown table for all departments with amounts, ROI, and approval status.",
+      "screenshot": "screens/51aa24f8729c2ce89ccc3c88d581a0708a7835a7ff5cf41369c5f1e7ebe86ec6.webp",
+      "screenNumber": 15
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1270" viewBox="0 0 1600 1270" role="img" aria-labelledby="title description">
 <title id="title">ClickClick: revisable planning with grounded device feedback</title>
-<desc id="description">Separate model and agent harness. A prominent Session column stands beside the harness and retains history, note versions and observation artifacts. Context management stays in the harness. Device tools and the Android environment execute actions; Console and evaluation consume Session records.</desc>
+<desc id="description">Separate model and agent harness. A prominent Session column stands beside the harness and retains history, note versions and observation artifacts. The harness assembles independently owned task fields, structured history summaries, retained notes and recent full steps; native-detail reading remains bound to a fresh global observation. Device tools and the Android environment execute actions; Console and evaluation consume Session records.</desc>
 <defs>
 <marker id="control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 Z" fill="#263449"/></marker>
 <marker id="evidence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 Z" fill="#287568"/></marker>
@@ -28,7 +28,7 @@
 <path d="M 500 357 H 570" fill="none" stroke="#263449" stroke-width="2" stroke-linejoin="round" marker-end="url(#control)" marker-start="url(#control)"/>
 <rect x="70" y="445" width="430" height="190" rx="5" fill="#EEF7F3" stroke="#287568" stroke-width="1.6"/>
 <text x="90" y="477" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="90" dy="0">Context, memory access and skills</tspan></text>
-<text x="90" y="506" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="90" dy="0">Task + evidence · retrieve Session history</tspan><tspan x="90" dy="25">Context projection · compaction · note tools</tspan><tspan x="90" dy="25">App / workflow selection · role delivery</tspan><tspan x="90" dy="25">Source references · skill version checks</tspan></text>
+<text x="90" y="506" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="90" dy="0">Original task · stage · fresh observation</tspan><tspan x="90" dy="25">Structured summary · per-item sources</tspan><tspan x="90" dy="25">Retained notes · recent steps · source recall</tspan><tspan x="90" dy="25">Scoped skills · role-specific delivery</tspan></text>
 <path d="M 500 485 H 570" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
 <text x="535" y="463" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="535" dy="0">context</tspan></text>
 <rect x="570" y="315" width="480" height="320" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.6"/>
@@ -60,10 +60,10 @@
 <text x="1190" y="436" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Model / tool calls · action receipts</tspan></text>
 <rect x="1170" y="500" width="360" height="95" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
 <text x="1190" y="532" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1190" dy="0">Task state and notes</tspan></text>
-<text x="1190" y="561" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Stage records · versioned notes</tspan></text>
+<text x="1190" y="561" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Versioned notes · retained excerpts</tspan></text>
 <rect x="1170" y="625" width="360" height="95" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
 <text x="1190" y="657" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1190" dy="0">Observations and artifacts</tspan></text>
-<text x="1190" y="686" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Screenshots · source references</tspan></text>
+<text x="1190" y="686" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1190" dy="0">Pixels · UI tree · identity / geometry</tspan></text>
 <text x="1170" y="766" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#287568" text-anchor="start"><tspan x="1170" dy="0">SQLite records + artifact files</tspan></text>
 <text x="1170" y="796" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1170" dy="0">Shared by runtime, Console and audits</tspan></text>
 <path d="M 1140 485 H 1080" fill="none" stroke="#287568" stroke-width="2" stroke-linejoin="round" marker-end="url(#evidence)"/>
@@ -76,7 +76,7 @@
 <text x="65" y="923" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#287568" text-anchor="start"><tspan x="65" dy="0">Device tools and environment</tspan></text>
 <rect x="80" y="945" width="430" height="110" rx="5" fill="white" stroke="#287568" stroke-width="1.6"/>
 <text x="100" y="977" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#287568" text-anchor="start"><tspan x="100" dy="0">Capture and perception</tspan></text>
-<text x="100" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="100" dy="0">scrcpy · Accessibility Collector · ADB</tspan><tspan x="100" dy="25">Pixels / tree / events → observation + SoM</tspan></text>
+<text x="100" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="100" dy="0">scrcpy · Accessibility Collector · ADB</tspan><tspan x="100" dy="25">Native crops / tiles · global action basis</tspan></text>
 <rect x="570" y="945" width="490" height="110" rx="5" fill="#EFF1F5" stroke="#263449" stroke-width="1.6"/>
 <text x="590" y="977" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#263449" text-anchor="start"><tspan x="590" dy="0">Android device / emulator</tspan></text>
 <text x="590" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="590" dy="0">Apps and OS · changing UI state</tspan><tspan x="590" dy="25">Execution environment</tspan></text>

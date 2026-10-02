@@ -1,0 +1,290 @@
+{
+  "task": "MastodonReportTask",
+  "variant": "original",
+  "screenCount": 28,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 28
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, locate Frank's post about “the gas leak event,” retain its entire post content exactly, and submit a spam report with that whole content as the report reason.",
+      "action": "execute",
+      "reason": "Use Mastodon navigation and targeted retrieval to identify the correct Frank post. Reporting and blocking stay sequential because Frank must be blocked only after the report is submitted.",
+      "screenshot": "screens/9e326b64980d20a962da40da577e00785c4fdc2685e5ec648f89bf053badbcf6.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to locate Frank's target post and report it.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/9e326b64980d20a962da40da577e00785c4fdc2685e5ec648f89bf053badbcf6.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon Explore to search for Frank's gas leak event post.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/a4e5339928822a7519239b2390ca091b456f70c08317600cdb6f73e6e610cc95.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Mastodon search field before entering a targeted query.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/a825ecdf93171e05fbbb332544b0bc1e90f815b2d82a9fc845f495984333ae19.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact post topic as the Mastodon search query.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/3111d8be147f4bded5888702ff6fff8e9ed3361c95eeb1d7319c14b98be3d8cc.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Run the post search for the exact gas leak event phrase.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/9af674393bcae0aa535fb7725a58d905a59031c1c4f596a529ce6278f36f7394.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Broaden the search by removing exact-phrase quotation marks after the quoted query returned no results.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/553497930a87e6bd1d009285b1d205cc6c066fc7e5ab154a3cdb84a37a8e030f.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the quotation marks to broaden the Mastodon post search.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/897180f66dcea7e178481aed8af06bd78998fcff69a64933603d1e5685075006.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Run the broadened post search without quotation marks.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/d0e8eebf347605b72c07983bbe7e7def4a6e6a6843bcbc13f5ea2e45e71eaed7.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch from the unsuccessful phrase search to locating Frank directly.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/941270549847ad9a9508eb66814b8039cfcae3425d5ff300dc548c44ca9f2adb.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for Frank directly so the target profile and its posts can be inspected.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/07e34192e9bd76603531e2b179e54d3672a2808b1e6983db36c328f6bd1c6bba.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the matching Frank profile from the direct people result.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/2a234b1b059f46daeec752cf1e7c8e5703426ed90068099532b0bf840c0f3a5f.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll through Frank's profile posts to locate the one about the gas leak event.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/41f52b4d78e61d1e91c348ba56c96b6d2cf49236f7a65ecfe71a7ab0895d55c5.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down Frank's eight-post timeline to find the requested gas leak event post.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/fb84a2450de2f33fc9930ae13b427e8dada05d096723757d6300470b63d1c19c.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the remaining posts on Frank's timeline to locate the gas leak event post.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/71e233f8e5a5fa112ad3ac8f1e0713698ea365a89b5f41c2de221d6e1d2862cd.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll farther through Frank's timeline; five of eight posts are now visible or passed, and the target has not appeared yet.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/fdec6896ffd862f488c2b762ff98532845668503d95d5032b3bfb24a52f72828.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down Frank's eight-post timeline to inspect the remaining posts for the gas leak event post.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/b6fad1c39efb6483cdc4576a2c77df6b65df13e077df69309cc54018ca076132.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reveal the eighth and final post, whose header is visible but content remains below the viewport.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/4f3b8fded1e6341f3db28a9b5c3e7eaa1f6c0ed173e262d42cf187cf94627d28.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the target post's More options menu to begin reporting it; exact full content is retained for the report reason.",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/2322fd5fc594ce04a591f1f326cdc8c4b3898dfb0b3f32ad767823b2d868b709.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Report frank from the target post's options menu; blocking is deliberately deferred until after report submission.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/6f946a7c87d8429bca485996543026f705a3e92b686f419bb9e10923ed64dff4.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose the requested spam category for the target post.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/17508477e91d72a727d08ad6fee0590fcf2adef53987544c71ae9d85fedd9a03.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue the spam report after confirming the spam category is selected.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/71f82a674fe4a1ad52652542500d91b1493b8601dccc2272865d79bff5e170a0.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue without adding unrelated supporting posts; only the specified gas-leak post should be reported.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/fd173df9e3e877042e0110524b7b7458623d01871e45d62b2da97facfd9cb878.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the target post's entire exact content as the additional-comments report reason.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/dff64ef1df8875a6cbf7d9532f59b8ac55f8840ea1a17c87bed0450f68e26b5d.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue after entering and verifying the complete exact post content as the report reason.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/f275e3058c356e38b1c39d92016f11d9948f579364be227d4b490f7ec45cc0b0.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Spam report for Frank's gas-leak post is confirmed submitted: the app shows REPORTED and thanks for reporting. The entire exact post content was entered and read back exactly as the report reason. Frank is not yet blocked; the current confirmation screen offers Block @frank for the next required stage.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/764ad106270c698cdde7a780b7beb12fb5b4b2ac7eee9e16b224d24c30db130f.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Block @frank now that the spam report has been confirmed submitted; preserve the required report-then-block sequence.",
+      "action": "execute",
+      "reason": "The spam report is confirmed submitted, and the remaining required action is to block Frank from the current report confirmation screen.",
+      "screenshot": "screens/b34fc29313c2cdd16c7b5208d66f31d51fc344763e786b4cfa65ff647ac59f5f.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Block @frank from the confirmed report-completion screen, preserving the required report-then-block order.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/b34fc29313c2cdd16c7b5208d66f31d51fc344763e786b4cfa65ff647ac59f5f.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm blocking @frank in the explicit Block user confirmation dialog.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/3d6ba9823e8379afd55f2319f37e7a11427f4d950b1f97bc94cd421a4d97eb8f.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the requested sequence: Frank’s gas-leak post was reported as spam with the full post content as the report reason, the report was confirmed submitted, and @frank is now visibly marked “Blocked @frank” on the report confirmation screen.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/716acd1d9d2e309c3dbc245ea3bd84e14895b81c3b32c7e7a2c5f9688525c6a7.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Frank’s post about the gas leak event was reported as spam with the entire post content entered as the report reason, the report was confirmed submitted, and @frank was then blocked. The current confirmation screen shows both “REPORTED” and “Blocked @frank.”",
+      "action": "complete",
+      "reason": "Frank’s post about the gas leak event was reported as spam with the entire post content entered as the report reason, the report was confirmed submitted, and @frank was then blocked. The current confirmation screen shows both “REPORTED” and “Blocked @frank.”",
+      "screenshot": "screens/716acd1d9d2e309c3dbc245ea3bd84e14895b81c3b32c7e7a2c5f9688525c6a7.webp",
+      "screenNumber": 27
+    }
+  ]
+}

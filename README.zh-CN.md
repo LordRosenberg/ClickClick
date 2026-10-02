@@ -69,7 +69,7 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 ## 为复杂任务而构建
 
 - **自主规划，随执行调整。** 将目标拆成有意义的阶段，根据实际页面修订后续路线，延续已完成的工作；需要独立判断时调用 Reviewer。
-- **跨应用记住关键信息。** 任务笔记独立于对话摘要保存，选出的简短事实可在长流程中持续可见。需要细节时，可回读完整笔记、早先的截图和来源记录。[记忆与上下文管理](docs/architecture.zh-CN.md#上下文记忆与技能)
+- **跨应用记住关键信息。** 版本化笔记与短保留正文独立于结构化历史摘要保存，摘要逐条引用持久来源，近期完整步骤保持可见。需要细节时，可回读笔记、早先的截图和原始记录。[记忆与上下文管理](docs/architecture.zh-CN.md#上下文记忆与技能)
 - **可靠操作真实界面。** 结合截图与无障碍结构定位控件，将支持的点击绑定到被观察的原生节点，检查文本输入，并根据动作反馈决定下一步。
 - **把应用经验变成可复用技能。** 无需重新训练模型即可扩展应用知识。应用自身的界面经验可跨设备共享，系统界面知识按设备配置匹配，通用技能可跨应用复用；受支持的复合动作可完成详情读取和返回，同时保留中间证据。
 - **自由选择模型与设备。** 为规划和执行配置模型，连接本地真机或模拟器，也可通过远程 Driver 管理设备。
@@ -93,6 +93,8 @@ Console 将实时设备画面与 Agent 执行历史放在同一个工作区。
 ![ClickClick 核心架构](docs/assets/clickclick-architecture.svg)
 
 默认循环为 **Planner → Executor → 观测 → 继续或重规划**，Reviewer 按需介入。Harness 管理上下文、技能与执行，持久 Session 保存任务证据，Android 工具提供动作和观测；Console 展示执行过程，外部评测器检查任务结果。
+
+Harness 分别组装原始任务、当前阶段、新鲜观测、结构化摘要、近期完整步骤与短保留笔记。观测包携带像素、UI 结构、身份和几何；原生细节裁剪／分片用于阅读，动作仍绑定新鲜全局观测。
 
 [架构与模块接口](docs/architecture.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md)
 
@@ -176,7 +178,6 @@ ClickClick 自动检测设备并部署 Accessibility Collector。保持设备解
 
 MobileWorld 已公开[完整运行指南](docs/mobileworld-reproduction.zh-CN.md)，包含冻结运行时、117 道原题与九道变体、离线准备和恢复运行。先执行 `python -m evaluation.mobileworld.reproduce --prepare-only`；准备好专用环境后提供设备序列号和两个本地 APK，运行配对评测。
 
-[评测架构及相对 AndroidWorld 的升级](docs/mobileworld-evaluation-architecture.md)：结构化摘要、带来源的记忆恢复与原生细节观测。
 
 
 准备好模型与 AndroidWorld 模拟器后，可一键运行公开的 116 个任务实例：

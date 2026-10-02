@@ -1,0 +1,83 @@
+{
+  "task": "AdjustBrightnessMinimumTask",
+  "variant": "original",
+  "screenCount": 6,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 6
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Set the screen brightness to the exact minimum endpoint, preserving all unrelated settings.",
+      "action": "execute",
+      "reason": "Set the device brightness to its exact minimum endpoint using Settings.",
+      "screenshot": "screens/4e402e8e47960739bf6d486283da9956f86712ef86dd69d39fb352a1789c68cb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Settings to adjust the brightness endpoint.",
+      "action": "launch(app=com.android.settings)",
+      "reason": "",
+      "screenshot": "screens/4e402e8e47960739bf6d486283da9956f86712ef86dd69d39fb352a1789c68cb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll Settings to locate the Display category.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/e95f14c2c0f3f4f67bbd3a63bf14a80c5c57da420eeb6705ea80bc5c135288ac.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Display settings.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/82d7ae75fcd4365a16f5d7317781e7f4b4d4dda866481b748bb348f8e81fc515.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Brightness level to access its slider.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/816908524310841ff23b4a857c4505b3a6ba4e6a83e32c696bf99c6f53d5855a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Drag the brightness thumb past the left end of the visible track so it clamps to the exact minimum.",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/6869c8ab1e5f58f8d1ea07300fb946faa4037cfd6296ffb540f6e5ff14c5ffd9.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Brightness is set to the exact minimum endpoint: the thumb is clamped at the far-left end and Display shows 0%.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2c04fb428d3ce9392f4279d7a80529c57accc0e91f11bd8cbd65d1f323f892c4.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Brightness is set to the exact minimum endpoint (0%), with the slider clamped at the far-left end.",
+      "action": "complete",
+      "reason": "Brightness is set to the exact minimum endpoint (0%), with the slider clamped at the far-left end.",
+      "screenshot": "screens/2c04fb428d3ce9392f4279d7a80529c57accc0e91f11bd8cbd65d1f323f892c4.webp",
+      "screenNumber": 5
+    }
+  ]
+}

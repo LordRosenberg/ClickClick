@@ -1,0 +1,236 @@
+{
+  "task": "MastodonPostPollTask",
+  "variant": "original",
+  "screenCount": 21,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 22
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Search Google for “2025 Nobel Prize in Economics” and record the winner names exactly as the poll options for later use.",
+      "action": "execute",
+      "reason": "The winners’ names must be obtained from a Google search before they can be used as poll options.",
+      "screenshot": "screens/505caaf9e6076a89b357b22930b1dd4b6e2862e10bbc25a6e60181982472a410.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome to begin the required Google search for the 2025 Nobel Prize in Economics winners.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/505caaf9e6076a89b357b22930b1dd4b6e2862e10bbc25a6e60181982472a410.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested query in Chrome's Google search field.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/8b748c6f06c023f02b9a9eff1c0a4777eb353ccf92c5be8e25241043932d5f02.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Type the exact query into the now-focused Chrome omnibox.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/ed4f9fcbb77b49b84335fa285aaab36cbeba491bedcabd449e12b28b952e3b46.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the exact Google search query.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/555daefe48381fc16e6bbc48045fc27035832b19f41bac08dfdddcd245874f8c.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google results identify the 2025 Economics laureates as Joel Mokyr, Philippe Aghion, and Peter Howitt; the NobelPrize.org result snippet independently lists the same three names. Recorded them exactly and in displayed order for the poll options.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/247f67ead26cffe524c54e6aa96eba3ed5dc086ed569ce0bd3ea161e08e5cee5.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and publish a new Mastodon poll with options `Joel Mokyr`, `Philippe Aghion`, and `Peter Howitt` in that order; include `#vote2025` in the post text, allow multiple selections, and set the poll duration to one week.",
+      "action": "execute",
+      "reason": "The required Google search is complete and the three winner names are established, so the remaining work is to compose and publish the requested Mastodon poll.",
+      "screenshot": "screens/a91d1c74ec14663616c8c836a8eb415ff08b47d4bc22c608ce5068c20f4ea0f9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to create the requested poll.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a91d1c74ec14663616c8c836a8eb415ff08b47d4bc22c608ce5068c20f4ea0f9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new post composer.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/3ea644832761af338eb583e4894729f4486cca0614e8073df636f89dca331a6f.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the required hashtag in the post text.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/24ecd97c0631b8c13957848e7be52497227e4315e137bd40b03e5c9f9cc4028f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add a poll to the post.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/db05663074abc2624942b3ff00011f7176c562ecb0d375c27c8c025c35e68cdc.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the first poll option to Joel Mokyr.",
+      "action": "replace_text(index=6)",
+      "reason": "",
+      "screenshot": "screens/0a9ea67fb8b96fd9f2f71bc408e106dde8049183d463416c4dd94a69c1f5be58.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the first poll option field so its placeholder can be replaced.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/0a9ea67fb8b96fd9f2f71bc408e106dde8049183d463416c4dd94a69c1f5be58.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused first option placeholder with Joel Mokyr.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/168df914898349e2a837a7d8cdc9407e34734415f43673775eda61a59b6c6a2c.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the second poll option field.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/1d99ebec4145b868f8e473f3c51e7a2d31c657d3104640e365928193132066e5.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused second option placeholder with Philippe Aghion.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/3c7d89ceab03eda7a2a32cee1453d339b4d8ed88431b61bf399074eaf2d4b1ed.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the third poll option field for Peter Howitt.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/eb7269591330b0e004860d445d888a04a443bba5d553efd425c388d547731bba.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused third option placeholder with Peter Howitt.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/27be31f111880a452a8d3da6a0ca151aac9f6b4863f694f875a76b80e8c17335.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the poll style selector to enable multiple selections.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/1bea94246f72d2302c4ffe677d27e8ab78c6b59ad325fd93b0416f939e6eb451.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Multiple choice so voters can choose more than one option.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/443baee7004605b581ce3f92019e03400f9d3a404db9402205ce803b4fab7238.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the poll length selector to change the duration from 1 day to one week.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/ca3a0499d3be8694ecacfa40c840b1491ee330a7839f0edf76ac293a13ad475c.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the required one-week poll duration.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/0a8f656601d91cf7f28f48003137e7030fccf28e3ab2649d4d36b32351fec773.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Publish the fully configured poll with the three winner options, #vote2025, multiple choice, and a one-week duration.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/fd439fd88d179a7a53341dffe7471ee5a5358179f8dc6428eae98685712e6183.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Published the Mastodon poll from @test@10.0.2.2 with post text #vote2025; options Joel Mokyr, Philippe Aghion, and Peter Howitt in that order; Multiple choice enabled; duration set to 1 week. The composer closed and Mastodon returned to the Home timeline after Publish.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/53e90a897de6828d19849ac20eaba8541b7289110f3a968b81cf13872fa71433.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "The Google search identified Joel Mokyr, Philippe Aghion, and Peter Howitt as the 2025 Economics Nobel winners, and the Mastodon poll was published with those options in that order, `#vote2025`, multiple selections enabled, and a one-week duration.",
+      "action": "complete",
+      "reason": "The Google search identified Joel Mokyr, Philippe Aghion, and Peter Howitt as the 2025 Economics Nobel winners, and the Mastodon poll was published with those options in that order, `#vote2025`, multiple selections enabled, and a one-week duration.",
+      "screenshot": "screens/53e90a897de6828d19849ac20eaba8541b7289110f3a968b81cf13872fa71433.webp",
+      "screenNumber": 20
+    }
+  ]
+}

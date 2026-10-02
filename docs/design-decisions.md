@@ -14,7 +14,7 @@ Routine execution already produces new observations and feedback. Reviewing ever
 
 **Default Executor history threshold: 16,000 estimated tokens.** This is a soft history-compaction trigger, separate from the model's context window and the total request size.
 
-Compaction groups complete execution steps and retains recent steps. Original artifacts and note versions remain in Session. Current state and unresolved questions are restored independently of the summary. Exact duplicate observation text can be reused without merging the identity of distinct observations.
+Compaction groups complete execution steps and retains the newest two in full. A structured summary separates results, decisions/attempts and critical context, with per-item source references. Original artifacts and note versions remain in Session. Versioned retained-note excerpts, current state and unresolved questions are restored independently of the summary. Exact note-version/text matches permit reversible display deduplication; omissions never erase the original records. See [memory and context](memory-and-context.md).
 
 In four matched valid task pairs, increasing the threshold to 24k reduced compression calls from 19 to 12 and worker time by 8.1%, while total model calls stayed at 146 and estimated cumulative text input increased by 17.3%. This trade-off supports a conservative default; the [study](runtime-study.md) provides conditions and limitations.
 
@@ -38,7 +38,7 @@ Historical messages and image blocks remain stable within the active budget. Rep
 
 Acquisition checks request freshness and window state, with a bounded quiet interval and resampling. Content updates remain diagnostic rather than automatically forcing another tree traversal. This allows animated pages to remain observable. A missing tree can still yield usable image evidence when window checks pass.
 
-`snapshot` observes current state; `sequence` observes change over time. `sleep` waits for a required duration, such as recording length, and the next decision receives a fresh observation. The validated decoding stack uses Python 3.12 and PyAV 14.0.1. See [Collector setup](accessibility-collector-setup.md) for provisioning and diagnostics.
+`snapshot` observes current state; `sequence` observes change over time; `detail` acquires a fresh native frame for a selected crop or four overlapping reading tiles. Detail attachments carry observation identity and native geometry, but actions continue to reference the fresh global view. `sleep` waits for a required duration, such as recording length, and the next decision receives a fresh observation. The validated decoding stack uses Python 3.12 and PyAV 14.0.1. See [Collector setup](accessibility-collector-setup.md) for provisioning and diagnostics.
 
 ## Targeted text replacement
 

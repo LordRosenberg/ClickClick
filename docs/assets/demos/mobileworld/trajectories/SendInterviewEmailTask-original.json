@@ -1,0 +1,119 @@
+{
+  "task": "SendInterviewEmailTask",
+  "variant": "original",
+  "screenCount": 9,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 9
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find Kevin's resume in Files, inspect it, and retain Kevin's email address needed for the later message; do not modify the resume.",
+      "action": "execute",
+      "reason": "Kevin's resume must be located first so its contact details can be used for the requested email.",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to locate Kevin's resume.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Kevin_CV.pdf to inspect Kevin's contact details.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/9311a45ba3fbfde85f027c0baadcfa37ec6e679502aa86d55501d4631331b830.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found and inspected Kevin_CV.pdf. It identifies Kevin Zhang and visibly lists his email as kevin.zhang@example.com. The resume was not modified.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/836adc54a86c18a2d0305e1654f66b4e0ef82c771103d5ee1158f8dc9b567433.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send an email to Kevin at kevin.zhang@example.com with the exact message body: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\" Do not add or alter wording; no subject was specified.",
+      "action": "execute",
+      "reason": "Kevin's address has been obtained from the resume, so the remaining work is to send the requested email.",
+      "screenshot": "screens/6ce82e5d8560d429aa24dbb80b2e5cef43358fe2b0d08397467d1123b830dec6.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail to compose the requested message to Kevin.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/6ce82e5d8560d429aa24dbb80b2e5cef43358fe2b0d08397467d1123b830dec6.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new email to Kevin.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/496adcc192140e13b5d864109707a395ff6e8b0649dd204a20de206a6725550c.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the message to Kevin using the email from his resume.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/c0ff37d1515f5a40a69340eb5e21c25beb57e93afb0332392f61252be4dbc5dd.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested message body without a subject.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/e96b72cfd456572a53d7e8415f0a85645bcdc5002e17d6df17300f88f135d499.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the addressed email with the exact requested body and no subject.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/4a9421d3e71a449939accf5b9daae25b6421bbcdc655290932342ccc43640761.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to kevin.zhang@example.com with the exact body \"Your interview is scheduled for tomorrow morning at 10:30 AM.\" and no subject.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/b2d3e04b247cb56cb759b60638dc05dd8e69a9bb99091af3bc0d3abb95042caa.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found Kevin's resume, identified his email as kevin.zhang@example.com, and successfully sent the exact requested message: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "action": "complete",
+      "reason": "Found Kevin's resume, identified his email as kevin.zhang@example.com, and successfully sent the exact requested message: \"Your interview is scheduled for tomorrow morning at 10:30 AM.\"",
+      "screenshot": "screens/b2d3e04b247cb56cb759b60638dc05dd8e69a9bb99091af3bc0d3abb95042caa.webp",
+      "screenNumber": 8
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "task": "CheckConferenceAndSendSmsTask2",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find the calendar entries that establish the user's Tokyo arrival and departure dates, matching the relevant event details rather than relying on a keyword hit alone, and retain both exact dates for the message.",
+      "action": "execute",
+      "reason": "First obtain the Tokyo arrival and departure dates from the calendar; those exact values are required before composing the SMS.",
+      "screenshot": "screens/7fa8696a2971fd6a914c3edd5482dbeb38fe1a6b96c2a6fca96f13c481a69f97.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to locate the Tokyo travel events.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/7fa8696a2971fd6a914c3edd5482dbeb38fe1a6b96c2a6fca96f13c481a69f97.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the calendar for Tokyo-related entries.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/188d5bf4db92ed16631c1ec0d425f16fe2bf502f765b6b0a3780c88ff1616c01.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Tokyo conference entry to verify its exact start and end dates and any travel details.",
+      "action": "tap(index=57)",
+      "reason": "",
+      "screenshot": "screens/28aa0487f3172708fddd3138dd1f24fb137c70bc37eb816b31aef9e95b417deb.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Verified the matching calendar event details: “Conference in Tokyo” is an all-day event from October 4 to October 10, 2025. Retained arrival 10/04/2025 and departure 10/10/2025 for the SMS.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c8f98040d483d0669dd81d10ddd02a944c6310ccce65612f23a4c008b07aaebc.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send Mia one SMS with the message body exactly `10/04/2025,10/10/2025`, with no other text or spaces.",
+      "action": "execute",
+      "reason": "The Tokyo dates are verified; the remaining work is to send the precisely formatted SMS to Mia.",
+      "screenshot": "screens/9164644b7e27911b8ba3d46cff723da77ad80d849547fe7334da6c0a04843180.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to send Mia the exact date-only SMS.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/9164644b7e27911b8ba3d46cff723da77ad80d849547fe7334da6c0a04843180.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new SMS conversation so Mia can be selected as the recipient.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/3c23a83a451c8dcaeef80959c11469290ff8b1dfd40c76e9e672a71e95d093e2.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search contacts for the exact recipient Mia.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/1636ce60470557f7b3275ba8108c24988bebaa7e850f3c02924721aea8630bb8.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the matching Mia Scott contact as the SMS recipient.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/6349205898f6dad7b9e834103460b8bc027f33be043d81046821e428a9fa243f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact date-only SMS body for Mia.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/2173c4784fd58e1fd520569cb33d90bc871e75354dd09c6803a6493605eac3df.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact SMS `10/04/2025,10/10/2025` to Mia Scott.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/82b9ce9b36455fd2c02c736ea770fd852a368505e9458c5f6e37dade221a3923.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent one SMS to Mia Scott with exactly `10/04/2025,10/10/2025`; the conversation now shows that exact outgoing message as SMS.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/62dfec89b50bf5fc52fe26bef78c03c246dee326270e27e9624e74473dcb3a3e.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Checked the calendar and sent Mia Scott one SMS containing exactly `10/04/2025,10/10/2025`.",
+      "action": "complete",
+      "reason": "Checked the calendar and sent Mia Scott one SMS containing exactly `10/04/2025,10/10/2025`.",
+      "screenshot": "screens/62dfec89b50bf5fc52fe26bef78c03c246dee326270e27e9624e74473dcb3a3e.webp",
+      "screenNumber": 10
+    }
+  ]
+}

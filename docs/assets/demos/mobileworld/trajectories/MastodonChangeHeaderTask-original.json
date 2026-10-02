@@ -1,0 +1,92 @@
+{
+  "task": "MastodonChangeHeaderTask",
+  "variant": "original",
+  "screenCount": 7,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 7
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, replace the signed-in user's profile header with the photo depicting a tiger from the photo gallery, preserving other profile fields, and save the profile change.",
+      "action": "execute",
+      "reason": "The requested profile edit has not started; Mastodon is available from the launcher, and the gallery selection plus save can be completed as one cohesive stage.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to begin the requested profile header change.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the signed-in user's profile.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/3633b4ebdcfd84adb2e5ef1074d2ea4a6959fb827a3688076bec410a7b1c2887.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open profile editing while preserving the existing profile fields.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/3da3851f76001e38c51335aff9e0c0eb15075add8b959660b5a0a805f887d61e.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose a replacement for the current profile header image.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/3b127c6d54a86d32f7d43b93a02cdf2904b604deb0ac4b535c8d89cfa91e95f8.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the clearly depicted tiger photo from the gallery.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/9893a66048f6d473db0fc2995e768b10a97e666718d55556d6e25627f3eef25f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the tiger header while leaving the name, bio, and profile metadata unchanged.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/91167d8a58e293910f81a26813a3a42e6f96f0337cf1afe172dcc721b8b98ae6.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The Mastodon profile change is saved. The profile view now displays the tiger photo as the header, while Name remains TEST, Bio remains “This is MobileWorld test account!”, and the About row remains student / Open University.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2945035506e59f6ca94a5a82f590787fb37f8b130b6b1f9187b87d1249b8ec7f.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "The Mastodon profile header has been replaced with the tiger photo from the gallery and saved. The profile now shows the tiger header, with the other profile fields preserved.",
+      "action": "complete",
+      "reason": "The Mastodon profile header has been replaced with the tiger photo from the gallery and saved. The profile now shows the tiger header, with the other profile fields preserved.",
+      "screenshot": "screens/2945035506e59f6ca94a5a82f590787fb37f8b130b6b1f9187b87d1249b8ec7f.webp",
+      "screenNumber": 6
+    }
+  ]
+}

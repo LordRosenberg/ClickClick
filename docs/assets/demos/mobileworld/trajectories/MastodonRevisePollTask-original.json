@@ -1,0 +1,137 @@
+{
+  "task": "MastodonRevisePollTask",
+  "variant": "original",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 12
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, locate the user's existing poll about which country has the largest area, edit that poll by removing the option “USA” and changing the option “Brazil” to “Canada”, preserve all other poll/post content and settings, and save the edit.",
+      "action": "execute",
+      "reason": "The requested poll edit has not started; Mastodon is available from the launcher.",
+      "screenshot": "screens/84928c89682ec82a608b5027717146f7d1454b2ce3ea6f7c6e672f4b951f1080.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to locate and edit the existing poll.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/84928c89682ec82a608b5027717146f7d1454b2ce3ea6f7c6e672f4b951f1080.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the existing poll's options menu to edit it.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/ea913d0c9ae0f3f9602617f91b2ccc060bdb23a794dc22d5895fa21243ddb13b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Edit for the poll post.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/0305322e284bed02554f0400ce59b0fa76455e680850721a6ebbc485e1fcafa2.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Change the fourth poll option from Brazil to Canada while preserving the other content.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/3a02b36e16bf8f9e52e15652c8f25e9c81b8211a31d996cab1ceadce68528a7d.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Brazil poll option so its full value can be replaced.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/3a02b36e16bf8f9e52e15652c8f25e9c81b8211a31d996cab1ceadce68528a7d.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused Brazil option with Canada.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/8fb8a90242ae3c6ac1a57476a1ec87803d3977515e885730c94e4ae8c65f3af5.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the USA option to remove its text and thereby remove that poll choice.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/7390355a61d1ef6da1b424db974fad4287d4ed69f8dc0e698b1019eaf4e14ce5.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open text-selection controls for the focused USA option so it can be cleared completely.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/954ed678f37754c23ab6538e9e8a999b2a4c67ecec1338a2c9685d4d20e7c816.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select all text in the USA option before deleting it.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/e26fd221ea0391c91614afd1cd3dffac5a6bcad2b9d05f8655f3e219c1ef6b7f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Cut the fully selected USA text, leaving that poll option empty so Mastodon can remove it.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/5bb8947d968137b6cae898cdb315d892525479af32c1c76c56d313f58ee3d09d.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the edited poll with USA blanked out and Brazil changed to Canada, preserving the remaining content and settings.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/297d88016a24d2b1a02e466cda4e1d56e8b7d4ee8f495fe3582334f47a40e4e3.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The Mastodon poll edit was saved successfully. The post is marked “edited now” and now shows exactly the options China, Russia, and Canada; USA is removed, Brazil is changed to Canada, and the post text remains unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c084ca1ea5b77913c5ed4bc072a685957c3c75d4241b9d3a3cbc279a98666937.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "The Mastodon poll was edited and saved successfully. It now shows China, Russia, and Canada; “USA” was removed, “Brazil” was changed to “Canada,” and the post text remains unchanged.",
+      "action": "complete",
+      "reason": "The Mastodon poll was edited and saved successfully. It now shows China, Russia, and Canada; “USA” was removed, “Brazil” was changed to “Canada,” and the post text remains unchanged.",
+      "screenshot": "screens/c084ca1ea5b77913c5ed4bc072a685957c3c75d4241b9d3a3cbc279a98666937.webp",
+      "screenNumber": 10
+    }
+  ]
+}

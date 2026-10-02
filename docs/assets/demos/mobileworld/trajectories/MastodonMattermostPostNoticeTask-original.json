@@ -1,0 +1,209 @@
+{
+  "task": "MastodonMattermostPostNoticeTask",
+  "variant": "original",
+  "screenCount": 19,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 19
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mattermost, locate mike's Security announcement in the announcement channel and capture the exact original post content, including its formatting, links, and any media or attachment content that must be preserved when reposting.",
+      "action": "execute",
+      "reason": "The exact source content must be obtained before it can be reposted unchanged.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to locate mike's Security announcement in the announcement channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Announcements channel to locate mike's Security post.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/199a01ab8528f7259d446fb43d69eec931069cb6640ab05e08ae31c09ccca45b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the channel options to find a targeted search route for mike's Security announcement.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/36d81d113ed806e66af3099a04cc52dcd17e987cec163031509e6250ec41fdae.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close channel options; it has no search control, so use Mattermost's global search instead.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/d3ccbbc9087690381cee500086e716ea306047d4a1820ec169f68e626e8539e5.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the channel list to access Mattermost's global search.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/d652ed4c645b040a3716fdd61e598f5a25e07d45a249943314f9575a51620af4.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost's global search to locate mike's Security announcement.",
+      "action": "tap(index=19)",
+      "reason": "",
+      "screenshot": "screens/a9860552ab22462e8538aa4ea558e1df8dc69426915bfbcf0822e8ee3ac0be75.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the message search field to enter a scoped query for mike in Announcements.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/41ef4f588b1d2f80b7df7fc3ddd110bcb0fc904bf61fca680252d9868924d6d4.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a scoped search for Security messages from mike in the Announcements channel.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/62fba094018e30d262d5c25cd175a785a976d9c501ebd9cf0fb2e79e270c6e43.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the Announcements channel autocomplete result to complete the scoped search query.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/8af6fc024e6c55cd300cbf2bcc15d794719f6ec8b3c593b7ac1dd07114d501d9.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the completed scoped search query.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/a3510a18b87a95d95023c2d97b462744b0bb48d7f9fae6668ea8d5aa55d21281.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Located the single scoped result in Mattermost Announcements by mike (Sep 8, 9:16 AM). Exact post text: \"Security: rotated API keys; check 1Password vault for updated entries.\" The result shows plain text only, with no visible link, media, or attachment.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8423ca0553b5440d604bc87d3d4580092fbd43ae155fc89cbac1d55f73bd1ea6.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and publish a distinct Mastodon post containing the exact source text \"Security: rotated API keys; check 1Password vault for updated entries.\" unchanged, additionally mention @openCompany, and set visibility to followers-only before publishing.",
+      "action": "execute",
+      "reason": "The exact Mattermost announcement has been captured, so the remaining work is to publish the corresponding Mastodon post with the required mention and visibility.",
+      "screenshot": "screens/c12abeda15ce687b3b662f11c9b2a5c86cbb1042e2e36b350462cb5845028e59.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch Mastodon to create the requested followers-only post with the exact source text and @openCompany mention.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/c12abeda15ce687b3b662f11c9b2a5c86cbb1042e2e36b350462cb5845028e59.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Mastodon post composer.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/6af6c8fbfb1b279b6a535ffd497e71f594e358de2544db1955549960427c6d97.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact announcement text unchanged, followed by the required @openCompany mention on a separate line.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/c48379167337ba1c6eea03e215db2406d28d3408d06b1d93751c2730a1572576.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visibility selector to change the post from Public to followers-only.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/6cc93670627cfc0ec55abceb471385587c3d0052a362f38c9d634e7cfb59afcd.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Followers visibility, labeled “Only your followers.”",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/a09a8bc4c6b80b94e1c36696cc7061c435c6963d984f4f96734ea65e4564ce9d.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Publish the composed post now that the exact announcement text, @openCompany mention, and Followers visibility are confirmed.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/a695e2495ea7eab1b5ebe77de48732e5b08aff153a9ac85e5e0e97c22c98d6eb.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account’s profile to verify the newly published followers-only post appears.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/90c813e256ebe4ee185932fe7efad0264abaf07f33b7804fcb31960956f92978.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Published a distinct Mastodon post from @test containing the Mattermost announcement exactly as written, followed by @openCompany. Followers-only visibility was selected before publishing, and the new post is now visible at the top of the profile timeline.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/17b9522b20fd5c06edb959fed32a412aa9b2de4b652d9beeb262da227248043a.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Synced mike’s Mattermost Security announcement to Mastodon as a distinct post from @test, preserving the exact announcement text, adding @openCompany, and publishing it with followers-only visibility.",
+      "action": "complete",
+      "reason": "Synced mike’s Mattermost Security announcement to Mastodon as a distinct post from @test, preserving the exact announcement text, adding @openCompany, and publishing it with followers-only visibility.",
+      "screenshot": "screens/17b9522b20fd5c06edb959fed32a412aa9b2de4b652d9beeb262da227248043a.webp",
+      "screenNumber": 18
+    }
+  ]
+}

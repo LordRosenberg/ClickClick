@@ -1,0 +1,299 @@
+{
+  "task": "MattermostShiftCoverageTask",
+  "variant": "original",
+  "screenCount": 26,
+  "roleCounts": {
+    "Planner": 6,
+    "Executor": 26
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mattermost, review the 'shift-requests' channel and collect all current shift swap requests, preserving each requester's identity, requested date, and request content needed for later replies and email forwarding. Do not respond yet; report once the relevant request set is covered.",
+      "action": "execute",
+      "reason": "First identify every shift swap request and its requested date in the specified channel; those facts determine the required Calendar checks and subsequent denial or escalation actions.",
+      "screenshot": "screens/5a2bdb49fbc304eff0f08f6de5ca24184a26a81282a921a28113ab5b6a359545.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to review the requested channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/5a2bdb49fbc304eff0f08f6de5ca24184a26a81282a921a28113ab5b6a359545.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Shift Requests channel to collect all current requests.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/f727dda0b498e709e73c99a3c99fe7933f9b500adc568ecdbe3df4164c7a953d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Covered the current Shift Requests channel from its creation header through the latest post. Found two shift swap requests: alex — requested 2026-10-05 — \"Requesting shift swap for 2026-10-05. Family emergency.\"; sofia — requested 2026-10-07 — \"Can I swap my shift on 2026-10-07? Doctor appointment.\" No responses were sent.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/5f36a4c9a96815dc3fbf16e6938bc2bc3065c689f693a7bad59d9f46a34658e7.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Calendar, check 2026-10-05 for alex's request and 2026-10-07 for sofia's request for any scheduling conflicts, recording each conflicting event title/reason or that no conflict exists. Do not modify calendar events.",
+      "action": "execute",
+      "reason": "The request set is established. Calendar conflicts on the two requested dates determine which requests must be denied versus emailed and acknowledged.",
+      "screenshot": "screens/3ba230af943f86d6a084f4f13dcd688b11d5d22fe6f02628e166c4d21c58c5f7.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Calendar to check the two requested dates for conflicts.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/3ba230af943f86d6a084f4f13dcd688b11d5d22fe6f02628e166c4d21c58c5f7.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open October 5 to verify the full conflict title and date details for alex's request.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/76f1bda2aa0354a4328442dfaa25d50dc44d71f52285b383d50bc958b38347b3.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Alex's October 5 date has a conflict: 'All Hands Meeting - Mandatory' from 09:00 AM to 05:00 PM, with 'Full team attendance required'. Move to October 6 en route to checking October 7.",
+      "action": "tap(index=54)",
+      "reason": "",
+      "screenshot": "screens/2f8e8bf37cd11353e462b09f2cfa42b25bf7b56cbea5d64331bbefc82e9dc2cf.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move from October 6 to October 7 to inspect sofia's requested date.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/e99920f3596286e6a4cb4d5d3d64fc360d7d4704f3e223a2f374e52bc0d0abcb.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Calendar checks complete without modifying events. Alex's 2026-10-05 request conflicts with 'All Hands Meeting - Mandatory' (09:00 AM-05:00 PM; 'Full team attendance required'). Sofia's 2026-10-07 date has no blocking work event; only 'Morning run' (08:00 AM-09:00 AM) is listed, so treat the request as no conflict.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/065e58b8a1b3df447375011879acd78fbcb4f2827dc28c771e8be24b1fc9a504.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mattermost's shift-requests channel, reply to alex's 2026-10-05 request exactly 'Denied: All Hands Meeting - Mandatory'. Do not reply to sofia yet.",
+      "action": "execute",
+      "reason": "Calendar outcomes are established. Handle the conflicted request first with the required channel reply; Sofia's escalation remains dependent on sending the email before acknowledging her.",
+      "screenshot": "screens/1d46ed7393ac226bf6ffa6c91c959eecf7c9cf1c54edcc320a8a92e09c3ba3ea.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to reply to alex's shift request in the shift-requests channel.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/1d46ed7393ac226bf6ffa6c91c959eecf7c9cf1c54edcc320a8a92e09c3ba3ea.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open alex's 2026-10-05 request so the denial is posted as a reply to that request, not as an unrelated channel message.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/7efcd4d48cc7fe7a0c3daf3662ce46412549eb362a2ebb50430bc9b6b0eccd7c.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact denial reply in alex's request thread.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/3dafd168b0777d26772c8c8bd046a497315863daac5354c0415c35f5e60137a8.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact denial reply in alex's request thread.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/ce9019baad108cb7ef155ebbce952919854716ed27b60727ad84e99a949a5ea2.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Alex's 2026-10-05 request thread now visibly contains the exact reply 'Denied: All Hands Meeting - Mandatory'. Sofia has not been replied to.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/20c81d7949cf3a64b5857d4316f6d15178ba579d6034a5fcd60d5509104dcc43.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send an email to hr@company.com with subject exactly 'Shift Swap Request' forwarding Sofia's preserved request, including requester identity and exact content: 'Can I swap my shift on 2026-10-07? Doctor appointment.' Report only after the email is successfully sent.",
+      "action": "execute",
+      "reason": "Alex's denial is complete. Sofia's conflict-free request must now be forwarded to HR before acknowledging her in Mattermost.",
+      "screenshot": "screens/b4682996ea7c5f455d4d502fa06b4c7502915982c5bca73fd940b16dbe9f16a0.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the email app to compose Sofia's shift swap escalation to HR.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/b4682996ea7c5f455d4d502fa06b4c7502915982c5bca73fd940b16dbe9f16a0.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start composing the email to HR.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/119a22019258e1730b5d9417dce297251c10a47dcf6695dafc913af65399740e.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the email to hr@company.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/9157d092612f1e5ed69eb855f3d601ad0370a96194234c52281a71ac1c2328ed.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the required email subject exactly.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/4a22370de93624d19c6000e34192bafc8d5680ada7f9f38c3ad5c583abbc1966.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Sofia's identity and exact shift-swap request to the email body.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/bdae6eda069283df84708b161614ed713549c9914588f9a7121755c0a7a90b41.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed shift swap request email to HR.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/db2c406c786139555d8bc262643f6b191951757a9829a7e39d39919836f2ea71.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email successfully sent to hr@company.com with subject 'Shift Swap Request' and body preserving requester sofia and exact request content. The app displayed 'Email Sent'.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/28535808f18ae3c88237b390233f991f0ec7238a7aa1eb0d7e6a8b3040306ca9.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mattermost's shift-requests channel, reply to Sofia's 2026-10-07 request exactly 'Request escalated to HR'. Ensure the reply is attached to Sofia's request, not posted as an unrelated channel message.",
+      "action": "execute",
+      "reason": "Sofia's HR email has been successfully sent, so the remaining required action is to acknowledge her request in its Mattermost thread.",
+      "screenshot": "screens/8306979d3e71bfd54013d6f92a7eaba6689268e0cbd3343ed4b4476438247f6b.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to reply in Sofia's request thread.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/8306979d3e71bfd54013d6f92a7eaba6689268e0cbd3343ed4b4476438247f6b.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from Alex's thread to the Shift Requests channel so Sofia's request can be opened.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/846b0030ce2b71da090af749214663c827dae1a1e0c6e23e72321a9c60a53f35.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Sofia's 2026-10-07 request so the acknowledgement can be attached as a thread reply.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/71b6a0e915e1adb0122ea4c18d26acf3e78fbcf4a61561b7e248e650cb961246.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact acknowledgement in Sofia's thread reply field.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/ceda946ccac6b9e526e4e439c664e57f2a6cea47128df2b02f920a2da76f3a7d.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact acknowledgement as a reply in Sofia's request thread.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/f92c67e54b7caaf86a2710a0bed97a44f63d3b3ec52dd4683943ffecbb598dc8.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed review of both shift requests. Alex's 2026-10-05 request was denied in its thread due to the mandatory All Hands Meeting conflict. Sofia's 2026-10-07 request had no blocking work conflict, was emailed to hr@company.com with subject 'Shift Swap Request', and now has the exact thread reply 'Request escalated to HR' visibly attached to her request.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/fe54d028f61c71283c0d7e2a410905acb6072104e1608ccabd22fa86b1075a56.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Reviewed both requests in shift-requests. Alex's 2026-10-05 request conflicted with the mandatory All Hands Meeting and was denied in its thread. Sofia's 2026-10-07 request had no blocking work conflict, was forwarded to hr@company.com with subject 'Shift Swap Request', and received the thread reply 'Request escalated to HR'.",
+      "action": "complete",
+      "reason": "Reviewed both requests in shift-requests. Alex's 2026-10-05 request conflicted with the mandatory All Hands Meeting and was denied in its thread. Sofia's 2026-10-07 request had no blocking work conflict, was forwarded to hr@company.com with subject 'Shift Swap Request', and received the thread reply 'Request escalated to HR'.",
+      "screenshot": "screens/fe54d028f61c71283c0d7e2a410905acb6072104e1608ccabd22fa86b1075a56.webp",
+      "screenNumber": 25
+    }
+  ]
+}

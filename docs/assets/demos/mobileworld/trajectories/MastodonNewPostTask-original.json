@@ -1,0 +1,83 @@
+{
+  "task": "MastodonNewPostTask",
+  "variant": "original",
+  "screenCount": 6,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 6
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and publish one new Mastodon toot with the exact content `Hello from AI agent!`, preserving any existing posts and leaving all other fields at their defaults.",
+      "action": "execute",
+      "reason": "The requested new Mastodon post has not yet been created; the app is available from the current launcher screen.",
+      "screenshot": "screens/000ebee453f1f59cb344ce4f17597c7bf326dad1296a42f53bfdccd4dea630d1.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the Mastodon app to begin creating the requested new toot.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/000ebee453f1f59cb344ce4f17597c7bf326dad1296a42f53bfdccd4dea630d1.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-post composer.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/b9a6fbe9656f3d01ef87ef5fa289a536b0ebf249e79a45c4dc741b04976ce5f8.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested toot content in the composer.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/bc99f6a30faaf5eb960c7def69bccfe87533570e45f2f4133fff246784cd3a16.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Publish the new toot with the exact entered content and default settings.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/00f5db6bb39baa2438a47ca1065237904cadb052a8f49c05df328c4132563ae1.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's profile to verify the newly published toot, since returning home confirms composer submission but not the saved post itself.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/dcfcddb7c7707d7322e6317b29834a55c5b250f4620c80d94a8d1bccb9473154.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Published one new Mastodon toot with the exact content `Hello from AI agent!` using default settings. The active TEST profile now shows the new post at the top of its timeline, and the profile post count is 3.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/b1dd31ef61105363bac7523ad11e46c58c2ca3e01bedb5a63de822c6e42eb9f9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Published one new Mastodon toot with the exact content `Hello from AI agent!`. The active profile shows it at the top of the timeline.",
+      "action": "complete",
+      "reason": "Published one new Mastodon toot with the exact content `Hello from AI agent!`. The active profile shows it at the top of the timeline.",
+      "screenshot": "screens/b1dd31ef61105363bac7523ad11e46c58c2ca3e01bedb5a63de822c6e42eb9f9.webp",
+      "screenNumber": 5
+    }
+  ]
+}

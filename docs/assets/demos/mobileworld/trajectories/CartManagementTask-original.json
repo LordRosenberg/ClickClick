@@ -1,0 +1,272 @@
+{
+  "task": "CartManagementTask",
+  "variant": "original",
+  "screenCount": 26,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 27
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在淘店中进入购物车，必要时通过短信验证码完成登录，遍历购物车全部商品并删除所有短袖T恤和短袖衬衫；保留其他商品且避免遗漏重复或分页条目。",
+      "action": "execute",
+      "reason": "需进入淘店购物车，完整遍历并删除所有符合“短袖T恤衬衫”的商品；若登录被要求，可按用户授权使用短信验证码登录。",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开淘店以进入购物车并处理目标商品。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入淘店购物车以遍历并删除所有短袖T恤和短袖衬衫。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/2484b58ed1b3b34df723c37ef1de2879905c89101370aed74ac304d1f163de29.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "切换到用户授权的短信验证码登录方式。",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/98b750c10181810754124b841b31085a23afced475436cb4220bdbdecdb9e9a5.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "向预填手机号发送短信验证码。",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/ca9aaded1b84da6268057e4e3ce880acc1229858e50e1d395c4ba28674345b91.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认验证码已发送提示，以便读取并填写短信验证码。",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/96efb91ad0c82bf3ab311259346523ae136d14ea5107d72d7a83cb05712adc1c.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "下拉通知栏读取刚收到的短信验证码。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/b136f390cfd2ba7fe650223521f879ee04e8549cb89801203be37e77a6063660.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已读取短信验证码，关闭通知栏返回淘店登录页。",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/81c9e91b594da6d7187538572b86e25c9e13da15822be0e48df6de8f19ad8443.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将短信验证码填写到验证码输入框。",
+      "action": "replace_text(index=24)",
+      "reason": "",
+      "screenshot": "screens/63691bf5daa72b27c7047d1323075b32ae800e25e845a3684e57af2c52956ce3.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "先聚焦验证码输入框，随后再无索引替换文本。",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/63691bf5daa72b27c7047d1323075b32ae800e25e845a3684e57af2c52956ce3.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在已聚焦的验证码输入框中填写验证码。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/25a9d7225f25d829011188b033cb73a94753c5198e4cadfafc1e5b8831051615.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "验证码已填写；按登录流程先勾选“已阅读并同意”协议。",
+      "action": "tap(index=30)",
+      "reason": "",
+      "screenshot": "screens/e67e9a894dd5e4a85951232a9a64e6b7f7e824deaa0cc20aeea3b19bf0f01305.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "协议勾选控件已由原生点击处理；点击“同意协议并登录”提交短信登录。",
+      "action": "tap(index=28)",
+      "reason": "",
+      "screenshot": "screens/318fa7dd1c24c2e96cbe9450c871a8f1c57e6c6cd396b75d52e6fd57cfd9e1eb.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已进入含20件商品的购物车；首屏商品均非短袖T恤或短袖衬衫，向下遍历后续商品。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/46f7d3e64351c21a65e7fc5fbc0a210256ed04b542111da72086dc19345931d1.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "当前视图新增商品为蓝牙耳机及多款鞋，均非目标；继续向下遍历购物车。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/4e56dc36a850958788305e051caf8aff15d1396d639bd058dc601478a897a18a.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已在当前视图发现“反光条运动T恤”“V领修身T恤”“POLO领T恤”三件目标商品；先进入管理模式以便选择并批量删除。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/99b52b63a666e160e88fd325713991bccaff4fe0d0e066e076be30d695e0333a.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "管理模式已开启；勾选可见目标商品“反光条运动T恤”。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/38317be0d0e455dee0098e72189740b1e57343eb2828b059825548368610ba05.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "“反光条运动T恤”已勾选；继续勾选可见目标商品“V领修身T恤”。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/32e21509501905929e862f650238b9f29c8541412c44f39a876dd99f09e9bdea.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "前两件目标商品已勾选；继续勾选当前可见的“POLO领T恤”。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/34aad012c33f9bcdc061f1b50f1b3e9453031acfaeec8a32c09ac39d8fce4faa.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "三件可见目标商品均已勾选；向下继续遍历购物车，保留当前选择并查找其余短袖T恤或短袖衬衫。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/244662a9561316e0d1ae3d33b414a815d672f70b4fe0ba74a362287b87bb8818.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "下滑后发现新的目标商品“黑色基础T恤”；勾选该商品，保留化妆套装、沙发、手机等非目标商品。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/15a6a1c3ee98ba34ee281995580a1c43de089564c16c9dbdcf64d9a3a43010ff.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "“黑色基础T恤”已勾选；继续向下遍历购物车，查找剩余目标商品并确认列表末端。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/85c68224af9237dcc4133cb8b6f1b0fb6005419efdc3d04feddb57fd459c00ba.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续遍历后发现两件新目标商品“运动潮流T恤”和“经典白色T恤”；先勾选“运动潮流T恤”。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/db671030df268e439b28e41b6f36dff70748cd444e1a366c4c791ed95bdf4d10.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "“运动潮流T恤”勾选状态已在最新画面中确认；继续勾选同屏目标“经典白色T恤”。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/e9562d2d43448b16d215f112d28677815091074381cc92ff38896dc7c1cb1d04.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "“经典白色T恤”勾选状态已确认；继续向下遍历购物车，检查剩余目标并寻找列表末端。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/af4f79ca174410b0fa2fd063d06f96b0469ee68f0ab381eee1aff6c7a037a362.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "再次向下滑动后画面完全不变，且最后一件商品下方为空白，已建立购物车末端；现在点击“删除选中”，批量删除遍历中勾选的全部目标商品。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/8bc81e9e656642c805fd628ca1da6f4114a2383a8721420bd5de8df2b8611c7b.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认框明确显示将删除选中的6个商品，与遍历中识别并勾选的6件目标相符；点击“OK”确认删除。",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/2d2daa54b55e69d696ce89bef0c33cd6af1b559df3c887161e0e8c6cc2e03f85.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已完整遍历购物车并到达列表末端，识别并勾选6件短袖T恤/衬衫；确认框显示删除6件，点击确认后应用明确提示“删除成功”，购物车数量由20降为14。其余非目标商品保持在购物车中。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/ac3bd0ceb23960a68d3d211c62d59e309b4a8bb43d127cea5ee7d8ca065c7ae0.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：淘店购物车已完整遍历，6件短袖T恤/短袖衬衫均已删除；应用明确提示“删除成功”，购物车商品数由20件降至14件，其余非目标商品保留。",
+      "action": "complete",
+      "reason": "已完成：淘店购物车已完整遍历，6件短袖T恤/短袖衬衫均已删除；应用明确提示“删除成功”，购物车商品数由20件降至14件，其余非目标商品保留。",
+      "screenshot": "screens/ac3bd0ceb23960a68d3d211c62d59e309b4a8bb43d127cea5ee7d8ca065c7ae0.webp",
+      "screenNumber": 25
+    }
+  ]
+}

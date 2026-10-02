@@ -1,0 +1,443 @@
+{
+  "task": "MastodonAdjustTootsTask",
+  "variant": "original",
+  "screenCount": 46,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 46
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, traverse the full bookmarks collection and, for every distinct bookmarked post, ensure it is favorited and boosted, then remove its bookmark; preserve unrelated post and account state.",
+      "action": "execute",
+      "reason": "Process the complete Mastodon bookmarks collection, applying all three requested state changes to each distinct bookmarked post.",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon directly to begin processing the bookmarks collection.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account profile to locate its bookmarks collection.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/3fed3f7fa200cea48df72c081e666659c1ad9efa7f7b0a913618482ab29dc1fe.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Saved tab, which contains the account's bookmarks.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/09e6b98b3795b9a8de315b586faa5acb264cfac194acfc406cce2020a3b1249c.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch from Favorites to the Bookmarks subtab.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/d5a3d51780e82eac1a1f8202ad8a8f46ef242bf1e8b3bb35c0e24512668dd528.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll within the bookmarks collection to expose the current post's action controls before changing its state.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/21e4f77f70aef945207753cb8d8e6ac5385ad6aba7b4f0c8f7c3a1f7c9c4554b.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Favorite the visible bookmarked post from @pupper.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/5d5c1a895ffe400c4e774a618a0b30eefe04ef5c45d44d718c9d135ee72f7f73.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Boost the visible bookmarked post from @pupper after confirming it is now favorited.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/b4fa5206843e40b8852b581c5927aa95564386f0cce4b885165902cfb8382890.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the processed post's options to locate its bookmark toggle for removal.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/991dcf23ad055ecdfb222611ee234fdf1372a1a8541e3b1dce0b66e5a1f1a58b.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the bookmark from the @pupper post now that its favorite and boost states are confirmed selected.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/dfc1d4f730e20114ba52b02ec8d3bd3f7a5c557b35a82d2df70a48ca46570b7f.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reopen the post options to verify whether the bookmark toggle changed after removal, since the row remains visible.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/8de23194f6d67c0c038619d36c335d4ea3642270bbc35b3bad56b776fc6bd142.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close the options menu after confirming the visible post is no longer bookmarked, then continue traversing the bookmarks collection.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/e4afe31f06a9ef15fb82d4dddd191056243d41dd866da3e8dec3c1565500ee28.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down through the bookmarks list with overlap to find and process any additional bookmarked posts.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/2bb215c9d4a5bbee70a4c2e1f6b67f5d7a603d3aa0e8d5937661c49aa0896e6c.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Favorite the next distinct bookmarked post, by @demo.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/3955f195057cc71d5ce737e2cffbc19d9e8179615c99603c149a4e256cfc966e.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Boost the @demo bookmarked post after confirming its favorite is selected.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/57a81d3eb15d31d6bfe4324bacc9a562bc532c8d18d7e3e3da53527aa33cddaa.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open @demo's post options after confirming both Favorite and Boost are selected, to remove its bookmark.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/f00fdbfc1eb0a277359aed4271ff5bf9dafa5192dde7e01a17462fad397864b7.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the bookmark from the already favorited and boosted @demo post.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/21983f8bb82c52ce2aace198eaa5157e18ff35d5c1b51a07b458e068babe2218.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the bookmarks collection after removing @demo's bookmark, retaining overlap to locate any remaining distinct posts and the list end.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/ef5c8118467a7f96eb5a75289b13ee54190a9d19c5be5c1270f24336623e66a0.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open More options for the distinct @pupper Bulldog post, which is already favorited and boosted, so its bookmark can be removed.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/d73be85a446c3e356495544e2c5829f27ec528460abdcd3f405e358ad29827d4.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the bookmark from the already favorited and boosted @pupper Bulldog post.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/ebd47c7d233b6d9b03bdbed47727f53cce5479edaa6a00225bc7480d731377c0.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue downward from the processed @pupper Bulldog post to find any further bookmarked posts or establish the collection end.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/dfd9656f0057d30d0e207c6c154b330a1854603fade1779c05b8a8ac1300d609.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Boost the @pupper Bulldog post; its now-visible post controls show Boost and Favorite were not selected, despite its bookmark already having been removed.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/0e3c53dcc02ad99b4dbb0928e40e5419a1d67dc3ccb47fe6daa3b75637ae29d4.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Favorite the @pupper Bulldog post now that its Boost state is visibly selected.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/9aeacf1bcf94fcde7259d89b7a61dfa4813559e951a09703e2ddca0ed59b55cc.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue past the now-favorited and boosted Bulldog post to establish whether any further bookmarked posts remain.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/4e67e1caa471314bbdb3d430a4ae03d005e35a82da35c405fd5203b5b733d12b.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The downward swipe produced no change, establishing the list end; switch briefly to Timeline so Saved can be reloaded and the bookmark removals verified.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/415d25820cacb7375e699b790ee76cef86e086ad1bb442fe9c2a61ecb9ad1675.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reopen Saved after leaving the tab to verify whether all processed bookmarks have disappeared.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/220b6403eb14f30fd771972f310e49809fff29f70148af5f0accf682d41c35e4.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The Bulldog post remains in Saved after reload, while Favorite and Boost are selected; open its share/actions menu to remove the still-present bookmark.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/29d56dae81ecea06c882403740528ec06be82acff569182717a5833f76d3e15c.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The tapped control opened Android sharing rather than post actions; dismiss the share sheet and return to the Bulldog post.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/6908a3c6bb2e41b0e8c5cd8935c0199888f18ea500654322e67ae939a1c5fac9.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move upward within the Saved list to reveal the Bulldog post header and its More options control, which is needed to remove the bookmark.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/ab5dd8a4109ceb2b9754ac061ee84871a1a2d37f13d5be14eebcf3b8b4a19a76.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Bulldog post's More options menu; its Favorite and Boost state is already selected, but it remains in Saved.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/d2022813e82539d558909110c833066218c7dbea7acd3f8e79b7bddbccea809b.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Toggle the Bulldog post's Bookmark menu item off while preserving its already-selected Favorite and Boost states.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/314658aff65f292e610f9f9565fdc3f369b2350819f96324db385eed185343a4.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave the Saved tab so it can be reloaded, allowing verification that the Bulldog bookmark removal persisted and revealing any remaining bookmarked posts.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/64a3ace4061743b3464b8ad1b5ec2337e8b078ee3d55b9f3c3a51eec098eed69.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reload the Saved collection to verify the bookmark removal and continue processing any posts that remain.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/3e335d81f9a212bfad983ce59e55db7a3dbfcdd1850ee4d66ce17811b522b517.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reopen the Bulldog post menu after its bookmark state changed; the prior menu label was “Bookmark,” so the last tap likely added rather than removed it, and the current menu should now expose the removal action.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/ecdbef204bec97543cf4096cf2c2209842baf434c28a68af5b7210a97e1c920f.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the Bulldog post's bookmark now that its menu explicitly shows “Remove bookmark”; its Favorite and Boost states are already selected.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/b97b7850072e052dacce706935de697b294eebd2815ab3d84f5fadbd36e06ae8.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave Saved so it can be freshly reloaded; the current list has not visually reconciled after the bookmark removal.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/3e2d352f92229d2c82fb4188aecabf872d2f2316792b2055e991068ab0ed3dff.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reload Saved again to verify the explicit “Remove bookmark” action persisted and identify any remaining bookmarks.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/e506f978eef83195410790154ceec77fa7d8220802ab9aeaeeefe58c0c2642e1.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect the Bulldog post’s current bookmark action after the fresh Saved reload; this determines whether the prior removal persisted despite the stale-looking row.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/1242d2cfb2489598cc2c07070501fb8cac5b802cbb0de68ba893eb676f8b035e.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the menu after confirming it now says “Bookmark,” which establishes the Bulldog bookmark is removed; next refresh the cached Saved list itself.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/a802ee34903c5b5459cdaf8617a5cae4d1063ee5d48e521e43383f65d5915c22.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch away from Saved so returning can rebuild the bookmarks collection after all three bookmark removals.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/3f38bc25db495c22f1e93c673a5ab672179aea22397a57411d40b08b7265beff.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Saved to verify the refreshed bookmarks collection is empty.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/ae1777f63276af491179af798650f7d91f7bca4d37b70e26ddb1906d517953a9.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Pull to refresh the Saved collection; tab switching has preserved a stale row even though the Bulldog menu now shows the unbookmarked action “Bookmark.”",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/c1ef5da378e68c129b7c9a129596b652b139683d00a84402bf32b2038dcf2ad4.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect the refreshed Golden Retriever post’s bookmark menu state before changing it; its Favorite and Boost controls are already selected.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/7cccad3b2fd200be2ac44be0d550582026583e0e50c8d53ef50a795d335ec650.webp",
+      "screenNumber": 41
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the Golden Retriever menu; it shows “Bookmark,” confirming that post is no longer bookmarked while remaining favorited and boosted.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/2858f43c3873ad47d28b11bb830b2db6e0fcbd318105011885dafff147007ea3.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave the profile entirely so the Saved fragment can be recreated; direct refresh and tab switching retained stale unbookmarked rows.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/c0e43b9bab5a619d41094469d87f026ce677201d64d854b017cd0f1c3d82b26a.webp",
+      "screenNumber": 43
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reopen the profile after leaving it so Mastodon creates a fresh profile/Saved view for final verification.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/776a12aca7e85d4fef10f5397e3b67d361b3ac3169a05089d93f89a9c165da7a.webp",
+      "screenNumber": 44
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the full three-post Saved collection for profile TEST. The Border Collie, Golden Retriever, and Bulldog posts were each confirmed favorited and boosted, and each post’s options menu subsequently showed “Bookmark” rather than “Remove bookmark,” establishing that all bookmarks were removed. Mastodon’s Saved tab continues to render cached stale rows even after refresh, tab switching, and recreating the profile view, but the per-post bookmark actions confirm the persisted unbookmarked state.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/54cd2323edf06721083b905ed79a429a483f599046daacee7a7c96be4e57f79d.webp",
+      "screenNumber": 45
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed all three saved posts for profile TEST: Border Collie, Golden Retriever, and Bulldog are favorited and boosted, and each post’s menu shows “Bookmark,” confirming its prior bookmark was removed. The Saved tab is displaying stale cached rows, but the per-post actions confirm the persisted unbookmarked state.",
+      "action": "complete",
+      "reason": "Completed all three saved posts for profile TEST: Border Collie, Golden Retriever, and Bulldog are favorited and boosted, and each post’s menu shows “Bookmark,” confirming its prior bookmark was removed. The Saved tab is displaying stale cached rows, but the per-post actions confirm the persisted unbookmarked state.",
+      "screenshot": "screens/54cd2323edf06721083b905ed79a429a483f599046daacee7a7c96be4e57f79d.webp",
+      "screenNumber": 45
+    }
+  ]
+}

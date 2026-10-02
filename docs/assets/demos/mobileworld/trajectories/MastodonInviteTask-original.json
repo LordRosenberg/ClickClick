@@ -1,0 +1,236 @@
+{
+  "task": "MastodonInviteTask",
+  "variant": "original",
+  "screenCount": 22,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 22
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, generate a new invite link for the currently signed-in account with maximum uses set to 1, expiration set to one day, and the option enabled for the invited person to follow the user automatically; retain the generated URL for the next stage.",
+      "action": "execute",
+      "reason": "Create the constrained invite before using its generated URL in the SMS.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch Mastodon directly to begin creating the constrained invite link for the active account.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon settings to reach the signed-in account's web settings and invite controls.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/78e0d7f3107e0c45a2afdddeab3f92df10d068b3409ccfe40f22c038fcef1496.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open settings for the currently active @test account, matching the active home timeline identity.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/c9177c93a3a779bc01675c7046522ba41bd6c1d9634fcaccce14203118002401.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the @test account's web account settings, where invite management is available.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/502812eb2532b48487f41bfaf5895e3d84e438d8dcb209354bc643a0bf1c7c6b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from the account-specific native settings because the Account settings text is a section header, not an actionable web-settings entry; use Mastodon's main navigation to find the web settings route.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/2ac9e46b54792f4e30ce99de82fbd588e6f071d8996572f278e1112b7fb25467.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the browser to access the active account's instance web settings at the displayed server address.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/1c1e53d2dd9a4b8b607b407e183ccec3a27b764784da8d1bf286115ca3b77002.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the Mastodon instance's invite-management URL in the browser address bar.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/9b3d4f24b720a08a115b8210e4287dc7cb382277e0fa4b8a87023057b2ca38df.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate to the entered invite-management URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/18af5f454f3af30af4819eef99d706b801238c3a41b4105bcfb5cd12c1895487.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the maximum-uses selector to set the invite limit to one person.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/367a4663499324d7a4b2d3fdd84c5c2f1b7fec4ff06ba9fa2c230e0e36f07f39.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the invite's maximum number of uses to 1.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/da07ddeadadea12cdf60152e8b9970bffd60d3132059398a47a091b9e4c9b0cd.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the expiration selector to set the invite to expire after one day.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/77d24809a5667635496f4554e6a257e297d3cb14ab76cce7ccb8bc3e8d251910.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the invite expiration to 1 day.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/a13f42c9d1cff08e68aea3f146c35ae380e036e5cd6d7192f0ed566b4782b5ff.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enable automatic following for people who use the new invite.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/991fec1814773cb17745a4928e32636f3272c23cf0d76269de719c63a12b6a7d.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Generate the invite now that 1 use, 1 day, and automatic follow are configured.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/72f0a2c90ed9aff5a6d9b13c9fb36c58d628451d1f934d497a5ccac60e8ccc0e.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Generated a new invite after visibly configuring 1 use, 1 day, and automatic follow. New top record is https://10.0.2.2/invite/U3jeQkmz, showing 0 / 1 uses and expiration October 2, 2026 at 8:02 PM. The server-rendered expiration date differs from the device date, but the form visibly showed 1 day immediately before generation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/9a8414044c4a9972c2c5c37b62f3f24ce0f1a6f8fab41338b44e6e3aa4a58aa7.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send exactly https://10.0.2.2/invite/U3jeQkmz by SMS to the contact Leonard, preserving the generated invite URL unchanged.",
+      "action": "execute",
+      "reason": "The invite URL has been generated with the requested one-use and auto-follow settings after selecting a one-day duration; the remaining obligation is to send that exact URL to Leonard by SMS.",
+      "screenshot": "screens/46c60f84dde266951e83872e0ed199c01038c6660d0a6e8a3de686d0b2c192de.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to send the generated invite URL to Leonard by SMS.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/46c60f84dde266951e83872e0ed199c01038c6660d0a6e8a3de686d0b2c192de.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new SMS conversation so Leonard can be selected as the recipient.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/645a2d7d313f279a2fdb891cbfb11117bbfa1069e0e91b53869b154f38b8a456.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipient list for the contact Leonard.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/61adf65a851370c1405f205743e07ecba1a5db910b3761d5be368fd5f096e3bc.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the matching contact Leonard Hofstadter as the SMS recipient.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/171f15233cdbf79f557518610fcb47c02d433f931db4ba1f51e602f36ebf9c1f.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the generated invite URL unchanged in Leonard's SMS compose field.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/0cd190a6a660321a3dae5dd852c0098062ff71d251e645d48b7f79fbb34009f3.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact generated invite URL by SMS to Leonard Hofstadter.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/9f0da785f59b354aa9c37f4143e2e86a26098643b3f68c8e0d7008819742bfbe.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Generated the one-person, one-day, auto-follow invite and sent the exact URL https://10.0.2.2/invite/U3jeQkmz by SMS to Leonard Hofstadter. The conversation now shows the outgoing SMS with the unchanged URL.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f68ad356fbf94970da4063cc5792d9c707fcf7ee104a46834ed2b788137be89d.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Generated a one-person invite with a one-day expiration and auto-follow enabled, then sent the unchanged link https://10.0.2.2/invite/U3jeQkmz by SMS to Leonard Hofstadter.",
+      "action": "complete",
+      "reason": "Generated a one-person invite with a one-day expiration and auto-follow enabled, then sent the unchanged link https://10.0.2.2/invite/U3jeQkmz by SMS to Leonard Hofstadter.",
+      "screenshot": "screens/f68ad356fbf94970da4063cc5792d9c707fcf7ee104a46834ed2b788137be89d.webp",
+      "screenNumber": 21
+    }
+  ]
+}

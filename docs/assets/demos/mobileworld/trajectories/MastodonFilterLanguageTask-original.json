@@ -1,0 +1,227 @@
+{
+  "task": "MastodonFilterLanguageTask",
+  "variant": "original",
+  "screenCount": 22,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 22
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, set the post language filters so the only selected languages are English, Japanese, and Chinese Simplified, then retain the app's saved-state or success feedback.",
+      "action": "execute",
+      "reason": "Configure the requested Mastodon language filter and confirm the saved selection.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to configure the requested language filters.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon settings to find post language filters.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/676e7c62444155208215a5383a476e3820af7eef24354e47f5276ee0001a6ab5.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open settings for the active @test account, identified from the active profile/feed avatar.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/48617cba7fb928a288b3e3f9ee4299e23ebf69d5172de6a16d1099491f70627f.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Privacy and reach, where feed language visibility settings are expected.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/502812eb2532b48487f41bfaf5895e3d84e438d8dcb209354bc643a0bf1c7c6b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Privacy and reach has no language controls; return to the account settings menu to inspect Filters.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/fb086822d6eacbf292b452383e1d5027edba8dcd1754400ee570757c1da3aa40.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Filters to check for post language filtering controls.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/3b3c6a7f1b77ea224abef94b345f8c8a983501162f8ce34e766cb372ef6ad80f.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the browser to access the instance web preferences, since native Filters manages keyword filters rather than post languages.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/fccee4f910d72873982801136918ecd5d2496e54464ebf5b59b6bb1d3ee1981a.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to Mastodon's Other preferences page, where post-language filters are typically configured.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/1e68765bd3322d845797b3f09ee46e7eb1dc32aacbc0446bcc46367867f436da.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the direct Other preferences URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/cd585d97ed1e8419de71174172054638e04781c7398146e643ae868c5471c2e0.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Correct the instance URL to HTTPS, matching the working Mastodon web settings session.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/5873105b6a41fb4cc20eccb829dc820a808c589bdb6c6cdf925a5f6f41ee9c9e.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the corrected HTTPS Other preferences URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/9b85471d874cb7722d168e715e72ebe9fb53314e7c529cdb0d00053885dbfb51.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scan the full language checklist from the top, noting and correcting selections while locating the requested languages.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/1c8ef415aa30b1a6fab29d2fca8d17269b61e13868060dbffd309cba98383097.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select English in the public-timeline language filter.",
+      "action": "tap(index=27)",
+      "reason": "",
+      "screenshot": "screens/74d97258241d4eacc694ee33363ba5052ca27514d362fd4a85b223255eed18cf.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the language checklist for Japanese, Chinese Simplified, and any other selected languages.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/f25315cf688d1a2207bf67a66f5e5822f5a188daffdace3532b71a59139927da.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the unchecked language list toward Japanese and Chinese Simplified.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/71e52511bcd8194bdc081fa9a91d4de88c981ad485724e027b503f8c1a66e009.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the remaining language checklist for Japanese and Chinese Simplified.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/71d3e3102d0e6914b4fae8e34b3f3e05a433c809c573a3d077f147eb17c9ae17.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the language checklist to reach the Japanese and Chinese entries.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/96e9dc0a8d4cca91665e640a7dbe8f18e3991c4d65e5f19b66b9fc2a9cd56fda.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue to the final language entries, where Japanese and Chinese should appear.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/2d5a6c889b1e3669a289e9bc6ae89bbcf5bdaefa876f3b78072b8ed08cf52a90.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Japanese in the Mastodon public-timeline language filter.",
+      "action": "tap(index=21)",
+      "reason": "",
+      "screenshot": "screens/7f9ab9088cc704dd9f248334314ad7c8fb25f0de7e8ae42a22f2719aecfae5fd.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Chinese Simplified in the Mastodon public-timeline language filter.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/4ec7fadc59bcd81d2cbb3498d08762e8e45984b5f512a949b89771fb75420dc9.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the selected English, Japanese, and Chinese Simplified public-timeline language filters.",
+      "action": "tap(index=29)",
+      "reason": "",
+      "screenshot": "screens/405a1f83f9c0a94877835eb219e01bc1a02362c4594ea5a856f7c075ccddb0a6.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Mastodon confirmed “Changes successfully saved!” after selecting only English, Japanese, and Chinese Simplified in the public-timeline language filter.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/28f02862a392e00ac17a1e8ecf2eb3dfe0f6769ae6c930ae90f27c3a1f70768e.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Mastodon’s public-timeline language filter is saved with only English, Japanese, and Chinese Simplified selected; the page confirms “Changes successfully saved!”",
+      "action": "complete",
+      "reason": "Mastodon’s public-timeline language filter is saved with only English, Japanese, and Chinese Simplified selected; the page confirms “Changes successfully saved!”",
+      "screenshot": "screens/28f02862a392e00ac17a1e8ecf2eb3dfe0f6769ae6c930ae90f27c3a1f70768e.webp",
+      "screenNumber": 21
+    }
+  ]
+}

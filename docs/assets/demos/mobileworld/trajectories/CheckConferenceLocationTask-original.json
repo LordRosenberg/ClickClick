@@ -1,0 +1,317 @@
+{
+  "task": "CheckConferenceLocationTask",
+  "variant": "original",
+  "screenCount": 28,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 29
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mail, find the email identifying the MCFT conference hotel and record the hotel's complete street address, without changing or sending anything.",
+      "action": "execute",
+      "reason": "First obtain the conference hotel address from the user's email; that value is required for both the text message and walking-time lookup.",
+      "screenshot": "screens/bcbe2f8196414481b866f8c71e6123c91864726b3ee418a1963aa5f9633c22e0.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail to search for the MCFT conference hotel email.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/bcbe2f8196414481b866f8c71e6123c91864726b3ee418a1963aa5f9633c22e0.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mail for messages mentioning MCFT.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/e4ad83fa55361dcd0ddfc85c54bd33f65ee65d5c5fe5c0b3c09f6431d940facb.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the MCFT Conference email to retrieve the hotel's complete address.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/2b9ff373e32dc2c47b81c71a1d5261d782595b1fab480afc184810c9f35e79bb.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The MCFT email identifies the venue as “Harvard Square Hotel” but contains no street address. The stage requires recording a complete address from Mail, which is unavailable. Revise the route to resolve the hotel's exact address in Maps, then use it for the text and walking directions. Evidence: obs_605fb9ce6ac44fe09fc8406dee6f904b.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/193cb6d7f7627f61a7e9e409b88b8a61cd912a2c63e177f3894fc7e5143e3e93.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Google Maps, find the Harvard Square Hotel identified by the MCFT email and record its complete street address; do not start directions yet.",
+      "action": "execute",
+      "reason": "Mail establishes the MCFT venue as Harvard Square Hotel but not its street address, so the next stage must resolve the exact address before it can be texted or used as the walking destination.",
+      "screenshot": "screens/4ead663f229c2bbe1f6f9abb0a399896bc71c51ed4873673cb6243204a9a3411.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps to resolve the Harvard Square Hotel's complete street address.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/4ead663f229c2bbe1f6f9abb0a399896bc71c51ed4873673cb6243204a9a3411.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Maps sign-in to access place search.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d6c0ad41a5a9cb0a6e2d906bf1b7c76e347afeb21355b1ef8d6f8056a968bc3c.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Maps for the Harvard Square Hotel.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/c87da042594d00a4048217901d828753685b1884fd5eb3e8e8442e33c77db35c.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Maps search field before entering the hotel name.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/c87da042594d00a4048217901d828753685b1884fd5eb3e8e8442e33c77db35c.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the hotel name in the focused Maps search field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/d78f81997470a83b372448d26f738b229ebf745af8d5459991bc64b5c0140b41.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Harvard Square Hotel place result to view its full street address.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e1b32c2f9ddd8c250ce87c7ff383e97abf20cfc74a62b6488705cb691f988aec.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reveal the hotel details section to capture the complete street address.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/472a2c91ff3508594a8709e9a7c7e889e35da8baadeafd62789fede6e289cc52.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the Overview details to locate the full postal address.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/2e7f6c985bdb880310d224d39a8d9542fdd5bbd2eea9410892e5df2a60fa8c4d.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll past the booking options to reach the hotel's contact and address details.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/593675564247e69362f9eb81d12f6584c66d31edafc5ce46c906231ec9947b0c.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google Maps shows the complete address for Harvard Square Hotel as 110 Mt Auburn St, Cambridge, MA 02138, United States. Directions were not started.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4beb02b6e0c9b2171d4226210fae1c8643fe5b496ea08234d61fb254c7827fbd.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a text message to Tom at 4456547865 containing the hotel address exactly as established: 110 Mt Auburn St, Cambridge, MA 02138, United States.",
+      "action": "execute",
+      "reason": "The hotel address is now established, so the next required operation is to send that exact address to Tom before obtaining the walking time.",
+      "screenshot": "screens/5b2a3fa549d7761bb1698eab0879bd5de19ceb6f193306cd84bc055b6e445ff3.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the installed Google Messages package to text Tom the hotel address.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/5b2a3fa549d7761bb1698eab0879bd5de19ceb6f193306cd84bc055b6e445ff3.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new chat so the message can be addressed to Tom at 4456547865.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/73dd818ab816a11783336e856e3871367b6d77b845a2a37184407d290536142e.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Tom's phone number in the recipient field.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/dad7585d0131d1a5c1837fd3b0422bcb81d12cc1113a89927f46b5a985cdf8ae.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact suggested recipient (445) 654-7865.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/0504d185623d707433f553890a605b25d67b038c94b98d7ddf459d3cc27165b5.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact hotel address as the message body.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/f2c2785f74a6e70a7a0df1e6872c3d125bea2bc984c1560d5e7151e5a807d9b7.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact hotel address by SMS to (445) 654-7865.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/9599670eb62da96e5ac38eaa29f6af8e02b4145f9036d55a517867f17ca8234d.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The exact address was sent by SMS to (445) 654-7865; the conversation now shows the outgoing message with the full requested text.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/ab8bfaae1b57c301813f7edafc78793e88993b91e1f78e59f198ecae69287cc6.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Google Maps, obtain the displayed walking travel time from the MIT Stata Center to Harvard Square Hotel at 110 Mt Auburn St, Cambridge, MA 02138, United States, and retain the duration in minutes for the final response.",
+      "action": "execute",
+      "reason": "The SMS is confirmed sent. The remaining required work is to obtain the walking duration in Google Maps before returning the strict minutes-only answer.",
+      "screenshot": "screens/237166f88d5c31396e6504278de960b163451c514a7b5dd184576108af0ec0cd.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps to obtain the requested walking duration.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/237166f88d5c31396e6504278de960b163451c514a7b5dd184576108af0ec0cd.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll to the top of the hotel place page to access Directions.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/5d8844729f65af7083e6da0aef7dabff711b582bd2e755c26893422341d94045.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue to the top of the hotel page to expose the Directions control.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/97e482bbde18b309703661fd3b1c023da1b62e2870f0b18d71d470b91cd36fac.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open directions to Harvard Square Hotel so the MIT Stata Center can be set as the origin.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/b0937473438f4078b0624f78809388d58ddf2452f93c380c107d12a91481f4ae.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the start-location field to enter MIT Stata Center.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/92f483666562bed185fa8fe2b2522d3d6df323439900617ef2f2ce20d694ee95.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter MIT Stata Center as the route origin.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/36d72594e84a06e33fdb720fad7c0cc3434e573c1794948c5ab02e23967b3b93.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Ray and Maria Stata Center as the matching MIT Stata Center origin.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/50ac990d30eb8249d6ad2157429f422307aa331d4eac591949a95f5c9fc2ee4b.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google Maps displays `Walking mode: 43 min` from Ray and Maria Stata Center to Harvard Square Hotel. Retained 43 minutes for the strict final response.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/b4634e39e4c3efcde0d4f230330b56465a64f49e92ac1c7baeb3803adc6d6e65.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "43",
+      "action": "complete",
+      "reason": "43",
+      "screenshot": "screens/b4634e39e4c3efcde0d4f230330b56465a64f49e92ac1c7baeb3803adc6d6e65.webp",
+      "screenNumber": 27
+    }
+  ]
+}

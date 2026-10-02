@@ -69,7 +69,7 @@ Real recordings of successful tasks. Click a preview to open the complete video 
 ## Built for complex tasks
 
 - **Plan, act and adapt.** Break a goal into meaningful stages, change course when the screen reveals new information, and continue from completed work. Independent review is available when a task needs another judgment.
-- **Carry information across apps.** Keep task notes independently of conversation summaries, with short selected facts available throughout long tasks. Retrieve complete notes, earlier screenshots and source records when details need checking. [Memory and context](docs/architecture.md#context-memory-and-skills)
+- **Carry information across apps.** Keep versioned notes and retained excerpts independently of structured history summaries. Summary items cite durable sources; recent full steps remain available, and missing details can be recalled from notes, screenshots and original records. [Memory and context](docs/architecture.md#context-memory-and-skills)
 - **Interact reliably with real interfaces.** Combine screenshots and accessibility structure to locate controls. Bind supported clicks to observed native nodes, verify text entry, and feed action results back into the next decision.
 - **Teach reusable app skills.** Add application knowledge without retraining the model. Share app-owned interface knowledge across devices, bind system-interface guidance to device profiles, and reuse general skills across apps. Supported compound actions can inspect a detail page and return while preserving what was read.
 - **Choose your model and device.** Configure models for planning and execution, connect local phones or emulators, or host devices behind a remote Driver.
@@ -93,6 +93,8 @@ The Console puts the live device and the agent's execution history in one worksp
 ![ClickClick architecture](docs/assets/clickclick-architecture.svg)
 
 **Planner → Executor → observation → continue or replan**, with Reviewer available on demand. The harness manages context, skills and execution; a persistent Session retains task evidence; Android tools supply actions and observations. Console exposes the run, and external evaluators check task outcomes.
+
+The harness assembles the original task, current stage, fresh observation, structured summary, recent full steps and retained notes separately. Observation packages carry pixels, UI structure, identity and geometry; native detail crops or tiles support reading while actions remain grounded in the fresh global observation.
 
 [Architecture and module interfaces](docs/architecture.md) · [Design decisions](docs/design-decisions.md)
 
@@ -176,7 +178,6 @@ Put the current goal and data in the task request, and reusable app knowledge in
 
 For MobileWorld, the public [complete running guide](docs/mobileworld-reproduction.md) includes a frozen runtime, all 117 original goals, nine variants, preparation and resume. Start with `python -m evaluation.mobileworld.reproduce --prepare-only`; after preparing the dedicated environment, supply its serial and the two local APKs to run the paired evaluation.
 
-[Evaluation architecture and changes since AndroidWorld](docs/mobileworld-evaluation-architecture.md): structured summary, provenance-backed memory restoration and native-detail observations.
 
 
 With model access and the AndroidWorld emulator ready, run all 116 published instances:

@@ -1,0 +1,83 @@
+{
+  "task": "AdjustBrightnessMaximumTask",
+  "variant": "original",
+  "screenCount": 6,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 6
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Set the device brightness to the exact maximum endpoint in Settings, preserving unrelated settings.",
+      "action": "execute",
+      "reason": "The brightness must be changed from the launcher using Settings, with the exact maximum endpoint confirmed by the resulting slider position and percentage.",
+      "screenshot": "screens/b88f12afb4efa3f51d27379250cb4c7ad7d68ab15fcfc10131052cab8d698e33.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Settings directly to begin adjusting display brightness.",
+      "action": "launch(app=com.android.settings)",
+      "reason": "",
+      "screenshot": "screens/b88f12afb4efa3f51d27379250cb4c7ad7d68ab15fcfc10131052cab8d698e33.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down the Settings categories to locate Display.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/3f99b54826e97d852e8efe7f1aef93b420d28c656376e93371fc807c44f8a475.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Display settings.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/757a5dda74af4261b9fbb23cf00b9c513d16f1a52e6f41e3277e99f544cbb91c.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Brightness level to access the brightness slider.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/af00a1de8d1af1eab058a414ef3636f1e937ce660c0a837f06385f44542942f5.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Drag the brightness thumb past the track's right endpoint toward the screen edge so it clamps at the exact maximum.",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/dc037971b7e3f99d951c50943ed628d4b6cc4fabd79b88b361f3523effbbad23.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Brightness is set to the exact maximum endpoint. The slider thumb is clamped at the far-right end after dragging past the track, and Settings displays 100%.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/35b1d2b5732f77049d9ff0ee49d112da843ddaf4fe812ed2b01a66bdb113f748.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Brightness is set to the exact maximum endpoint; Settings shows 100% and the slider is clamped at the far-right end.",
+      "action": "complete",
+      "reason": "Brightness is set to the exact maximum endpoint; Settings shows 100% and the slider is clamped at the far-right end.",
+      "screenshot": "screens/35b1d2b5732f77049d9ff0ee49d112da843ddaf4fe812ed2b01a66bdb113f748.webp",
+      "screenNumber": 5
+    }
+  ]
+}

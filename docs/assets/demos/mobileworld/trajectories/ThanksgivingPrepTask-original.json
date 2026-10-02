@@ -1,0 +1,488 @@
+{
+  "task": "ThanksgivingPrepTask",
+  "variant": "original",
+  "screenCount": 49,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 49
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Using the provided Sally’s Baking Addiction pecan pie recipe URL, identify and retain the complete list of ingredients that serve as flavorings for the pie, with enough source context to distinguish them from structural ingredients.",
+      "action": "execute",
+      "reason": "First obtain the recipe’s flavoring ingredients from the provided reference before composing the requested email; the calendar event remains a later ordered task.",
+      "screenshot": "screens/44a8325977084185b2658e8262a8ea3dd2b630f1dc7c61bef32ea8a9c603469d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome to retrieve the pecan pie recipe ingredients from the provided source.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/44a8325977084185b2658e8262a8ea3dd2b630f1dc7c61bef32ea8a9c603469d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue Chrome setup without adding an account so the provided recipe can be opened.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/842b59398b119da76996bbd317ca3034b98c6d5d0517f9660097d2655b97f3f9.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the optional notification prompt to reach Chrome browsing.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/4b8f258b37391d24745bfc9747757e0d3e9e22189a013490b7bc60c7e53e4e68.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly to the provided Sally’s Baking Addiction pecan pie recipe.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/864f724241ead04c8b71961ff9cc62bcfaf1530b0d76a29e527e97b91888d42d.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the provided recipe URL into the now-focused Chrome address bar.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/db7d216c2b781159a08183be816d042d239b16ded5074dffdd93a9bab806a9a1.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the entered recipe URL and load the reference page.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/e9b2e8c543af7b03ffcd916bc9877f709e796c7187daa6e37e73901b9c33c236.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Wait briefly for the active Cloudflare browser verification to complete without interrupting it.",
+      "action": "sleep",
+      "reason": "",
+      "screenshot": "screens/710e23371a2d39f08de0f570fdf0df503cec9c99c3b1876f0fe26b94f458376d.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the visible Cloudflare 'Verify you are human' checkbox to continue to the recipe.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/af75421bd0a1fdbcb09c1aaee1f17ee125387cad30c4d0fbfeba67394eb60289.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Allow the active Cloudflare verification to finish before inspecting the recipe page.",
+      "action": "sleep",
+      "reason": "",
+      "screenshot": "screens/6276cf972492d8a0c9504746964c4e94e50a4a6f74debcba8c6af823b78850eb.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue waiting for the in-progress security verification to settle; it has not reset or shown an error.",
+      "action": "sleep",
+      "reason": "",
+      "screenshot": "screens/2961f92995ba5f1f8e79fd1688bafb74d845c1e4c64eb808adf884f39828b134.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Retry the visible Cloudflare human-verification checkbox after the prior verification reset.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/732ad03dfe07d27967c50008f80e0fd1e3c30e3cdbca4e42f8d1ec987a670209.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch to a targeted search for the same recipe after the Cloudflare challenge reset twice, to obtain the requested source context through indexed results.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/df77cb919ae1dbb13d155aaf0d5d59a4cf9ac9fb309ee3e22fbffdf380b35cfe.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the targeted search query for the Sally's Baking Addiction pecan pie ingredient details.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/5a9f115be580322cea0b74f7bb0932809a055ef1a6203eaf009a4ff638a80f93.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Refine the search to surface the exact recipe ingredient list and flavoring context from the provided source.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/dbfcec22da5f02d3d4a434aebb2d68f077481c9f2528afc54f22e22ba1f17632.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused Google query with a source-restricted ingredient search for the exact recipe.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/6c7274855f85a210dabfd61769e608414db9255302ecab51a9c32667b6ab50a4.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the refined source-restricted ingredient search.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/32d416913b59e55975b6492986d2b3b16f93301bdf4b1d29e76616f50368e56f.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the exact recipe for its own flavor descriptions to classify the filling ingredients accurately.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/27db776339736cf300b409126c73b6ae9ea32c643990e2fbc54898a8d122232e.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use the already-focused search field to look for the recipe author's flavor descriptions.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/229b9c98ef488e0f7ae5f9a3e3b7fee9d592fb92ca228be68e7a27a3fa97a454.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the focused recipe flavor-description search.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/9a912c5cfc757d7de2030071647bf0a9a2e2e914715b2129b2135717089029d3.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipe's ingredient-explanation section to separate flavoring ingredients from structural filling components.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/f31e79ef7b4853f80e44bb02d31502dde20b5741249ea19ed9d1baaac0eae207.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipe for the grouped flavoring ingredients, including salt, to confirm the complete flavoring list.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/6eca6695b31131da59107c64f749fb78e38d58aff5f27aa292699cda150be380.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the focused grouped-ingredient search to confirm whether salt appears with the recipe's flavoring components.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/efdd0930dc3bf8c187d772f0d724553da08306fd8649b953e3de0676d59e978b.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipe for the flavor-contributing filling ingredients and, if surfaced, their shopping quantities.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/2c814a15fc4bc852cd66f84b41fd1c944f3d7e5ce24caf29b495e4667d30e5cd.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Identified the recipe's flavor-contributing ingredients as pecans, corn syrup (the recipe uses dark corn syrup), brown sugar, vanilla extract, melted butter, salt, and ground cinnamon. Sally's snippet explicitly describes pecans plus vanilla, butter, and cinnamon as the pie's flavor, while the recipe-method snippet groups corn syrup, brown sugar, vanilla, butter, salt, and cinnamon in the filling and separately includes eggs, supporting exclusion of eggs as structural/binding rather than flavoring.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/38b86b4d4b38fde0746431a36435e91f2a168eee90e5c2e0856f91359e60e446.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a new email to user@gmail.com with subject “Pie shopping” and a body listing these flavoring ingredients for the pecan pie: pecans, dark corn syrup, brown sugar, pure vanilla extract, melted unsalted butter, salt, and ground cinnamon.",
+      "action": "execute",
+      "reason": "The recipe research stage is complete, so the next required outcome is to send the requested email using the retained ingredient list.",
+      "screenshot": "screens/1d13a648081370e4d411b9436993407b659017b80576684d817e3ecaae044a6a.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Gmail to compose and send the requested pecan pie shopping email.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/1d13a648081370e4d411b9436993407b659017b80576684d817e3ecaae044a6a.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new email draft.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/dad25cfa45932dddb927d42219293e6cbeb34a4cc34014350ba7106bf0ea156d.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the new email to user@gmail.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/eb6b3ccf0dc3428f20f343fff7fed57ee40d6dc53bf0bcb7eaad01017a1e157c.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the requested email subject.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/27777da40b3b6f554aef987384a7298a43e4b7058b816a49f3dcf761b2b093d2.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Fill the email body with the requested pecan pie flavoring ingredients.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/e79d006bd93a5d999957cc429f0b61c63bb4db801d17fddc959fa6532efe06c6.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed email to user@gmail.com.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/4f384ab4df8e529442e5c65d7954940565e021d41f79a31d7a93e672ef26d4e4.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to user@gmail.com with subject “Pie shopping” and the requested seven-item flavoring ingredient list. The app displayed “Email Sent” as confirmation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/97026f9a3d4bb8e42754eab1d844dd32296dce08196827ac3340c2888d826e25.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save a new calendar event titled “Thanksgiving Shopping” starting at 8:00 AM on November 20, 2025 (one week before Thanksgiving 2025); leave unspecified duration and other fields at the calendar app’s defaults.",
+      "action": "execute",
+      "reason": "The email is confirmed sent; the remaining required outcome is the calendar event.",
+      "screenshot": "screens/f742a14ffc3ff5f2705b539810f8915af7dae6d8908cf4083717c3fc8ebfefb9.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to create the requested event.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/f742a14ffc3ff5f2705b539810f8915af7dae6d8908cf4083717c3fc8ebfefb9.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new event editor for the requested distant date.",
+      "action": "tap(index=51)",
+      "reason": "",
+      "screenshot": "screens/fb4982ed625b6a0968d71da5b124c20606ea3811c48265117149a051f61b7e5a.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event from the expanded new-item menu.",
+      "action": "tap(index=54)",
+      "reason": "",
+      "screenshot": "screens/68bbd2363c78dd96353021cf862072d99343353ce5d4254d545794b0663a1eea.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the event title exactly as requested.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/e8b344c9a26caad0fdd036b4fe305772b94c185548b5fe303a1aa1c5a70e6e33.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-date picker to set November 20, 2025.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/d2689e2e256f3288c33af1b52520740c4254cf1bf4e0f74b6833a6e60d2720d9.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the year selector to move from 2026 to 2025 efficiently.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/68bb521be3ce9621d4edd3f70e267baffe49e8812e1b0cfb7849bd89e7142903.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select year 2025 in the date picker.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/0ff2e8015cab65d31a761ee484948ecbed76aa66582a0b479c1988dc57c57ef3.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Advance the date picker from October to November 2025.",
+      "action": "tap(index=34)",
+      "reason": "",
+      "screenshot": "screens/052c3966576c24a8fde83de0d6400bb24af5f29ca842c2120f322feabd286de8.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select November 20, 2025 as the event start date.",
+      "action": "tap(index=21)",
+      "reason": "",
+      "screenshot": "screens/fa5eb4c80eb634eab8f2aabfc6225f3a5056424981a0e6d9eb111566d2486358.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected start date of November 20, 2025.",
+      "action": "tap(index=35)",
+      "reason": "",
+      "screenshot": "screens/3a284e961763aa639313cd02169b5bb7f4e18d5c14ed53e195ad70657a0cb930.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-time picker to set the event to 8:00 AM.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/032d3a9edda1843b151177d8e47207bd2d24f856ab74e6ab82474c6763630844.webp",
+      "screenNumber": 41
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the start time period to AM.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/ca53d55d242929c6ed6f8b5b12962681038659bdeb0a16c35dcd98e6a4e5873f.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the selected hour to 8 while retaining 00 minutes and AM.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/9929f251e2336157f6d8aed06e6f339a8478efda8005eeb0669d937627824c91.webp",
+      "screenNumber": 43
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected start time of 8:00 AM.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/2be6a1e33c6d2f21aaf690e56645d0f50b5fa8fbc64d02f0dddcf395e283044c.webp",
+      "screenNumber": 44
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the new event with the verified title, date, and 8:00 AM start time.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/f04b885a5034804cab5c2ad857f12676a3be854df00aa55899a7a8187e5c74be.webp",
+      "screenNumber": 45
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open calendar search to verify the saved event by its exact title.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/17f9cde37744f8547e77feec962b112f7f87f480165c31ee3e58fcf875712079.webp",
+      "screenNumber": 46
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for the exact event title to verify the saved record.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/531f2a9e3ab7e6e951cb9620e6fd32058afb9b9cffb72cf95670c23c4da76732.webp",
+      "screenNumber": 47
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved “Thanksgiving Shopping”; calendar search verifies it on Thursday, November 20, 2025 at 08:00 AM. The email was already confirmed sent to user@gmail.com with subject “Pie shopping” and the requested flavoring ingredient list.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/b05e871ae3389ea92606f88937a182841087e0ccada1bc1f52daca203e0204d6.webp",
+      "screenNumber": 48
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Sent an email to user@gmail.com with subject “Pie shopping” listing the requested pecan pie flavoring ingredients, and created “Thanksgiving Shopping” for 8:00 AM on November 20, 2025, one week before Thanksgiving 2025.",
+      "action": "complete",
+      "reason": "Sent an email to user@gmail.com with subject “Pie shopping” listing the requested pecan pie flavoring ingredients, and created “Thanksgiving Shopping” for 8:00 AM on November 20, 2025, one week before Thanksgiving 2025.",
+      "screenshot": "screens/b05e871ae3389ea92606f88937a182841087e0ccada1bc1f52daca203e0204d6.webp",
+      "screenNumber": 48
+    }
+  ]
+}

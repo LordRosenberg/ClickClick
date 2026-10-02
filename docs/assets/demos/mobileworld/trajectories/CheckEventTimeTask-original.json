@@ -1,0 +1,110 @@
+{
+  "task": "CheckEventTimeTask",
+  "variant": "original",
+  "screenCount": 8,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 8
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mail, find the email about today's Christmas party and record the party's scheduled time for today, Thursday, October 16, 2025; report back without changing mail.",
+      "action": "execute",
+      "reason": "First obtain the Christmas party time from today's email so the alarm time can be calculated correctly.",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the verified Mail app to search for today's Christmas party message.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mail for messages about the Christmas party.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/e3fb99c527908ca1411142199846f234b2ac69f24ab7140dc73f60edb06cc9dd.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Mail search found the Oct 16 HR Department message “Christmas Party Today!” stating: “The annual Christmas party will start at 7:00 PM today.” Mail was not changed.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/269f93f9c51fb5b31847368e14db76c92f22b3b8618bac0f07a93b554b43073e.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and enable a new alarm in Clock for 6:00 PM today, Thursday, October 16, 2025, exactly one hour before the 7:00 PM Christmas party; preserve existing alarms.",
+      "action": "execute",
+      "reason": "The email establishes that the party starts at 7:00 PM today, so the requested alarm time is 6:00 PM today.",
+      "screenshot": "screens/13841702ffd8c5cb3b01ef9b2c918ce500603961f451e70a9c7f4e68e9554473.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Clock to create a new enabled 6:00 PM alarm while preserving existing alarms.",
+      "action": "launch(app=com.google.android.deskclock)",
+      "reason": "",
+      "screenshot": "screens/13841702ffd8c5cb3b01ef9b2c918ce500603961f451e70a9c7f4e68e9554473.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Add alarm to create a distinct 6:00 PM alarm.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/1e12e26a7c8f3bd48015e684e4163478a86e268f01e0438f4aa6e34488bd30f2.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm hour to 6; PM and 00 minutes are already selected.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/e0dec9340af5a154a3577e07f6b6ac7a3944952d2ba0de4e1fcecfc4e18f498d.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected 6:00 PM time to create the new alarm.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/387899ff905132823126e727cc9928ce2be4d9bde12d8e34814638ec32ef3d92.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created a new 6:00 PM alarm for Today. It is enabled (checked switch), and the Clock confirms “Alarm set for 5 hours and 58 minutes from now.” Existing alarms remain present and unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/91429b8aec6a89782db6afc3c344a62baa7fb88dbd6b0383baec1f66bf810dbe.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "The email says today’s Christmas party starts at 7:00 PM. A new enabled alarm is set for 6:00 PM today, exactly one hour before the party; existing alarms were preserved.",
+      "action": "complete",
+      "reason": "The email says today’s Christmas party starts at 7:00 PM. A new enabled alarm is set for 6:00 PM today, exactly one hour before the party; existing alarms were preserved.",
+      "screenshot": "screens/91429b8aec6a89782db6afc3c344a62baa7fb88dbd6b0383baec1f66bf810dbe.webp",
+      "screenNumber": 7
+    }
+  ]
+}

@@ -1,0 +1,335 @@
+{
+  "task": "ItemCheckoutTask",
+  "variant": "original",
+  "screenCount": 32,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 34
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在淘店中为购物车里的 iPhone 15 Pro 发起结算，使用收件人张先生、电话 13800138000、地址“浙江省杭州市余杭区阿里巴巴西溪C区”；如需登录则通过短信验证码完成登录，推进到支付页面后停止，绝不执行支付。",
+      "action": "execute",
+      "reason": "开始在淘店完成购物车商品结算，并严格停在支付页面交由用户操作。",
+      "screenshot": "screens/6e905c6f41a7fd75427cbb8ede5a30afef2eeab9faeffa140a844fd950f40495.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开淘店，开始处理购物车中的 iPhone 15 Pro 结算。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/6e905c6f41a7fd75427cbb8ede5a30afef2eeab9faeffa140a844fd950f40495.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入购物车，查找并结算 iPhone 15 Pro。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/d763465f1fd20a87c20cc1f46d5755011c42aeeebb9f0156f9349bd10b64686e.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "切换到短信登录，按允许的方式完成登录。",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/d3a7774b02da1e488a9b59954ab072aa40bb14fb293ffcc03a22f9eb058316a8.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "向预填登录账号 13802138888 获取短信验证码；收货电话将在地址表单中另行填写。",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/1ff6d87711f8704c398e2461d65a6d87efbd7e2546b2ccf0ed3c95818c3cf36e.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认验证码已发送提示，返回短信登录表单。",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/8eafc261caf76fe599ccb48ff7e62b34aa4ff3720226459896312817c9b55e92.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开短信应用读取刚发送到预填登录账号的验证码。",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/0a28c1c18076ec842f98b10402e72b1858321ee5d025a7274d6f3b04d8f20c69.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已读取最新短信验证码 941589；返回淘店继续短信登录。",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/06f1b1ccce900a8fa7b571c90dd6503ba517ff5db789216169f9edce66d0b941.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将最新短信验证码填入淘店验证码输入框。",
+      "action": "replace_text(index=24)",
+      "reason": "",
+      "screenshot": "screens/aebdf0190ab9784a0f748635142e9fd72d990ed8ee4016a736ab9ece409ebb22.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "先聚焦验证码输入框，以便下一步输入验证码。",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/aebdf0190ab9784a0f748635142e9fd72d990ed8ee4016a736ab9ece409ebb22.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "验证码输入框已聚焦，填入最新验证码 941589。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/9638ac64ea83a88228e5cec8b2b0f53c05579d1332e6dcd08c1ff75c17c0d61a.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "验证码已填入；按登录流程先勾选“已阅读并同意”协议。",
+      "action": "tap(index=30)",
+      "reason": "",
+      "screenshot": "screens/7e6b70430be4c4347e0eda55e6df120d04080dc7ae802ed3f8da92ae15f6c61a.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "协议复选框已显示勾选，提交短信验证码登录。",
+      "action": "tap(index=28)",
+      "reason": "",
+      "screenshot": "screens/a7c43dc73c5bb8b4a709aa51b54571120962063288538daf4cd25f8a470f4e2b.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "购物车共有 20 件商品，当前可见前几件均非 iPhone 15 Pro；向下浏览以定位目标商品。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/2b4624fbc0b89744480594f869ad94c0f3de3eeacac4c0d91bf7a2850bcb21f3.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续向下浏览购物车，定位 iPhone 15 Pro。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/66d950fad3dfa64eb85ef4b3d6cd81e9311c300ccb543dd81044709911ce3876.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已在底部发现 iPhone 15 Pro 条目露出，稍向下滚动以完整显示并准确选择该商品。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/3bce9e458031624de19ba4cdd78162cf4ede3c8bcacf354cdb3b455d150d9608.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击 iPhone 15 Pro 条目左侧的未选中圆形选择框，仅选择该商品用于结算。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/49f42a0dbbd98680159b302c48a6859f94639c56617f049df8512489500c8d22.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "iPhone 15 Pro 已单独选中且合计为 ¥8999，点击“结算”进入订单确认流程。",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/8426431620912c72aadb97a367c4c521a9d8ba77f9242489cd6d1a85cc45111c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "订单确认页商品与数量正确，当前无收货地址；点击“新增收货地址”以填写用户指定的收件信息。",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/89c7c3d78a3f376440f93703a2ba8267dd410a4a45cdaf25ff73efce77af22e2.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收货地址列表明确为空，点击“新增收货地址”创建本次订单所需地址。",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/02ba78cb875b1313597a035347a90759151d691828df1b98a40a238e134060d3.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在收货地址表单的收货人字段填写“张先生”。",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/28c390ccb94ab039ebdbc4a3174b1532ab3d5aada4084f1adee9eb17aa6a16d7.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "定向替换不受支持；先单独聚焦收货人输入框，随后再填入姓名。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/28c390ccb94ab039ebdbc4a3174b1532ab3d5aada4084f1adee9eb17aa6a16d7.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收货人输入框已聚焦，填入“张先生”。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/9a06f69e81f2378d2702bcd152232b0df426a8cfc8bbe75916616a2e019fa254.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收货人已填好；聚焦手机号码输入框以填写指定电话。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/ca74fcc370fc42478031e4e14d7024301f8a74f96fc031d878ea3c46abc52b1d.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "手机号码输入框已聚焦，填入指定收件电话 13800138000。",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/5eacef58f9a9388e7267d16e3b208593d363e0c38a64574d966d1421074a0deb.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "姓名和电话已填写；打开所在地区选择器，将默认北京市改为浙江省杭州市余杭区。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/217bd9b48d77c454c62aa7e23692a1456481f91f39bd33567ac8aadc78b48cb4.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地区选择器已打开；向后滚动省份列以定位浙江省。",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/48b1311bed8432d0c056475990802954649de53aad1fe226d033aa33a93d18b2.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "省市已选为浙江省杭州市；向后滚动区县列以定位余杭区。",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/8b26754e47d770af04c67232042477444ac6b1eda1149433a3c5c902282c7eb3.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地区选择器已显示浙江省杭州市余杭区；点击确定应用该地区。",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/e7d1b506ee2d5ca9c8baa7a39dc50d347737d8b794a33a473ac17da4096e1771.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "地区已确认无误；聚焦详细地址字段，准备填写“阿里巴巴西溪C区”。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/298e99010d0a04bb89de7c81025f7d832a7f50342bc93055c154e0680c107914.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "详细地址字段已聚焦且为空；填写“阿里巴巴西溪C区”。",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/2dd677f67afe1dbed2a3c193a7860478d90f54bd3938ebc6643694eaab035d7c.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "姓名、电话、浙江省杭州市余杭区及详细地址均已填写并核对；保存收货地址。",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/132d7b3549444cb5d9b0fd205dcbe3f2e24c3e1a05f6b78ddf4a83e6a375c745.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "新地址已成功保存并在收货地址列表中完整显示；选择张先生、13800138000、浙江省杭州市余杭区阿里巴巴西溪C区用于当前订单。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/3009c04fdf447bd4000c1b0d302008bb0fadf9b2ca3a2a14b602fb0ba9a970b3.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "订单确认页已核对：iPhone 15 Pro 128GB 原色钛金属 x1，收件信息与完整地址正确，合计 ¥8999.00；提交订单以进入支付页面，进入后将停止。",
+      "action": "tap(index=26)",
+      "reason": "",
+      "screenshot": "screens/a95e2140a7adc142305f9a76a72757fdf75415116f4cac3d468902bb5817c032.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已为 iPhone 15 Pro（128GB 原色钛金属，x1）提交订单，收件人为张先生、电话 13800138000、地址浙江省杭州市余杭区阿里巴巴西溪C区；当前已到支付宝支付页面，金额 ¥8999.00。已按要求停止，未输入支付密码、未执行支付。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f58498e6ae09ce1fe36f6eece0af4087bff5b3a55df77ab0a7763722137e5a36.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已为 iPhone 15 Pro（128GB 原色钛金属，x1）提交订单，收件人为张先生、电话 13800138000，地址为浙江省杭州市余杭区阿里巴巴西溪C区。当前已停在支付宝支付页面，待支付金额 ¥8999.00，未输入支付密码、未执行支付。",
+      "action": "complete",
+      "reason": "已为 iPhone 15 Pro（128GB 原色钛金属，x1）提交订单，收件人为张先生、电话 13800138000，地址为浙江省杭州市余杭区阿里巴巴西溪C区。当前已停在支付宝支付页面，待支付金额 ¥8999.00，未输入支付密码、未执行支付。",
+      "screenshot": "screens/f58498e6ae09ce1fe36f6eece0af4087bff5b3a55df77ab0a7763722137e5a36.webp",
+      "screenNumber": 31
+    }
+  ]
+}

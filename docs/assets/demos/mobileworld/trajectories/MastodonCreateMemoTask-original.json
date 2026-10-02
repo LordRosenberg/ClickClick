@@ -1,0 +1,362 @@
+{
+  "task": "MastodonCreateMemoTask",
+  "variant": "original",
+  "screenCount": 36,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 36
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, find the information under #openTalk specifically about Urban Mobility lectures and record the lecture topic/title, date, time, and location needed to create the event.",
+      "action": "execute",
+      "reason": "First obtain the lecture details that determine the calendar event fields.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to search #openTalk for the Urban Mobility lecture details.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon Explore to access search.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/152bb234b7c1c73f5d71f4f06c44634c444ce60c92619b9c1434ecca6a991cb1.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Mastodon search field so the #openTalk query can be entered.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/6326d75931e6c47c5006cd0150c4d87b2da7a1c4e543056ef4bbc667a20b9703.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mastodon for the exact #openTalk hashtag.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/a88f3e4bc4aaabd70ae25b6edb8894a00a2fb8e0e5ca83eac7c8740300399173.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visible OpenTalk hashtag result to inspect posts for the Urban Mobility lecture.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/1dae4371bea3ec591bba951a72f7533c18676f151d4b89a3a47223dc96e1f080.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll through #OpenTalk posts to locate the one specifically about Urban Mobility.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/cf56b786e1e76a11c311c9fddb0c5af07ccb77e87ffd1e78d397a8a1f8061ad5.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the #OpenTalk post list to find the Urban Mobility lecture entry.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/5d03419e0835be845b386523d56ae5fed6a88fa4169e6e4de44f06399bfe702d.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning #OpenTalk posts for the Urban Mobility lecture.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/f012500954589b1c118d1fdf28c720c927d1dd16834b2f325a0787fa75832a8a.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the hashtag timeline; the visible posts are unrelated AI topics, not Urban Mobility.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/5a08ad4efa7d1e569e128e2bc11bb29de0f95092daab5cebd0d14f1f616f3a4b.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning older #OpenTalk posts for the requested Urban Mobility lecture.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/6666c1d0772b5f0b1761a865524d24195aab801d1c5c4f9a57ec591dd298e527.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning older #OpenTalk posts; the visible Nov 3 Embodied GUI Agents post is not about Urban Mobility.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/3a8157f4b248cd8f134f0b31b092aefd20e0332e5e676cce30565d032771bc71.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning older #OpenTalk posts; the visible Oct 27 Edge Intelligence lecture is unrelated to Urban Mobility.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/d258486661a56d9e31bd469a943abf1d43a31cb99e486bcf07474713160b4bda.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the chronological #OpenTalk feed toward older lectures; Oct 27 is still not Urban Mobility.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/51075cb274bca5000ad5c2018fd80842fb6c0cc0f988c659d84461a224e3631d.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found the requested #OpenTalk post. Topic/title: AI-Powered Urban Mobility. Date and time shown: Oct 24, 2025, 15:00–16:30. Location: Auditorium 2-A, Innovation Building. The post labels the date as Monday, but Oct 24, 2025 is a Friday; use the explicit calendar date Oct 24, 2025 while retaining the exact time and location.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d003289f93a7e8ed9584008583af08d4d6ecbce39a4e9c8e1e188ef5177509f8.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save a distinct calendar event titled \"AI-Powered Urban Mobility\" on Oct 24, 2025 from 15:00 to 16:30 at \"Auditorium 2-A, Innovation Building\", with a reminder exactly 1 day before.",
+      "action": "execute",
+      "reason": "Create the single distant event from the established #OpenTalk details, preserving the explicit date despite the source's incorrect weekday label.",
+      "screenshot": "screens/a5272b6f3ceb97475522dc7aa37b318df4db23b681f01db9fd5a54194e887391.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to create the single distant event with the established details.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/a5272b6f3ceb97475522dc7aa37b318df4db23b681f01db9fd5a54194e887391.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-event editor for the requested single event.",
+      "action": "tap(index=51)",
+      "reason": "",
+      "screenshot": "screens/79814fd100b8c89bd66f3ce58c4be81ab2f50e647d3fe55783c5d597a2e67f27.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event from the expanded new-item menu.",
+      "action": "tap(index=54)",
+      "reason": "",
+      "screenshot": "screens/c9e25536fd6fbe68df4d9a3bae7055f8773ab408f607afa946069b0f264bc28e.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the event title exactly as requested.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/cebf4aa67e57959090a3c4e59ef1ea9e47bf49930650cb00b799b735475428a2.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the event location exactly as found in the #OpenTalk details.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/186709e82f1dd8617940e89f55239cc159344e053466b022dd38417f6c5bdd04.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-date picker to set October 24, 2025.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/1efea5aa7e6a2183ec17a8e854e087377a7456b9f9194a017520b90ba5d3db55.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select October 24, 2025 in the start-date picker.",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/bbd5be372e8c00bc969c9241795077865d2180dd30ab663ed1b11af152b5a1e2.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected start date of October 24, 2025.",
+      "action": "tap(index=36)",
+      "reason": "",
+      "screenshot": "screens/4a158e34377ba1478883c192fc0231336854f33cf4dbca0e9318db980448a01c.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-time picker to set 3:00 PM.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/d7e8f06ee3fce0c5869533343ff7100bdb148460ba5c6ef406de5f166a00bcc5.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select 3 o'clock for the event start time; PM is already selected.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/1e95115b3438687d4e919465d90af5d0e31b501fbb92de39ff5cddf068f2e75b.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected start time of 3:00 PM.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/bc0b2189679dd3cd14dcdc9f8e6f54949f662f1fb5c09240ccb9783006f10144.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the end-time picker to set the event end to 4:30 PM.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/5c878da49e5ad940eae307c93c1f67614483017287f566fd17c678f0fc71ff82.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the end-time hour to 4 PM.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/471f2b3f7ea01cebd31f55e9e240c7bf7a6db127e801e707af0f6030a3577d40.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the end-time minutes to 30.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/6a76c4e6520f420ff2cfcad02e67e176ff273d45cc56fdb5fc286e792140112c.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected end time of 4:30 PM and return to the event editor.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/18c5c8dcbca04163cbbfffc3285958b11affb745a536c1a2c1ad586a7013ba20.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the reminder selector to set a reminder exactly 1 day before.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/ff4df92b589e418035aa37fdc89e1a656d32123a3bb3521469924142b46e1b0a.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Custom to configure a reminder exactly 1 day before the event.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/ac2fae92c460dd00e4dbb8a42d5301b9c31f8cfc56eb179f58171a407ae59512.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a custom reminder value of 1.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/e00ebf226728c667d4c746c00954d49a9c7f198bc77ffeb06cb618436fc84fa7.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select days as the unit, making the custom reminder 1 day before.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/6df9c1fb6a4e0f444ac0fefa61495793204eee2da7ae24debadb9adcb92fff8d.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the custom reminder interval of 1 day.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/a74060bd229e0df2f053ccf644cfdecf4ad67c556a36150bca616fac7d3b1859.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the event with the verified title, location, schedule, and 1-day reminder.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/b1239176dce0d8f242b7785f457fb318f9b7279b2aab595d3e17c435d8e50c2c.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and saved the distinct event \"AI-Powered Urban Mobility\" for Oct 24, 2025, 3:00 PM–4:30 PM at Auditorium 2-A, Innovation Building, with reminder set to exactly 1 day before. Save returned to October month view, where the new event is visible on Oct 24.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8f274309e28c5c28da7cab0dfb4c73c289450fb44a2617f3fb522e053ae10630.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found the #OpenTalk lecture details and created the calendar event “AI-Powered Urban Mobility” for October 24, 2025, 3:00–4:30 PM at Auditorium 2-A, Innovation Building, with a reminder exactly 1 day before.",
+      "action": "complete",
+      "reason": "Found the #OpenTalk lecture details and created the calendar event “AI-Powered Urban Mobility” for October 24, 2025, 3:00–4:30 PM at Auditorium 2-A, Innovation Building, with a reminder exactly 1 day before.",
+      "screenshot": "screens/8f274309e28c5c28da7cab0dfb4c73c289450fb44a2617f3fb522e053ae10630.webp",
+      "screenNumber": 35
+    }
+  ]
+}

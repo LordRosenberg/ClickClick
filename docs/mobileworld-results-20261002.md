@@ -8,7 +8,7 @@ ClickClick 在本地澄清指令后通过 **112/117（95.73%）**；**原题措�
 
 ## MobileWorld reproduction / MobileWorld 复现
 
-The [complete public entry](mobileworld-reproduction.md) / [中文完整运行指南](mobileworld-reproduction.zh-CN.md) freezes this evaluation configuration, runs 117 original tasks plus nine variants, and preserves results on resume. [Architecture changes / 架构升级](mobileworld-evaluation-architecture.md) explain structured summaries, memory/context and native-detail observations.
+The [complete public entry](mobileworld-reproduction.md) / [中文完整运行指南](mobileworld-reproduction.zh-CN.md) freezes this evaluation configuration, runs 117 original tasks plus nine variants, and preserves results on resume. [System architecture / 系统架构](architecture.md) describes the runtime modules, structured summaries, memory/context and observations.
 
 ## Configuration and score construction
 

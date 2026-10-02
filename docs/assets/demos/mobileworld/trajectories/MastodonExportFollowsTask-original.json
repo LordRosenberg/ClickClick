@@ -1,0 +1,272 @@
+{
+  "task": "MastodonExportFollowsTask",
+  "variant": "original",
+  "screenCount": 27,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 27
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon's settings for the currently signed-in account, export the follows list and save the resulting file as exactly `my_following.csv`, preserving the exported CSV contents.",
+      "action": "execute",
+      "reason": "Exporting follows is an account web-settings operation, followed by saving the downloaded CSV under the exact requested filename.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to access the active account's settings and export controls.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon settings for the active account.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/931c0a855cc7af0b4b314d98524f17a9717550d53dbcf892db6f9210818e33bc.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Mastodon and navigate through the active profile to its web account settings, since this app-settings page only lists accounts and app preferences.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/3ff0f7da381c4f619ea82e33456b7f8b31e6762a2a679911f8986a9b64174ee0.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the currently active account's profile to locate its web account settings.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/f733c4c55d6e5762c0f645151fa5de56689099fc01ac98a7a4c3e084172dfc61.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's web settings entry point from Edit profile.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/6b7cc46d065072e346c05c0865bd4edb8752b82e58d6cd668d6ad46bd49ec3ce.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit native profile editing without changes and use the instance link/profile controls to reach web account settings.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/8d5f67e5b60a53dd875b300ea34397457f3733aba89f969607bfac3b9b7ee28b.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active account's instance website at 10.0.2.2 to reach account web settings.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/1a94df65826554573fbdc9e08d67a65bb2af981c84e95f36c2cefe49b8d8edfb.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the handle explanation sheet so account web-settings navigation can continue.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/be5b5d393d32180f2eedeff1c66077ef4ed76854ec0bfd79354ea71ee8e7db53.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the home timeline to reopen Settings and use the active account row for web account settings.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/feda3c6e2c486feda55d895ceef2a79671c6463fe61c80dabde340507250bbb6.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon Settings and inspect the active account row for the account web-settings route.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/1d6bf86e83be17ac813dba06128c891a1c614dea40338f4594d0d7bee5289d81.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active `@test@10.0.2.2` account settings row to reach its web account settings.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/8cec8003429bcac8b58dd1ec2727f239b257f8f4c4c779fe95513bb8c6b3fc17.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open `About this server` for the active instance to reach its web page and then authenticated web settings.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/97b9d34b6fd775c658ac17e1bff522d1eb01a1b0380206a5ae291ae8612bc413.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the browser to navigate to the instance's authenticated account settings and export page.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/a02bf596a3f1ae110f3688f470c859cb8d934cd1c5734d9e13784699d638c71a.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly from the authenticated instance settings session to Mastodon's data export page.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/61971beb567c0d4ddbf47452ba22cf665427fcc99c1a81aa60514f72910f4590.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the authenticated instance export-page URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/51f1b01711ffaace1925e0a4d6cbbd12a433d0d6ad31422df39a66931566c4bc.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Correct the instance export URL to HTTPS, matching the previously working authenticated settings session.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/3ec093d79bc58a20d5fb63bc96357e88a750ce72661d25b82320d38372c122b7.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the corrected HTTPS URL for the follows export page.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/65331b75cd19228e8c2620b1cc4a8fd00aca46f383c709ae389d85d3082e9031.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Correct the Mastodon data export route from plural `/settings/exports` to the standard singular `/settings/export` page.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/56f89367c995d47aa480e5812c0d6ad4f6f3a0e118aea6885e967096b6479d64.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the standard singular Mastodon data export URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/10e36a51051311caf9da279710ade866737a56264dee273b6760f2b7215f762f.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the CSV associated with the Follows row (11 follows), not the other export rows.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/b17fe7b050f7b93ffe9a7e7b882d9163158e8d01883285cfb382609d0a16d180.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome's menu to access Downloads and rename the newly downloaded follows CSV to the exact requested filename.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/b657212c304e9041f5f05cb56a45fba26e216c13b337acebd15e6ab2e42d8216.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome Downloads to locate the follows CSV and rename it exactly `my_following.csv`.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/2299db80ca2f1ec1632fb129f28acf794156609ea6c3c8eb226d68a6b3fd2cf1.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the downloaded `following_accounts.csv` item's options to rename it without changing its contents.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/e1aa4b4d474272af3910f87dd170cba3395ccae1363470c19a74201b5a3f68d5.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Rename for the downloaded follows CSV.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/56070d7e0af51d385fe3cb67d194c3c59801487f16ce884f649fabe89dd69b66.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the current downloaded filename with the exact requested name `my_following.csv`.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/1be3c798174d5a93a2085fa121e296cec7c0afc756c63554df20775d884acc36.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the rename to save the exported follows CSV as exactly `my_following.csv`.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/e76e20a02accc53ad5d75acd0d63fa25223c2fe17baac2af0111e828bb252bf9.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The Mastodon follows export was downloaded and Chrome Downloads now shows it saved as exactly `my_following.csv` (371 B, source 10.0.2.2), confirming the rename completed while preserving the downloaded file.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/332347b1f2982b7411faa432c0b49eb847634625334027cf2eebb0cdec326b01.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Exported the Mastodon follows list and saved the downloaded CSV as exactly `my_following.csv`. Chrome Downloads confirms the file is present (371 B, source 10.0.2.2).",
+      "action": "complete",
+      "reason": "Exported the Mastodon follows list and saved the downloaded CSV as exactly `my_following.csv`. Chrome Downloads confirms the file is present (371 B, source 10.0.2.2).",
+      "screenshot": "screens/332347b1f2982b7411faa432c0b49eb847634625334027cf2eebb0cdec326b01.webp",
+      "screenNumber": 26
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Reproduce the MobileWorld GUI-only evaluation
 
-[中文](mobileworld-reproduction.zh-CN.md) · [Results](mobileworld-results-20261002.md) · [Evaluation architecture](mobileworld-evaluation-architecture.md)
+[中文](mobileworld-reproduction.zh-CN.md) · [Results](mobileworld-results-20261002.md) · [System architecture](architecture.md)
 
 The public entry point prepares a separate, frozen runtime and runs the complete **117 original GUI-only tasks plus nine disclosed variants**. Official MobileWorld initialization and final-state evaluation remain independent of ClickClick. The clarified result substitutes all nine variant outcomes into the original set, including failures. It never chooses the better of two attempts.
 
