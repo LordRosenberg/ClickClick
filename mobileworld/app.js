@@ -8,7 +8,6 @@ const t = (en, zh) => language === 'zh' ? zh : en;
 const pretty = (id) => id.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
 const passed = (score) => score === 1;
 const result = (score) => passed(score) ? t('PASS', '通过') : t('FAIL', '失败');
-const media = (name) => `media/${encodeURIComponent(name)}`;
 
 function localize() {
   document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
@@ -19,9 +18,6 @@ function renderLeaderboard() {
   const rows = [{model: 'ClickClick · GPT-5.6-SOL', score: 112 / 117 * 100, ours: true, note: t('Clarified · 112/117', '澄清版 · 112/117')}, ...data.leaderboard.map((x) => ({...x, note: x.category}))];
   $('leaderboardRows').innerHTML = rows.map((row, index) => `<tr class="${row.ours ? 'ours' : ''}"><td>${index + 1}</td><td>${esc(row.model)}</td><td>${row.score.toFixed(row.ours ? 2 : 1)}%<span class="score-bar"><i style="width:${row.score}%"></i></span></td><td>${esc(row.note)}</td></tr>`).join('');
   $('leaderboardRows').firstElementChild.insertAdjacentHTML('afterend', `<tr class="ours"><td>—</td><td>${t('ClickClick · original wording', 'ClickClick · 原题措辞版')}</td><td>90.60%</td><td>${t('106/117 · same system, also exceeds published rows', '106/117 · 同一系统，也高于公开榜单各项')}</td></tr>`);
-}
-function renderDemos() {
-  $('demoGrid').innerHTML = data.demos.map((demo) => `<article class="demo-card"><a href="#${encodeURIComponent(demo.task)}"><img src="${media(demo.poster)}" alt="${esc(t(demo.title, demo.titleZh))}" loading="lazy"></a><div class="demo-copy"><small>${esc(demo.apps)}</small><h3>${esc(t(demo.title, demo.titleZh))}</h3><p>${esc(t(demo.description, demo.descriptionZh))}</p><div class="demo-meta">${demo.actions} ${t('actions', '动作')} · ${t(demo.variant === 'clarified' ? 'Clarified' : 'Original wording', demo.variant === 'clarified' ? '澄清版' : '原题版')} · ✓ ${result(demo.score)}</div><div class="demo-links"><a href="#${encodeURIComponent(demo.task)}">${t('Inspect screenshots and steps ↓', '查看截图与轨迹 ↓')}</a></div></div></article>`).join('');
 }
 function renderClarifications() {
   $('clarificationRows').innerHTML = data.clarifications.map((change) => `<tr><td><a href="#${encodeURIComponent(change.id)}">${esc(change.id)}</a>${change.kind === 'environment context' ? `<br><span class="badge">${t('Environment context', '环境信息补充')}</span>` : ''}</td><td>${esc(t(change.problem, change.problemZh))}</td><td>${esc(t(change.clarification, change.clarificationZh))}</td><td>${result(change.original)} → ${result(change.clarified)}</td></tr>`).join('');
@@ -75,10 +71,10 @@ function renderDetail() {
   });
 }
 function selectTask(id) {
-  selected = data.cases.find((x) => x.id === id) || data.cases.find((x) => x.id === data.demos[0].task);
+  selected = data.cases.find((x) => x.id === id) || data.cases[0];
   stepIndex = 0; renderList(); renderDetail();
 }
-function renderAll() { localize(); renderLeaderboard(); renderDemos(); renderClarifications(); renderList(); renderDetail(); }
+function renderAll() { localize(); renderLeaderboard(); renderClarifications(); renderList(); renderDetail(); }
 $('languageToggle').addEventListener('click', () => { language = language === 'en' ? 'zh' : 'en'; localStorage.setItem('clickclick-site-language', language); if (data) renderAll(); else localize(); });
 $('search').addEventListener('input', () => { if (data) renderList(); });
 $('taskList').addEventListener('click', (event) => { const button = event.target.closest('[data-id]'); if (button) { selectTask(button.dataset.id); history.replaceState(null, '', `#${encodeURIComponent(selected.id)}`); } });

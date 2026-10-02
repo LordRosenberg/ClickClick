@@ -1,0 +1,11 @@
+.hero-benchmarks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:540px;margin-top:26px}
+.hero-benchmark{display:flex;flex-direction:column;gap:6px;padding:16px 18px;border:1px solid #47606d;border-radius:8px;background:#1b2a37;color:#ecf2f8;transition:border-color .15s}
+.hero-benchmark:hover{border-color:#c7fb5f}
+.hero-benchmark .benchmark-name{font-size:14px;font-weight:700}
+.hero-benchmark strong{font-size:36px;line-height:1.15;letter-spacing:-.05em;color:#c7fb5f}
+.hero-benchmark strong small{font-size:20px}
+.hero-benchmark .benchmark-count{font-size:11px;line-height:1.5;color:#aebfc9}
+.hero-benchmark .benchmark-rank{font-size:12px;line-height:1.4;color:#bceca9}
+.hero-copy .hero-proof{margin-top:28px}
+@media(max-width:700px){.hero-benchmark{padding:14px 12px}.hero-benchmark strong{font-size:32px}}
+@media(max-width:380px){.hero-benchmarks{grid-template-columns:1fr}}
