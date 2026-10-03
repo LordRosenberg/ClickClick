@@ -1,7 +1,7 @@
 ---
 name: mobileworld-documentsui-file-selection
-description: "Files: date-sort and range-select files for compression or deletion, and preview unclear images."
-version: 1.0.5
+description: "Files: browse folders, date-sort and range-select files, and preview unclear images."
+version: 1.0.6
 app: com.google.android.documentsui
 interface_scope: system
 device_profiles: [mobileworld_api34]
@@ -16,6 +16,10 @@ source: authored
 ## Procedure
 
 ### Hints
+
+- For a specified filesystem path, open the storage root and traverse its folders.
+  The sidebar's `Documents`, `Images` and `Recent` views are indexed categories;
+  an empty category does not establish that the named folder or file is absent.
 
 1. For a date cutoff, use the overflow menu > Sort by > date order to group
    qualifying files; locate the cutoff boundary before selecting the range.
