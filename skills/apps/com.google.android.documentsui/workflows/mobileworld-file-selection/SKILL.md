@@ -1,7 +1,7 @@
 ---
 name: mobileworld-documentsui-file-selection
-description: "Files: date-sort and continuously select ranges for compression or deletion."
-version: 1.0.4
+description: "Files: date-sort and range-select files for compression or deletion, and preview unclear images."
+version: 1.0.5
 app: com.google.android.documentsui
 interface_scope: system
 device_profiles: [mobileworld_api34]
@@ -26,8 +26,16 @@ source: authored
    To extend an existing selection, start from the next unselected row.
    Every intervening row must meet the requested conditions.
    Use individual selection for noncontiguous files.
+3. When an image thumbnail is insufficient to distinguish the requested
+   visual feature, `Grid view` provides larger thumbnails. The separate
+   `Preview the file …` control opens a viewer without submitting the file;
+   if an app chooser appears, choose Gallery > Just once. Back returns to
+   the picker. Select directly when the thumbnail is already clear.
+
 ## Verification
 
 - Use the returned screen's selection count and highlights to check the
   intended group before applying an operation. Do not extend a range through
   unknown or excluded rows.
+- Previewing is not attachment submission. Return to the picker to choose
+  the intended file; do not preview every candidate by default.
