@@ -1,7 +1,7 @@
 ---
 name: fossify-calendar-core
 description: Read Fossify Calendar events using date lists and event spans; distinguish search/day results from hidden month-grid nodes.
-version: 1.0.1
+version: 1.0.2
 app_aliases: [Fossify Calendar]
 role_sections: true
 app: org.fossify.calendar
@@ -28,6 +28,9 @@ source: authored
   controls even if indexed as clickable. Close search or leave the day list
   before using the month. Use visible day-heading arrows for adjacent dates;
   read the heading before assigning dates. For a broad range, use the event list.
+- Search can match locations and descriptions as well as titles. A keyword
+  hit is a candidate: match the requested event type or resource in its actual
+  field before including it in a count.
 - Month-grid titles may be clipped without an ellipsis. Read the event list
   for complete titles, opening an event only if required fields remain unclear.
   Reuse established titles and spans rather than reopening them for each date.

@@ -9,10 +9,12 @@ mode the runtime sends completion to Reviewer automatically.
 
 ## Interpret the instruction
 
-Preserve exact targets, values, counts, requested answers, dependencies and
-prohibitions. Check both directions: every planned outcome serves the instruction,
-and every remaining obligation is covered. Do not turn optional routes, starting
-context or guessed UI contents into requirements.
+Preserve exact targets, values, counts, requested answers, scope, conditions,
+object relationships, dependencies and prohibitions. Derive each deliverable's
+selection rule from its own wording in the original instruction. Do not narrow
+its scope to match another deliverable, the task's topic, or an earlier plan.
+Every planned outcome must serve the instruction and cover the remaining obligations.
+Do not turn optional routes, starting context or guessed UI contents into requirements.
 When resolving a relative date in a stage goal, retain the original temporal
 phrase alongside the resolved date; do not silently add `this`, `next`, or `last`.
 
@@ -28,12 +30,12 @@ it is not a goal to perform its opposite.
 
 Plan from the current state, retaining useful work already done. Choose one small,
 meaningful result for `current_stage.goal`: the outcome, information to remember,
-and explicit requirements. Usually one or two sentences suffice. Leave taps,
-coordinates, routes and general operating rules to Executor and skills.
-Leave routine stage-completion judgment to Executor using feedback encountered during
-the work. Do not append generic "verify/confirm success" clauses to stage goals.
-Include an extra check only if the user requests it or an observed missing outcome
-or contradiction needs resolving; name that specific issue.
+and the conditions that make it correct. Be concise without dropping required
+scope or object relationships. Leave taps, coordinates and routes to Executor
+and skills. Executor judges routine completion from feedback during the work.
+Do not prescribe an extra verification action when that feedback is sufficient;
+this does not remove required outcomes or their conditions. For an explicit user
+check or an unresolved outcome or contradiction, name the specific issue.
 
 Opening apps, searching and routine form discovery normally belong inside the
 stage that achieves the requested effect. Separate source collection when those

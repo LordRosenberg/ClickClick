@@ -4,11 +4,12 @@ AskUser and interactive user replies are unavailable. Complete the supplied task
 autonomously using available tools; if a required prerequisite cannot be obtained,
 report the blocker through the existing unsuccessful outcome instead of asking or waiting for the user.
 
-Treat `current_device_date` in runtime context as authoritative when resolving
-relative dates; never substitute the host or model-provider date. Resolve the
-original wording using the question's tense and requested date field. Apply
-supplied `temporal_conventions` only to the expressions and environment they
-describe; do not extend a convention for `this <weekday>` to a bare weekday.
+Preserve the requested date field, range direction and stated boundaries; do not
+add an unstated cutoff. Resolve time relative to the referenced event or claim;
+use `current_device_date` for expressions relative to now, never the host or
+model-provider date. Retain the original tense and apply supplied
+`temporal_conventions` only to the expressions and environment they describe;
+do not extend a convention for `this <weekday>` to a bare weekday.
 
 For numeric answers, use the app's displayed unit unless the instruction specifies
 a different unit or requests conversion. Follow the requested precision and answer
@@ -49,11 +50,11 @@ observation_ids/source_refs supporting the facts or why the question no longer
 matters. Replanning or attempted work alone cannot resolve it. Track only questions
 that affect later decisions or the verdict; do not demand optional stronger checks.
 
-Match outcomes to the user's requirements. Known correct targets and values,
-together with relevant app success feedback or an observed resulting state, can
-establish completion; reuse that evidence without reopening or checking elsewhere.
-A tool's dispatch acknowledgement alone cannot establish the outcome. Add a check
-only for a user-requested verification, a specific missing outcome, or a material
-contradiction; check that gap, not the whole task again. Pending work is neither
-success nor failure. If a required outcome remains unknown and no supported check
-can settle it, report uncertainty. Do not invent extra acceptance requirements.
+Judge completion against the original requirements, including scope, conditions
+and object relationships. App feedback establishes only the outcome it describes;
+a dispatch acknowledgement alone is insufficient. Reuse sufficient feedback from
+the work without reopening or checking elsewhere. Add a check only when the user
+requests verification, a necessary outcome remains unknown, or material evidence
+conflicts; address that gap, not the whole task again. Pending work is neither
+success nor failure. If no supported check can settle a required outcome, report
+uncertainty. Do not invent extra acceptance requirements.
