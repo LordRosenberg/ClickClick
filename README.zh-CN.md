@@ -20,11 +20,11 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## MobileWorld 纯 GUI：95.73%，成绩对比第 1
 
-**本地澄清指令后通过 112/117（95.73%）**；**原题措辞未修改版也达到 106/117（90.60%）**。使用 `chatgpt/gpt-5.6-sol`（high）、Android API 34 和每题最多 50 个 MobileWorld 回合。两个口径均包含已披露的官方测试账号环境信息补充。
+最新测试原题成绩为 **106/117（90.60%）**，加入 7 道澄清题补充后的对照成绩为 **112/117（95.73%）**。使用 `chatgpt/gpt-5.6-sol`（high）、Android API 34，每题最多 50 个 MobileWorld 回合、2400 秒；117 道原题均有官方数值评分。运行时结合可修订规划、持久记忆、作用域技能与 Jev 核验。
 
-截至 2026-10-02，纯 GUI 成绩高于公开榜单各项。95.73% 使用 8 道措辞澄清和 1 道账号信息变体；其余任务共享原题结果。
+澄清对照采用 6 道措辞澄清及 1 道官方账号信息补充，其余任务采用原题结果。两项成绩均高于 2026-10-07 核对的公开 50 回合纯 GUI 榜单各项。
 
-[成绩、排行榜与六个复杂演示 →](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [逐项澄清表与评测方法](docs/mobileworld-results-20261002.md)
+[逐题成绩、截图与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [澄清明细与评测方法](docs/mobileworld-results-20261007.md)
 
 ## AndroidWorld：99.14%，按成功率档位并列第 2
 
@@ -37,17 +37,13 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## 效果演示
 
-六个通过的 MobileWorld 复杂用例均来自本次正式批次，点击预览查看 **3 倍速完整录像**。项目风险矩阵使用澄清版，其余五个使用原题措辞。画面中的账号与任务数据均为合成测试数据。
+最新 MobileWorld 测试中的五个成功跨应用工作流：资源预订冲突、网页资料转采购计划、讲座转日历、文件归档与邮件留档、按旅行地点整理照片。点击查看本次任务的截图、规划决策和设备操作；展示账号与数据均为合成测试数据。
 
-| 项目风险矩阵 | 资源预订冲突 | 网页资料转采购计划 |
-| --- | --- | --- |
-| [![项目风险矩阵](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![资源预订冲突](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![网页资料转采购计划](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
-
-| 讲座转日历 | 旧文件归档与邮件留档 | 按旅行地点整理照片 |
-| --- | --- | --- |
-| [![讲座转日历](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![旧文件归档与邮件留档](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![按旅行地点整理照片](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
-
-[MobileWorld 演示详情与来源](docs/mobileworld-results-20261002.md#six-complex-successes--六个复杂成功用例)
+- [资源预订冲突](https://lordrosenberg.github.io/ClickClick/mobileworld/#MattermostResourceConflictResolutionTask)
+- [网页资料转采购计划](https://lordrosenberg.github.io/ClickClick/mobileworld/#ThanksgivingPrepTask)
+- [讲座转日历](https://lordrosenberg.github.io/ClickClick/mobileworld/#MastodonCreateMemoTask)
+- [文件归档与邮件留档](https://lordrosenberg.github.io/ClickClick/mobileworld/#LocalFileManagementTask2)
+- [按旅行地点整理照片](https://lordrosenberg.github.io/ClickClick/mobileworld/#PhotoManagementTask)
 
 ### AndroidWorld 演示
 
@@ -176,7 +172,7 @@ ClickClick 自动检测设备并部署 Accessibility Collector。保持设备解
 
 ## 评测与复现
 
-MobileWorld 已公开[完整运行指南](docs/mobileworld-reproduction.zh-CN.md)，包含冻结运行时、117 道原题与九道变体、离线准备和恢复运行。先执行 `python -m evaluation.mobileworld.reproduce --prepare-only`；准备好专用环境后提供设备序列号和两个本地 APK，运行配对评测。
+MobileWorld 最新配置与成绩见[评测报告](docs/mobileworld-results-20261007.md)。另有[固定配置运行指南](docs/mobileworld-reproduction.zh-CN.md)，其准备与执行参数以该指南为准。
 
 
 

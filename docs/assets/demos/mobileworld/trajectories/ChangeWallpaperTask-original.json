@@ -10,91 +10,91 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Gallery, choose a photo from an album only after its visible content establishes that it features sunflowers, then set that photo as the device wallpaper while preserving unrelated photos and settings.",
+      "summary": "In Gallery, find a photo from the album whose visible content features sunflowers, then set that exact photo as the device wallpaper while preserving unrelated photos and settings.",
       "action": "execute",
-      "reason": "The wallpaper change remains to be performed; the Gallery app is visible and the selection must be grounded by the photo's content.",
-      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "reason": "The task is ready to execute from the home screen; the selected photo must be confirmed by its visible sunflower content before it is applied as wallpaper.",
+      "screenshot": "screens/be9918aeb9c131b1ba31730842e0ca7590a6c36603f020d5c2d7c0b3493fb7bb.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the verified Gallery app to locate a sunflower photo and set it as wallpaper.",
+      "summary": "Open the target Gallery app to locate the sunflower photo.",
       "action": "launch(app=gallery.photomanager.picturegalleryapp.imagegallery)",
       "reason": "",
-      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenshot": "screens/be9918aeb9c131b1ba31730842e0ca7590a6c36603f020d5c2d7c0b3493fb7bb.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Pictures album, whose visible cover clearly shows a sunflower, to select the matching photo.",
+      "summary": "Open the Pictures album, whose cover visibly features a sunflower, to select the exact photo.",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/26157bf4894c65fc409b217ec97887e0c6f6be8ad9c3c904f25398cb277f85c6.webp",
+      "screenshot": "screens/640a9388fec0f85d6bfe1b3484d3be80ed81740a706d68f0aa63acd0c48e5ccd.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the first photo, whose visible large yellow flower with dark seed head clearly establishes that it features a sunflower.",
+      "summary": "Open the clearly visible sunflower photo (single sunflower against a blue sky) for wallpaper actions.",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/354bd339abcd0e6c6bf6179039a9ca99d203a53e267524e2ee18c9618855b899.webp",
+      "screenshot": "screens/8c3e719cc52ff3af430f629f8919c74654f500ab0997d0dd615554efd331319d.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the selected sunflower photo's additional actions to find the wallpaper command.",
+      "summary": "Open the selected sunflower photo's more-actions menu to find the wallpaper command.",
       "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/7399684f02a3c46d0471ced823ee0199182d690c208033deaad79cce373f9ef3.webp",
+      "screenshot": "screens/bf38a49f036406881f25e0a884d9178da7bf9981a491946a1cfcae3ee334f292.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Choose Set as for the visibly verified sunflower photo.",
+      "summary": "Choose Set as for the confirmed sunflower photo.",
       "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/8c7dcc44ce720e0da9fa45bc0e2197eb8401ea27e5c2b7266c90e46cc45f0e5a.webp",
+      "screenshot": "screens/9e52a56dac1a557bbbaed4fadbfab76272bd21dbdfa523dc840b35b01247d2c2.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select Wallpaper as the destination for the verified sunflower photo.",
+      "summary": "Select Wallpaper as the destination for the confirmed sunflower photo.",
       "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/5c273ebc197d1b4ae877d2d88de9542189512201834bc8b7ddbc13261bca2cee.webp",
+      "screenshot": "screens/3203df1e561795a4116e72b699f4ada0f50de609726e38fd6c44c81b21c90ba2.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Confirm SET WALLPAPER for the sunflower image in the system wallpaper cropper.",
+      "summary": "Confirm SET WALLPAPER for the sunflower photo shown in the system wallpaper preview.",
       "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/31c1df9689cf807d90fb529910e68611bddfa040d902e959086c3068875e69a3.webp",
+      "screenshot": "screens/859a57dca991f9f2029631d993c3ba1e06782f97f606fecf8be93ae54312daa9.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "The visibly verified sunflower photo was selected from Gallery, sent to the system wallpaper cropper, and confirmed with SET WALLPAPER. The cropper then closed and returned to the same Gallery photo, establishing completion without modifying unrelated photos or settings.",
+      "summary": "The visibly confirmed sunflower photo from the Gallery album was selected, previewed in the system wallpaper cropper, and applied via SET WALLPAPER. The system then returned to the same sunflower photo in Gallery; unrelated photos and settings were left unchanged.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/042994a7382f8aa8dc4289a2a7191b35a7c2d4a7bad74f63a084fd8eedc04aea.webp",
+      "screenshot": "screens/e92f30ae0984a8721aceae148593b793507a6e1860997ede070a71ad6126c0c3.webp",
       "screenNumber": 7
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "The sunflower photo from the Gallery album was set as the device wallpaper and the wallpaper cropper closed after confirmation.",
+      "summary": "The sunflower photo from the Gallery album was successfully applied as the device wallpaper.",
       "action": "complete",
-      "reason": "The sunflower photo from the Gallery album was set as the device wallpaper and the wallpaper cropper closed after confirmation.",
-      "screenshot": "screens/042994a7382f8aa8dc4289a2a7191b35a7c2d4a7bad74f63a084fd8eedc04aea.webp",
+      "reason": "The sunflower photo from the Gallery album was successfully applied as the device wallpaper.",
+      "screenshot": "screens/e92f30ae0984a8721aceae148593b793507a6e1860997ede070a71ad6126c0c3.webp",
       "screenNumber": 7
     }
   ]

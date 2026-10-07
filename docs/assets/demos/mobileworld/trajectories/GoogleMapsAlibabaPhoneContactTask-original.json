@@ -1,200 +1,209 @@
 {
   "task": "GoogleMapsAlibabaPhoneContactTask",
   "variant": "original",
-  "screenCount": 17,
+  "screenCount": 18,
   "roleCounts": {
     "Planner": 3,
-    "Executor": 18
+    "Executor": 19
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Google Maps, find Alibaba's Hangzhou headquarters and obtain its displayed phone number, retaining the matched place identity and number for the contact creation step.",
+      "summary": "In Google Maps, find Alibaba's Hangzhou headquarters and record the phone number shown for that specific headquarters listing in Hangzhou, not another Alibaba location.",
       "action": "execute",
-      "reason": "First obtain the headquarters phone number from Google Maps because it is required before creating the contact.",
-      "screenshot": "screens/368b42d386facc1d129529104687843a00ace4dd33219844dab61ef37b7e2ffa.webp",
+      "reason": "Obtain the Hangzhou headquarters phone number from Google Maps before using it to create the requested contact.",
+      "screenshot": "screens/eee7df2d367cb3320c628db18f4e0b362244061ec1bc6e5e2b6114422764a31b.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Google Maps to search for Alibaba's Hangzhou headquarters and its displayed phone number.",
+      "summary": "Open Google Maps to search for Alibaba's Hangzhou headquarters listing.",
       "action": "launch(app=com.google.android.apps.maps)",
       "reason": "",
-      "screenshot": "screens/368b42d386facc1d129529104687843a00ace4dd33219844dab61ef37b7e2ffa.webp",
+      "screenshot": "screens/eee7df2d367cb3320c628db18f4e0b362244061ec1bc6e5e2b6114422764a31b.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Skip sign-in so the Maps search interface becomes available.",
+      "summary": "Skip optional sign-in to reach the map search interface.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/0972355310101a1bf01019779f3ab8a9f9eeed7d2813b6d904e6642810bb884b.webp",
+      "screenshot": "screens/ea97db2ad862d7a5c51319a310882751dec30f116e9e6d341c222e32125de762.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter a targeted Maps query for Alibaba's Hangzhou headquarters.",
+      "summary": "Search Maps for Alibaba's Hangzhou headquarters.",
       "action": "replace_text(index=1)",
       "reason": "",
-      "screenshot": "screens/18a4f5b247991e01ecf3edb3b71fcc34e071264567d65bda9b0968e8bd83d598.webp",
+      "screenshot": "screens/29e30384ed09859492f7b498bb2117b81b1f7018236505d2ff34e3a788c8076e.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Focus the Maps search field before replacing its text.",
+      "summary": "Focus the Maps search field before entering the headquarters query.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/18a4f5b247991e01ecf3edb3b71fcc34e071264567d65bda9b0968e8bd83d598.webp",
+      "screenshot": "screens/29e30384ed09859492f7b498bb2117b81b1f7018236505d2ff34e3a788c8076e.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Replace the focused Maps search field with the headquarters query.",
+      "summary": "Enter the exact headquarters search query in the focused Maps field.",
       "action": "replace_text",
       "reason": "",
-      "screenshot": "screens/c8976747f0cb3d4e26984c26d8142853e3f7cbfb5d7b5ba177c6f2f83da27994.webp",
+      "screenshot": "screens/b4b5cfc004a3d56497254d99ea2e4fef6c1c44777700655c3934b3b20625d292.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the exact Alibaba Hangzhou Headquarters place result on Wangshang Road.",
+      "summary": "Open the exact Alibaba Hangzhou Headquarters listing on Wangshang Road, excluding the separate South Gate result.",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/37965872beb2086115563b5bc5d449fcc61c55b37cf0feba4d414116f901cb54.webp",
+      "screenshot": "screens/e90d7506b30687bd1a20b2e44e26356738ce711e6831808d4ca113df518ed3ce.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll the matched headquarters place page to reveal its details, including the displayed phone number.",
+      "summary": "Scroll the verified Wangshang Road headquarters listing to reveal its contact details and phone number.",
       "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/a219bb05bbf0fed1a1e0ba1c2a3c335df71af227efdeb7dfffa6bc66cea41521.webp",
+      "screenshot": "screens/0e2a5f7b2b311d36e3615a33c9ef7067056650ddc44558cf8121ebd710caff4d.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open all place information to reveal the headquarters phone number.",
-      "action": "tap(index=18)",
+      "summary": "Open all place information for the verified Alibaba Hangzhou Headquarters listing to reveal its phone number.",
+      "action": "tap(index=17)",
       "reason": "",
-      "screenshot": "screens/f00cb43e5a623ab4b38c72132e572a71b8dc28a8ad4fa00875f64b8bbdffd5b5.webp",
+      "screenshot": "screens/0f4c9251065e4c124d799d239246454be043c8729497ffd654edf858df2321da.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Google Maps place matched as Alibaba Hangzhou Headquarters at 699 Wangshang Rd, Binjiang District, Hangzhou. Its displayed phone number is +86 571 8502 2088. Retained these exact values for creating Kevin Zhang's contact.",
+      "summary": "Verified the Google Maps listing Alibaba Hangzhou Headquarters at 699 Wangshang Rd, Binjiang District, Hangzhou. Its displayed phone number is +86 571 8502 2088.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/81031ed3ca505b782d76b158dd1e5e1c891ae0efc7ccd7eceb0d09db3327cce9.webp",
+      "screenshot": "screens/2c82359637bc5c7ad40e8af813a0af090464155b0c6f12486e0294a22c4f9ee5.webp",
       "screenNumber": 7
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Create and save a distinct new contact named Kevin Zhang with company Alibaba and phone number +86 571 8502 2088, preserving unrelated contacts.",
+      "summary": "Create a distinct new contact named Kevin Zhang with company Alibaba and phone number +86 571 8502 2088, preserving the international number exactly.",
       "action": "execute",
-      "reason": "The Google Maps lookup is complete, and the retained phone number can now be used to create the requested contact.",
-      "screenshot": "screens/c470fe1b68a24cc41f7ea36dfabf738247f380c2617f1dbe01d4ab1dfc0890e1.webp",
+      "reason": "The headquarters phone number is now verified, so the remaining work is to create the requested contact using that value.",
+      "screenshot": "screens/24e665faccaae25644f67b206bdc006879e35593351e6910dac2901f53e0a158.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Launch Contacts to create the distinct Kevin Zhang contact with the retained Alibaba headquarters details.",
+      "summary": "Open Contacts to create the requested distinct Kevin Zhang contact with the verified Alibaba headquarters number.",
       "action": "launch(app=com.google.android.contacts)",
       "reason": "",
-      "screenshot": "screens/c470fe1b68a24cc41f7ea36dfabf738247f380c2617f1dbe01d4ab1dfc0890e1.webp",
+      "screenshot": "screens/24e665faccaae25644f67b206bdc006879e35593351e6910dac2901f53e0a158.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Skip optional Google sign-in so the contact can be created locally without altering account setup.",
+      "summary": "Skip optional Google Account sign-in and continue using Contacts locally.",
       "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/d0f2b8a41104ebb8503539363a9507f2cbb42bcee13706a696f0a04e9b7f86a4.webp",
+      "screenshot": "screens/52d289b8c2f5f38267b32eb666c46db05ec678e5cce3af57864a97b390a26194.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the new-contact editor using the Create contact button.",
-      "action": "tap(index=20)",
+      "summary": "Dismiss the introductory tooltip so the Create contact control is unobstructed.",
+      "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/f39fb82b2d762db6a2d77c1f9186b8b3e06d67d8a304cb6a1045caf87354b0e5.webp",
+      "screenshot": "screens/210a7e2f1eca9322ef606f7e9cb8f715572ef68c1f8269951d835fd25caaf592.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter Kevin in the first-name field.",
-      "action": "replace_text(index=5)",
+      "summary": "Tap Create contact; the control is visible and unobstructed despite the informational tooltip.",
+      "action": "tap(index=20)",
       "reason": "",
-      "screenshot": "screens/70fa02065c197d508d12e6719b5d03d832da383f46228b0167e5e99f0c3cc1f9.webp",
+      "screenshot": "screens/d3c2fedca1a719828eb2d2431acdad6de31d7ffd9174d717c2cac7f848d0f3ff.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter Zhang in the last-name field.",
-      "action": "replace_text(index=8)",
+      "summary": "Enter Kevin as the contact's first name.",
+      "action": "replace_text(index=5)",
       "reason": "",
-      "screenshot": "screens/6af8b8c9cde69701270426f7135d1ea4126d4a25e3af5bf9dc24af62bb6df725.webp",
+      "screenshot": "screens/489688d9e970b09af94f3d7061bcfce0d7540bc203c86586c5478b6f9f317a49.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter Alibaba in the company field.",
-      "action": "replace_text(index=10)",
+      "summary": "Enter Zhang as the contact's last name.",
+      "action": "replace_text(index=8)",
       "reason": "",
-      "screenshot": "screens/c612845dcf546d4582a7bfd35584b43ee6c3d5a97a72e6428a8d5df6e627ba00.webp",
+      "screenshot": "screens/08b61afc310b5d3627b18fa698890c7b38e00e07e8702a4b4b07a493e5ccf580.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter the exact Google Maps headquarters phone number in the contact's phone field.",
-      "action": "replace_text(index=12)",
+      "summary": "Enter Alibaba as the contact's company.",
+      "action": "replace_text(index=10)",
       "reason": "",
-      "screenshot": "screens/30c4263e45c8d0478654f713ed8b9ee52def79adfd7cda68116f33eb338f062d.webp",
+      "screenshot": "screens/62a8e99281b2fc6841204f583de96aeff902b10b5c5947e3572f440e20ac9a97.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "All required fields are visibly populated with exact values; tap Save to create the new contact.",
-      "action": "tap(index=3)",
+      "summary": "Enter the verified Alibaba Hangzhou headquarters phone number exactly in international format.",
+      "action": "replace_text(index=12)",
       "reason": "",
-      "screenshot": "screens/26bee9c94fbe9ce8d9c68f97abced75c4fb6add4d5c2f4b1db4a197fdd827483.webp",
+      "screenshot": "screens/cb6566f24b4490b00303d6d6c194f136893af48ef1dbaa81c57c4aea33e8c7df.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the new Kevin Zhang contact with company Alibaba and phone +86 571 8502 2088.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/fa8a61c55a63429c1081fe234143ac8a0ffd835cf6948462caa50f4e6a7c5827.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Created and saved a distinct contact named Kevin Zhang. The contact detail screen confirms company Alibaba and Mobile phone +86 571 8502 2088, with a 'Kevin Zhang saved' confirmation.",
+      "summary": "Completed the task. Google Maps identified Alibaba's Hangzhou headquarters phone as +86 571 8502 2088, and Google Contacts now shows a saved distinct contact named Kevin Zhang with company Alibaba and that exact phone number.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/e73c9298e03a88dad9c1c9cfa22a4eed5ea85ee84466fed63595ae92379dbcf1.webp",
-      "screenNumber": 16
+      "screenshot": "screens/f05de255ca785d36155c29e7a602a8da8c3030fba1837c9ed2872a01a1d5ce4d.webp",
+      "screenNumber": 17
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Found Alibaba's Hangzhou headquarters phone number on Google Maps as +86 571 8502 2088, then created and saved a distinct contact named Kevin Zhang with company Alibaba and that phone number.",
+      "summary": "Found Alibaba Hangzhou Headquarters on Google Maps with phone number +86 571 8502 2088, then created and saved a distinct contact named Kevin Zhang with company Alibaba and that exact phone number.",
       "action": "complete",
-      "reason": "Found Alibaba's Hangzhou headquarters phone number on Google Maps as +86 571 8502 2088, then created and saved a distinct contact named Kevin Zhang with company Alibaba and that phone number.",
-      "screenshot": "screens/e73c9298e03a88dad9c1c9cfa22a4eed5ea85ee84466fed63595ae92379dbcf1.webp",
-      "screenNumber": 16
+      "reason": "Found Alibaba Hangzhou Headquarters on Google Maps with phone number +86 571 8502 2088, then created and saved a distinct contact named Kevin Zhang with company Alibaba and that exact phone number.",
+      "screenshot": "screens/f05de255ca785d36155c29e7a602a8da8c3030fba1837c9ed2872a01a1d5ce4d.webp",
+      "screenNumber": 17
     }
   ]
 }

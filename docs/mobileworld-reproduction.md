@@ -1,6 +1,8 @@
 # Reproduce the MobileWorld GUI-only evaluation
 
-[中文](mobileworld-reproduction.zh-CN.md) · [Results](mobileworld-results-20261002.md) · [System architecture](architecture.md)
+> This entry reproduces its pinned 117+9 configuration; it is not the updated October 7 score profile. See the [latest report](mobileworld-results-20261007.md) for the current 117 original tasks and seven supplementary results.
+
+[中文](mobileworld-reproduction.zh-CN.md) · [Results](mobileworld-results-20261007.md) · [System architecture](architecture.md)
 
 The public entry point prepares a separate, frozen runtime and runs the complete **117 original GUI-only tasks plus nine disclosed variants**. Official MobileWorld initialization and final-state evaluation remain independent of ClickClick. The clarified result substitutes all nine variant outcomes into the original set, including failures. It never chooses the better of two attempts.
 
@@ -28,8 +30,8 @@ python -m evaluation.mobileworld.patch_mattermost_readiness --container mobile_w
 docker restart mobile_world_env_0
 docker cp evaluation/mobileworld/adb_proxy.py mobile_world_env_0:/tmp/clickclick_mobileworld_adb_proxy.py
 docker exec -d mobile_world_env_0 python3 /tmp/clickclick_mobileworld_adb_proxy.py
-adb connect 127.0.0.1:5556
-adb -s 127.0.0.1:5556 shell getprop ro.serialno
+adb connect <adb-address>
+adb -s <adb-address> shell getprop ro.serialno
 ```
 
 Return to the repository root after these commands. Keep the returned serial for the required `--expected-device-serial` check. The proxy bridges the container's published port to its emulator ADB listener. ADB access remains explicitly pinned after reconnects and restarts.

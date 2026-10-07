@@ -1,46 +1,46 @@
 {
   "task": "MastodonOpenAutomatedDeletionTask",
   "variant": "original",
-  "screenCount": 25,
+  "screenCount": 30,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 25
+    "Executor": 30
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Enable automated deletion of old posts, set the age threshold to 7 days, keep posts with at least 20 favorites or 20 reblogs, and enable only the pinned-post exception while leaving all other keep-post exceptions disabled; save the settings for the intended signed-in Mastodon account.",
+      "summary": "In Mastodon account web settings, enable automatic deletion of posts older than 7 days, keep only pinned posts among the post-type exceptions, set both favorites and reblogs retention thresholds to at least 20, preserve unrelated account settings, and save the changes.",
       "action": "execute",
-      "reason": "Configure Mastodon's automated post deletion settings for the signed-in account and save the requested thresholds and exceptions.",
-      "screenshot": "screens/c47202507b1186715927375ca37ef71f42e00a0119713051a6903bc9e4f99fa5.webp",
+      "reason": "The requested automatic post-deletion policy is not yet configured; it can be completed as one account-settings stage.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon to identify the active account and reach its web account settings.",
+      "summary": "Open Mastodon to access its account web settings.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
-      "screenshot": "screens/c47202507b1186715927375ca37ef71f42e00a0119713051a6903bc9e4f99fa5.webp",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon settings to locate the account's web settings entry.",
+      "summary": "Open Mastodon settings.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/886ec773d22973ca98012e8c882fbad38023e3ea43a84e5378f67b557e71bf99.webp",
+      "screenshot": "screens/c3ffb0eaa98d27e5702abfe032db06f6d0c5b95db912b3bde45858dfb3276c40.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open settings for the active @test@10.0.2.2 account, matching the active timeline/profile identity.",
+      "summary": "Open settings for the active @test account.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/c9177c93a3a779bc01675c7046522ba41bd6c1d9634fcaccce14203118002401.webp",
+      "screenshot": "screens/cdf5947273ab2b357e24796bc8cb346d6cfed032c982047eb912c108608679dc.webp",
       "screenNumber": 2
     },
     {
@@ -49,25 +49,25 @@
       "summary": "Open the @test account's web account settings.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/67fa1b45fe476a4f588f064553506f94ddb3aa90f02385e3fcea0416a1a452c2.webp",
+      "screenshot": "screens/2ac9e46b54792f4e30ce99de82fbd588e6f071d8996572f278e1112b7fb25467.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the browser to access the instance web settings at the account's shown server address.",
+      "summary": "Open the browser to access the instance's web-only automatic post deletion settings.",
       "action": "launch(app=com.android.chrome)",
       "reason": "",
-      "screenshot": "screens/2ac9e46b54792f4e30ce99de82fbd588e6f071d8996572f278e1112b7fb25467.webp",
+      "screenshot": "screens/4da522c59d1255fd0de0b9fe52f71970675ff98b7b0ce1de651f7023ebde9e6e.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Navigate directly to the Mastodon automated post deletion settings on the signed-in instance.",
-      "action": "replace_text(index=16)",
+      "summary": "Navigate directly to the instance's Other preferences page, where automated post deletion is configured.",
+      "action": "replace_text(index=2)",
       "reason": "",
-      "screenshot": "screens/a8301a524256443cf6780115aed75a5b92252eceb40f2b00f5cf7cedca04ed46.webp",
+      "screenshot": "screens/0ca437ad40b4105a7f66b43f4e2bbbdc4e7596c0d6207b464108baac55ae7c1a.webp",
       "screenNumber": 5
     },
     {
@@ -76,179 +76,224 @@
       "summary": "Submit the automated post deletion settings URL.",
       "action": "key(key=enter)",
       "reason": "",
-      "screenshot": "screens/bb0de1b61a95824d12a62d63339b17e19e5fae03c64d207376bad28a702e1106.webp",
+      "screenshot": "screens/bd34b2d761ac93c5a986e350619866eb93fd03221e5837f9f5cb9e0ba716dc55.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Correct the URL to HTTPS; the instance settings previously loaded over HTTPS and the HTTP endpoint refused the connection.",
-      "action": "replace_text(index=4)",
+      "summary": "Open Chrome's menu to use Find in page and jump to the automated post deletion section.",
+      "action": "tap(index=15)",
       "reason": "",
-      "screenshot": "screens/bc48523fc2dc5f97236095c5455e1ee072a0e5f5fc989ed1396d05e8cdbb51f3.webp",
+      "screenshot": "screens/99f673aa229a19085dddaf183ca6bdd607979b4b21346c55ea40ff670f4bf36b.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Submit the corrected HTTPS automated post deletion URL.",
-      "action": "key(key=enter)",
+      "summary": "Select Find in page to locate the automatic post deletion controls.",
+      "action": "tap(index=14)",
       "reason": "",
-      "screenshot": "screens/21ca65e2e71656e4f72275916212b67378eec65dc2ec230e1b1a7f1640c8be2f.webp",
+      "screenshot": "screens/40470e90aa569dfaa232b6b0a183211b14b3d438efc083984d477e51436c4f8a.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enable automatic deletion so the age and exception controls can be configured.",
-      "action": "tap(index=3)",
+      "summary": "Search within the preferences page for the Automated post deletion section.",
+      "action": "replace_text(index=10)",
       "reason": "",
-      "screenshot": "screens/bae7dcfbdf11c443ffb12d0c8118eafa38b32f9ada5fdaf5f5d33cf938ed021b.webp",
+      "screenshot": "screens/379fc2947c8de7e49812b02110a5018dc4ebc24705e72c608b9b540cb3b0f823.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the age threshold selector to change it from 2 weeks to 7 days.",
-      "action": "tap(index=4)",
+      "summary": "Close the zero-result page search; automated deletion is on Mastodon's dedicated statuses cleanup route rather than this preferences form.",
+      "action": "tap(index=13)",
       "reason": "",
-      "screenshot": "screens/96fc22453cb0d717e2c9603572b875f0ef1426f80f76399c94135471aacf6144.webp",
+      "screenshot": "screens/243887382f7485e0e798615ecb9124163f2b6e21c346ea3fb9589e54eff1d67d.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select 1 week, which is the requested 7-day age threshold.",
-      "action": "tap(index=0)",
+      "summary": "Navigate directly to Mastodon's automated post-deletion settings route.",
+      "action": "replace_text(index=12)",
       "reason": "",
-      "screenshot": "screens/7ff800c28b116b5a27394b810bd900cab58d57b2006d8cfac8ee934491bdc5bd.webp",
+      "screenshot": "screens/c61e8d50aac1079e3969c421bc81e9f1c8f5681637412e27fc2111ad60d4d514.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Disable the direct-messages exception so pinned posts remain the only categorical keep exception.",
-      "action": "tap(index=6)",
+      "summary": "Submit the direct automated post-deletion settings URL.",
+      "action": "key(key=enter)",
       "reason": "",
-      "screenshot": "screens/f78895bdb50589514f7c3c050231d1734ef774016583d511d2d79b7a262b5565.webp",
+      "screenshot": "screens/e091c01566e96c43ece157d348e5ee12b80e0d7bcd3d83d0ee37e7d8da602297.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Disable the favorited-posts exception; the requested favorite threshold will be configured separately.",
-      "action": "tap(index=7)",
+      "summary": "Enable automatic deletion of old posts so its policy controls can be configured.",
+      "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/f2a60fe666c24785c3f2a4e5153a89e8a60f9b54c8816704ba1d8b14e2d28704.webp",
+      "screenshot": "screens/f2bb2566c62ed7305914cfdb7c81bd7c0effe38d0a06dcee1783ed558c74c2f2.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down to inspect and configure the remaining keep-post exceptions and engagement thresholds.",
-      "action": "scroll(direction=down)",
+      "summary": "Open the age-threshold selector to change it from 2 weeks to 7 days.",
+      "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/6814ab709dd648d2f96d47f19d45d6d86c96f5ea1e57cdb481e7194b87478c1d.webp",
+      "screenshot": "screens/95554dbee5a04a905e726b8ee5f63ecaa118a71c142f936f45ee852d8d058a75.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Disable the currently enabled bookmarked-posts exception so only pinned posts remain categorically exempt.",
-      "action": "tap(index=5)",
+      "summary": "Select the 1 week age threshold, equivalent to the requested 7 days.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/c8b7dd628d2adbdce8fab43d4150b4f6faf5e864275411c5e958920bb1c3d203.webp",
+      "screenshot": "screens/5daf162b8c3ec81c5b48df6083e08055707e8339f4384fa374d4b816eeaaeb0f.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue down the exception list to inspect any remaining enabled exceptions and locate the favorites/reblogs thresholds.",
-      "action": "scroll(direction=down)",
+      "summary": "Disable the direct-message exception so pinned posts remain the only enabled post-type exception.",
+      "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/ba5646120adc639770e622285d1636c2e5d25ab442e51c31e89e91dbde239cc1.webp",
+      "screenshot": "screens/50055b8af2371f51cb359a54c0500bd1b6cc1fd6b1abc6ee9b621994c4b79568.webp",
       "screenNumber": 16
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Set the favorites interaction threshold to 20.",
-      "action": "replace_text(index=6)",
+      "summary": "Disable the favorited-post exception so it does not preserve posts independently of the requested favorites threshold.",
+      "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/a7c6a5c4378cec772ff1147d5d921c1f54284a9deb38e3ee9799c6d317bc4290.webp",
+      "screenshot": "screens/cf987b00bd096668aafcf725a199a1dd13b163cf8d67e74a07550e29f806603c.webp",
       "screenNumber": 17
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The favorites field visibly contains 20; dismiss the keyboard to continue to the reblogs threshold.",
-      "action": "key(key=back)",
+      "summary": "Scroll down to inspect and configure the remaining exceptions and engagement thresholds.",
+      "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/59041b0c9b567e446d56f3af885fa1f5f9f9fbc72f29e2c81f421ed84dccc392.webp",
+      "screenshot": "screens/c04daca8f14bd4a1d62ae770dac78c27059b12ee29feb8d1473e87f8c3c3bcab.webp",
       "screenNumber": 18
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down to locate and set the reblogs interaction threshold.",
-      "action": "scroll(direction=down)",
+      "summary": "Disable the bookmarked-post exception so pinned posts remain the only enabled post-type exception.",
+      "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/93cefb85bbce7d152369c010f883f7902455dc64cec69458e097dcd7de4e622a.webp",
+      "screenshot": "screens/6dd8170b3c9b48e809e6e17c05168e4c1ef0aa5d7f8796ee0495530c1c96b4fc.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Set the reblogs/boosts interaction threshold to 20.",
-      "action": "replace_text(index=6)",
+      "summary": "Scroll farther down to reach any remaining exception toggles and the favorites/reblogs threshold fields.",
+      "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/0b03b644a6a2223c7b807ea46a0a5a69e7ba8f2da4f406b18dff22be91bebd5b.webp",
+      "screenshot": "screens/d56eeafa18e781e127d8bcd9c3d22e1e04b416c8eb5f380b40f2a8db9d8229bb.webp",
       "screenNumber": 20
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The boosts field visibly contains 20; dismiss the keyboard before reviewing and saving the form.",
-      "action": "key(key=back)",
+      "summary": "Set the favorites-based retention threshold to 20.",
+      "action": "replace_text(index=6)",
       "reason": "",
-      "screenshot": "screens/461d09d4ea64a53478eca85b4822f5036a93138ff01bbbcf1944d14bd22a1d47.webp",
+      "screenshot": "screens/a5006b297e8d0da39e362efed3bc4fc9cc4262e12a6d265addb760b628b224a1.webp",
       "screenNumber": 21
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll toward the top of the form to verify the age setting and save the requested configuration.",
-      "action": "swipe",
+      "summary": "The favorites field visibly contains 20; set the boosts/reblogs retention threshold to 20.",
+      "action": "replace_text(index=6)",
       "reason": "",
-      "screenshot": "screens/970611af76975c4c624f1c3885c84b5aaddcd068dfcf116b4a22b175ef897ace.webp",
+      "screenshot": "screens/70baf711a8ab273ce4a62642b892a06304e647f1d148092742eb9219114c9266.webp",
       "screenNumber": 22
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "All requested values are visibly set: deletion enabled, age 1 week, only pinned-post exception enabled, and both interaction thresholds 20. Save the changes.",
-      "action": "tap(index=2)",
+      "summary": "Dismiss the keyboard after both interaction thresholds visibly show 20, so the remaining policy controls can be verified and saved.",
+      "action": "key(key=back)",
       "reason": "",
-      "screenshot": "screens/0a471dc8b71213fc92c7206acfabaaaaa67ef2b5ce233ed5be30337070bce64f.webp",
+      "screenshot": "screens/479fd2fda2401fdbd6c42514200c74067811920a7c87ec56908edbd45b200960.webp",
       "screenNumber": 23
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll toward the top of the cleanup form to verify automatic deletion, the 7-day age threshold, and the pinned-post exception before saving.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/d4d6ff01b8172075877109a860ccb453871fbca0d88cf0f074ade099c538fdfc.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The post-type exceptions are now verified with only pinned posts checked and both thresholds at 20; continue upward to verify the deletion toggle and age.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/5ced9e2ff55e772cf8a3eabebdca06dfbd934b5c7d2e11f25988264d0780d40f.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward because the age selector's current value and automatic-deletion control are still just above the visible area.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/d1ccf0f1904cab39bcdfb403573c1841213516bf3c2a9bfd48195a3e970aebb8.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Automatic deletion and the 1-week age threshold are now verified; scroll to the form top to save the configured policy.",
+      "action": "scroll(direction=up)",
+      "reason": "",
+      "screenshot": "screens/f9ca337106fe44079117832bb5d07fdf97e456c068f81cb8daefbe337ae6e3bf.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the fully configured automatic post-deletion policy.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/dd0f950b88128d98d2e73962c7fd6cfde6cd927ebfb578344d83f2bc01e72499.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Mastodon confirmed “Changes successfully saved!” Automated post deletion is enabled with an age threshold of 1 week (7 days), only the pinned-post exception enabled, all other categorical keep-post exceptions disabled, and both favorites and boosts/reblogs thresholds set to 20.",
+      "summary": "Saved successfully. Automatic deletion is enabled with age threshold 1 week (7 days); only pinned posts are retained among post-type exceptions; favorites and boosts/reblogs thresholds are both 20. The page confirms “Changes successfully saved!”",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/bfba4160132b788a58f474e2a90610aa7d9b251ab8fc54ac94a1b4e3e6104de6.webp",
-      "screenNumber": 24
+      "screenshot": "screens/83c66f5474956bc8d6a3ef8f89c121a244aeafb335e3daa5ddff8aa8c40c2be5.webp",
+      "screenNumber": 29
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Mastodon’s automated post deletion settings were saved successfully: deletion is enabled, the age threshold is 1 week (7 days), only pinned posts are retained by categorical exception, and posts with at least 20 favorites or 20 reblogs/boosts are kept.",
+      "summary": "Automatic post deletion is enabled and saved with the age threshold set to 1 week (7 days), only pinned posts enabled among post-type exceptions, and both favorites and boosts/reblogs retention thresholds set to 20. The page confirms “Changes successfully saved!”",
       "action": "complete",
-      "reason": "Mastodon’s automated post deletion settings were saved successfully: deletion is enabled, the age threshold is 1 week (7 days), only pinned posts are retained by categorical exception, and posts with at least 20 favorites or 20 reblogs/boosts are kept.",
-      "screenshot": "screens/bfba4160132b788a58f474e2a90610aa7d9b251ab8fc54ac94a1b4e3e6104de6.webp",
-      "screenNumber": 24
+      "reason": "Automatic post deletion is enabled and saved with the age threshold set to 1 week (7 days), only pinned posts enabled among post-type exceptions, and both favorites and boosts/reblogs retention thresholds set to 20. The page confirms “Changes successfully saved!”",
+      "screenshot": "screens/83c66f5474956bc8d6a3ef8f89c121a244aeafb335e3daa5ddff8aa8c40c2be5.webp",
+      "screenNumber": 29
     }
   ]
 }

@@ -10,55 +10,55 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Locate and read the invoice PDF in the Download directory. Record the labeled hours for Consulting Services and Software Development and calculate how many fewer hours Consulting Services has.",
+      "summary": "Open the invoice PDF in the Download directory, read the hours for Consulting Services and Software Development, and retain the computed number of fewer hours Consulting Services has than Software Development.",
       "action": "execute",
-      "reason": "The invoice hours must be read and compared before the SMS can be composed accurately.",
-      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "reason": "First obtain the two invoice hour values and compute their difference before sending the required SMS.",
+      "screenshot": "screens/ceddf7a387a6c99a111a5a4badee2cc33ad0eea593ecd16e5b88229f325df3a3.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Files app to locate the invoice PDF in Downloads.",
+      "summary": "Open Files to locate the invoice PDF in the Download directory.",
       "action": "launch(app=com.google.android.documentsui)",
       "reason": "",
-      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenshot": "screens/ceddf7a387a6c99a111a5a4badee2cc33ad0eea593ecd16e5b88229f325df3a3.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open invoice.pdf to read the relevant service-hour rows.",
+      "summary": "Open invoice.pdf to read the service-hour values.",
       "action": "tap(index=8)",
       "reason": "",
-      "screenshot": "screens/43be836f90914f0cfe8a2901a971df6028de0cd462c88a6e6cbd0b5eb5b1f877.webp",
+      "screenshot": "screens/116114433a7bab57d6e3097c85f13ae23bf5d5e31280f4a9dc2b4f957250340b.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Read invoice.pdf in Downloads. Software Development totals 400 hours (120 + 80 + 160 + 40); Consulting Services totals 150 hours (60 + 40 + 50). Consulting Services therefore has 250 fewer hours.",
+      "summary": "Read invoice.pdf. Software Development totals 400 hours (120+80+160+40); Consulting Services totals 150 hours (60+40+50). Consulting Services therefore has 250 fewer hours.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/b487903cd66808ed01fe454725d64c4ddea62d4ecffd9db4efbb754ad056d1e0.webp",
+      "screenshot": "screens/93507197925bdf40c7e1c21eb45851ae7c0e0431cd991c275c9111404973f4b8.webp",
       "screenNumber": 2
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Send Mia an SMS reporting that Consulting Services has 250 fewer hours than Software Development.",
+      "summary": "Send Mia a new SMS reporting that Consulting Services has 250 fewer hours than Software Development, and retain confirmation that it was sent.",
       "action": "execute",
-      "reason": "The invoice establishes that Software Development has 400 hours and Consulting Services has 150 hours, a difference of 250 hours. The remaining task is to send that result to Mia by SMS.",
-      "screenshot": "screens/560c6ddeb443787144253a02d5f2107d1c3ab8fdfb83186694b1da28a84874f0.webp",
+      "reason": "The invoice establishes Software Development at 400 hours and Consulting Services at 150 hours, so the required difference is 250 hours. The remaining task is to send that result to Mia by SMS.",
+      "screenshot": "screens/1583440fe649c24cb1bc57eecb71253db3a3136e5a259e0f68120fa73a8be508.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Messages to send Mia the calculated 250-hour difference by SMS.",
+      "summary": "Open Messages to send Mia the computed 250-hour difference.",
       "action": "launch(app=com.google.android.apps.messaging)",
       "reason": "",
-      "screenshot": "screens/560c6ddeb443787144253a02d5f2107d1c3ab8fdfb83186694b1da28a84874f0.webp",
+      "screenshot": "screens/1583440fe649c24cb1bc57eecb71253db3a3136e5a259e0f68120fa73a8be508.webp",
       "screenNumber": 3
     },
     {
@@ -67,61 +67,61 @@
       "summary": "Start a new SMS conversation so Mia can be selected as the recipient.",
       "action": "tap(index=13)",
       "reason": "",
-      "screenshot": "screens/1bed6bbf983f8dc947f85054bcafe3eff6ba07d37b89dc053c34d904b467c7da.webp",
+      "screenshot": "screens/e13cf7932ba03488fb5ac9f33f5bc9606d364f659ba55003ee3c33d9e0a0bc02.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Search the recipient list for Mia.",
+      "summary": "Search the recipient picker for Mia.",
       "action": "replace_text(index=0)",
       "reason": "",
-      "screenshot": "screens/4cb116ad99f35df285d5e9246221a1a8320b1cbb34662a92cbc657d1d714eb78.webp",
+      "screenshot": "screens/b8f06d490cee5e888e89132c92d749933c7f6008042d18d95bca8aeaecc8afbd.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the matching contact Mia Scott as the SMS recipient.",
+      "summary": "Select the matching Mia Scott mobile contact as the SMS recipient.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/2ac636e71b365f528b451c0e2de1bdf20f9062c1538cceee255688801cbc5f13.webp",
+      "screenshot": "screens/6aaa978bf9153f6ae7a330b8440fbc3dd85f783df6576f7ce8ade01d6773e8cc.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter the requested invoice-hours comparison in the SMS to Mia.",
+      "summary": "Enter the computed result in Mia's SMS conversation.",
       "action": "replace_text(index=5)",
       "reason": "",
-      "screenshot": "screens/53b36b779d59e636e1fb19cb1a9c899514ab9462ae57d9e8c14fe2e25c8c4a70.webp",
+      "screenshot": "screens/38092f86391d4a665392314eb0e9c213d1afa61d4b90a9bffe9afcc9e12c5a03.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Send the composed SMS to Mia Scott.",
+      "summary": "Send the completed SMS to Mia Scott.",
       "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/560de7bc542f6cdc47c8ebb4dc47bea75140ea344727d34f35cb2bf3868e08f2.webp",
+      "screenshot": "screens/3bd8a98153945f41c3117be29521e62ae2209617b390eefc18aa9c72aeafe35c.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Sent Mia Scott an SMS stating: “Consulting Services has 250 fewer hours than Software Development.” The conversation shows the outgoing message with SMS metadata.",
+      "summary": "SMS sent to Mia Scott. The conversation shows the outgoing message “Consulting Services has 250 fewer hours than Software Development.” with timestamp 12:02 PM and SMS metadata.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/deedfa6fc0280cfe007b1e1aa067318113de2bfff6cf3eac86b5e164962d3436.webp",
+      "screenshot": "screens/05af9044a1afff7d59f1bd8164d54f7e0bb883ec5d6398392a920e05d5e3108b.webp",
       "screenNumber": 9
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Read `invoice.pdf` and sent Mia Scott the SMS: “Consulting Services has 250 fewer hours than Software Development.”",
+      "summary": "Consulting Services has 250 fewer hours than Software Development. The SMS reporting this result was sent to Mia Scott.",
       "action": "complete",
-      "reason": "Read `invoice.pdf` and sent Mia Scott the SMS: “Consulting Services has 250 fewer hours than Software Development.”",
-      "screenshot": "screens/deedfa6fc0280cfe007b1e1aa067318113de2bfff6cf3eac86b5e164962d3436.webp",
+      "reason": "Consulting Services has 250 fewer hours than Software Development. The SMS reporting this result was sent to Mia Scott.",
+      "screenshot": "screens/05af9044a1afff7d59f1bd8164d54f7e0bb883ec5d6398392a920e05d5e3108b.webp",
       "screenNumber": 9
     }
   ]

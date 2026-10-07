@@ -1,25 +1,25 @@
 {
   "task": "MastodonAddBookmarkTask",
   "variant": "original",
-  "screenCount": 32,
+  "screenCount": 25,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 32
+    "Executor": 25
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, find user kitty and bookmark every distinct post authored by that user that contains the #cats tag; cover the full relevant profile/search result set, leave already-bookmarked matches bookmarked, and do not alter unrelated posts.",
+      "summary": "In Mastodon, locate user kitty's posts and traverse the complete relevant post collection to ensure every post carrying the #cats tag is bookmarked; do not toggle off posts already bookmarked, and preserve unrelated content.",
       "action": "execute",
-      "reason": "The task requires locating kitty's matching posts, covering the complete relevant result set, and bookmarking each unbookmarked match without disturbing unrelated posts.",
+      "reason": "Find kitty's posts tagged #cats and ensure every matching post is bookmarked, preserving unrelated bookmarks and posts.",
       "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon to begin locating kitty's #cats posts.",
+      "summary": "Open Mastodon to locate kitty's #cats posts and process their bookmark state.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
       "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
@@ -28,7 +28,7 @@
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Explore to search for kitty and narrow to relevant posts.",
+      "summary": "Open Explore to search for user kitty.",
       "action": "tap(index=20)",
       "reason": "",
       "screenshot": "screens/5210a8d6ca9403752b253b61ccdefc92fb42ff5c67cedb4420e99a8ee9a2a2f4.webp",
@@ -37,17 +37,17 @@
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Activate the Mastodon search field before entering a targeted query.",
+      "summary": "Activate the Mastodon search field before entering kitty.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/31c36096b18748c745bb7b3f0aa18af03f838ef2fab8e2a736beca8076fedc97.webp",
+      "screenshot": "screens/9d4c5ef4a178e17b54044497722683726bac9a255f4a6de2a5b40bc066225fab.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter a combined author-and-tag query to narrow the candidate post set.",
-      "action": "type",
+      "summary": "Search Mastodon for kitty.",
+      "action": "replace_text(index=3)",
       "reason": "",
       "screenshot": "screens/aef0a255c104a8dd43cf3c01e73de1c2ba812b1038bc5ae14dadaa74eb39c380.webp",
       "screenNumber": 3
@@ -55,263 +55,200 @@
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Run the combined post search.",
-      "action": "key(key=enter)",
+      "summary": "Open the visible kitty profile result.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/29d06a57f955c2754bbbd05824dfc41a06386744a186bfea4001510347fb707c.webp",
+      "screenshot": "screens/4c8b955ccaf143f173fd5f7bfd4850c395867be8c8be807824673361f1a9acde.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Refine the unsuccessful combined query by searching for the user first.",
-      "action": "tap(index=1)",
+      "summary": "Open the first visible #cats post's options to inspect its bookmark state.",
+      "action": "tap(index=17)",
       "reason": "",
-      "screenshot": "screens/10277ede621e7a0d2dd5c32775b965830c58c8cc51be6a93727bf4bbd8d1b6db.webp",
+      "screenshot": "screens/f7adbf17988b4e04c903dc41f771e574e089614378419eaa3f42264f49e8e92e.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Replace the unsuccessful combined query with the exact user name.",
-      "action": "replace_text(index=3)",
+      "summary": "Bookmark the first visible kitty post tagged #cats; the menu shows 'Bookmark', confirming it is not already bookmarked.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/27477ed5ef99e4c368bdef39ca106ae014b9c47e021860c6eca8fcda082e2c55.webp",
+      "screenshot": "screens/f3c5fd12a023bb018fdbb8289f53ba335a2a2a343695295bfece86e4cb2a7caa.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the exact kitty account shown as @kitty.",
-      "action": "tap_xy",
+      "summary": "Open the second visible #cats post's options to inspect whether it is already bookmarked.",
+      "action": "tap(index=23)",
       "reason": "",
-      "screenshot": "screens/e9934178cdd24cd9ce9f59d3f329b4ccf4029b7ebd2dfc320de5c128b8023b2e.webp",
+      "screenshot": "screens/59ba595f23a7551fa4f07e8818d0c99eadcef0b98cfce55afe723879da990ef8.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the first visible matching post's options to bookmark it.",
-      "action": "tap(index=17)",
+      "summary": "Bookmark the second visible kitty post tagged #cats; its menu shows 'Bookmark', so it is not already bookmarked.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/5be79281a24d0590b070790d41e487c76f72f96c8fa9efb1e3b880f6c70435f5.webp",
+      "screenshot": "screens/7b3a403f0f13cfdbe9b39d7b7b28e4990bdab5138fc44d368ce487e76072261a.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Bookmark the first visible #cats post; the menu label confirms it is not already bookmarked.",
-      "action": "tap(index=0)",
+      "summary": "Scroll down kitty's timeline with overlap to inspect the next posts.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/9b808a065d5909bc46a9f54e20167e2575e5ae67ba4541d58dada30058ff923f.webp",
+      "screenshot": "screens/0c7708cd674fcc077b1af68215587e5c93f2b6088873dcd25fcf4dc66545925e.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the second visible #cats post's options.",
-      "action": "tap(index=23)",
+      "summary": "Continue down kitty's timeline; the next visible Scottish Fold post lacks the exact #cats tag, so leave it unchanged.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/df064ac3b71958a4669f8cd005329a5a786b52915e34fbab29b91b15dde56222.webp",
+      "screenshot": "screens/566e2e66da4eceb808192379c02ce49d9ed29c3f42072e21dedd10adf6af91a0.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Bookmark the second visible #cats post; the menu label confirms it is not already bookmarked.",
-      "action": "tap(index=0)",
+      "summary": "Continue down kitty's 10-post timeline; the Scottish Fold and Sphynx posts shown do not contain the exact #cats tag.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/edeb223555ca6492ae568e4fefa3e226c973b9162a51580a06c7ba9738d6d7f2.webp",
+      "screenshot": "screens/c30214a28fad9c3677c7a09dec89332083e2cd55131b2ef8469039a9e1ddfff7.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue down kitty's 10-post timeline with overlap to inspect remaining posts for #cats.",
+      "summary": "Continue traversing kitty's timeline after confirming the Sphynx post lacks #cats.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/9966dc777a7db22a48ab054680a3c8dd753bd30e4a9110e0cf76feef0308997f.webp",
+      "screenshot": "screens/226cb1dcde98dd800dbcfa220b1ac0cab0cb83fe851cd493fb2204146bdf0e92.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue timeline traversal; the third post is not a #cats match (#CuteCat only).",
+      "summary": "Continue through kitty's timeline; the British Shorthair and Bengal posts shown do not contain #cats.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/1bc20f4b55c41c000564fbc60813ac93ef642b4c4d36985e28939babe932a96f.webp",
+      "screenshot": "screens/9f5c6bd5f90085e0fe63b76e330e7b21490a792222425cba7644755939064d4a.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue past the fully inspected third post, which has #CuteCat but not the requested #cats tag.",
+      "summary": "Continue traversing kitty's timeline; the Bengal and Ragdoll posts shown do not contain #cats.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/6a1713f7d101882061d8ceb04cdc4e2a8f2ddb2e5f6f05b4bfeb87dac0726b9e.webp",
+      "screenshot": "screens/4b9a6f71abf20b74e70574d26325207d89c6ea75f6d32c2c9075e0d5990eca07.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue traversal; the fourth inspected post is authored by kitty but has #SphynxCat and #BoldAndBeautiful, not #cats.",
+      "summary": "Continue traversing kitty's timeline; the Ragdoll and Maine Coon posts shown do not contain #cats.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/064b80057736b26df12b3fe444822b19bc3d0ccd6b72b56a45de0dbf8ff75d8c.webp",
+      "screenshot": "screens/5f030a296896bbc3efb42580b85b22afe91270afa1e2e4dbba55af5df799195e.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue traversal; the fifth inspected kitty post has #BritishShorthair and #ChillCat, not #cats.",
+      "summary": "Continue to the final kitty post; the Maine Coon and Siamese posts shown do not contain #cats.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/9f385a72aea901c88f6493d3ae913848eba5e7e2321d5c90970f05ded9c9d93e.webp",
+      "screenshot": "screens/25ee9829548f4fabaac375f971660532db33b7ab14a9e8d46c713ffe351d4222.webp",
       "screenNumber": 16
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue traversal; the sixth inspected kitty post has #BengalCat and #WildAtHeart, not #cats.",
-      "action": "swipe",
+      "summary": "The full 10-post timeline has now been covered; return to the prior screen so the two matching posts can be revisited and their bookmark states verified without risking an unbookmark toggle.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/27d19a9cc3c399305c927fb4c6a23b17a9b39c68a00a07ccf43000d4ea8b4882.webp",
+      "screenshot": "screens/33b72f854fc2cbf5d48451eada3e00aadf2977161f60d2eaa38be9a7652d9cd4.webp",
       "screenNumber": 17
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue traversal; the seventh inspected kitty post has #RagdollCat and #CuddleBuddy, not #cats.",
-      "action": "swipe",
+      "summary": "Leave search to open Mastodon's navigation and verify that both matching kitty posts appear in Bookmarks.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/f0ccc58ad106f06adda292916a4d032bbe59b972e0a9df3ec8aecd852270fa05.webp",
+      "screenshot": "screens/89941b440c8a466b8ab40fdd5570e16b3f838ccfbd9a154fbccda3aa03dccab1.webp",
       "screenNumber": 18
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue traversal; the eighth inspected kitty post has #MaineCoon and #GentleGiant, not #cats.",
-      "action": "swipe",
+      "summary": "Open the active account profile to access the Bookmarks collection for verification.",
+      "action": "tap(index=9)",
       "reason": "",
-      "screenshot": "screens/b389688f1d08768559a46d8009540720b0df33f168e3396cee955dc87c76d311.webp",
+      "screenshot": "screens/b0a88fd3aa38e53e4acbba62cf949b6466f236d7bdcde58fdfd24d8535eb26a9.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue traversal; the ninth inspected kitty post has #SiameseCat and #ChattyKitty, not #cats.",
-      "action": "swipe",
+      "summary": "Open the Saved tab to inspect bookmarks and confirm both #cats posts from kitty are present.",
+      "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/150b7720bf20425559e0fc7a6b0368842cca08dc5b2b62b165c9de5b2b4fc48d.webp",
+      "screenshot": "screens/f729cf5f01448003d7d3dff534ebc3f09df339d9ae19bea26a4f2c7cf3d7bac0.webp",
       "screenNumber": 20
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The tenth reported kitty post has #PersianCat and #FluffyFriend, not #cats. Scroll once more to establish the end of the 10-post profile list.",
-      "action": "swipe",
+      "summary": "Open the Bookmarks subtab to verify the two matching kitty posts are bookmarked.",
+      "action": "tap(index=13)",
       "reason": "",
-      "screenshot": "screens/5f2e19d34db368a77a7d62f28ed0c578f38734fe387857d36abc74723712b47f.webp",
+      "screenshot": "screens/ba686012be70ca16f398d8760c3bc478246dcc119c3255d2b6fed0c2bfee5c90.webp",
       "screenNumber": 21
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The end of kitty's 10-post timeline is established. Return toward the two matching #cats posts to verify their bookmark state because the earlier bookmark action outcomes were not observed.",
+      "summary": "Scroll through the bookmarks list with overlap to verify the Exotic Shorthair #cats post is also present and establish list coverage.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/ac2fe730c7811c46b446cb0b3be6ef522df5194b61d716887d761e22bcb94bd3.webp",
+      "screenshot": "screens/0cc2521b350badd0ed42c9ed536ef7128597a2db43b41d02828503ba8a80b2aa.webp",
       "screenNumber": 22
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue returning to the top of kitty's profile to verify both matching #cats posts remain bookmarked.",
+      "summary": "Continue downward past the fully visible Abyssinian bookmark to locate the remaining Exotic Shorthair bookmark.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/13220922d310449ec82776b18610a50d12e0b167dfda2f56f3a635b496e6914f.webp",
+      "screenshot": "screens/f05c82526a2850ab9bacdad9eced9107b7a631f6bd8285a028a0f5dc98eba83e.webp",
       "screenNumber": 23
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "Continue returning toward the first two kitty posts, the only #cats matches, to verify their bookmark state.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/430fd0512b4c135155844d6d31d1802df7e58994b696a8f583865d6ff66689e8.webp",
-      "screenNumber": 24
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Continue toward the top to verify bookmark state on the two matching #cats posts.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/2e00c0c3a83ac4b0d5076e28cde3f972d0868a14c520eebd59e992cb461a3a1a.webp",
-      "screenNumber": 25
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Continue toward kitty's newest posts to verify the two #cats matches remain bookmarked.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/f7449822ed8c1f87248c7a291c20179f1329da0df2f539dc4332622a4b70dec6.webp",
-      "screenNumber": 26
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Reveal the Abyssinian post header and its More options control so its bookmark state can be verified.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/9b03c4e6200566b21f8d8d7669d3daa836b3737340f84e570bdbda5bebff974c.webp",
-      "screenNumber": 27
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the Exotic Shorthair #cats post menu to verify it is bookmarked.",
-      "action": "tap(index=16)",
-      "reason": "",
-      "screenshot": "screens/98e8491459c32c80c8d66a72f3f877d5d905d57b0f5ab3b6c3da5fbb7af34f00.webp",
-      "screenNumber": 28
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Close the verified Exotic Shorthair menu; it shows Remove bookmark, confirming that matching post remains bookmarked.",
-      "action": "back",
-      "reason": "",
-      "screenshot": "screens/2a076f1e4b7ba19dd7f6469788e27588cc696414a4382bbd8bcd7c2a17391c32.webp",
-      "screenNumber": 29
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the Abyssinian #cats post menu to verify it is bookmarked.",
-      "action": "tap(index=22)",
-      "reason": "",
-      "screenshot": "screens/103ef84658f8102ae037d7e66336bb8bb8b31816e13c8e1ec69e2043986bf96d.webp",
-      "screenNumber": 30
-    },
-    {
-      "role": "Executor",
       "kind": "Decision",
-      "summary": "Completed full coverage of kitty's 10-post profile timeline. Exactly two distinct posts contain the exact #cats tag (Exotic Shorthair and Abyssinian); both were bookmarked during this task, and each post's current menu now shows “Remove bookmark,” confirming the bookmarked state. The other eight posts lacked #cats and were not altered.",
+      "summary": "Verified the complete kitty timeline had exactly two posts carrying #cats, and both are now present in the active account's Bookmarks list: Abyssinian and Exotic Shorthair. The eight nonmatching kitty posts were left unchanged, and unrelated saved content was preserved.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/04600b31eed925bb3d52b782dcb3b22760ea3cebdb6ceac6919fa54a3d39d29b.webp",
-      "screenNumber": 31
+      "screenshot": "screens/9403ea8f8c9721348227d5b05da25d109e684855d9f7db12327362737ec059c7.webp",
+      "screenNumber": 24
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Completed: all 10 posts on kitty's profile were covered. The two posts containing the exact #cats tag (Exotic Shorthair and Abyssinian) are bookmarked, confirmed by “Remove bookmark”; the other eight posts were not altered.",
+      "summary": "All posts by kitty with the #cats tag are bookmarked. The complete 10-post timeline was checked; the two matches, Abyssinian and Exotic Shorthair, are present in Bookmarks, while the eight nonmatching posts and unrelated saved content were left unchanged.",
       "action": "complete",
-      "reason": "Completed: all 10 posts on kitty's profile were covered. The two posts containing the exact #cats tag (Exotic Shorthair and Abyssinian) are bookmarked, confirmed by “Remove bookmark”; the other eight posts were not altered.",
-      "screenshot": "screens/04600b31eed925bb3d52b782dcb3b22760ea3cebdb6ceac6919fa54a3d39d29b.webp",
-      "screenNumber": 31
+      "reason": "All posts by kitty with the #cats tag are bookmarked. The complete 10-post timeline was checked; the two matches, Abyssinian and Exotic Shorthair, are present in Bookmarks, while the eight nonmatching posts and unrelated saved content were left unchanged.",
+      "screenshot": "screens/9403ea8f8c9721348227d5b05da25d109e684855d9f7db12327362737ec059c7.webp",
+      "screenNumber": 24
     }
   ]
 }

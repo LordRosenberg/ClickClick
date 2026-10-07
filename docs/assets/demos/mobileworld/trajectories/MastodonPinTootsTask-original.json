@@ -10,16 +10,16 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, inspect the signed-in account’s profile history to identify the chronologically first post authored after account creation (excluding boosts or other users’ posts), then pin that exact post to the top while preserving all other posts.",
+      "summary": "In Mastodon, navigate to the signed-in account's profile, identify the earliest post authored by that account by traversing its posts in chronological order, then pin that exact post to the profile top while preserving all other posts.",
       "action": "execute",
-      "reason": "Locate the account’s earliest authored post and pin that exact post to the profile top.",
+      "reason": "The task requires finding the account's earliest authored post before pinning it, while excluding boosts or other non-authored timeline entries.",
       "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Launch Mastodon to inspect the signed-in profile and locate the earliest authored post.",
+      "summary": "Launch Mastodon directly to begin navigating to the signed-in profile.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
       "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
@@ -28,64 +28,64 @@
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the active account's profile to inspect its authored post history.",
+      "summary": "Open the signed-in account's profile.",
       "action": "tap(index=22)",
       "reason": "",
-      "screenshot": "screens/fa52ebdd99167a5d63c381a32c5099781d8eda9e4af3e3f53e4519a797fecba0.webp",
+      "screenshot": "screens/82dcf75a7f7e8e39573b20c5aa1413bbf25f4a26003a3822b5c87025b4480b10.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down the profile timeline with overlap to inspect older authored posts.",
+      "summary": "Scroll down the profile posts to locate the earliest of the account's three authored posts.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/930282c3d81791915d981c31bb3f5b1e220cfb2721014858ea7da8ffeb8428f8.webp",
+      "screenshot": "screens/9dc45244d96c546085836290c6065202aff868b7f918bae7b01b6138cf68106b.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue downward to reveal the third and chronologically oldest authored post.",
+      "summary": "Continue downward past the second post to reach the third and earliest authored post.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/b925d760e15cc466036b694698886edacafb9901eecb2fab0ef26f4d3dff00d0.webp",
+      "screenshot": "screens/313502514b42bd600d6125a3861e14570d2b7ca4b9ab68b525333d3511d9cebc.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The profile has exactly 3 authored posts and the bottom/oldest is “Hello from Test 🚀” from 8 days ago; open that post's options to pin it.",
+      "summary": "Open the options menu for the earliest post, “Hello from Test 🚀” (8d ago), which is the third and oldest of the profile's three posts.",
       "action": "tap(index=19)",
       "reason": "",
-      "screenshot": "screens/de615f601c28fe031bb0fd2c4486aab701fc1f9f67aa6f02b806b173a786787e.webp",
+      "screenshot": "screens/48284d6a6a5d60dcd5b17ec2e1176eacb0b288ea933339a27cd6a8c153028ee7.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Pin the identified oldest authored post, “Hello from Test 🚀,” to the profile.",
+      "summary": "Pin the identified earliest authored post, “Hello from Test 🚀,” to the profile.",
       "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/84322eacd75f5367e179169808f8c68b47533c41ddfde00228f39dd079403f4d.webp",
+      "screenshot": "screens/582c11c5674275b44a059b66240c052b06a10c3a67ec9c2ca0e4ca4b89d54b97.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Pinned the chronologically first authored post, “Hello from Test 🚀” (8d ago), to the TEST profile. Mastodon confirmed: “Post has been pinned.” All 3 posts remain preserved.",
+      "summary": "Pinned the account's earliest authored post, “Hello from Test 🚀” (8d ago), to the profile. Mastodon confirmed the action with “Post has been pinned.”",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/2e57245aa74ecc37301d10a622f72d05fa6475746d3c13c020a0fd4845a8598c.webp",
+      "screenshot": "screens/b2795440950d9bb390c0569df420fc2cd70036229a9e7297600ca18a7909e170.webp",
       "screenNumber": 6
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Pinned the chronologically first authored post, “Hello from Test 🚀” (8d ago), to the TEST profile. Mastodon confirmed “Post has been pinned,” and all 3 posts remain preserved.",
+      "summary": "Pinned the account’s earliest authored post, “Hello from Test 🚀” (8d ago), to the top of the Mastodon profile. Mastodon confirmed: “Post has been pinned.”",
       "action": "complete",
-      "reason": "Pinned the chronologically first authored post, “Hello from Test 🚀” (8d ago), to the TEST profile. Mastodon confirmed “Post has been pinned,” and all 3 posts remain preserved.",
-      "screenshot": "screens/2e57245aa74ecc37301d10a622f72d05fa6475746d3c13c020a0fd4845a8598c.webp",
+      "reason": "Pinned the account’s earliest authored post, “Hello from Test 🚀” (8d ago), to the top of the Mastodon profile. Mastodon confirmed: “Post has been pinned.”",
+      "screenshot": "screens/b2795440950d9bb390c0569df420fc2cd70036229a9e7297600ca18a7909e170.webp",
       "screenNumber": 6
     }
   ]

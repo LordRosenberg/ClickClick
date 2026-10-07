@@ -10,37 +10,37 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Settings, set both font size and display/icon size to their minimum endpoints, preserving all unrelated settings.",
+      "summary": "Set both Font size and Display size (icon/interface scaling) to their minimum available settings, preserving all unrelated settings.",
       "action": "execute",
-      "reason": "Both requested display scaling settings remain to be changed.",
-      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "reason": "Both requested accessibility/display scaling controls can be adjusted in Settings as one cohesive stage.",
+      "screenshot": "screens/f2b312e61eb9137a01757b99417f1887076ce0e944517e9954137759ce6a56b4.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Settings directly to change the font and display/icon size settings.",
+      "summary": "Open Settings to adjust font and display scaling.",
       "action": "launch(app=com.android.settings)",
       "reason": "",
-      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "screenshot": "screens/f2b312e61eb9137a01757b99417f1887076ce0e944517e9954137759ce6a56b4.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Focus Settings search to locate the font and display size controls directly.",
+      "summary": "Open Settings search to locate the font and display size controls directly.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/59af08997e1aa5b02c3f55188845330e384f6f6b5d094cac986bf60440e13624.webp",
+      "screenshot": "screens/295dcce4afb634a0f295c1d0cd0d6aab68934bd91b9ec1756d534fcaccc909c2.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Search Settings for the font size control.",
-      "action": "replace_text(index=3)",
+      "summary": "Search Settings for the Font size control.",
+      "action": "type",
       "reason": "",
-      "screenshot": "screens/ba411e12df2c22db2a6af9d427df506a310e62b07660fb10fdff18d24e2fee38.webp",
+      "screenshot": "screens/499ac0a2e8d47dfc83a65cc5b3244f601918b9feaf894bef4effd67cea1aad6c.webp",
       "screenNumber": 2
     },
     {
@@ -49,52 +49,52 @@
       "summary": "Open the Font size result within Display size and text.",
       "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/a476a0fe44672b23628933d29f152a4027417650b2ebff2527049de24c2a39e3.webp",
+      "screenshot": "screens/b60d64ae75b59ef1772442573b2ca8e9cf6d269003ecfb657ca42b3a7f5dd52a.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Decrease font size one step from its current second position to the minimum endpoint.",
-      "action": "tap(index=1)",
+      "summary": "Drag the Font size slider to its minimum position.",
+      "action": "drag",
       "reason": "",
-      "screenshot": "screens/2c7adc992530aae433ceb2102cbbe08fb598a062b14123e00595df784b8fa532.webp",
+      "screenshot": "screens/d630f548e8911c72e8451be8487fe0aba5e05d371a4db70c22c952bf1852222b.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Decrease display/icon size one step from its current second position to the minimum endpoint.",
-      "action": "tap_xy",
+      "summary": "Drag the Display size slider to its minimum position; Font size is already at the leftmost stop.",
+      "action": "drag",
       "reason": "",
-      "screenshot": "screens/e39c39c9dc7e9c2b72c6b38aaf015a7a060ef20e4ed071c8730f5fe0b536dd7d.webp",
+      "screenshot": "screens/d759f0f915c4425770cc66dd5dea1e7119979be324029bbaa022bf0d2b801bed.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The display size slider remains at its second position; tap its indexed Make smaller control to move it to the minimum.",
+      "summary": "Tap Display size 'Make smaller' once to move it from the second stop to the minimum.",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/04b20a71007fec5af51a445dd8ca2b6aa56cf3e6f3823a41f2298f2ee05e1af5.webp",
+      "screenshot": "screens/af9be4eb4cc1d4701a1d072b2c1a5c90b75d7c4421cb7c3361407a185cebf167.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Both settings are now at their minimum endpoints: the Font size and Display size slider thumbs are each visibly positioned at the far-left end. Unrelated Bold text and High contrast text settings remain unchanged.",
+      "summary": "Font size and Display size are both visibly set to their leftmost (minimum) slider positions. Unrelated Bold text and High contrast text settings remain unchanged.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/718364bf99440c2e79b810a631de1e2ee9c4a44c036992949ba7afb9a7c8ed14.webp",
+      "screenshot": "screens/a1cd1759ff5da8bf559e09d2483a98752dd835f0f9b2673b02283ac514884d9d.webp",
       "screenNumber": 7
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Font size and display/icon size are both set to their minimum endpoints.",
+      "summary": "Font size and Display size (including icons/interface scaling) are both set to their minimum positions. Unrelated Bold text and High contrast text settings remain unchanged.",
       "action": "complete",
-      "reason": "Font size and display/icon size are both set to their minimum endpoints.",
-      "screenshot": "screens/718364bf99440c2e79b810a631de1e2ee9c4a44c036992949ba7afb9a7c8ed14.webp",
+      "reason": "Font size and Display size (including icons/interface scaling) are both set to their minimum positions. Unrelated Bold text and High contrast text settings remain unchanged.",
+      "screenshot": "screens/a1cd1759ff5da8bf559e09d2483a98752dd835f0f9b2673b02283ac514884d9d.webp",
       "screenNumber": 7
     }
   ]

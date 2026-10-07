@@ -1,6 +1,8 @@
 # 复现 MobileWorld 纯 GUI 评测
 
-[English](mobileworld-reproduction.md) · [成绩与澄清](mobileworld-results-20261002.md) · [系统架构](architecture.zh-CN.md)
+> 此入口运行其固定的 117+9 配置，并非 10 月 7 日最新成绩配置。最新 117 道原题及 7 道补充结果见[最新报告](mobileworld-results-20261007.md)。
+
+[English](mobileworld-reproduction.md) · [成绩与澄清](mobileworld-results-20261007.md) · [系统架构](architecture.zh-CN.md)
 
 公开入口包含完整的 **117 道原题运行与 9 道已披露变体**，使用独立冻结的运行时、提示词和技能。官方环境负责初始化和最终评分，ClickClick 负责模型调用、观察、记忆和 GUI 操作。澄清成绩将九道变体结果全部替换到原题集合中，失败也替换，不按较好结果择优。
 
@@ -28,8 +30,8 @@ python -m evaluation.mobileworld.patch_mattermost_readiness --container mobile_w
 docker restart mobile_world_env_0
 docker cp evaluation/mobileworld/adb_proxy.py mobile_world_env_0:/tmp/clickclick_mobileworld_adb_proxy.py
 docker exec -d mobile_world_env_0 python3 /tmp/clickclick_mobileworld_adb_proxy.py
-adb connect 127.0.0.1:5556
-adb -s 127.0.0.1:5556 shell getprop ro.serialno
+adb connect <adb-address>
+adb -s <adb-address> shell getprop ro.serialno
 ```
 
 记下最后返回的设备序列号，然后回到仓库根目录。代理桥接容器公开端口与模拟器 ADB 监听端口，重连与重启后仍检查专用目标身份。

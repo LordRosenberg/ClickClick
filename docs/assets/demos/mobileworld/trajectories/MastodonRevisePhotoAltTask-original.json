@@ -10,80 +10,80 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, find the user's own toot about 'Impression, Sunrise', inspect the picture's ALT content, and only if it does not mention Monet, prepend 'Author is Monet' as the first line while preserving the existing ALT content and the rest of the toot.",
+      "summary": "In Mastodon, find the user's posted toot about “Impression, Sunrise” and inspect the attached picture's ALT content. If the ALT does not mention Monet as the author, edit it so the exact text “Author is Monet” is added to the first line while preserving all existing ALT content and the rest of the toot; otherwise leave it unchanged.",
       "action": "execute",
-      "reason": "The requested Mastodon post and its image ALT text must be inspected before applying the conditional edit.",
-      "screenshot": "screens/e99a7740034ebbb33d25b104949bab406a049df4f73784e688cf9da8db626918.webp",
+      "reason": "Locate the user's toot about “Impression, Sunrise,” inspect the picture's existing ALT text, and conditionally update it only if Monet is not already identified as the author.",
+      "screenshot": "screens/9e326b64980d20a962da40da577e00785c4fdc2685e5ec648f89bf053badbcf6.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon directly to locate the user's toot and inspect its image ALT text.",
+      "summary": "Open Mastodon to locate the user's toot and inspect its image ALT content.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
-      "screenshot": "screens/e99a7740034ebbb33d25b104949bab406a049df4f73784e688cf9da8db626918.webp",
+      "screenshot": "screens/9e326b64980d20a962da40da577e00785c4fdc2685e5ec648f89bf053badbcf6.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the active account's profile to find the user's own toot about 'Impression, Sunrise'.",
+      "summary": "Open the active user's profile to find their toot about “Impression, Sunrise”.",
       "action": "tap(index=22)",
       "reason": "",
-      "screenshot": "screens/bcdb85a7e1f958aad36a2c663d11213a2a098511c42efb23d02687a4c5c0e5bf.webp",
+      "screenshot": "screens/96d01ba70ed21c59bb19c0b7e79b5d81e2d5d3ecce8b5aa3818037edf7622e30.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down the user's short profile timeline to locate the toot about 'Impression, Sunrise'.",
+      "summary": "Scroll the profile timeline to find the toot about “Impression, Sunrise” among the user's three posts.",
       "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/9c8820d3c710b249d64e70f03551a9150689924b439f5d7adeaccefe2257b363.webp",
+      "screenshot": "screens/0ec431cde9c85ec530eefeebfd846690c363301da7808e54a951fdf3e876efc1.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue down the three-post profile timeline to reveal the next toot and identify the one about 'Impression, Sunrise'.",
+      "summary": "Continue down the short profile timeline to inspect the older image post.",
       "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/5e033fd90832e4bf4e05bf9fb72fe894cb16a358a96d5344a029287f19c1b944.webp",
+      "screenshot": "screens/38996a8095440b5567cba26e96ffbbadb0e59c1a2b72bc6f876088f1df57c2e2.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The toot's current ALT text describes 'Impression, Sunrise' but does not mention Monet; open this toot's options to edit it.",
-      "action": "tap(index=20)",
+      "summary": "The image ALT text is visible and does not mention Monet; open this toot's options to edit its media description while preserving the post.",
+      "action": "tap(index=15)",
       "reason": "",
-      "screenshot": "screens/ec5508a8382f31e0a4ec5142a43b3eba15bf18b151327b7eea55603bfddffe70.webp",
+      "screenshot": "screens/703372edf7bed37b18f9032c3168d96933df0d0e8309feb68c354df67d31da72.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the target toot in Mastodon's editor so its image ALT text can be updated while preserving the toot content.",
+      "summary": "Open the toot editor to add the missing author line to the existing ALT text.",
       "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/07bcc6d95dc4cf8ecd3028f2fb6ec844392492fcf6eca90883964349cd4b3c7a.webp",
+      "screenshot": "screens/41cc4ec4ab14cee061487d5560f434ff59f505d5736a21d81f986eff9d69fbb5.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the image's ALT editor; the displayed ALT does not mention Monet and must be prefixed without changing the post text.",
+      "summary": "Open the attachment editor to update only the picture's ALT text.",
       "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/3c6c2f98fa2b33d4240b9747a15d5439f84e87b970975701c4bcdfd388fff748.webp",
+      "screenshot": "screens/73143a6d09bc415571ba63a9e8dd5603b4f20ce75228413d32246f91e6f1e8c6.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Prepend the required first line to the focused ALT field while preserving all existing ALT paragraphs exactly.",
-      "action": "replace_text",
+      "summary": "Prepend the exact requested author line to the existing ALT text, preserving all original content.",
+      "action": "replace_text(index=5)",
       "reason": "",
       "screenshot": "screens/0576c272bcb7ff5626ea5d22c8eefc12329fde532c7326a70d10a559353091e1.webp",
       "screenNumber": 7
@@ -91,37 +91,37 @@
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Return to the post editor after confirming the ALT now starts with 'Author is Monet' and the original ALT remains intact.",
+      "summary": "Return to the post editor so the updated ALT can be retained with the post edit.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/d5505ed6524cc4c5f4196bca296762c792ec54016116baf3d5f711846170527f.webp",
+      "screenshot": "screens/e7dbee187b096ac21b9f052788946a655c752b03b3eb9b3c0cb4095fa2f540d2.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Save the edited toot; the ALT preview now begins with 'Author is Monet' and the toot text remains unchanged.",
+      "summary": "Save the edited post so the updated ALT text is applied while leaving the post content unchanged.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/658836b2ddac5e2a9e3309da93053a7cbd41d9e3d5326b35333558dbfeec8bfb.webp",
+      "screenshot": "screens/032921af1a510caeebb549a6ddf229435490084ee7c69182c17504c4c499d775.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Checked the picture ALT in the user's 'Impression, Sunrise' toot. It did not mention Monet, so I prepended exactly 'Author is Monet' as the first line, preserved the full existing ALT and toot text, saved the edit, and verified the profile now shows the post as edited with the updated ALT.",
+      "summary": "Checked the picture ALT on the user's “Impression, Sunrise” toot. It did not mention Monet, so I prepended the exact first line `Author is Monet`, preserved the full existing ALT and post text, and saved the edit. The profile now shows the post as edited and the image accessibility label contains the complete updated ALT.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/c3c9cec892ddcfe555c8d49258a5d80781913feba29d67f337ab3dbf3c130b47.webp",
+      "screenshot": "screens/e476040d3a3b01f2d5eab397aec86571d7dab1a0afd0d77c0b7d2b753d2276e5.webp",
       "screenNumber": 10
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Checked the picture ALT in the user's Mastodon toot about “Impression, Sunrise.” It did not mention Monet, so “Author is Monet” was added as the first line while preserving the existing ALT text and the rest of the toot; the saved post now shows the updated ALT.",
+      "summary": "The picture ALT on the “Impression, Sunrise” toot did not mention Monet, so the exact first line `Author is Monet` was added. The existing ALT and toot text were preserved, and the edited post was saved successfully.",
       "action": "complete",
-      "reason": "Checked the picture ALT in the user's Mastodon toot about “Impression, Sunrise.” It did not mention Monet, so “Author is Monet” was added as the first line while preserving the existing ALT text and the rest of the toot; the saved post now shows the updated ALT.",
-      "screenshot": "screens/c3c9cec892ddcfe555c8d49258a5d80781913feba29d67f337ab3dbf3c130b47.webp",
+      "reason": "The picture ALT on the “Impression, Sunrise” toot did not mention Monet, so the exact first line `Author is Monet` was added. The existing ALT and toot text were preserved, and the edited post was saved successfully.",
+      "screenshot": "screens/e476040d3a3b01f2d5eab397aec86571d7dab1a0afd0d77c0b7d2b753d2276e5.webp",
       "screenNumber": 10
     }
   ]

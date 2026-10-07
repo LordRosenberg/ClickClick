@@ -20,11 +20,11 @@ ClickClick is an open-source Android agent platform. Give it a goal in natural l
 
 ## 95.73% on MobileWorld GUI-only · #1 in our comparison
 
-**112/117 tasks passed with locally clarified instructions**; the **original-wording result also reaches 106/117 (90.60%)**. Evaluated with `chatgpt/gpt-5.6-sol` (high), Android API 34 and at most 50 MobileWorld rounds per task. Both arms include disclosed official fixture account context for two tasks.
+The latest evaluation scores **106/117 (90.60%) on original tasks** and **112/117 (95.73%) in the comparison incorporating seven clarified supplements**. GPT-5.6-Sol (high), Android API 34, with 50 MobileWorld rounds and 2,400 seconds per task; all 117 original tasks have numeric official evaluator scores. The runtime combines revisable planning, persistent memory, scoped skills and Jev checks.
 
-Our result exceeds all published GUI-only rows checked on October 2, 2026. The clarified comparison uses eight wording changes and one account-context variant; unchanged tasks share their original result.
+The comparison incorporates six wording clarifications and one official-account context supplement; other tasks retain their original result. Both scores exceed the published 50-round GUI-only rows checked on October 7, 2026.
 
-**[Results, leaderboard and six complex demos →](https://lordrosenberg.github.io/ClickClick/mobileworld/)** · [Clarifications and methodology](docs/mobileworld-results-20261002.md).
+**[Per-task scores, screenshots and execution traces →](https://lordrosenberg.github.io/ClickClick/mobileworld/)** · [Clarifications and methodology](docs/mobileworld-results-20261007.md).
 
 ## 99.14% on AndroidWorld · tied #2 by success-rate tier
 
@@ -37,17 +37,13 @@ At the [public leaderboard](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3W
 
 ## See it in action
 
-Six successful complex MobileWorld workflows from this exact evaluation batch. Open a preview for the **complete 3× recording**. The project risk matrix uses clarified wording; the other five use original wording. All shown accounts and records are synthetic benchmark fixtures.
+Five successful cross-app workflows from the latest MobileWorld evaluation: resource conflicts, research to a shopping plan, lecture-to-calendar, file archiving with email records, and photos organized by travel. Open each case for current screenshots, planning decisions and device actions. Shown accounts and records are synthetic benchmark fixtures.
 
-| Project risk matrix | Resource conflicts | Research to shopping plan |
-| --- | --- | --- |
-| [![Project risk matrix](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![Resource conflicts](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![Research to shopping plan](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
-
-| Lectures to calendar | Archive files and email record | Photos by travel location |
-| --- | --- | --- |
-| [![Lectures to calendar](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![Archive files and email record](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![Photos by travel location](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
-
-[MobileWorld demo details and provenance](docs/mobileworld-results-20261002.md#six-complex-successes--六个复杂成功用例)
+- [Resource conflicts](https://lordrosenberg.github.io/ClickClick/mobileworld/#MattermostResourceConflictResolutionTask)
+- [Research to shopping](https://lordrosenberg.github.io/ClickClick/mobileworld/#ThanksgivingPrepTask)
+- [Lecture to calendar](https://lordrosenberg.github.io/ClickClick/mobileworld/#MastodonCreateMemoTask)
+- [File archive and email record](https://lordrosenberg.github.io/ClickClick/mobileworld/#LocalFileManagementTask2)
+- [Photos by travel](https://lordrosenberg.github.io/ClickClick/mobileworld/#PhotoManagementTask)
 
 ### AndroidWorld demos
 
@@ -176,7 +172,7 @@ Put the current goal and data in the task request, and reusable app knowledge in
 
 ## Evaluation and reproduction
 
-For MobileWorld, the public [complete running guide](docs/mobileworld-reproduction.md) includes a frozen runtime, all 117 original goals, nine variants, preparation and resume. Start with `python -m evaluation.mobileworld.reproduce --prepare-only`; after preparing the dedicated environment, supply its serial and the two local APKs to run the paired evaluation.
+For MobileWorld, see the [latest score profile](docs/mobileworld-results-20261007.md). The separately pinned [running guide](docs/mobileworld-reproduction.md) documents preparation and execution for its own fixed configuration.
 
 
 

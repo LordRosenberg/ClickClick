@@ -10,55 +10,55 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Turn off device flight mode, leaving unrelated settings unchanged.",
+      "summary": "Turn off device flight mode and leave it disabled.",
       "action": "execute",
-      "reason": "Flight mode is visibly active and must be disabled.",
-      "screenshot": "screens/1a99dc6252f23fb50a06d7d199dc90fd62399cdc5ca04e3629b1d02407a4c70b.webp",
+      "reason": "Flight mode must be disabled in device settings; the current status bar indicates it is presently enabled.",
+      "screenshot": "screens/46442de59614bbe64b2cd2a599411473b4f7d1354ebc49ccbdcfbbe7b05abeee.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Settings to disable flight mode.",
+      "summary": "Open Settings directly to disable flight mode.",
       "action": "launch(app=com.android.settings)",
       "reason": "",
-      "screenshot": "screens/1a99dc6252f23fb50a06d7d199dc90fd62399cdc5ca04e3629b1d02407a4c70b.webp",
+      "screenshot": "screens/46442de59614bbe64b2cd2a599411473b4f7d1354ebc49ccbdcfbbe7b05abeee.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Network & internet settings to access the flight mode control.",
+      "summary": "Open Network & internet settings, where the flight mode toggle is located.",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/beae94ffee671bc9de3e8c5b736cb25b753b4a72ab8dcadfe842d27a549d1a27.webp",
+      "screenshot": "screens/308a5282ca6eec58db1a2788386a744acc9e657b0c5b68b260b74f6385918f3b.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Turn off the currently enabled Airplane mode toggle.",
+      "summary": "Turn off the currently enabled Airplane mode switch.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/dbf0dbdc5dde1aa12e19008125474298f950a2e41acbbb5e89993158307cff0e.webp",
+      "screenshot": "screens/c9ac2dc9221aac72083c9e87759485865f3e565804e591274013d13afab2f1c8.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Flight mode is off. The Airplane mode toggle is visibly disabled, cellular service shows 3G, and Internet reports networks available; unrelated settings were left unchanged.",
+      "summary": "Airplane mode is now disabled. The switch is visibly off, the status bar no longer shows the airplane icon, and cellular service has returned (3G).",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/b38c1027b3c1303bf93c8daee0e11f2891a25aec9b6c00226122e2243d1bd038.webp",
+      "screenshot": "screens/b9dae9709bdcacd00fc7491ecc85d858515bb4ef4015126be7193d414b23c783.webp",
       "screenNumber": 3
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Device flight mode is off; the Airplane mode toggle is disabled and cellular service is active.",
+      "summary": "Flight mode is turned off. The Airplane mode switch is visibly disabled, the airplane status icon is absent, and cellular service shows 3G.",
       "action": "complete",
-      "reason": "Device flight mode is off; the Airplane mode toggle is disabled and cellular service is active.",
-      "screenshot": "screens/b38c1027b3c1303bf93c8daee0e11f2891a25aec9b6c00226122e2243d1bd038.webp",
+      "reason": "Flight mode is turned off. The Airplane mode switch is visibly disabled, the airplane status icon is absent, and cellular service shows 3G.",
+      "screenshot": "screens/b9dae9709bdcacd00fc7491ecc85d858515bb4ef4015126be7193d414b23c783.webp",
       "screenNumber": 3
     }
   ]

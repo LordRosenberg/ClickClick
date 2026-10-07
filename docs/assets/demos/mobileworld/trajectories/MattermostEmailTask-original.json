@@ -1,110 +1,74 @@
 {
   "task": "MattermostEmailTask",
   "variant": "original",
-  "screenCount": 21,
+  "screenCount": 37,
   "roleCounts": {
     "Planner": 4,
-    "Executor": 21
+    "Executor": 37
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mattermost, locate Sam's message containing the signed contract, obtain/save the attached contract for later emailing, and record the exact tracking code from the message or attachment context.",
+      "summary": "In Mattermost, locate Sam's message containing the signed contract, obtain/download the contract attachment, and record the exact tracking code for use in the email.",
       "action": "execute",
-      "reason": "First obtain the exact signed contract and its tracking code from Sam's Mattermost message so both can be used in the required email.",
-      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "reason": "First obtain the signed contract and its tracking code from Sam's Mattermost message; these are prerequisites for the email.",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mattermost to locate Sam's signed contract and tracking code.",
+      "summary": "Open Mattermost to locate Sam's signed contract message and tracking code.",
       "action": "launch(app=com.mattermost.rnbeta)",
       "reason": "",
-      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the direct conversation with Sam.",
+      "summary": "Open Sam's direct message to find the signed contract attachment and tracking code.",
       "action": "tap(index=16)",
       "reason": "",
-      "screenshot": "screens/cad8e0abef6cc6fb059510081c9e23effddc277329a35827abfc5974c6b869c4.webp",
+      "screenshot": "screens/d73d9e53bd28d7a97db29893726a6e442efaebc3ef3175194d397338a787c39a.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the attached signed contract to obtain or save it for emailing; tracking code is visible as TT-POC-2025-BLPINE-042.",
+      "summary": "Open the exact attachment `contract_signed.pdf` to obtain/download it; tracking code is visible as `TT-POC-2025-BLPINE-042`.",
       "action": "tap(index=8)",
       "reason": "",
-      "screenshot": "screens/d298fdc5648853347f015c58a11606f6cf876486cb17467218fe6cdecc6ee89f.webp",
+      "screenshot": "screens/b1aeccddfae0dd7fcb9efb60e421bca58cf36da3f438680ea7d7fbfd5ae1bd9d.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the document options to save or export the signed contract for the email.",
-      "action": "tap(index=3)",
+      "kind": "Decision",
+      "summary": "Located Sam's DM, opened the attached signed contract `contract_signed.pdf` (48 KB) in OpenDocument Reader, and recorded the exact tracking code `TT-POC-2025-BLPINE-042`. Sam explicitly requested that the code be placed in the email subject.",
+      "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/c59507ff23ada20c8844730b1ab5eff001dcf3627e4ac8fc68a017338c0b0489.webp",
+      "screenshot": "screens/c0f37756d3798d4b14ceeca7f35a7c5b1cb4ff1f0b8cafcb0b4e8b0107d8bd25.webp",
       "screenNumber": 3
     },
     {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Save the signed contract locally so it can be attached to the email.",
-      "action": "tap(index=2)",
-      "reason": "",
-      "screenshot": "screens/a4b83f97327e2f022d43d4224cca8900bfe92b7dda8bb7fe99380417ec4d578e.webp",
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a new email to legal@company.com with `contract_signed.pdf` attached and the exact tracking code `TT-POC-2025-BLPINE-042` included in the subject; use a concise message identifying it as Sam's signed contract, and ensure the email is confirmed sent.",
+      "action": "execute",
+      "reason": "The contract and exact tracking code are available; the next required outcome is sending them to Legal before confirming with Sam.",
+      "screenshot": "screens/94b195bd4715026ce00a7bcc1cd6e561dbc8216447138e241f6521d86a80b482.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Set the saved attachment filename to contract_signed.pdf.",
-      "action": "replace_text(index=11)",
-      "reason": "",
-      "screenshot": "screens/1333abf970b7ccb37fb32b5e1f2851771742ace2d6ebd3ba707475a8d399ed8b.webp",
-      "screenNumber": 5
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Save contract_signed.pdf in Documents to complete acquisition of Sam's attachment.",
-      "action": "tap(index=14)",
-      "reason": "",
-      "screenshot": "screens/9db415fee056ef8f117d1c36fb1fd004a9d688fd3f4e343f050c5ad42e2c3a3a.webp",
-      "screenNumber": 6
-    },
-    {
-      "role": "Executor",
-      "kind": "Decision",
-      "summary": "Sam's attached signed contract was saved as contract_signed.pdf in Documents; OpenDocument Reader confirms \"Document saved.\" Exact tracking code obtained from Sam's Mattermost conversation: TT-POC-2025-BLPINE-042.",
-      "action": "request_replan",
-      "reason": "",
-      "screenshot": "screens/8db2d8c7c91c096e28a949dee89d66a6a8519e6bc8c8369bd8930a118cee7753.webp",
-      "screenNumber": 7
-    },
-    {
-      "role": "Planner",
-      "kind": "Decision",
-      "summary": "Send an email to legal@company.com with the saved Documents/contract_signed.pdf attached and include the exact tracking code TT-POC-2025-BLPINE-042 in the email (preferably the subject); ensure the send is confirmed before advancing.",
-      "action": "execute",
-      "reason": "The contract and exact tracking code are available; the next required outcome is the email to Legal.",
-      "screenshot": "screens/382b72a071d400970fa8a79f662e1702814e0a69dbe392b79ee258da254b9143.webp",
-      "screenNumber": 8
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the email app to compose and send the saved signed contract to Legal.",
+      "summary": "Open Mail to compose the Legal email with the signed contract and tracking code.",
       "action": "launch(app=com.gmailclone)",
       "reason": "",
-      "screenshot": "screens/382b72a071d400970fa8a79f662e1702814e0a69dbe392b79ee258da254b9143.webp",
-      "screenNumber": 8
+      "screenshot": "screens/94b195bd4715026ce00a7bcc1cd6e561dbc8216447138e241f6521d86a80b482.webp",
+      "screenNumber": 4
     },
     {
       "role": "Executor",
@@ -112,125 +76,305 @@
       "summary": "Start a new email to Legal.",
       "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/08fd35313ffd3a4a13db582f79e3bac7401ac8beef35008659e15880f35fb3a6.webp",
+      "screenshot": "screens/ec624c148fd3a9da0ef03829a1a5d638d8ee45569909590762af2aad24572c46.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the email to legal@company.com.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/44879cc43bb8a15c6057f35a1ef73693b2283caabb827dee7361a145a9967313.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set a concise subject containing the exact tracking code.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/43e35fce38ad0dcb75c70b8e8eefdd57fa15b14d2fe59d3c3f8932fc976e82ca.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add a concise email message identifying the attachment as Sam's signed contract.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/1d7838ec012fcbc9f04b77e60a248fded3c39ae718fc35d502dabadc5fa26ab8.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker to add contract_signed.pdf.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/6c98f0ac52c8caa17bc5a2feb01709a3a12d111c3044f2cdde6c2dbf760c8414.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter Legal's exact email address in the recipient field.",
-      "action": "replace_text(index=4)",
+      "summary": "Choose Files to locate contract_signed.pdf.",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/624f9aa62057810d186ef1082dfb7327d37e941f5d614c226537ba3376f54819.webp",
+      "screenshot": "screens/f7e6261b572a32230b9b3bf4f1da76cd30540dc44c05db8a064a31b2c324445d.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Add the exact tracking code to the email subject.",
-      "action": "replace_text(index=8)",
+      "summary": "Search Files for the exact attachment name contract_signed.pdf.",
+      "action": "tap(index=8)",
       "reason": "",
-      "screenshot": "screens/591fd1940138d49dfef6e0cd3a206de3ed50ba7f65e3a40bf080a010317f980f.webp",
+      "screenshot": "screens/5d36cfcaa257fefe18dc22e51ce907635e8c7fbb66ccdb4371da6fd493a06c30.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the attachment picker to add the saved signed contract.",
-      "action": "tap(index=3)",
+      "summary": "Enter the exact attachment filename in Files search.",
+      "action": "type",
       "reason": "",
-      "screenshot": "screens/cf95b9cae60aaf2d517a71b121acb8fbf790cb05a7eca1586abff3cc741f83a3.webp",
+      "screenshot": "screens/aa3cee1fc6149e2d2eb49e13081eb76937b80ce23bc9f467f6005b6ccaba1275.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Choose Files to select Documents/contract_signed.pdf.",
-      "action": "tap(index=2)",
+      "summary": "Exit the empty Recent search so the file can be located in another storage root such as Downloads.",
+      "action": "tap(index=9)",
       "reason": "",
-      "screenshot": "screens/69841bd429dce2d6ea25d4f2c1b4dcf981a07bc9b1c0100d16c08e8152587fcc.webp",
+      "screenshot": "screens/5ede65c6deb58b9d185320c8fd21beb0e96b7e19fad144e80a41e5f20bbe0372.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the exact contract_signed.pdf file from Recent files.",
-      "action": "tap(index=24)",
+      "summary": "Open storage roots to locate the downloaded Mattermost attachment outside Recent.",
+      "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/1610284279f60611f78e6c8f489fdef71360c587362fc00199b05a0237ef72f1.webp",
+      "screenshot": "screens/3fae2d03b995a78dc2a42e6fef491b9c9acef734207384296eedbc97a4438fdf.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Send the email to Legal with the signed contract attached and exact tracking code in the subject.",
-      "action": "tap(index=4)",
+      "summary": "Open Downloads, the likely storage location for the saved Mattermost contract.",
+      "action": "tap(index=31)",
       "reason": "",
-      "screenshot": "screens/ce097be570b58988af2f07bef18f8a21948731355a9c120a8753e26c8431c208.webp",
+      "screenshot": "screens/272b881a6b9e9145be0079db8341f2fb71fa85f34e70813953faeeb6e5fca709.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
-      "kind": "Decision",
-      "summary": "Email send is confirmed by the visible “Email Sent” message. It was addressed to legal@company.com with contract_signed.pdf attached and exact tracking code TT-POC-2025-BLPINE-042 in the subject.",
-      "action": "request_replan",
+      "kind": "Action",
+      "summary": "Search within Downloads for the exact contract filename.",
+      "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/26fae590f1c7faa7204e7c37c63ed12b789ced4006f5ffd02737016b63647ec6.webp",
+      "screenshot": "screens/14f94586438cb2a3ae336ecd210eb3cfe7b8fd5abe1376da5651ffdc54386b95.webp",
       "screenNumber": 16
     },
     {
-      "role": "Planner",
-      "kind": "Decision",
-      "summary": "Send Sam a brief Mattermost confirmation that the signed contract has been emailed to Legal, then ensure the message is confirmed sent.",
-      "action": "execute",
-      "reason": "The email to Legal is confirmed sent; the remaining requirement is to notify Sam.",
-      "screenshot": "screens/24f600e21719bee5865413af0db09e4289ecf31b67c26846c0e05b4951dc400b.webp",
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact contract filename in the Downloads search.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/587cf496023a37fa00d5868d95ff36d63194c4c5fc8d78a6f05c5d98b79ae9c2.webp",
       "screenNumber": 17
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mattermost to send Sam the requested confirmation.",
-      "action": "launch(app=com.mattermost.rnbeta)",
+      "summary": "Exit the empty Downloads search so the contract can be explicitly downloaded from Sam's Mattermost message.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/24f600e21719bee5865413af0db09e4289ecf31b67c26846c0e05b4951dc400b.webp",
-      "screenNumber": 17
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Enter a brief confirmation to Sam that the signed contract was emailed to Legal with the tracking code included.",
-      "action": "replace_text(index=16)",
-      "reason": "",
-      "screenshot": "screens/b54e178bde8d43f5b3d3931ff7555fbf0678b22c1c82c2a51177ba915c0a2632.webp",
+      "screenshot": "screens/85d702b9baa84b42c0e09dfb5c70890f11c14d1225884128e341be307e450c56.webp",
       "screenNumber": 18
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Send the drafted confirmation to Sam.",
-      "action": "tap(index=24)",
+      "summary": "Leave the empty search results and return to the attachment picker.",
+      "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/a974bf0867eda776b6b315cbd97c723a0b2fc84ac1ad6b25b7ae9a236735ebde.webp",
+      "screenshot": "screens/f0a9662c621aadaabebc0a695b283db92b4b7b49a8ec42d3123dc3c001eafcda.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to download Sam's signed contract, since it is absent from Recent and Downloads.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/e32e5669c3d367a3913a4872c6284a56e4fa3fb950454c49e093d10227599780.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Sam's `contract_signed.pdf` attachment to access its download control.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/f7fdd21ffac9780d6316f17c9e9f8a9677df2a02ceacb4844076404250413fed.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the PDF reader's options to find a save, download, or share action for the contract.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/b02bd2af246b8b10c0ac424e64a3141a5a4e9fb597c5a35b64332ac13f8c2a97.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save `contract_signed.pdf` locally so it can be attached to the Legal email.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/46a9edb12dcb380d4a3149bb510a67d6b16ad9decedb64d534b361d521102ff3.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the local save filename to exactly `contract_signed.pdf`.",
+      "action": "replace_text(index=11)",
+      "reason": "",
+      "screenshot": "screens/27f391dfd705544b2dc23e0b71b3d66e2f720e65109a6a19b36b2d380c31dfe4.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the PDF in Documents with the confirmed filename `contract_signed.pdf`.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/54089566c3303fdd20feee91fbdfce5db19cd940a7cb209f307719f2bbc88406.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Gmail to complete the prepared Legal email with the newly saved attachment.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/e887dbd603ac11bbaf9f79ea97b718af20f64b71e07c9c9e19620efd065a5070.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the attachment picker for the prepared Legal email.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/e875af8019d1c21b03dce4443f0e88891466ace01cd9ad1a9fef30b1d2816ec1.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Files to attach the saved `contract_signed.pdf`.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/4c54e7688e962c310ee1aee2ebb61c191e78951295c831f6027d7a9e1bc208dc.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select `contract_signed.pdf` from Recent files to attach it to the Legal email.",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/9e5a6c518db6500b33baa1df750efeaaeac1d91160973e8f991243035e6c975b.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the prepared email to Legal with the exact tracking code and `contract_signed.pdf` attached.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/b6d3cd9c9cdfbbb2600ef843f927ce092ae34cec0d93dc3e8ff0fa0cac8262c3.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Mattermost confirmation is visibly posted in Sam’s direct conversation from harry: “Done — I emailed the signed contract to Legal with the tracking code in the subject.” The draft field is cleared, confirming it was sent.",
+      "summary": "Email confirmed sent to legal@company.com with `contract_signed.pdf` attached and exact tracking code `TT-POC-2025-BLPINE-042` in the subject. Sam's Mattermost confirmation remains for the next stage.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/f50a9d855943bdb743fd3be9cfd1e4aa58bf589e03f981438d6847b3edfc97ba.webp",
-      "screenNumber": 20
+      "screenshot": "screens/70c32b1e9e8ec482cb67c69a2935ae551592ba331c32078d8976af9fb250fe4c.webp",
+      "screenNumber": 31
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Sent Sam’s signed contract to legal@company.com with tracking code TT-POC-2025-BLPINE-042 in the subject, then sent Sam a Mattermost confirmation.",
+      "summary": "In Mattermost, send Sam a new brief confirmation that his signed contract has been emailed to Legal, and ensure the message is confirmed sent.",
+      "action": "execute",
+      "reason": "The Legal email is visibly confirmed sent; the remaining requirement is to notify Sam.",
+      "screenshot": "screens/07114d414de570538d8a55837152112e7d3f0fe2db1462224bab79510d570761.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mattermost to send Sam the required confirmation.",
+      "action": "launch(app=com.mattermost.rnbeta)",
+      "reason": "",
+      "screenshot": "screens/07114d414de570538d8a55837152112e7d3f0fe2db1462224bab79510d570761.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Sam's message field to enter the confirmation.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/e6dad1c8f3694b9beb13f034e6e2ac161b3ed0b5752e91f4f769effb65154229.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a brief confirmation to Sam that his signed contract was emailed to Legal.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/c966e404be907319c4b0e028bb65e5a4d3bba873d662c7f892f2cd6fa707da6f.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the prepared confirmation message to Sam.",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/16bc9d6c211130381e89fad58a4c6f36a95037c466117aacec8c4bf54f786c1e.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the request: the signed contract was emailed to legal@company.com with tracking code TT-POC-2025-BLPINE-042 and the attachment, and Mattermost now visibly shows the new confirmation sent to Sam: “Hi Sam, your signed contract has been emailed to Legal. Thanks!”",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f60dd76038359a728bc84f1c04bae21eb7ecf8ea3d7221d8b59ee25dfe43eb5a.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Completed: Sam's signed contract was emailed to legal@company.com with `contract_signed.pdf` attached and tracking code `TT-POC-2025-BLPINE-042` included in the subject. Sam was then sent the Mattermost confirmation: “Hi Sam, your signed contract has been emailed to Legal. Thanks!”",
       "action": "complete",
-      "reason": "Sent Sam’s signed contract to legal@company.com with tracking code TT-POC-2025-BLPINE-042 in the subject, then sent Sam a Mattermost confirmation.",
-      "screenshot": "screens/f50a9d855943bdb743fd3be9cfd1e4aa58bf589e03f981438d6847b3edfc97ba.webp",
-      "screenNumber": 20
+      "reason": "Completed: Sam's signed contract was emailed to legal@company.com with `contract_signed.pdf` attached and tracking code `TT-POC-2025-BLPINE-042` included in the subject. Sam was then sent the Mattermost confirmation: “Hi Sam, your signed contract has been emailed to Legal. Thanks!”",
+      "screenshot": "screens/f60dd76038359a728bc84f1c04bae21eb7ecf8ea3d7221d8b59ee25dfe43eb5a.webp",
+      "screenNumber": 36
     }
   ]
 }
