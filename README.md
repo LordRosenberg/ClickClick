@@ -37,13 +37,15 @@ At the [public leaderboard](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3W
 
 ## See it in action
 
-Five successful cross-app workflows from the latest MobileWorld evaluation: resource conflicts, research to a shopping plan, lecture-to-calendar, file archiving with email records, and photos organized by travel. Open each case for current screenshots, planning decisions and device actions. Shown accounts and records are synthetic benchmark fixtures.
+Six successful cross-app workflows from the latest MobileWorld evaluation: resource conflicts, research to a shopping plan, lecture-to-calendar, file archiving with email records, photos organized by travel, and reading a paper to count contributors. Open each case for current screenshots, planning decisions and device actions. Shown accounts and records are synthetic benchmark fixtures.
 
 - [Resource conflicts](https://lordrosenberg.github.io/ClickClick/mobileworld/#MattermostResourceConflictResolutionTask)
 - [Research to shopping](https://lordrosenberg.github.io/ClickClick/mobileworld/#ThanksgivingPrepTask)
 - [Lecture to calendar](https://lordrosenberg.github.io/ClickClick/mobileworld/#MastodonCreateMemoTask)
 - [File archive and email record](https://lordrosenberg.github.io/ClickClick/mobileworld/#LocalFileManagementTask2)
 - [Photos by travel](https://lordrosenberg.github.io/ClickClick/mobileworld/#PhotoManagementTask)
+
+- [Read a paper and count contributors](https://lordrosenberg.github.io/ClickClick/mobileworld/#ReadQwen3PaperTask2)
 
 ### AndroidWorld demos
 

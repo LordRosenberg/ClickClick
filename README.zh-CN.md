@@ -37,13 +37,15 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## 效果演示
 
-最新 MobileWorld 测试中的五个成功跨应用工作流：资源预订冲突、网页资料转采购计划、讲座转日历、文件归档与邮件留档、按旅行地点整理照片。点击查看本次任务的截图、规划决策和设备操作；展示账号与数据均为合成测试数据。
+最新 MobileWorld 测试中的六个成功跨应用工作流：资源预订冲突、网页资料转采购计划、讲座转日历、文件归档与邮件留档、按旅行地点整理照片、读取论文并统计贡献者。点击查看本次任务的截图、规划决策和设备操作；展示账号与数据均为合成测试数据。
 
 - [资源预订冲突](https://lordrosenberg.github.io/ClickClick/mobileworld/#MattermostResourceConflictResolutionTask)
 - [网页资料转采购计划](https://lordrosenberg.github.io/ClickClick/mobileworld/#ThanksgivingPrepTask)
 - [讲座转日历](https://lordrosenberg.github.io/ClickClick/mobileworld/#MastodonCreateMemoTask)
 - [文件归档与邮件留档](https://lordrosenberg.github.io/ClickClick/mobileworld/#LocalFileManagementTask2)
 - [按旅行地点整理照片](https://lordrosenberg.github.io/ClickClick/mobileworld/#PhotoManagementTask)
+
+- [读取论文并统计贡献者](https://lordrosenberg.github.io/ClickClick/mobileworld/#ReadQwen3PaperTask2)
 
 ### AndroidWorld 演示
 
