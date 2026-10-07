@@ -1,91 +1,91 @@
 {
   "task": "TextArrivalTimeTask",
   "variant": "original",
-  "screenCount": 22,
+  "screenCount": 25,
   "roleCounts": {
     "Planner": 3,
-    "Executor": 24
+    "Executor": 27
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Find the approximate driving duration from Orlando to Miami, using a 5:00 PM departure on October 1, 2026 for the user's phrase \"if I leave at 5 pm,\" and retain the duration for ETA calculation.",
+      "summary": "In Maps, find the Orlando-to-Miami driving-time estimate for a 5:00 PM departure today (2026-10-07), retaining a displayed single duration or full typical range for the arrival-time calculation.",
       "action": "execute",
-      "reason": "First obtain the Orlando-to-Miami driving duration needed to calculate the message.",
-      "screenshot": "screens/a1c13dda0a5fdf2e4402d1847f3d4745158fd262f4a655079ec760599feb9114.webp",
+      "reason": "The driving estimate must be obtained for the requested 5:00 PM departure before calculating and texting the arrival time.",
+      "screenshot": "screens/0c0224b666078cc28c5de74e8b9d97ec4d4f177a6777d37ed1b68cf1c996e0f0.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Google Maps to look up the Orlando-to-Miami driving duration for a 5:00 PM departure.",
+      "summary": "Open Google Maps to look up the Orlando-to-Miami drive estimate for a 5:00 PM departure today.",
       "action": "launch(app=com.google.android.apps.maps)",
       "reason": "",
-      "screenshot": "screens/a1c13dda0a5fdf2e4402d1847f3d4745158fd262f4a655079ec760599feb9114.webp",
+      "screenshot": "screens/0c0224b666078cc28c5de74e8b9d97ec4d4f177a6777d37ed1b68cf1c996e0f0.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Skip sign-in to access Maps and continue the route lookup.",
+      "summary": "Skip optional sign-in to access Maps.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/5deed4ba8c633382d8ecf0d7473edfeb2e8baf86a15f37868a7f4af6ec5e3c22.webp",
+      "screenshot": "screens/df5ee63683bf52c4e91d1181b48b0ca1bf08d0ec001fcbdd6fc109d49d7b4a42.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Directions so the Orlando origin, Miami destination, and departure time can be specified.",
-      "action": "tap(index=10)",
+      "summary": "Open Directions to enter Orlando as the origin and Miami as the destination.",
+      "action": "tap(index=8)",
       "reason": "",
-      "screenshot": "screens/727b04dd0d46ca8fd3b571b0387651dde9e282f26f6fb235b437304e2977eaeb.webp",
+      "screenshot": "screens/2abee70523fa8cb91755bc3a5e215d0fb7e3280e9ade95eb86a1bf407a1122c5.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter Orlando, Florida as the route start location.",
+      "summary": "Set Orlando, Florida as the driving start location.",
       "action": "replace_text(index=3)",
       "reason": "",
-      "screenshot": "screens/1e6d7bf1670c90da3ef73d9a9ffc902abfce7d0a7a1f424f47ff326b200bb81a.webp",
+      "screenshot": "screens/596a09801bf812580a6258f94a3ba1bb8ddf2d41939fc5d33d41c97575ee287c.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Focus the start-location field before entering Orlando.",
+      "summary": "Focus the start-location field before replacing its text.",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/1e6d7bf1670c90da3ef73d9a9ffc902abfce7d0a7a1f424f47ff326b200bb81a.webp",
+      "screenshot": "screens/596a09801bf812580a6258f94a3ba1bb8ddf2d41939fc5d33d41c97575ee287c.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Replace the focused start-location field with Orlando, Florida.",
+      "summary": "Enter Orlando, Florida in the focused start-location field.",
       "action": "replace_text",
       "reason": "",
-      "screenshot": "screens/a98bdb835b94441f236832f051823b493f53e9981b86c38748b6f9424307e89a.webp",
+      "screenshot": "screens/f7ee6322d4d32cc833593d20f4123b7fcc7e20a27c5db0199914912054b86b45.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the exact Orlando, Florida city suggestion as the start location.",
+      "summary": "Select the Orlando, Florida city suggestion as the route origin.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/e5ec3a63ff0b5e95dc59662bd26dbe7d4b9c76ed136270bf57fc37240a214221.webp",
+      "screenshot": "screens/0ae2bfef91f9ec2d08cc6d8f3b10148b3866c4a0a1900510ef7d4a7aefe285bc.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Focus the destination field so Miami can be entered.",
+      "summary": "Focus the destination field to enter Miami, Florida.",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/15ead809d6daf249cd979ee9d2b1f0690c1e60c0db00aeb8e3b4158eaabd6aa5.webp",
+      "screenshot": "screens/396e05a3eccf01661f3cb97d67c4d1272e492656c13f87026c2fd9bd855a905b.webp",
       "screenNumber": 6
     },
     {
@@ -94,161 +94,188 @@
       "summary": "Enter Miami, Florida in the focused destination field.",
       "action": "replace_text",
       "reason": "",
-      "screenshot": "screens/aaf3c38720c543f952d29cbb031b9e4dcacb263cf823e49bbd26bb5ca7bff6b9.webp",
+      "screenshot": "screens/64e608e78edd6428f8c1027856296f39a81aed7a2eb7e3658206f0ffb339ca97.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the exact Miami, Florida city suggestion as the destination.",
+      "summary": "Select the Miami, Florida city suggestion as the route destination.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/7e4381310e49cde3b06c6a5c87403156b9f2ebd9a0e90aa0048ecf4a6dce1e91.webp",
+      "screenshot": "screens/dd19d27d373fa2d237d0c999dae20fd99651b8d6e73965383db54a3b48e2fa51.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open route options to set the requested 5:00 PM departure time rather than relying on the current-time estimate.",
+      "summary": "Open the directions overflow menu to set the requested 5:00 PM departure time.",
       "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/f1a9c8d7da448749305120afbb1d9b6b8f3c70bfe5256901662edeea1a2b7bf3.webp",
+      "screenshot": "screens/229396a955e215df0ff56d3d8fdda1c816ecc51eae03faa98c19d5d699ecd214.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the depart/arrive time controls to set the requested departure.",
+      "summary": "Select the menu option to configure a 5:00 PM departure.",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/2245f58b90c19c7b950cbf22d980d5f3a2603c6abe27c0a606e314c518ee0571.webp",
+      "screenshot": "screens/298598e331de6f355e4c5f6759c27fde386ec53d4d3b9c5780eacdb78a67f982.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Set the departure minutes from 10 to 00 while preserving 5 PM and today's date.",
-      "action": "replace_text(index=5)",
+      "summary": "Set the departure hour to 5.",
+      "action": "replace_text(index=2)",
       "reason": "",
-      "screenshot": "screens/4ec6b6470f8768fc072f056caf1e5f893a60424257d300d069692e23dc619194.webp",
+      "screenshot": "screens/95751c7e0dbe61cc4ca3ee753c7acb0545ef42b9f36a8607cd757f1ecb5aa660.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Focus the minute field so its value can be replaced with 00.",
-      "action": "tap(index=5)",
+      "summary": "Focus the departure-hour field before replacing its value.",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/4ec6b6470f8768fc072f056caf1e5f893a60424257d300d069692e23dc619194.webp",
+      "screenshot": "screens/95751c7e0dbe61cc4ca3ee753c7acb0545ef42b9f36a8607cd757f1ecb5aa660.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Replace the focused minute value with 00 for the requested 5:00 PM departure.",
+      "summary": "Replace the focused departure hour with 5.",
       "action": "replace_text",
       "reason": "",
-      "screenshot": "screens/51cdd066154d2b96c6f6eaad382947464772735aece21d9ba368a21c4ca8add2.webp",
+      "screenshot": "screens/713be1d6e4eb265312af13478c6e395b2018e8444dfdcce92b1ae8d40841d073.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Apply the configured Orlando-to-Miami departure time of 5:00 PM today, October 1, 2026.",
-      "action": "tap(index=16)",
+      "summary": "Focus the departure-minute field so it can be changed from 13 to 00.",
+      "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/1ff79b289a4d00c61b95d597a1c4d9a01c0f62576762a0c5b638573a1d4a3c57.webp",
+      "screenshot": "screens/2f347f428f41dc96739486b19208e8a0104f2059b68b296e6107e9281fede2e4.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
-      "kind": "Decision",
-      "summary": "Google Maps shows Orlando to Miami for departure at 5:00 PM on October 1, 2026: typically 3 hr 30 min to 4 hr 50 min, with arrival around 9:50 PM; the driving-mode header displays 3 hr 50 min. Retained these values for the ETA/message stage.",
-      "action": "request_replan",
+      "kind": "Action",
+      "summary": "Set the focused departure-minute field to 00.",
+      "action": "replace_text",
       "reason": "",
-      "screenshot": "screens/1c4348bb67fd92394e192c64097ee9f84f339ea3b6c20f11bc1138bbcb0a185c.webp",
+      "screenshot": "screens/3f9897786cb63af28563d142b6dfe10f48c3935f713efa7a25dbb757f3e049d3.webp",
       "screenNumber": 14
     },
     {
-      "role": "Planner",
-      "kind": "Decision",
-      "summary": "Send a text to Susan at 4538997638 stating that the approximate arrival time is around 9:50 PM if leaving Orlando at 5:00 PM for Miami.",
-      "action": "execute",
-      "reason": "The Maps result directly provides an approximate arrival of 9:50 PM, so the remaining work is to send that ETA to Susan.",
-      "screenshot": "screens/55cc37d4e4b4862ae39b3c82487838a806cbffdc5ca3777aa766700d202d2bd3.webp",
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select PM to complete the requested 5:00 PM departure time.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/8b9e82311464614ed72849970de532ef0801d20c505f93faca8755d6443dcda6.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Launch the installed Messages app by its resolved package to text Susan.",
-      "action": "launch(app=com.google.android.apps.messaging)",
+      "summary": "Apply the confirmed 5:00 PM departure time for today.",
+      "action": "tap(index=14)",
       "reason": "",
-      "screenshot": "screens/55cc37d4e4b4862ae39b3c82487838a806cbffdc5ca3777aa766700d202d2bd3.webp",
-      "screenNumber": 15
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Start a new conversation to text Susan at 4538997638.",
-      "action": "tap(index=13)",
-      "reason": "",
-      "screenshot": "screens/5dd412216dd6f63e69cb2b5a3501f393e2bae56fce5b231b53dd3fe0ebe16d52.webp",
+      "screenshot": "screens/0e7df3c5d5aa10e31262542cc5f54724a58693f0f028ae5ad742d322f86170ef.webp",
       "screenNumber": 16
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "Enter Susan's exact phone number in the recipient field.",
-      "action": "replace_text(index=0)",
+      "kind": "Decision",
+      "summary": "Maps now shows Orlando to Miami driving for Depart at 5 PM today: Typically 3 hr 20 min to 4 hr 40 min (235 mi), with displayed upper-bound arrival around 9:40 PM. Retained the full range for the later arrival calculation.",
+      "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/a24091a4548b3e3f010292374e56ba2058ed9d4441d03519f80b9b13a228ddab.webp",
+      "screenshot": "screens/be8ab77b67ff255c9084bb50651748221e6d8046d753d651d59f3b1018885cc0.webp",
       "screenNumber": 17
     },
     {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Select the exact recipient suggestion for (453) 899-7638.",
-      "action": "tap(index=2)",
-      "reason": "",
-      "screenshot": "screens/12d702d27353468b88d76309538598f45f11f6689e634d8cf0ce2db47358a563.webp",
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a text to Susan at 4538997638 stating that if leaving Orlando at 5:00 PM, the estimated Miami arrival interval is approximately 8:20 PM to 9:40 PM, based on Maps' displayed 3 hr 20 min to 4 hr 40 min range.",
+      "action": "execute",
+      "reason": "The 5:00 PM departure estimate is established, so the remaining required outcome is to send Susan the derived arrival interval.",
+      "screenshot": "screens/488882177d95dc128ff41f2e50a3c5a6c1d242fed992eb981e93b6c49688c76d.webp",
       "screenNumber": 18
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Compose the requested ETA message to Susan's exact phone number.",
-      "action": "replace_text(index=5)",
+      "summary": "Launch the installed Google Messages package to compose Susan's text.",
+      "action": "launch(app=com.google.android.apps.messaging)",
       "reason": "",
-      "screenshot": "screens/fb43c4e7e8608a0e419fd52b9cb6152db06471df5ca08c9c9cf3f430ac2f8f52.webp",
+      "screenshot": "screens/488882177d95dc128ff41f2e50a3c5a6c1d242fed992eb981e93b6c49688c76d.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new conversation for Susan's phone number.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/7b767c643fc331eddbc5cdfb4286fddc47946a2a88c732c6cf8c190e240c058b.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Send the composed ETA message to Susan at (453) 899-7638.",
-      "action": "tap(index=6)",
+      "summary": "Enter Susan's exact phone number as the recipient.",
+      "action": "replace_text(index=0)",
       "reason": "",
-      "screenshot": "screens/e6029136fc5fe11590efd27858c842995e9575a01c23e4306c75f176c93b2198.webp",
+      "screenshot": "screens/98a029450f33fe8a2e1d7c62aceceaa38f49abe50bc151d22f74fd24b9d4dc04.webp",
       "screenNumber": 20
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact 4538997638 recipient result to open the conversation.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/28c06b1fa34ff907eb4b37570f3af96eb4d1eaa7c17a2747c4e629c04dff7bec.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Compose the exact travel-time text in the conversation with 4538997638.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/410bd1b43104f4ee2f5111c032fa3103af6d021906820d3b549d7e5c1fec1b9f.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the composed arrival estimate by SMS to 4538997638.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/b499233cb7b7941ea0fd8768662765dd01be77ed2b339c621d6e9edd374e7614.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Sent an SMS to Susan at (453) 899-7638: “If I leave Orlando at 5:00 PM, I should get to Miami around 9:50 PM.” The message is visible in the conversation with timestamp 5:13 PM and SMS metadata.",
+      "summary": "Sent an SMS to Susan at (453) 899-7638: “If I leave Orlando at 5:00 PM, I should arrive in Miami around 8:20-9:40 PM. Maps estimates 3 hr 20 min to 4 hr 40 min.” The message appears in the conversation with a 9:17 AM SMS timestamp.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/59fc94e41c0ab2f1731c614a2813f7258690758ce5f896226ccf78e05b3acb34.webp",
-      "screenNumber": 21
+      "screenshot": "screens/2f2bb11d3b028e0d30ad7dd8b48789df97a42764b8f16568e89ac1cf241ed673.webp",
+      "screenNumber": 24
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Google Maps estimated the Orlando-to-Miami drive at about 3 hr 50 min (typically 3 hr 30 min–4 hr 50 min), arriving around 9:50 PM when leaving at 5:00 PM. Sent Susan at (453) 899-7638: “If I leave Orlando at 5:00 PM, I should get to Miami around 9:50 PM.”",
+      "summary": "Google Maps showed an Orlando-to-Miami driving estimate of 3 hr 20 min to 4 hr 40 min for a 5:00 PM departure, yielding an approximate arrival of 8:20-9:40 PM. The SMS with that estimate was sent to Susan at (453) 899-7638 and is visible in the conversation.",
       "action": "complete",
-      "reason": "Google Maps estimated the Orlando-to-Miami drive at about 3 hr 50 min (typically 3 hr 30 min–4 hr 50 min), arriving around 9:50 PM when leaving at 5:00 PM. Sent Susan at (453) 899-7638: “If I leave Orlando at 5:00 PM, I should get to Miami around 9:50 PM.”",
-      "screenshot": "screens/59fc94e41c0ab2f1731c614a2813f7258690758ce5f896226ccf78e05b3acb34.webp",
-      "screenNumber": 21
+      "reason": "Google Maps showed an Orlando-to-Miami driving estimate of 3 hr 20 min to 4 hr 40 min for a 5:00 PM departure, yielding an approximate arrival of 8:20-9:40 PM. The SMS with that estimate was sent to Susan at (453) 899-7638 and is visible in the conversation.",
+      "screenshot": "screens/2f2bb11d3b028e0d30ad7dd8b48789df97a42764b8f16568e89ac1cf241ed673.webp",
+      "screenNumber": 24
     }
   ]
 }

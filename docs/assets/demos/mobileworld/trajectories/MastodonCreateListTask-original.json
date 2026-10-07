@@ -1,25 +1,25 @@
 {
   "task": "MastodonCreateListTask",
   "variant": "original",
-  "screenCount": 14,
+  "screenCount": 15,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 14
+    "Executor": 15
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Create a distinct Mastodon list named \"Family\", configure it so only followed users can reply, and add Alex, Emma, and Jack as list members while preserving unrelated lists and follows.",
+      "summary": "In Mastodon, create a distinct list named \"Family\", configure it so only followed users can reply, and add Alex, Emma, and Jack as members while preserving unrelated lists and accounts.",
       "action": "execute",
-      "reason": "Proceed with the requested Mastodon list configuration using the supplied navigation guidance.",
+      "reason": "Create and configure the requested Family list with all three named members.",
       "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon directly to begin creating and configuring the requested list.",
+      "summary": "Open Mastodon to create and configure the requested Family list.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
       "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
@@ -28,128 +28,137 @@
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Home timeline selector to locate Mastodon lists.",
+      "summary": "Open the timeline selector to navigate to Mastodon lists.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/bed02ad865cae40b0664689263d611e606d640fbf8edce19621829a81f214911.webp",
+      "screenshot": "screens/5210a8d6ca9403752b253b61ccdefc92fb42ff5c67cedb4420e99a8ee9a2a2f4.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Lists section from the timeline selector.",
+      "summary": "Open the Lists submenu.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/52a94f3142e09b518e719d409f5714739e081a5d0a354f8392892e5aabb6e071.webp",
+      "screenshot": "screens/7273cc1b0c8633e428e92ea07bf663d0e4e40540c936acaf491834e96ab22ae2.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Choose Create list to start a distinct Family list.",
+      "summary": "Choose Create list.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/744bf7f5de0e811d2fed2df1e072b50e210387dd220d4b3b3264998be8d44fc9.webp",
+      "screenshot": "screens/cc75588c16dafd3dd9d8cb8190251d70776bd74429f470669cbd290eab1435b6.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Set the new list name exactly to Family.",
+      "summary": "Set the new list name to Family.",
       "action": "replace_text(index=1)",
       "reason": "",
-      "screenshot": "screens/2b8f15af2a5251905ef5cfab3a5c4f333f14687458edcd420f62d43403a00bff.webp",
+      "screenshot": "screens/8abc9d4037256b0ed4d6d5c42f6e64e170d88184a4c2993dccb2fadbd6fd8624.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter Family into the already-focused empty list name field.",
-      "action": "type",
+      "summary": "Open the reply-visibility selector to restrict replies to followed users.",
+      "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/00c6b338bc9513ce9e39195a23bbedf6cfbaf5a744ff95f9d0958393b949a103.webp",
+      "screenshot": "screens/1fcabfec3df146680345bf0ff48d58a2d4738129d24a3390ca20faad15e86a57.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the reply-visibility selector to choose only followed users.",
-      "action": "tap(index=4)",
+      "summary": "Select Anyone I follow so replies are limited to followed users.",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/48d6c782a56f7b4773f2119ab1c11c8a6184d26f9af68ad2baaf06aa2586059d.webp",
+      "screenshot": "screens/378da7cc3597714d77169ac587584355dbbf851bcd6641f80e644fcc225cf183.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select “Anyone I follow,” which matches the requested followed-users-only reply setting.",
-      "action": "tap(index=2)",
+      "summary": "Create the Family list with replies set to Anyone I follow, proceeding to member selection.",
+      "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/28642c625a43f7a255e5ec8b5b9dc4e6f987ea11ca7d8ffa858866dc5f4fbfda.webp",
+      "screenshot": "screens/e4e56285040de84449b2b4b752ad51d6cec23c2da1948b4bcbd8da5134b19963.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Create the Family list with the confirmed “Anyone I follow” reply setting.",
-      "action": "tap(index=7)",
+      "summary": "Open member search to add Alex, Emma, and Jack to the new Family list.",
+      "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/a2037f3b7373529ff276147bac17c90ed2963d0ce31a11165be8292734b9df54.webp",
+      "screenshot": "screens/9a0fa9129e3459155f0a4323b38ac8eb3a6d47fe578a885f82d6780c336b27a1.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the member search to add Alex, Emma, and Jack.",
-      "action": "tap(index=1)",
+      "summary": "Add Alex (@alex) to the Family list.",
+      "action": "tap(index=12)",
       "reason": "",
-      "screenshot": "screens/4004675e87896213ae93d254502ca17d36229abfc841df0b6b38206ad22f49d0.webp",
+      "screenshot": "screens/11ca565749c565decdab950f205a4e2fa0192ca280701a4931741b5c329995e9.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Add Alex to the Family list.",
-      "action": "tap(index=12)",
+      "summary": "Add Emma (@emma) to the Family list; Alex is already confirmed by the Remove state.",
+      "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/6760697a2ac6666e24d018eeab4be3523151592c3dbfb8676a6d5238967cd70c.webp",
+      "screenshot": "screens/63b07b3cda6017a5206921dc1e00c69af3bd6efff915f8451d0fe9004ebc7f06.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Add Emma to the Family list.",
-      "action": "tap(index=11)",
+      "summary": "Add Jack (@jack) to the Family list; Alex and Emma are already confirmed as members by their Remove buttons.",
+      "action": "tap(index=10)",
       "reason": "",
-      "screenshot": "screens/12ac71cdc0f1665b3f369215afe33ee5f70ca93ed64b6a1ee9f426243632c467.webp",
+      "screenshot": "screens/bbb53b6e5a0cb9635ace6df15199f12cd6756e18e643e1b42d10031056142068.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Add Jack, the remaining requested member, to the Family list.",
-      "action": "tap(index=10)",
+      "summary": "Return to the Family list member-management screen after confirming Alex, Emma, and Jack all show Remove, meaning all three are added.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/8dec0d51f7a142c00ef938d6a240de725b07d88a16cfcb67395c460654bbd8fb.webp",
+      "screenshot": "screens/c0f1a2a7ffb0e54ca07f5c3d740c00ce141a5fe907a54eb28fa28b3d1eacc49e.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "Finish list creation now that the member-management screen confirms Alex, Emma, and Jack are all members.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/94be848b3e0e9a4712a1a24828a0ef53f84e6cbca9dead8b862de12b91cdad4a.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Created the distinct Mastodon list \"Family\", configured replies to \"Anyone I follow\" (followed users only), and added Alex, Emma, and Jack. The current screen confirms all three memberships with Remove controls; unrelated users remain unmodified.",
+      "summary": "Created the distinct Mastodon list \"Family\", configured \"Show replies to\" as \"Anyone I follow\" so only followed users can reply, added Alex (@alex), Emma (@emma), and Jack (@jack), and completed the two-step workflow without modifying unrelated lists or accounts.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/2ba5a71e50af27a2c8a1540ccdd924e863559be4c886c1665e2b6f84672d9cf3.webp",
-      "screenNumber": 13
+      "screenshot": "screens/4a30a1f845d5293d3f7d0adef08a84a0cc1782d4170f253c6d44eb3ffac72a4c.webp",
+      "screenNumber": 14
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Created the Mastodon list \"Family\", set replies to \"Anyone I follow\" (followed users only), and added Alex, Emma, and Jack. The current member screen confirms all three are in the list.",
+      "summary": "Created the Mastodon list \"Family\", set replies to \"Anyone I follow\", added Alex (@alex), Emma (@emma), and Jack (@jack), and completed the list-creation workflow without changing unrelated lists or accounts.",
       "action": "complete",
-      "reason": "Created the Mastodon list \"Family\", set replies to \"Anyone I follow\" (followed users only), and added Alex, Emma, and Jack. The current member screen confirms all three are in the list.",
-      "screenshot": "screens/2ba5a71e50af27a2c8a1540ccdd924e863559be4c886c1665e2b6f84672d9cf3.webp",
-      "screenNumber": 13
+      "reason": "Created the Mastodon list \"Family\", set replies to \"Anyone I follow\", added Alex (@alex), Emma (@emma), and Jack (@jack), and completed the list-creation workflow without changing unrelated lists or accounts.",
+      "screenshot": "screens/4a30a1f845d5293d3f7d0adef08a84a0cc1782d4170f253c6d44eb3ffac72a4c.webp",
+      "screenNumber": 14
     }
   ]
 }

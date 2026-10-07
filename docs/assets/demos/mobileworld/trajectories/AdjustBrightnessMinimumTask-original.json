@@ -10,28 +10,28 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Set the screen brightness to the exact minimum endpoint, preserving all unrelated settings.",
+      "summary": "Set the device brightness slider to its exact minimum endpoint, preserving unrelated settings.",
       "action": "execute",
-      "reason": "Set the device brightness to its exact minimum endpoint using Settings.",
-      "screenshot": "screens/4e402e8e47960739bf6d486283da9956f86712ef86dd69d39fb352a1789c68cb.webp",
+      "reason": "Brightness must be changed from the current launcher state to the exact minimum endpoint in Settings.",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Settings to adjust the brightness endpoint.",
+      "summary": "Open Settings to access the brightness control.",
       "action": "launch(app=com.android.settings)",
       "reason": "",
-      "screenshot": "screens/4e402e8e47960739bf6d486283da9956f86712ef86dd69d39fb352a1789c68cb.webp",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll Settings to locate the Display category.",
+      "summary": "Scroll the Settings list to reveal Display.",
       "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/e95f14c2c0f3f4f67bbd3a63bf14a80c5c57da420eeb6705ea80bc5c135288ac.webp",
+      "screenshot": "screens/9f3db2cd90ca2a68e6b95c0ede3f30184f3a3101d73339511a25fdc0476eee31.webp",
       "screenNumber": 1
     },
     {
@@ -40,43 +40,43 @@
       "summary": "Open Display settings.",
       "action": "tap(index=9)",
       "reason": "",
-      "screenshot": "screens/82d7ae75fcd4365a16f5d7317781e7f4b4d4dda866481b748bb348f8e81fc515.webp",
+      "screenshot": "screens/d099437a978f23cada2323eef926c5ab3e74d6c4f69b0b64df5b7d11c2087e21.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Brightness level to access its slider.",
+      "summary": "Open the Brightness level control.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/816908524310841ff23b4a857c4505b3a6ba4e6a83e32c696bf99c6f53d5855a.webp",
+      "screenshot": "screens/f946a50cc2c7881a4defdbce886f4943f86856af2c64509d33dbc0a19ad914c1.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Drag the brightness thumb past the left end of the visible track so it clamps to the exact minimum.",
+      "summary": "Drag the brightness thumb past the left edge so the slider clamps to its exact minimum endpoint.",
       "action": "drag",
       "reason": "",
-      "screenshot": "screens/6869c8ab1e5f58f8d1ea07300fb946faa4037cfd6296ffb540f6e5ff14c5ffd9.webp",
+      "screenshot": "screens/94cef984293b6f8a81f7607f94e4b57ea204dc9e43b4f065589430448205fd5d.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Brightness is set to the exact minimum endpoint: the thumb is clamped at the far-left end and Display shows 0%.",
+      "summary": "Brightness is set to the exact minimum endpoint; the slider is clamped fully left and Settings displays 0%.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/2c04fb428d3ce9392f4279d7a80529c57accc0e91f11bd8cbd65d1f323f892c4.webp",
+      "screenshot": "screens/968e6b9bdf22bc4abd06393b11487b79c8811d02f32fbf814cae5fac7f2a7fb2.webp",
       "screenNumber": 5
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Brightness is set to the exact minimum endpoint (0%), with the slider clamped at the far-left end.",
+      "summary": "Brightness is set to the exact minimum endpoint (0%).",
       "action": "complete",
-      "reason": "Brightness is set to the exact minimum endpoint (0%), with the slider clamped at the far-left end.",
-      "screenshot": "screens/2c04fb428d3ce9392f4279d7a80529c57accc0e91f11bd8cbd65d1f323f892c4.webp",
+      "reason": "Brightness is set to the exact minimum endpoint (0%).",
+      "screenshot": "screens/968e6b9bdf22bc4abd06393b11487b79c8811d02f32fbf814cae5fac7f2a7fb2.webp",
       "screenNumber": 5
     }
   ]

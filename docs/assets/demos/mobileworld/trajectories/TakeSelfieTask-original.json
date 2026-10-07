@@ -10,64 +10,64 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Open Camera and capture one new photo, preserving the resulting saved photo.",
+      "summary": "Open Camera, capture one new photo, and leave it saved on the device.",
       "action": "execute",
-      "reason": "A new photo still needs to be captured.",
-      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "reason": "A single camera capture is required and no prior work has been completed.",
+      "screenshot": "screens/d2173ab384bcbcf64b883361268f535886d8eda3742643814b8bc3d08e18597e.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Camera app directly to prepare to capture one new photo.",
+      "summary": "Open the Camera app to capture the requested new photo.",
       "action": "launch(app=com.android.camera2)",
       "reason": "",
-      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
+      "screenshot": "screens/d2173ab384bcbcf64b883361268f535886d8eda3742643814b8bc3d08e18597e.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue through Camera setup so the app can reach the capture screen.",
-      "action": "tap(index=1)",
+      "summary": "Disable optional photo location tagging before continuing Camera setup.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/a13b658d8833d9730e85b512bbfad1639094c5018741b84b5a138ea9fa2678f1.webp",
+      "screenshot": "screens/9e487f444264115bfbcae9c4f124cc94801da4a3252481267dad3accd6df4e9b.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Decline optional location access and continue Camera setup without geotagging.",
-      "action": "tap_xy",
+      "summary": "Continue Camera setup with location tagging disabled.",
+      "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/ac355bc7037123d983b56aa3ea69912a442d67281a55678405940c22778ff65a.webp",
+      "screenshot": "screens/5b789641b06be9c271a4d56b4b1a7a23661b650687799a0d6b9105f8fa7f2517.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Press the Camera shutter to capture and save one new photo.",
+      "summary": "Capture one new photo with the Camera shutter.",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/c3be18e1cace03c965b71b7dff09242326bd114e50f61388c03b3080d8762889.webp",
+      "screenshot": "screens/d7ba3dcc4867b876a1403396b4cbab33b729e2d344abf790263173d69ba4ca9f.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Captured one new photo. The Camera UI now shows a newly populated thumbnail, supporting that the photo was saved and preserved.",
+      "summary": "Captured one new photo. The Camera UI now shows a populated thumbnail preview, supporting that the photo was saved on the device.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/41adf27357daca3ed3d2be147a1fc5633376cebfc82a1eb907304e76d36d3afe.webp",
+      "screenshot": "screens/19f1a30b00fcc3d6dc749281392ff7628e50fd810b3b0aed52222df532426ff9.webp",
       "screenNumber": 4
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Captured and saved one new photo.",
+      "summary": "Captured one new photo and left it saved on the device.",
       "action": "complete",
-      "reason": "Captured and saved one new photo.",
-      "screenshot": "screens/41adf27357daca3ed3d2be147a1fc5633376cebfc82a1eb907304e76d36d3afe.webp",
+      "reason": "Captured one new photo and left it saved on the device.",
+      "screenshot": "screens/19f1a30b00fcc3d6dc749281392ff7628e50fd810b3b0aed52222df532426ff9.webp",
       "screenNumber": 4
     }
   ]

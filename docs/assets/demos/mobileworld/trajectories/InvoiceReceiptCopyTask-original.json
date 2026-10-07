@@ -1,19 +1,19 @@
 {
   "task": "InvoiceReceiptCopyTask",
   "variant": "original",
-  "screenCount": 12,
+  "screenCount": 16,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 12
+    "Executor": 16
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "在 Download 中找出显示修改日期位于 11 月、文件名包含 invoice 或 receipt（不区分大小写）的所有 PDF，并将这些文件复制到 Finance/invoice；保留 Download 中的原文件和其他无关文件。",
+      "summary": "在 Files 的 Download 中按该界面显示的文件日期覆盖检查，找出日期在“11月内”、文件名包含 invoice 或 receipt 且类型为 PDF 的所有文件，并将它们复制到 Finance/invoice 文件夹；保留源文件及其他文件不变。",
       "action": "execute",
-      "reason": "Files 仅显示 Modified 日期，因此以界面显示日期判断“11月内”，完成筛选和复制。",
-      "screenshot": "screens/0a7cb7c90f1bbe90a2066a5e64ff456d2c76d9e13ddc4441bbb34579fb316150.webp",
+      "reason": "Files 界面只提供显示的文件日期；本阶段据此完成筛选和复制，同时保留用户原始的“11月内”范围表述。",
+      "screenshot": "screens/109f574ac25268a1657fc56ff384f05b78d7972e19b39fd9d161c2dbb22f9671.webp",
       "screenNumber": 0
     },
     {
@@ -22,79 +22,79 @@
       "summary": "打开 Files 以开始在 Download 中筛选并复制符合条件的 PDF。",
       "action": "launch(app=com.google.android.documentsui)",
       "reason": "",
-      "screenshot": "screens/0a7cb7c90f1bbe90a2066a5e64ff456d2c76d9e13ddc4441bbb34579fb316150.webp",
+      "screenshot": "screens/109f574ac25268a1657fc56ff384f05b78d7972e19b39fd9d161c2dbb22f9671.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "选择当前可见且文件名匹配、修改日期为 11 月的 PDF：invoice_2025_001.pdf。",
+      "summary": "当前列表按日期降序显示，已用相邻的 Dec 5、Nov 15、Oct 20 边界覆盖 11 月范围；长按唯一符合名称和 PDF 类型条件的 invoice_2025_001.pdf。",
       "action": "long_press",
       "reason": "",
-      "screenshot": "screens/cbc37de9bd0a79ba9e5e1d0d06c31d77d98b4753e1dcca4a59bc6fca4953ebb1.webp",
+      "screenshot": "screens/92f4d7d4cfb23c27d4db1509af4ab70244c7117d13b1db24bd838d886ecbb61f.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开已选文件的操作菜单，准备执行复制。",
+      "summary": "打开已选文件的更多操作菜单，以选择复制到目标文件夹。",
       "action": "tap(index=20)",
       "reason": "",
-      "screenshot": "screens/7810de1be34a4dc3b8c393976833a06f2c072c9442315a92eb28c503837c14d8.webp",
+      "screenshot": "screens/c71d331d9ca39eb762ce92b259bbb2249bcf8154f66117b8051d04c6d5d5e53f.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "对已筛出的 11 月匹配 PDF 执行“Copy to…”，随后选择 Finance/invoice 作为目标。",
+      "summary": "选择“Copy to…”进入目标文件夹选择界面。",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/5944266394d305c3daa13a521494208947107f25682322207c7d5c318c919f17.webp",
+      "screenshot": "screens/9cc0eaebe350728d5e1741c53b39900099713e4ba4897c4e31a6226c82f2da5b.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开位置抽屉，以导航到目标文件夹 Finance/invoice。",
+      "summary": "打开存储位置侧栏，以从 Downloads 导航到 Finance/invoice。",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/9c50a75513fa765bc6345550b903e2fb7a1675ea9cf2a8b7e1a469ff2b6e2df1.webp",
+      "screenshot": "screens/774bd224fe34a24052cca7fd60bcf59c0368031b3f79412a00ac00ad77279fa3.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "选择设备存储根目录，以进入 Finance 文件夹。",
+      "summary": "选择设备存储根目录，以导航到 Finance/invoice。",
       "action": "tap(index=17)",
       "reason": "",
-      "screenshot": "screens/ac5a8495504ac5e07fc06040a1c687132f40f7d97eda5eea08e2f9b4288b8e86.webp",
+      "screenshot": "screens/9cf0f697fc76edf874474d85ce242eab832400a214606bb9f39dfa9fffccd83f.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "进入 Finance 文件夹。",
+      "summary": "打开 Finance 文件夹。",
       "action": "tap(index=10)",
       "reason": "",
-      "screenshot": "screens/a6125ac4ab0ee89a4ad4ef50c82c57df03fd8cf4b1c425179e99ad3369ce8a05.webp",
+      "screenshot": "screens/8ac011a82abe19da88365fb5fd4bbdd393a7acdd8dc171005d2194e69a2414f7.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Finance 当前为空且缺少目标子文件夹；创建名为 invoice 的目标文件夹后完成复制。",
+      "summary": "Finance 中未显示 invoice 文件夹；打开“New folder”以创建所需目标文件夹。",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/4aa0f22550f5c67deb59b88408b1400d1734ba83299588716d9f2be186428095.webp",
+      "screenshot": "screens/11b30dc18e248214c16ed2c641ad060029e99ba19396978ffaec6362557f9d5b.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "将新文件夹名称设为精确的 invoice。",
+      "summary": "输入新建目标文件夹名称 invoice。",
       "action": "replace_text(index=0)",
       "reason": "",
-      "screenshot": "screens/3d184604fd05777d618ed49e96f4a9525e8ec73a7f4f988a6b9dd09b411a0b11.webp",
+      "screenshot": "screens/40176b29460b6384f860cc24c4a1921f023d1199cf9db5f11e5e143418faa9aa.webp",
       "screenNumber": 8
     },
     {
@@ -103,35 +103,71 @@
       "summary": "确认创建 Finance/invoice 文件夹。",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/f2275edf48d049c64e3658a842c50296e0306d266e136e9c5fee8430a53b91c9.webp",
+      "screenshot": "screens/c5c2d074605c9819d4b61812a6eca4299aa17c80ebe3e826317a8b5e0b97b2d5.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "目标路径已确认是 Finance/invoice；执行最终复制。",
+      "summary": "在 Finance/invoice 目标目录确认 COPY，执行复制。",
       "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/529d92b77645c67209ba678db3727fed9c9a3b2e7d4cebed2e2762083b9afc80.webp",
+      "screenshot": "screens/83dd7fd681b975a976e0dcabb177e19df29511d88d84b9d64ad8cfa6fa0a70d2.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "复制进度提示已消失；打开存储位置侧栏，前往 Finance/invoice 验证目标文件。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/38282f9063acad28de00f22f8cac714e0bfbfb680b2ed386f96878176a6df39e.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开设备存储根目录，以验证 Finance/invoice 中的复制结果。",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/dc6942a4a3d4c361ff62942fbe1e63fe1c37c8cd9bbb3d9a53f7fe66d060571c.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Finance 文件夹继续验证目标 invoice 目录及复制文件。",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/620b0a108794d133d62f92cccb003a18c2e43164a5e3db572ac527b5ca274297.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Finance/invoice，直接确认目标 PDF 是否已复制到该文件夹。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/060f6180eacd7b93a7372643102b998954b187e1b364972b903fa3df8f54f049.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "已完成：Downloads 列表从顶部到底部完整可见，唯一符合条件的是 `invoice_2025_001.pdf`（Nov 15，PDF）；`receipt_2025_002.pdf` 为 Dec 5、`invoice_payment.pdf` 为 Oct 20，均不符合。已创建 `Finance/invoice`，并在该目录执行 COPY；“Copying 1 item.”提示随后消失，确认复制操作完成，Downloads 中原文件与其他文件均保留。",
+      "summary": "已完成：按 Files 显示日期检查 Download 后，唯一符合“11月内、文件名包含 invoice 或 receipt、PDF”条件的文件是 invoice_2025_001.pdf（Nov 15，486 B）；现已直接验证该文件存在于 Finance/invoice 中。使用复制操作，源文件及其他文件保持不变。",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/b1da570684c5d247d502feef2f01662e572b0a34294d8f4fcc1ae060be5b63d7.webp",
-      "screenNumber": 11
+      "screenshot": "screens/261adbf5a015cf6892f2a16fccab513ade45f89eecca1d876cc78045995d5e49.webp",
+      "screenNumber": 15
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "已完成：已将 Download 中唯一符合条件的 11 月 PDF `invoice_2025_001.pdf` 复制到 `Finance/invoice`。`receipt_2025_002.pdf`（12 月）和 `invoice_payment.pdf`（10 月）不符合月份条件，未复制；Download 中原文件及其他文件均保留。",
+      "summary": "已完成：Download 中唯一符合“11月内、文件名包含 invoice 或 receipt、且为 PDF”的文件是 invoice_2025_001.pdf（Nov 15，486 B），已复制到 Finance/invoice，并已在目标文件夹中直接确认存在；源文件及其他文件保持不变。",
       "action": "complete",
-      "reason": "已完成：已将 Download 中唯一符合条件的 11 月 PDF `invoice_2025_001.pdf` 复制到 `Finance/invoice`。`receipt_2025_002.pdf`（12 月）和 `invoice_payment.pdf`（10 月）不符合月份条件，未复制；Download 中原文件及其他文件均保留。",
-      "screenshot": "screens/b1da570684c5d247d502feef2f01662e572b0a34294d8f4fcc1ae060be5b63d7.webp",
-      "screenNumber": 11
+      "reason": "已完成：Download 中唯一符合“11月内、文件名包含 invoice 或 receipt、且为 PDF”的文件是 invoice_2025_001.pdf（Nov 15，486 B），已复制到 Finance/invoice，并已在目标文件夹中直接确认存在；源文件及其他文件保持不变。",
+      "screenshot": "screens/261adbf5a015cf6892f2a16fccab513ade45f89eecca1d876cc78045995d5e49.webp",
+      "screenNumber": 15
     }
   ]
 }

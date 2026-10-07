@@ -10,25 +10,25 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Locate the invoice PDF in the Download directory and read the exact original total, due date, and every stated late-payment interest, fee, grace-period, compounding, and rounding rule needed for payment 45 days after the due date; preserve the displayed currency and precision.",
+      "summary": "Open the invoice PDF in the Download directory and extract all fields needed to calculate the total payable 45 days after its due date, including the original total, due date, and every applicable late-payment fee, interest rate, compounding rule, threshold, or other stated condition. Report the exact values and wording that govern the calculation.",
       "action": "execute",
-      "reason": "The invoice contents and late-payment terms must be read before calculating the requested total.",
-      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "reason": "The supplied Files guidance does not change the stage: the task depends on opening a specific PDF from Download, not on date sorting or archive extraction.",
+      "screenshot": "screens/f7dae4366d10bdc08f2a7fc0762acf2c98e50a49e62bb9152f30d1d761cc8d58.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Files to locate the invoice PDF in the Download directory.",
+      "summary": "Open Files to navigate to the Download directory and locate the invoice PDF.",
       "action": "launch(app=com.google.android.documentsui)",
       "reason": "",
-      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenshot": "screens/f7dae4366d10bdc08f2a7fc0762acf2c98e50a49e62bb9152f30d1d761cc8d58.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open invoice.pdf to read the invoice amount, due date, and late-payment terms.",
+      "summary": "Open invoice.pdf for detailed reading of the amount, due date, and late-payment terms.",
       "action": "tap(index=8)",
       "reason": "",
       "screenshot": "screens/8b84032e1134e53b8a7964ca7fe34a8b5af1856f33b20c064f437a09fad33a26.webp",
@@ -37,10 +37,10 @@
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Read invoice.pdf completely. Exact original total is $102,120.00; due date is October 4, 2025; the sole late-payment rule states, “Late payments will incur interest at 1.5% per month.” No late fee, grace period, compounding method, day-count convention, or rounding rule is stated. Currency is dollars and displayed precision is two decimals.",
+      "summary": "Opened Download/invoice.pdf and extracted the governing terms. Invoice date: September 5, 2025. Due Date: October 4, 2025. Payment Terms: 30 days net. Subtotal: $85,100.00. VAT (20%): $17,020.00. Total Amount Due: $102,120.00. Exact late-payment wording: “Late payments will incur interest at 1.5% per month.” The PDF states no separate late fee, grace period, threshold, compounding rule, daily rate, or rounding convention.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/cff4a6ac2090d841876fe1a946817accd56ec413e128bb43d2219120bd101af7.webp",
+      "screenshot": "screens/8b0580f2d98d4ac0561caf83f3ab88114587a2b5152209d2a3f7e8fe9c935c71.webp",
       "screenNumber": 2
     },
     {
@@ -49,7 +49,7 @@
       "summary": "104417.70",
       "action": "complete",
       "reason": "104417.70",
-      "screenshot": "screens/cff4a6ac2090d841876fe1a946817accd56ec413e128bb43d2219120bd101af7.webp",
+      "screenshot": "screens/8b0580f2d98d4ac0561caf83f3ab88114587a2b5152209d2a3f7e8fe9c935c71.webp",
       "screenNumber": 2
     }
   ]

@@ -1,209 +1,164 @@
 {
   "task": "MastodonImportMutedUsersTask",
   "variant": "original",
-  "screenCount": 20,
+  "screenCount": 15,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 20
+    "Executor": 15
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, import the muted-accounts list from the existing `muted_accounts.csv` file in the Downloads directory into the currently intended signed-in account, and retain the import confirmation or resulting status.",
+      "summary": "In Mastodon for the currently signed-in account, import `Downloads/muted_accounts.csv` as the muted accounts list, preserving existing muted accounts if the import flow offers merge versus overwrite.",
       "action": "execute",
-      "reason": "The import requires Mastodon's account web settings and a local file selection; both can be completed as one outcome while retaining the requested file and Downloads location.",
-      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "reason": "Use Mastodon's account web settings to import the specified CSV from Downloads without replacing unrelated existing muted accounts.",
+      "screenshot": "screens/82ea7d194bd4dca9d767efdb0a77bfd4eec123c8bdec83fbeae2fb837312d05c.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Launch Mastodon to access the active account's web settings and import controls.",
+      "summary": "Open Mastodon to access the signed-in account's web settings and import flow.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
-      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenshot": "screens/82ea7d194bd4dca9d767efdb0a77bfd4eec123c8bdec83fbeae2fb837312d05c.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon settings to locate the account web settings import page.",
+      "summary": "Open Mastodon settings to reach account web settings and the import feature.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/5799433c22c481e178dae3a41b25d37ad1c050c591e3ceb2327eb0424bfa1e56.webp",
+      "screenshot": "screens/8a0410ce59351ae6c55e6b18310ad77512504a501e31e84d504a500353ceeff3.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open settings for the currently active @test account to reach its web-based account controls.",
+      "summary": "Open settings for the currently active @test account to access its account web settings.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/1d6b261bbc38812115de50e9eec80a2d6f4adca1c5dad6d9605288ae49e7e297.webp",
+      "screenshot": "screens/d2496a7c43c4827df64b436b8821b6f7b135c5dcf8b2d824dd644cf64427d084.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Return to the main settings screen to use Mastodon's web-settings entry point rather than unrelated native account options.",
-      "action": "back",
+      "summary": "Open the @test account's web account settings.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/424013348501ff0871e74cc82b2eb87c6c19991182ccd62438f30c6d96c760b8.webp",
+      "screenshot": "screens/f22e5ddcdffa22db270c489f08292d1207bd4efb4d81866bd71f41434aa05fc0.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the browser to access the active Mastodon instance's web settings import page.",
+      "summary": "Open the browser to access Mastodon's web-only Import and export settings, since the native 'Account settings' text is only a section label.",
       "action": "launch(app=com.android.chrome)",
       "reason": "",
-      "screenshot": "screens/c512e2df5084bdcc33b631d3cfec9bae66b456eac17b32ea86259bd919eb083e.webp",
+      "screenshot": "screens/424013348501ff0871e74cc82b2eb87c6c19991182ccd62438f30c6d96c760b8.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Navigate directly to the Mastodon import settings page on the active instance.",
+      "summary": "Navigate directly to the signed-in Mastodon instance's Import and export settings page.",
       "action": "replace_text(index=2)",
       "reason": "",
-      "screenshot": "screens/c6e91aa1465b713f99ce0014828a4ba120e0b14863888de530ffdad6824435b1.webp",
+      "screenshot": "screens/14c9a134d0afbe7db3799030f58f543902ff70a218c79ebac914367f7a05d23c.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Submit the imports URL in Chrome.",
+      "summary": "Submit the Mastodon import settings URL in Chrome.",
       "action": "key(key=enter)",
       "reason": "",
-      "screenshot": "screens/811bcbf0391ee1a54e8df9ed7fa86206173ee245d0e13ac83c37216805826e4a.webp",
+      "screenshot": "screens/3474b468ac5fe66e60b09b24158aeb7daae389c8622c2c84d8c184b9c507f02e.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Retry the Mastodon imports page over HTTPS, matching the instance URL required by the account-settings workflow.",
-      "action": "replace_text(index=4)",
+      "summary": "Open the Import type selector to choose the muted accounts list.",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/31f5b940c8662fabe1a45c1c053903614735dd9683f05084c5f9ec00404830d4.webp",
+      "screenshot": "screens/85aab5847a8289806c1ee8cc93132970c82dde048a456301e17fe02641d06dc8.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Submit the HTTPS imports URL.",
-      "action": "key(key=enter)",
+      "summary": "Select Muting list as the Mastodon import type.",
+      "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/c31caaa73d896f61827a7c40e0aa4e0724f532a87ca4a4aae2b98b2a120c7c47.webp",
+      "screenshot": "screens/a5aa13bca61c1109b69525b60956187175ce5468bded7c23d2a261f56a522426.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Import type selector so the muted-accounts list type can be chosen.",
-      "action": "tap_xy",
+      "summary": "Open the Android file picker to select `Downloads/muted_accounts.csv`.",
+      "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/961968404595db5cd0c1652056a56f4a2f503dafed56093313e1ea604c1a08e4.webp",
+      "screenshot": "screens/0b9e39e087e6010822ab65a71c8a2ea5cdbd74176e87080a556c485e2800f828.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the Muting list import type.",
-      "action": "tap(index=5)",
+      "summary": "Deny Chrome's unrelated camera permission so the file selection flow can continue.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/21738115431c32e450b0cef046e762109e5af065323d1682e366b1fd16444877.webp",
+      "screenshot": "screens/c4591a27ece0d55d02a1de2ec13883730a7d6a31f1862fcb52ba4897b18d7ef8.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the system file picker from Choose File to select `muted_accounts.csv` in Downloads.",
-      "action": "tap_xy",
+      "summary": "Select the visible `muted_accounts.csv` file in the Android file picker.",
+      "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/a6a5c219bae37d577da8de48631e6b6ddb9221228d94e361eefc5d831a6fbb8a.webp",
+      "screenshot": "screens/8397bc20904cf7de9272977378c673569627e1c7ae4d5c8887fe0215f90e5c47.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Deny the unrelated camera permission so Chrome can continue to the file picker.",
-      "action": "tap_xy",
+      "summary": "Upload `muted_accounts.csv` as a Muting list with Merge selected, preserving existing muted accounts.",
+      "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/8496b434e33b82baddd3773e6daff71e020851e5c2093fd20563c1beda61c68e.webp",
+      "screenshot": "screens/d302153481efdcaac1993b3cb5efc11a218a3107b62ee0ce2136beaabd8a63bb.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select the visible `muted_accounts.csv` file from the file picker.",
-      "action": "tap(index=11)",
+      "summary": "Confirm importing the one account from `muted_accounts.csv` into the muted accounts list.",
+      "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/20624de4d20e84815fd18adca1682b980ef6dad8823c671bc272d246a5eee674.webp",
+      "screenshot": "screens/d9028ee60f2278ae099cc32177c9d43d1125e5feed2e0cb4c2dc3d5a0c4dc30b.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "Open Mastodon's web menu to verify the signed-in account before submitting the consequential import; the selected file and import type are already populated.",
-      "action": "tap(index=1)",
-      "reason": "",
-      "screenshot": "screens/5098ecf744539dca91adeddbcf3660d8c8e837a47371a20ea23d8d8814f54829.webp",
-      "screenNumber": 14
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the signed-in web account's public profile to identify which Mastodon account this browser session belongs to before uploading.",
-      "action": "tap(index=3)",
-      "reason": "",
-      "screenshot": "screens/4283aa578e0c34d9ceed16d9be18b3b7a79aac2260068b73f35a04a442776042.webp",
-      "screenNumber": 15
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "The web session is the TEST account, matching the native account that was active when the task began; return to the prepared import form to submit the selected muted list.",
-      "action": "back",
-      "reason": "",
-      "screenshot": "screens/37e6232a9f21a97de07cf3a69b56458d3bc0d9741b605d560e72452661514278.webp",
-      "screenNumber": 16
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Submit the prepared import for the verified TEST account: import type is Muting list, file is muted_accounts.csv, and Merge preserves existing muted accounts.",
-      "action": "tap(index=6)",
-      "reason": "",
-      "screenshot": "screens/38d16d3a528661d4e1026ecc08cf2af80874d7daff73865ccf61a6abe46780a4.webp",
-      "screenNumber": 17
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Confirm the final Mastodon import; the confirmation page identifies muted_accounts.csv and says it will mute up to 1 account.",
-      "action": "tap(index=3)",
-      "reason": "",
-      "screenshot": "screens/0f82ad5024eb506c7ec0d429923765de768762f431ca9cb0a29ea25c7921691c.webp",
-      "screenNumber": 18
-    },
-    {
-      "role": "Executor",
       "kind": "Decision",
-      "summary": "Imported `muted_accounts.csv` from Downloads as a Muting list into the verified TEST Mastodon web account using Merge. Mastodon confirmed: “Your data was successfully uploaded and will be processed in due time.”",
+      "summary": "Imported `Downloads/muted_accounts.csv` as a Mastodon muting list with Merge selected. Mastodon confirmed: “Your data was successfully uploaded and will be processed in due time.”",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/4b7162d34a09a1d1a652d7a9e6da2da3e963e37efb49f7e83f9540e0a3550463.webp",
-      "screenNumber": 19
+      "screenshot": "screens/9da9c433a8a1b90c29376d46ea10c75b8a80742133dedfe4f031ca781a8b4a01.webp",
+      "screenNumber": 14
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Imported `muted_accounts.csv` from Downloads as a Muting list into the verified TEST Mastodon account using Merge. Mastodon confirmed that the data was successfully uploaded and will be processed in due time.",
+      "summary": "Imported `Downloads/muted_accounts.csv` into Mastodon as a muting list using Merge, preserving existing muted accounts. Mastodon confirmed the upload succeeded and will be processed in due time.",
       "action": "complete",
-      "reason": "Imported `muted_accounts.csv` from Downloads as a Muting list into the verified TEST Mastodon account using Merge. Mastodon confirmed that the data was successfully uploaded and will be processed in due time.",
-      "screenshot": "screens/4b7162d34a09a1d1a652d7a9e6da2da3e963e37efb49f7e83f9540e0a3550463.webp",
-      "screenNumber": 19
+      "reason": "Imported `Downloads/muted_accounts.csv` into Mastodon as a muting list using Merge, preserving existing muted accounts. Mastodon confirmed the upload succeeded and will be processed in due time.",
+      "screenshot": "screens/9da9c433a8a1b90c29376d46ea10c75b8a80742133dedfe4f031ca781a8b4a01.webp",
+      "screenNumber": 14
     }
   ]
 }

@@ -1,191 +1,182 @@
 {
   "task": "MastodonChangeLanguageTask",
   "variant": "original",
-  "screenCount": 18,
+  "screenCount": 17,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 18
+    "Executor": 17
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Set the signed-in Mastodon account's interface language to Chinese (Simplified) in the instance web Preferences/Appearance settings, preserving the account target and confirm the saved value or success feedback.",
+      "summary": "Set the Mastodon account interface language to Chinese Simplified in the instance web preferences, preserving the currently signed-in account, and confirm the saved value or success state.",
       "action": "execute",
-      "reason": "The account interface language must be changed through the Mastodon instance's web settings, with the signed-in web account checked before saving.",
-      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "reason": "The account interface language must be changed through Mastodon's web preferences and saved.",
+      "screenshot": "screens/84928c89682ec82a608b5027717146f7d1454b2ce3ea6f7c6e672f4b951f1080.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon to access the signed-in account and its instance web settings.",
+      "summary": "Launch Mastodon to identify the active account and reach its instance web settings.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
-      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenshot": "screens/84928c89682ec82a608b5027717146f7d1454b2ce3ea6f7c6e672f4b951f1080.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon settings to find the account's instance web preferences.",
+      "summary": "Open Mastodon settings for the active @test account.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/7257917c535a4220cf7ef36535755097726df9a717448c4f8f2c45a75cbe3919.webp",
+      "screenshot": "screens/b74889ff6045dc8782dcb5575e2f344742786cbca7b186a24fb4b2836c314963.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open settings for the active @test@10.0.2.2 account, matching the account shown on the current timeline.",
+      "summary": "Open settings for the currently active @test@10.0.2.2 account to reach its web preferences.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/046280ecd3f6c1b41ea01eb34d6d9c4ef38ed787c37a2cb60115a71a07f5c6be.webp",
+      "screenshot": "screens/d5fa7a9f075db0d4e155903431029099451d268bcf96c16f1cc005ee15140682.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open @test's instance account settings, which should route to the signed-in web settings.",
-      "action": "tap_xy",
+      "summary": "Open the browser to access the instance website's Appearance preferences for the active @test account.",
+      "action": "launch(app=com.android.chrome)",
       "reason": "",
-      "screenshot": "screens/2f3e51354c3d047bf3b5c9a836b06ec1006f13f31525d71e206680da4f531a1b.webp",
+      "screenshot": "screens/1563a8db6a55fe686d5d47a96b91ad8dd00034846751ecb21ca9c28a1f6fcb92.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the browser to access the 10.0.2.2 instance's web Preferences and verify the signed-in web account before changing language.",
-      "action": "launch(app=com.android.chrome)",
+      "summary": "Enter the Mastodon instance Appearance preferences URL while preserving the HTTPS origin.",
+      "action": "replace_text(index=2)",
       "reason": "",
-      "screenshot": "screens/2ac9e46b54792f4e30ce99de82fbd588e6f071d8996572f278e1112b7fb25467.webp",
+      "screenshot": "screens/9f7912d253e735c4d3139605afd4951da40fcadafe9bc8cf1f6fe1b17575e18b.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll toward the top of Appearance to locate the interface language selector and account identity.",
-      "action": "scroll(direction=up)",
+      "summary": "Navigate to the entered Appearance preferences URL.",
+      "action": "key(key=enter)",
       "reason": "",
-      "screenshot": "screens/1707fb558608078b247966f07a7f7aba8654af487b0c8cb3ddd061a945bfdd61.webp",
+      "screenshot": "screens/2f359a23a1e3eb1e1c7d6214722fda4bd56d4363776a4ca303a371040a3d7095.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue upward in Appearance to reach the language controls near the top.",
-      "action": "scroll(direction=up)",
+      "summary": "Open the Interface language selector to choose Chinese Simplified.",
+      "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/c0b28973ee71aa3eea1cd2cca62b729c70ff2799763ed3d1b982fd520c89aa04.webp",
+      "screenshot": "screens/ed7be2a6dbfff675e7438e9f62ecec06ecfa6b2cf57bdb1f97a6086257970014.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll slightly higher to reveal the language selector above Site theme.",
-      "action": "scroll(direction=up)",
+      "summary": "Scroll down the language list toward the Chinese options.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/2bd2d9901515348f16c1c9712f7f2fe4ff52cd5cf56375053142d80dad1ce288.webp",
+      "screenshot": "screens/97bfbef6282c46007a6f9a7af1e9546296b95bc63eccf29e49ece1d432403a81.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Interface language selector, currently showing English.",
-      "action": "tap(index=0)",
+      "summary": "Continue scrolling through the language list toward Simplified Chinese.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/5c0358c238843e712cd64bfde51815896d9028b87dbdd4f5f746a64c3eff3783.webp",
+      "screenshot": "screens/0e05d52ff585d17c426d814310824978976d8abc0d42a64bd497ea2cc3bd09ca.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down the language list toward the Chinese language entries.",
+      "summary": "Continue down the alphabetized language list toward Chinese Simplified.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/9a9055208c566fb59e3bf0a99ae05cce914cc08ae99a81f5b66a8fdc0140372e.webp",
+      "screenshot": "screens/f0f5b4f05b918199ba2e51cb4d4e49503a7ef5b54a42d31b9d15cd1c624a7f60.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue down the language list toward the Chinese entries, which are expected near the end.",
+      "summary": "Continue toward the end of the language list where the Chinese options appear.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/75a69cf4d35c44e81a064d7dd39838e82c8ffd1cf94b64c89d2163ae12ab7871.webp",
+      "screenshot": "screens/ceb1509639f7ddbc80a03d9abf3edde08fb0f7c0f64349189121f29d476a3554.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue scrolling toward the end of the interface language list to locate Simplified Chinese.",
+      "summary": "Continue downward through the language selector to locate the Chinese Simplified option.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/f4930fda5dd9d3960389f634b90d84025126ef4e6ca8f42f43b7217fcdac0623.webp",
+      "screenshot": "screens/8085db7965b904297f2cbf168d840831dec13df1a7de3ba0f43bf4923b44c882.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue toward the final language entries where Simplified Chinese should appear.",
+      "summary": "Continue to the final language entries to reach Chinese Simplified.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/9e42dd5242178bd1bd5333f186f5f758d654b09b9794eb5edfd31e05be1f426f.webp",
+      "screenshot": "screens/ac1c20bce997e187ab55c25ad07a2be899a8b163ee30c8c7c4dcb6fe11f740e4.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll further down to reach the Chinese language options near the bottom of the list.",
+      "summary": "Continue to the bottom of the language list to reveal the Chinese options.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/e3e82776551f0836e81b316daea996d7ff666e9a8f07adb060742d61fb1c3d60.webp",
+      "screenshot": "screens/9585b5d321672a1f4bfbd5e2f28a8e209c131ae4d37c2a694f663e8798cf9b9f.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select 简体中文, the Simplified Chinese interface language option.",
-      "action": "tap(index=11)",
+      "summary": "Select 简体中文, the Chinese Simplified interface language.",
+      "action": "tap(index=9)",
       "reason": "",
-      "screenshot": "screens/a7537a4c8b6e51a4fd2427759d0461eaed1d4c60287a4406cd6f1bcebbacc214.webp",
+      "screenshot": "screens/b3381afd6c52db29fc8d4670add80519c37b3adc87506ef9047b538cea08336b.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll to the top of the Appearance settings page to reach Save changes after selecting 简体中文.",
-      "action": "swipe",
+      "summary": "Save the selected Chinese Simplified interface language.",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/872596373458f90179ccb610808fc308e2ac6cebdf8a0cbc1417c28c265e4594.webp",
+      "screenshot": "screens/7d140462bfda236f05ebe62de7e114b9301c3b43f499701b93574a05a26b6afa.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "Save the Appearance settings with Interface language set to 简体中文.",
-      "action": "tap(index=2)",
-      "reason": "",
-      "screenshot": "screens/1f02184b5dbe146f4c88f1475c56c7403ef78bfabf82ef65665ef78338033cee.webp",
-      "screenNumber": 16
-    },
-    {
-      "role": "Executor",
       "kind": "Decision",
-      "summary": "Mastodon interface language was saved as Simplified Chinese (简体中文) for the signed-in account. The page switched to Chinese and displayed the success confirmation “更改保存成功！”.",
+      "summary": "Chinese Simplified is selected for the account interface language, and the page confirms “更改保存成功！” (changes saved successfully).",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/953af89017cc8c6eeb52bebb148a0cb3c9f5f6d3236d31f247432ffcc7baf1c6.webp",
-      "screenNumber": 17
+      "screenshot": "screens/1cb301d355a34c324a8a6c373c03e3814f0a0dce312065c97b8d0fcb28c9f9cf.webp",
+      "screenNumber": 16
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "The signed-in Mastodon account’s interface language is set to Simplified Chinese (简体中文). The Appearance page shows the saved value and the success confirmation “更改保存成功！”.",
+      "summary": "Mastodon’s account interface language is set to Chinese Simplified (简体中文), and the settings page confirms the changes were saved successfully.",
       "action": "complete",
-      "reason": "The signed-in Mastodon account’s interface language is set to Simplified Chinese (简体中文). The Appearance page shows the saved value and the success confirmation “更改保存成功！”.",
-      "screenshot": "screens/953af89017cc8c6eeb52bebb148a0cb3c9f5f6d3236d31f247432ffcc7baf1c6.webp",
-      "screenNumber": 17
+      "reason": "Mastodon’s account interface language is set to Chinese Simplified (简体中文), and the settings page confirms the changes were saved successfully.",
+      "screenshot": "screens/1cb301d355a34c324a8a6c373c03e3814f0a0dce312065c97b8d0fcb28c9f9cf.webp",
+      "screenNumber": 16
     }
   ]
 }
