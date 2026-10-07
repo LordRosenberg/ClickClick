@@ -1,25 +1,25 @@
 {
   "task": "DownloadSendReceiptTask",
   "variant": "original",
-  "screenCount": 6,
+  "screenCount": 20,
   "roleCounts": {
-    "Planner": 2,
-    "Executor": 6
+    "Planner": 3,
+    "Executor": 20
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mail, locate the email containing the attachment titled `receipts.jpg`, download that file, and read and remember the receipt's total amount spent from a detailed view of the image. Do not send or draft the forwarding email yet.",
+      "summary": "In Mail, locate the email containing the attachment named `receipts.jpg`, download that file, and read and retain the receipt's labeled total amount spent from a detailed image view for use in the outgoing email.",
       "action": "execute",
-      "reason": "First obtain the requested attachment and the total shown on its receipt before composing the outgoing email.",
+      "reason": "First obtain the requested attachment and its labeled total, since that value is required in the outgoing message.",
       "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mail to search for the message containing `receipts.jpg`.",
+      "summary": "Open the Mail app to search for the message containing `receipts.jpg`.",
       "action": "launch(app=com.gmailclone)",
       "reason": "",
       "screenshot": "screens/3ba3f91a392270fb731fff025e16e9e3fd8c720380d597eda09992dcddba7e41.webp",
@@ -31,53 +31,188 @@
       "summary": "Search Mail for the exact attachment filename `receipts.jpg`.",
       "action": "replace_text(index=2)",
       "reason": "",
-      "screenshot": "screens/4696e4faf1363a7e87fb85c53770755331755d18b968990ea4101b3a2ff67c0a.webp",
+      "screenshot": "screens/df9b3ea59b7da28a3d41d854feb1439aeb351298f4b69c7a057b6781b7bca610.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open William's matching reimbursement email to inspect and download the attachment.",
+      "summary": "Open the matching `Reimbursement Information` email to inspect and download its attachment.",
       "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/b2794f481afc778528f1f0954f4d279008cec8abcbb237d4feccffe0309f5eeb.webp",
+      "screenshot": "screens/98b7061f79b32f47199e87cc575e53404b07e1db7a6652b8cd12ff584051d459.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "The opened result has `receipt.jpg` (singular), not the requested `receipts.jpg`; return to search and refine for the exact filename.",
-      "action": "back",
-      "reason": "",
-      "screenshot": "screens/4707b4de62b90340bbc3fc790a77d0c7ca90e0f2f09f1216e9197967e1422f5b.webp",
-      "screenNumber": 3
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Use Mail's filename search operator to distinguish exact attachment filename results from the fuzzy singular match.",
-      "action": "replace_text(index=2)",
-      "reason": "",
-      "screenshot": "screens/0ff180bcd4d21ecf8e159625e1d632e172f77f6723508343677bd93b676e4c2c.webp",
-      "screenNumber": 4
-    },
-    {
-      "role": "Executor",
       "kind": "Decision",
-      "summary": "Exact-name mismatch blocks the stage as written. Searching `receipts.jpg` and `filename:receipts.jpg` yields only William's “Reimbursement Information” message, but opening it shows the sole attachment is explicitly named `receipt.jpg` (singular) in observation `obs_5c1613f1e44a45359ec931b8ff980173`. The expected `receipts.jpg` is not present in the only targeted result; plan should decide whether the singular attachment is the intended file.",
+      "summary": "The exact search `receipts.jpg` returned William's `Reimbursement Information` email, but the opened message visibly contains `receipt.jpg` (singular), not the requested `receipts.jpg`. This attachment-name mismatch is material; the current route does not establish that this is the requested file, so the plan needs a targeted alternative search or guidance for resolving the mismatch.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/9f3b4751e7158b173d1bc06e62ca525f1369c952a40935ff4af345f1a4394b9a.webp",
-      "screenNumber": 5
+      "screenshot": "screens/bbec9ceaba905e2fbda93b9a43997e5be8980ef450261d00b6b13d870e01cf75.webp",
+      "screenNumber": 3
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "The requested attachment `receipts.jpg` could not be found. Both `receipts.jpg` and `filename:receipts.jpg` searches return only William's “Reimbursement Information” email, whose sole attachment is explicitly named `receipt.jpg` (singular). Substituting and sending that differently named file would change the user's exact target, and no supported action can resolve whether it was intended.",
-      "action": "inconclusive",
-      "reason": "The requested attachment `receipts.jpg` could not be found. Both `receipts.jpg` and `filename:receipts.jpg` searches return only William's “Reimbursement Information” email, whose sole attachment is explicitly named `receipt.jpg` (singular). Substituting and sending that differently named file would change the user's exact target, and no supported action can resolve whether it was intended.",
-      "screenshot": "screens/9f3b4751e7158b173d1bc06e62ca525f1369c952a40935ff4af345f1a4394b9a.webp",
+      "summary": "In Mail, perform a targeted alternative search for an attachment named exactly `receipts.jpg` and inspect distinct plausible messages; if found, download it and read and retain the receipt's labeled total amount from a detailed image view. Do not substitute William's currently open singular `receipt.jpg`.",
+      "action": "execute",
+      "reason": "The current message's attachment is definitively `receipt.jpg`, so it cannot yet satisfy the requested `receipts.jpg`. Search Mail more broadly and inspect distinct plausible results to determine whether the exact plural filename exists; only if found should it be downloaded and read.",
+      "screenshot": "screens/7919b47b72727a8ef96ee8873887327d0d70bfbeee95eaf7199069620f0389b9.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the Mail search results to try a more targeted attachment query for the exact plural filename.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/7919b47b72727a8ef96ee8873887327d0d70bfbeee95eaf7199069620f0389b9.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use Mail's attachment-specific search operator to target the exact plural filename `receipts.jpg`.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/4740f03539cf1678e2d69973fb1e20bffb06facb8003f3ada1731a46a51f8a56.webp",
       "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the attachment-specific Mail search for exact `receipts.jpg` results.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/d7d8e9499a5b19cceef6b584f6863dd876f324fb0d0f9b6c9ed27140c028e20f.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Broaden to Mail's attachment-only query so distinct attachment-bearing messages can be inspected rather than relying on filename token matching that incorrectly returns the singular file.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/e9b5b86986880abae3482a5aac06dcc87d95e4e14d36a97c745abbe62704639a.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search broadly for `jpg` to surface other image-attachment messages because this Mail clone does not appear to support Gmail's `has:attachment` operator.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/80328f41f708b6cf319e505acd83432efcbed99db0b8fd5e1d5c806462430f4c.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail navigation to search beyond Inbox, since every filename-oriented query only returns William's singular attachment.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/4c6c7edb620bd7f26d4b6a00a49f88aad7661896869d89bec2b19d579c07198c.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open All mail so the exact attachment can be sought outside Inbox.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/d346755bd49c8efff9665e23bbde49446b21c5bd883531b7fd489aff2a77e8f5.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search All mail for the distinctive plural filename stem to avoid substituting the singular attachment.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/4c6422085e59c3a266c4dd2b2b95331ae9ea03638c11fdf69e98f6597027833c.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail navigation to inspect labels excluded from All mail, since plural filename searches still only return William's confirmed singular attachment.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/d94884c36aa22aa3893b442b7887259ea291c58bffc9a46b10a1858096ace033.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect Spam, which is excluded from All mail, for a distinct message containing the exact plural attachment.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/98cfbbd99fe59bb1e0b0e4e344ce9e14a9455dd039291ba00969d7dcc111e2b4.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail navigation to inspect Trash, the other label excluded from All mail.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/f7c1c52819c9213ba4ba98d44212d945e59d88f36312ee2dc331972731476a32.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect Trash for the exact plural attachment, completing coverage outside All mail.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/17620000ad705fa4cbcb2533922c13e780b2e0bf48b9e76c64f3474e41b403d0.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to label navigation to inspect All mail messages directly, since exact-text and filename searches may not index attachment filenames reliably.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/7db070315c8fc5dba1d21e73b0d660729b73be65245392892497997cb502f910.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open All mail to enumerate the small mailbox and inspect plausible attachment-bearing messages directly.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/e2a57dba7245ce5d8db3ff2109564d9a6e01d5f3c42d03dc75d6babb7d3120a9.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll through All mail to inspect the remaining messages for plausible attachment-bearing mail.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/f2ef73809f0d8a903789e6df2a57dfeacb7a749c300bed078a1bdd1c1ca3a0be.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Exact `receipts.jpg` is not present in the mailbox: targeted searches (`receipts.jpg`, `filename:receipts.jpg`, and `receipts`) surfaced only William's reimbursement message, whose inspected attachment is singular `receipt.jpg`. Direct enumeration of all 10 All mail messages found no other plausible receipt message, and both Spam and Trash are empty. The required exact attachment cannot be downloaded or forwarded without improperly substituting the singular file.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/17c54b39a9a70cfaadc3d9ebfa5adbbb4a4e8fe197bdd98641f6a0c88235c8c1.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "The requested attachment `receipts.jpg` could not be found after targeted filename searches and direct coverage of all 10 All mail messages, Spam, and Trash. The only plausible message contains a different file, singular `receipt.jpg`, which cannot be substituted. Therefore the required file cannot be downloaded, its total cannot be read, and the requested email cannot be sent without attaching the wrong file.",
+      "action": "inconclusive",
+      "reason": "The requested attachment `receipts.jpg` could not be found after targeted filename searches and direct coverage of all 10 All mail messages, Spam, and Trash. The only plausible message contains a different file, singular `receipt.jpg`, which cannot be substituted. Therefore the required file cannot be downloaded, its total cannot be read, and the requested email cannot be sent without attaching the wrong file.",
+      "screenshot": "screens/17c54b39a9a70cfaadc3d9ebfa5adbbb4a4e8fe197bdd98641f6a0c88235c8c1.webp",
+      "screenNumber": 19
     }
   ]
 }

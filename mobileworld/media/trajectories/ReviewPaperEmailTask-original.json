@@ -1,272 +1,443 @@
 {
   "task": "ReviewPaperEmailTask",
   "variant": "original",
-  "screenCount": 26,
+  "screenCount": 41,
   "roleCounts": {
-    "Planner": 3,
-    "Executor": 26
+    "Planner": 6,
+    "Executor": 42
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "在手机的 Documents 文件夹中找出所有文件名以“review”开头且扩展名为 PDF 的文件，并将这些文件移动到 Document/paper；保留其他文件不变，并记住实际移动结果供后续发送。",
+      "summary": "在 Files 中查找手机 Documents 文件夹内所有文件名以 review 开头且扩展名为 pdf 的文件，并将每个匹配文件移动到 Document/paper；保留其他文件及 paper 中已有内容。",
       "action": "execute",
-      "reason": "日期排序提示不影响本任务；先完成精确筛选与移动，再发送 paper 目录下全部文件。",
-      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "reason": "先完成源文件筛选和移动，再发送目标目录中的全部文件。",
+      "screenshot": "screens/61fead4a48a5a6074e90252f0cd1e0581f485e8f3a10640553c04cb9694867ed.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开 Files 以开始筛选并移动 Documents 中符合条件的 PDF。",
+      "summary": "打开 Files 以开始在设备存储的 Documents 文件夹中筛选并移动匹配的 PDF。",
       "action": "launch(app=com.google.android.documentsui)",
       "reason": "",
-      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenshot": "screens/61fead4a48a5a6074e90252f0cd1e0581f485e8f3a10640553c04cb9694867ed.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开存储位置侧栏以进入手机的 Documents 文件夹。",
+      "summary": "打开存储位置侧栏，以进入实际的设备存储根目录而不是 Downloads 分类视图。",
       "action": "tap(index=5)",
       "reason": "",
-      "screenshot": "screens/a3c24b7c629fa367520638733ba9ec9004b90daee9d55a1a025f30e187cb9152.webp",
+      "screenshot": "screens/5dceb894bba4e5b1c880d8cd39b4cf835826379267948761f5452f3ce2a5dbb1.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "进入设备内部存储根目录，再定位实际的 Documents 文件夹。",
+      "summary": "进入设备存储根目录 sdk_gphone64_x86_64，以定位 Documents 文件夹。",
       "action": "tap(index=24)",
       "reason": "",
-      "screenshot": "screens/c658691a8a39a001e641263b9e841228743165af639fff9fed3c959834eef13f.webp",
+      "screenshot": "screens/6906b117004d6bff6e1a1950588273aba9a5497c356ed21c6984b41c3aa135f8.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "进入内部存储的 Documents 文件夹，检查所有以 review 开头的 PDF。",
+      "summary": "进入设备存储的 Documents 文件夹，查找所有以 review 开头的 PDF。",
       "action": "tap(index=12)",
       "reason": "",
-      "screenshot": "screens/b9c09ae7b61e8c45548ef68c5d83abb38b60fd06e2cfc756cd260b2e53841ea4.webp",
+      "screenshot": "screens/c631f7f331f4330d4a63f1f0c3ded160f507f389fc3b2250eb025c37fb92fcfb.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "在当前 Documents 文件夹内搜索 review，以缩小到所有相关候选文件。",
+      "summary": "在当前 Documents 文件夹内使用搜索，避免遗漏屏幕外或子目录中的 review 开头文件。",
       "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/692e07e55d8a71bfbe7cd294e20c4d5c4287abc5aff4e49f04f548845d2b067b.webp",
+      "screenshot": "screens/a4c7ffe1ffe33fd13b3b30f4db5c35fe2a6287060dd4d3c5788d0b34ed680b4f.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "输入 review 搜索词，查找 Documents 范围内名称以 review 开头的候选文件。",
+      "summary": "在 Documents 范围内搜索文件名以 review 开头的项目。",
       "action": "replace_text(index=3)",
       "reason": "",
-      "screenshot": "screens/778f397613d8e13b89aee3d4c40a83b635ad4507ce87889d306e56ddbb0e1038.webp",
+      "screenshot": "screens/4e7c589ace24af12b5796c56a32c4257ef5482f694c80de5fd102adee5e90d09.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "开始多选搜索结果中的三个 review*.pdf 文件，先选中 review_accepted.pdf。",
+      "summary": "选择第一个 review_v2.pdf，准备将三个匹配的 PDF 一并移动。",
       "action": "long_press",
       "reason": "",
-      "screenshot": "screens/ce26061aa15ef64bff3015f23cb3159173716411f3a586829061456dff67bc9f.webp",
+      "screenshot": "screens/4a720eac81f72b7b7b7b53ff8c5c95608689dea616c0af99817c83eaabb793cf.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "将 review_draft.pdf 加入当前多选。",
+      "summary": "将第二个搜索结果加入选择；三个同名结果代表三个不同位置的匹配文件。",
       "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/416341b018b978e6d2fb21f736c3660a2e22f4eea03d4a74dcfbd0d9258944d5.webp",
+      "screenshot": "screens/e678fa7df15b052c3a92cedc288b006b1b7b5d2aea04a844f854d555f25b988e.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "将最后一个匹配项 review_revised.pdf 加入当前多选。",
+      "summary": "将第三个且最后一个可见的 review_v2.pdf 搜索结果加入选择。",
       "action": "tap(index=12)",
       "reason": "",
-      "screenshot": "screens/7a179a8d7de9854e48e5cb330f610e53c71915f9e5add2355e5d4c969df02356.webp",
+      "screenshot": "screens/fbc2088b5acb147512a729848cd029b622f0aecddfba9e1493ba36b7ee8b08df.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开已选三个 PDF 的更多操作菜单，以选择移动操作。",
+      "summary": "打开三个已选 PDF 的更多操作菜单，以选择移动功能。",
       "action": "tap(index=16)",
       "reason": "",
-      "screenshot": "screens/e346d80e6d1a2856db41d85fe8a7832759e26f94d91f3f59aebb2b68ae0b7722.webp",
+      "screenshot": "screens/f2c4d0d69ee5f0c47a77adb1f131879e6199adbd24c53897ecc257b2f14b9889.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "选择“Move to…”以将三个匹配的 PDF 移动到 Documents/paper。",
+      "summary": "选择“Move to…”以开始把三个匹配 PDF 移动到 Documents/paper。",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/f234b21f7725c907e84955d11810e475830151583579b3f72ea928f5bb6ec288.webp",
+      "screenshot": "screens/6bb3faa6f9afbdefc270bf2ad509216fd5aa2967cb4243ebe5c1ff715b5714b1.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开存储位置侧栏，以导航到内部存储的 Documents/paper 目标目录。",
+      "summary": "打开存储位置侧栏，以从 Downloads 导航到设备存储中的 Documents/paper。",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/5e5a4115a0b50422c708ca32f70d56a42947a221a0e707fa66918dad1ba4c689.webp",
+      "screenshot": "screens/f902cc088d09f6d24576ea867cc4f8c83c6a1aa98fc7342ce6d7fb75d6afdfb6.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "选择内部存储根目录 sdk_gphone64_x86_64，以继续导航至 Documents/paper。",
+      "summary": "在移动目标选择器中打开设备存储根目录，以继续进入 Documents/paper。",
       "action": "tap(index=17)",
       "reason": "",
-      "screenshot": "screens/904f74c1e4e32890f662f9a62065a58da375cca77ab817e4986142c6207e9a65.webp",
+      "screenshot": "screens/f367ea0a450cab36a015ac1dbf0ea30050d345fe09b271821e434595813cfd39.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开 Documents 文件夹，以选择其下的 paper 目录作为移动目标。",
+      "summary": "打开设备存储根目录中的 Documents 文件夹。",
       "action": "tap(index=8)",
       "reason": "",
-      "screenshot": "screens/e8284dbc667d3c3f2638d3f59ff317f7551bdf67d90df7ca1bfe420a2eea3c9e.webp",
+      "screenshot": "screens/e2da178ce4970154be031d97d67cbfda075bf4b8521fbb09688bb70b4b559bb5.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开 Documents 下的 paper 目录，随后将在该目录内确认移动。",
-      "action": "tap(index=5)",
+      "summary": "打开 Documents 中现有的 paper 文件夹作为移动目标。",
+      "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/2c8f2d83ff01dd348024b89cf4767fb20ae40b7c278376037b18db2ca49fcf15.webp",
+      "screenshot": "screens/1699bcd1512f4534797742363951c395d4de32020565e074476850972074ce8f.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "确认将已选中的 3 个 review 开头 PDF 移动到 Documents/paper。",
+      "summary": "确认将已选择的三个 review_v2.pdf 文件移动到 Documents/paper，同时保留该目录现有文件。",
       "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/85d515c6c03f26dc4a0efb4031008b209cdd313110614eda85520290035691d6.webp",
+      "screenshot": "screens/4b973d0f7ee38c30533c15a1a7e87e0c1fbc7a8d3235ef6836cd8e0c178579ab.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "移动提示已结束；退出搜索以刷新 Documents 视图并核实源文件是否已移出。",
+      "summary": "移动提示已消失；退出搜索结果以检查 Documents/paper 中的实际文件。",
       "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/adb0707f21c758e3c2d4e3ee51bcbf4061e3aaedab96e29807b25215f9fbe0ab.webp",
+      "screenshot": "screens/6d94ef2974efdfb1f5bf97c9f3a4319aeef8c18b228431d0c165a49283a515eb.webp",
       "screenNumber": 16
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "打开 Documents/paper，核实 3 个目标 PDF 已实际移入且记录目录内容供后续发送。",
-      "action": "tap(index=9)",
+      "summary": "打开 Documents/paper，核实三个匹配 PDF 已移动到目标目录且原有内容仍保留。",
+      "action": "tap(index=10)",
       "reason": "",
-      "screenshot": "screens/66833497e5ef758baff4d2097dc7c20158d0e65f43194f7cf6af36828c3aa5d0.webp",
+      "screenshot": "screens/a06a59bd1ffbffa9fc88295fa684158715b1a2ec90adef082529d211949897c8.webp",
       "screenNumber": 17
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "已完成并核实移动：Documents/paper 当前包含原有 paper_862.txt，以及已移入的 review_accepted.pdf、review_draft.pdf、review_revised.pdf。其他 Documents 文件未作更改。",
+      "summary": "已确认移动完成：Documents/paper 中保留原有 paper_950.txt，并包含三个匹配 PDF：review_v2.pdf、review_v2 (1).pdf、review_v2 (2).pdf。当前目录共四个文件，可进入发送邮件阶段。",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/07cb419e84f2d17e0251e86f7b494f32ec912f79d6ad73ace3f62ded56f45dac.webp",
+      "screenshot": "screens/0e434d0695e5e97fd750959c7f5ae2c53c6ab8bdbfabd76013ecad31a51d1f8e.webp",
       "screenNumber": 18
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "将当前 Documents/paper 目录中的全部 4 个文件（paper_862.txt、review_accepted.pdf、review_draft.pdf、review_revised.pdf）作为同一封邮件的附件发送至 chen@gmail.com，邮件标题精确为 paper；不得遗漏附件或改动目录内容。",
+      "summary": "将 Documents/paper 目录中的全部四个文件（paper_950.txt、review_v2.pdf、review_v2 (1).pdf、review_v2 (2).pdf）作为附件发送至 chen@gmail.com，邮件主题设为 paper；必须实际发送而非仅保存草稿。",
       "action": "execute",
-      "reason": "移动结果和 paper 目录的 4 个文件均已核实；继续一次性选择全部文件并完成邮件发送。",
-      "screenshot": "screens/2910897eea1ce430545fe65b71e5a1b0c5614e83a35d3973dfd968195834fe4e.webp",
+      "reason": "文件移动已完成且目标目录的四个文件已确认；下一阶段发送邮件。",
+      "screenshot": "screens/8791f2a645d8f747d7d403b5d41342079107fef8029d46bf07354130f83492ed.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "按连续范围一次性选择 paper 目录中从首个到末个的全部 4 个文件，随后核对选择数量。",
-      "action": "drag",
+      "summary": "启动 Gmail 应用以撰写并发送包含四个附件的邮件。",
+      "action": "launch(app=com.gmailclone)",
       "reason": "",
-      "screenshot": "screens/2910897eea1ce430545fe65b71e5a1b0c5614e83a35d3973dfd968195834fe4e.webp",
+      "screenshot": "screens/8791f2a645d8f747d7d403b5d41342079107fef8029d46bf07354130f83492ed.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "已核实 4 selected 且四个指定文件均被选中；打开系统分享面板以选择邮件应用。",
-      "action": "tap(index=13)",
+      "summary": "打开新邮件撰写界面。",
+      "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/baf33171b489f5190510c5876a8b9c4ccddddf850517d4d8fb5b5b6a9d22d2a0.webp",
+      "screenshot": "screens/a839c5667794a1f27b7aca03ae72fc2d04ce751ab4206cc708c9fcf3175ff680.webp",
       "screenNumber": 20
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "分享面板确认正在分享 4 个文件；选择 Mail 创建同一封含全部附件的邮件。",
-      "action": "tap(index=2)",
+      "summary": "填写收件人为 chen@gmail.com。",
+      "action": "replace_text(index=4)",
       "reason": "",
-      "screenshot": "screens/051e524b3a58603e29b4e62a1217d61d015488f7b853d50a86c72e1c1b0044e9.webp",
+      "screenshot": "screens/1ea1cc1c370dae44c826b5e0233732e11ee397cee4460cbcf33b6594500ab2ab.webp",
       "screenNumber": 21
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "邮件草稿已显示全部 4 个所需附件；填写收件人 chen@gmail.com。",
-      "action": "replace_text(index=4)",
+      "summary": "填写邮件主题为 paper。",
+      "action": "replace_text(index=8)",
       "reason": "",
-      "screenshot": "screens/545cb6baacda3038e8c97fa4eada9d70e3da4b810fc877da42ece9732f2e9224.webp",
+      "screenshot": "screens/1a9ef488c55452eac2bbb95a8a6ad116ae04550f7587d539fdafa475755a651f.webp",
       "screenNumber": 22
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "收件人已精确填写为 chen@gmail.com，且 4 个附件仍全部存在；填写邮件标题 paper。",
-      "action": "replace_text(index=8)",
+      "summary": "打开附件选择器，以添加 Documents/paper 中的四个文件。",
+      "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/fdde9ef03d4b90916ad1543b6714432151ad5ede034e13a25ac81a49afe9d765.webp",
+      "screenshot": "screens/f420976cd5bd7701e4f74c386801f0842efb23ec7a94ccecfa93d22bb1fc311d.webp",
       "screenNumber": 23
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "发送前已核实收件人为 chen@gmail.com、标题精确为 paper，且 4 个附件 paper_862.txt、review_accepted.pdf、review_draft.pdf、review_revised.pdf 均存在；点击发送。",
-      "action": "tap(index=4)",
+      "summary": "选择 Files 以从 Documents/paper 添加附件。",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/640e4dc92267a069a0d87e9b04a43d04daf96190b04e8178f9de0cd36c507df1.webp",
+      "screenshot": "screens/d540abed828e9dbf08bdbdb447bb9d9600479eab06e575e553e2e5dd6aee81c5.webp",
       "screenNumber": 24
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "打开位置导航，以进入 Documents/paper。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/260fbcea9fba4976059d3f868ba2d003f142e5f823508c41b315806989e586ac.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents 根目录，准备打开 paper 文件夹并选择全部四个文件。",
+      "action": "tap(index=30)",
+      "reason": "",
+      "screenshot": "screens/661c7825b4e343afb795161da46fc264b20fe10470ab62f74616d70cf777f80c.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Documents/paper 目录以选择全部四个附件。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/f22684ce527016efb12ddfdbeeb560e673f2dadfd702cc51f65b9bc25fdc201b.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "任务已完成：Documents 中所有以 review 开头的 PDF 已移动到 Documents/paper；paper 目录内全部 4 个文件已作为同一封邮件的附件发送至 chen@gmail.com，标题精确为 paper。发送后界面明确显示“Email Sent”。",
+      "summary": "当前附件选择器已打开 Documents/paper，但目录仅显示 3 个 PDF：review_v2.pdf、review_v2 (1).pdf、review_v2 (2).pdf；计划要求的第 4 个文件 paper_950.txt 不在当前目录中，与阶段前提“目录含四个文件”冲突。需先定位 paper_950.txt 并确保其位于 Documents/paper，再附加全部四个文件并发送。",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/871bd7e248bd89094bd97d39347d229c41c0e1e36e7db327b81fdc082ede5302.webp",
-      "screenNumber": 25
+      "screenshot": "screens/2024e3718201bdbf06af9e65e2969f1630773a74a09b3324e4ed3a6ef08e021d.webp",
+      "screenNumber": 28
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "任务已完成：Documents 文件夹内所有以 review 开头的 PDF 文件均已移动到 Documents/paper；paper 目录中的全部 4 个文件已作为同一封邮件的附件发送至 chen@gmail.com，邮件标题为 paper。界面已明确显示“Email Sent”。",
+      "summary": "在保留 Gmail 草稿中收件人 chen@gmail.com 与主题 paper 的前提下，确认 paper_950.txt 当前是否仍实际位于 Documents/paper，并查明它为何未出现在当前附件选择器；若文件存在，记住可用于把它与三个 PDF 一并附加的可行入口，暂不发送不完整邮件。",
+      "action": "execute",
+      "reason": "当前附件选择器只显示 3 个 PDF，但此前 Files 目录视图曾确认同一目录还有 paper_950.txt；需先区分“文件实际缺失”与“选择器按类型过滤”，再决定如何完整附加，不能把不可见直接当作文件已丢失。",
+      "screenshot": "screens/952ae5efbd6538f22a40c96f4e8bb4bb5972097ad3faf39cd92c99bdf43a7a96.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在当前 Documents/paper 附件选择器中搜索 paper_950.txt，以判断文件是实际缺失还是被当前类型筛选隐藏。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/952ae5efbd6538f22a40c96f4e8bb4bb5972097ad3faf39cd92c99bdf43a7a96.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在 Documents/paper 范围内搜索确切文件名 paper_950.txt，确认该附件选择器是否能访问文本文件。",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/d0f2bbecc3d25e4425812b319ecc39525ef8340b20ebc46049b179ecbbc38701.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "当前附件选择器在 Documents 范围精确搜索 paper_950.txt 返回“No matches”，但此前普通 Files 目录视图确认其存在；直接打开 Files 的未过滤浏览入口复核实际目录内容，以区分 MIME 类型过滤与文件缺失。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/3d09c36c214c72fe3ecfa56a3cc65214aa425d928d2789708d8903f933096428.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在普通 Files 目录视图中直接确认 Documents/paper 实际包含全部 4 个文件：paper_950.txt、review_v2.pdf、review_v2 (1).pdf、review_v2 (2).pdf。先前 Gmail 附件选择器只显示 3 个 PDF，且精确搜索 paper_950.txt 返回无匹配，说明文本文件是被该附件入口的类型过滤隐藏，并非丢失。普通 Files 的 Documents/paper 视图可见全部四项，可作为全选四文件并通过分享入口交给 Gmail 的可行路径；尚未发送任何不完整邮件。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8817380037fba6fd8dbb229a0ecd8d46e634db89c6c3a4e2cbad606ac7474f81.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在当前 Documents/paper 普通 Files 视图中选择目录内全部四个文件（paper_950.txt、review_v2.pdf、review_v2 (1).pdf、review_v2 (2).pdf），通过分享入口交给 Gmail，并确认 Gmail 撰写界面实际收到四个附件；不要发送附件不全的邮件。",
+      "action": "execute",
+      "reason": "已确认 Documents/paper 中四个文件均存在，下一步应从未过滤的 Files 视图一次选择全部文件并共享到 Gmail，以绕过 Gmail 附件入口对文本文件的过滤。",
+      "screenshot": "screens/02bd4154bc47bcafded5f10886a3101a5ed5c3b40dbad117da789a1953323f78.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "从首个文件 paper_950.txt 拖选到末个文件 review_v2.pdf，以连续范围一次选择 Documents/paper 内全部四个文件。",
+      "action": "drag",
+      "reason": "",
+      "screenshot": "screens/02bd4154bc47bcafded5f10886a3101a5ed5c3b40dbad117da789a1953323f78.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "长按 paper_950.txt 进入多选模式，随后可使用“全选”可靠选择目录内四项。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/02bd4154bc47bcafded5f10886a3101a5ed5c3b40dbad117da789a1953323f78.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开多选模式的更多选项菜单，以使用全选功能选择目录内全部四个文件。",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/6721930281dc5bb040f9066196047c35348bc30fe80dd913d55e6478a10bbb5d.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击“Select all”，选择 Documents/paper 目录内全部四个文件。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/1bd1ea3b6c85fca40c0a222a676fdc83284144b6afcc8dfbb52b8ba61f164d4b.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已确认四项均被选中；点击分享，打开系统分享面板并交给 Gmail。",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/38613b32e052cd17e0af9d375fee6e9899325432a7aad681cf558abcfe2aedf4.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "系统分享面板确认正在分享 4 个文件；选择 Mail，将四个文件交给邮件撰写界面。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/42f70deaf3e0b47e9ea9150171d02e18b52ece1343dc22d9ac18c1dcf4590411.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已从 Documents/paper 全选四项并通过系统分享交给 Mail。Gmail 撰写界面现明确显示四个附件：paper_950.txt、review_v2 (1).pdf、review_v2 (2).pdf、review_v2.pdf；同时收件人为 chen@gmail.com、主题为 paper。邮件尚未发送，等待下一阶段执行发送。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/49a14f4e4782216e0d253be1f16991ce58cbf483a8b85f838d2174b50d7b016a.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在当前邮件撰写界面保持收件人 chen@gmail.com、主题 paper 以及四个附件 paper_950.txt、review_v2 (1).pdf、review_v2 (2).pdf、review_v2.pdf 不变，实际发送邮件，并根据应用反馈确认已发送而非仅保存草稿。",
+      "action": "execute",
+      "reason": "四个附件、收件人和主题均已在当前撰写界面确认，剩余唯一操作是实际发送并确认发送结果。",
+      "screenshot": "screens/fd02466e47a857b195818bdcdfbab1c7c9c62cd366a29b81a3b12e2f01130810.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收件人、主题和四个附件均已确认无误；点击发送按钮实际发送邮件。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/fd02466e47a857b195818bdcdfbab1c7c9c62cd366a29b81a3b12e2f01130810.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "任务已完成：Documents 中所有以 review 开头的 PDF 已移动到 Documents/paper；paper 目录内全部四个文件已作为附件发送至 chen@gmail.com，主题为 paper。应用明确显示“Email Sent”，确认邮件已实际发送。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/fc46f148a646831a6ff9d3eb50da4bb94f430e8ab4f13987cc0d2e7be5c2a883.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "任务已完成：Documents 中所有以 review 开头的 PDF 已移动到 Documents/paper；paper 目录内的全部四个文件已发送至 chen@gmail.com，邮件主题为 paper。应用显示“Email Sent”，确认邮件已实际发送。",
       "action": "complete",
-      "reason": "任务已完成：Documents 文件夹内所有以 review 开头的 PDF 文件均已移动到 Documents/paper；paper 目录中的全部 4 个文件已作为同一封邮件的附件发送至 chen@gmail.com，邮件标题为 paper。界面已明确显示“Email Sent”。",
-      "screenshot": "screens/871bd7e248bd89094bd97d39347d229c41c0e1e36e7db327b81fdc082ede5302.webp",
-      "screenNumber": 25
+      "reason": "任务已完成：Documents 中所有以 review 开头的 PDF 已移动到 Documents/paper；paper 目录内的全部四个文件已发送至 chen@gmail.com，邮件主题为 paper。应用显示“Email Sent”，确认邮件已实际发送。",
+      "screenshot": "screens/fc46f148a646831a6ff9d3eb50da4bb94f430e8ab4f13987cc0d2e7be5c2a883.webp",
+      "screenNumber": 40
     }
   ]
 }

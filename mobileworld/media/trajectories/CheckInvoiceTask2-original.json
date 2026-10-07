@@ -10,55 +10,55 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Open the invoice PDF in the Download directory and extract the customer email address, due date, base amount, and every payment or late-fee term needed to calculate the amount payable 45 days after the due date; report any ambiguity before sending.",
+      "summary": "Locate and read the invoice PDF in the download directory, retaining the customer email address, due date, original amount, and all payment-delay charges or formulas needed to recalculate payment made 45 days after the due date.",
       "action": "execute",
-      "reason": "The Files guidance does not alter the task: locate the invoice in Downloads and read the facts required for the calculation before emailing the customer.",
-      "screenshot": "screens/5ac048707236104cdfbce8a9409c9d8990ccfcc134151864f5f968e466870d24.webp",
+      "reason": "The invoice contents must be read before the adjusted payable amount can be calculated or emailed.",
+      "screenshot": "screens/c92b757e86dcab0b45c71f400bd9461a22bbae2d285ca9dcba489ffb7e867595.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Files app to locate the invoice PDF in Downloads.",
+      "summary": "Open Files to locate the invoice PDF in the download directory.",
       "action": "launch(app=com.google.android.documentsui)",
       "reason": "",
-      "screenshot": "screens/5ac048707236104cdfbce8a9409c9d8990ccfcc134151864f5f968e466870d24.webp",
+      "screenshot": "screens/c92b757e86dcab0b45c71f400bd9461a22bbae2d285ca9dcba489ffb7e867595.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open invoice.pdf to read the invoice details and late-payment terms.",
+      "summary": "Open invoice.pdf to read the invoice details and payment-delay terms.",
       "action": "tap(index=8)",
       "reason": "",
-      "screenshot": "screens/285552d2aebb28fb854b362c39df6cac10c7f805c5d0a7e735b5d3f46fd55e5e.webp",
+      "screenshot": "screens/8282f726a6b11222b895dfc295ee6254fd51a9a73b3eba7484d4699ed8baafbf.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Opened Downloads/invoice.pdf and extracted: customer Global Enterprises Ltd.; customer email accounting@globalent.com; invoice date September 5, 2025; due date October 4, 2025; subtotal $85,100.00; VAT 20% $17,020.00; total amount due $102,120.00; payment due within 30 days of invoice date; late payments incur interest at 1.5% per month. Material ambiguity: the invoice does not say whether 45 days late should be prorated as 1.5 months or charged as two started months, nor whether interest compounds. This must be resolved or explicitly handled before sending.",
+      "summary": "Read invoice.pdf in Downloads. Customer is Global Enterprises Ltd.; customer email is accounting@globalent.com. Due date is October 4, 2025. Original total amount due is $102,120.00. Terms state late payments incur interest at 1.5% per month; no other late charge is listed.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/7e3e1b401d745941287a6f0b17ce4b7f723dca3d1e624e040b3d4a63baf08b21.webp",
+      "screenshot": "screens/ae3b49e5cefda323b79625d19acb071e774362a0122944348fe60bbaf32d3323.webp",
       "screenNumber": 2
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Compose and send an email to accounting@globalent.com with the recalculated payable amount $104,417.70 for payment 45 days after the October 4, 2025 due date, stating that it uses simple interest prorated over 45 days (1.5 30-day months) at 1.5% per month because the invoice gives no compounding or partial-month rule.",
+      "summary": "Compose and send an email to accounting@globalent.com stating the recalculated total amount payable is $104,417.70 for payment 45 days after the October 4, 2025 due date.",
       "action": "execute",
-      "reason": "The invoice establishes the principal and monthly late-interest rate. Because it specifies neither compounding nor started-month billing, use the conventional transparent interpretation of simple interest prorated over 45 days as 1.5 30-day months: $102,120.00 × (1 + 0.015 × 1.5) = $104,417.70, and disclose that basis in the email.",
-      "screenshot": "screens/37168572711e3020a267ac7fd69dd4a399ba3af0b0598a453affe8ed233781b4.webp",
+      "reason": "The invoice provides all inputs: 45 days is 1.5 months, so late interest is $102,120.00 × 1.5% × 1.5 = $2,297.70, making the recalculated total payable $104,417.70. The remaining work is to email that result to the customer.",
+      "screenshot": "screens/3c6bd199c53acdc305012d4a446370f30755801bf07da4297cfe58562f416168.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mail to compose the customer email with the recalculated amount and disclosed calculation basis.",
+      "summary": "Open Mail to compose the customer email with the recalculated total payable.",
       "action": "launch(app=com.gmailclone)",
       "reason": "",
-      "screenshot": "screens/37168572711e3020a267ac7fd69dd4a399ba3af0b0598a453affe8ed233781b4.webp",
+      "screenshot": "screens/3c6bd199c53acdc305012d4a446370f30755801bf07da4297cfe58562f416168.webp",
       "screenNumber": 3
     },
     {
@@ -67,61 +67,61 @@
       "summary": "Start a new email to the invoice customer.",
       "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/b5c74b495067840429f0d7cd43bfb92084a34a04d58c5acfb1136758368bd006.webp",
+      "screenshot": "screens/381722f624d8af9e5dcc6bd03734a6d962cf67fc9114e0980167b24eb7f05d4d.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Address the email to the invoice customer's accounting contact.",
+      "summary": "Enter the customer email address in the To field.",
       "action": "replace_text(index=4)",
       "reason": "",
-      "screenshot": "screens/a31db660144a6cbcf65a479993c7f6498c0c898dac4c9a17f4839dfc98e1cfaa.webp",
+      "screenshot": "screens/d4693bc82358f33994d2cb7060ab8ef62b49fb7512c5ddeac7f0e573e5126b46.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Set a clear subject identifying the invoice and recalculated payable amount.",
+      "summary": "Add a clear subject identifying the invoice and recalculated payable amount.",
       "action": "replace_text(index=8)",
       "reason": "",
-      "screenshot": "screens/1c5459688ea546c61acb80e0b6d2b44928996f8d9dd4db3433aa2436e9aeed20.webp",
+      "screenshot": "screens/f4392c5b217758ffcf3c9413acc4150050dbb68bcceae338e127b89f40555565.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter the recalculated payable amount, calculation, and transparent simple-interest proration assumption in the email body.",
+      "summary": "Enter the email message stating the recalculated total payable and the 45-day delay context.",
       "action": "replace_text(index=9)",
       "reason": "",
-      "screenshot": "screens/5c15b41a48276ceea788a0fac33b347d296367c08e353ba59d640455924896b3.webp",
+      "screenshot": "screens/d6b5e4bbaddbad0f137643c93a745b5dfdf65dcaf9fa1471610c1fc18ba98022.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Send the completed email to accounting@globalent.com with the recalculated amount and disclosed calculation basis.",
+      "summary": "Send the completed email to accounting@globalent.com.",
       "action": "tap(index=4)",
       "reason": "",
-      "screenshot": "screens/fbf07ea96fa3d32b314dd3727c2c99fac8e0579871755a2935dc35132e35273b.webp",
+      "screenshot": "screens/d80ef0f0379876ab9239ad557d7c788aa989f67c8d6e9e8f5be9b9233939e6b7.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Email sent successfully to accounting@globalent.com. It stated the recalculated payable amount of $104,417.70 for invoice INV-2025-TECH-001 and disclosed the simple-interest proration basis: $102,120.00 × (1 + 0.015 × 1.5), using 45 days as 1.5 30-day months because the invoice specifies no compounding or partial-month rule.",
+      "summary": "Email sent successfully to accounting@globalent.com stating that the recalculated total payable for invoice INV-2025-TECH-001, based on payment 45 days after the October 4, 2025 due date, is $104,417.70.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/7d809155b8cee76b9fdbb7cf3cc6df9c1f1143a78c797b7c714515570bcc0ab6.webp",
+      "screenshot": "screens/76e92d0f24c962cc108a27fa99836dc1c1698ee6c29a0c73d159a3bbaa78826b.webp",
       "screenNumber": 9
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Read `invoice.pdf`, recalculated the payable amount as $104,417.70 using the disclosed simple-interest proration for 45 days, and successfully emailed the result to accounting@globalent.com.",
+      "summary": "Read the invoice, recalculated the total payable for payment 45 days after the due date as $104,417.70, and sent that result by email to accounting@globalent.com.",
       "action": "complete",
-      "reason": "Read `invoice.pdf`, recalculated the payable amount as $104,417.70 using the disclosed simple-interest proration for 45 days, and successfully emailed the result to accounting@globalent.com.",
-      "screenshot": "screens/7d809155b8cee76b9fdbb7cf3cc6df9c1f1143a78c797b7c714515570bcc0ab6.webp",
+      "reason": "Read the invoice, recalculated the total payable for payment 45 days after the due date as $104,417.70, and sent that result by email to accounting@globalent.com.",
+      "screenshot": "screens/76e92d0f24c962cc108a27fa99836dc1c1698ee6c29a0c73d159a3bbaa78826b.webp",
       "screenNumber": 9
     }
   ]

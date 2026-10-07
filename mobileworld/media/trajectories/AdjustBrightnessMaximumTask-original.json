@@ -10,19 +10,19 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Set the device brightness to the exact maximum endpoint in Settings, preserving unrelated settings.",
+      "summary": "Set the device brightness slider to the exact maximum endpoint and leave that setting in effect.",
       "action": "execute",
-      "reason": "The brightness must be changed from the launcher using Settings, with the exact maximum endpoint confirmed by the resulting slider position and percentage.",
-      "screenshot": "screens/b88f12afb4efa3f51d27379250cb4c7ad7d68ab15fcfc10131052cab8d698e33.webp",
+      "reason": "The brightness still needs to be set to its exact maximum endpoint.",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Settings directly to begin adjusting display brightness.",
+      "summary": "Open Settings directly to begin adjusting the display brightness.",
       "action": "launch(app=com.android.settings)",
       "reason": "",
-      "screenshot": "screens/b88f12afb4efa3f51d27379250cb4c7ad7d68ab15fcfc10131052cab8d698e33.webp",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
       "screenNumber": 0
     },
     {
@@ -31,7 +31,7 @@
       "summary": "Scroll down the Settings categories to locate Display.",
       "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/3f99b54826e97d852e8efe7f1aef93b420d28c656376e93371fc807c44f8a475.webp",
+      "screenshot": "screens/f2e819a7fbce0c8f4e3961dc871c6a831c770b57ea2b80f80ce443d8c7ce598f.webp",
       "screenNumber": 1
     },
     {
@@ -40,43 +40,43 @@
       "summary": "Open Display settings.",
       "action": "tap(index=9)",
       "reason": "",
-      "screenshot": "screens/757a5dda74af4261b9fbb23cf00b9c513d16f1a52e6f41e3277e99f544cbb91c.webp",
+      "screenshot": "screens/7de64d10a8189b68b5bf6975ae41f652bfdd7e5b08e8169bdecb9be000fee2df.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Brightness level to access the brightness slider.",
+      "summary": "Open the Brightness level control.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/af00a1de8d1af1eab058a414ef3636f1e937ce660c0a837f06385f44542942f5.webp",
+      "screenshot": "screens/9f8a356d12bdcbab6c164100ae24a04b917639d7dc3469fc3b4861fdf9867318.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Drag the brightness thumb past the track's right endpoint toward the screen edge so it clamps at the exact maximum.",
+      "summary": "Drag the brightness thumb past the track's right edge so it clamps at the exact maximum endpoint.",
       "action": "drag",
       "reason": "",
-      "screenshot": "screens/dc037971b7e3f99d951c50943ed628d4b6cc4fabd79b88b361f3523effbbad23.webp",
+      "screenshot": "screens/06f0798097cda530bfd74d5bb963edba14437d30351beeaebd8f3df2ecf54d1f.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Brightness is set to the exact maximum endpoint. The slider thumb is clamped at the far-right end after dragging past the track, and Settings displays 100%.",
+      "summary": "Brightness is set to the exact maximum endpoint; the slider is clamped at the far right and Display shows 100%.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/35b1d2b5732f77049d9ff0ee49d112da843ddaf4fe812ed2b01a66bdb113f748.webp",
+      "screenshot": "screens/2ae3daafbf84b0e8e29169701a8178621427559bca1ba5c3dfc567687f3920e8.webp",
       "screenNumber": 5
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Brightness is set to the exact maximum endpoint; Settings shows 100% and the slider is clamped at the far-right end.",
+      "summary": "Brightness is set to the exact maximum endpoint and remains at 100%.",
       "action": "complete",
-      "reason": "Brightness is set to the exact maximum endpoint; Settings shows 100% and the slider is clamped at the far-right end.",
-      "screenshot": "screens/35b1d2b5732f77049d9ff0ee49d112da843ddaf4fe812ed2b01a66bdb113f748.webp",
+      "reason": "Brightness is set to the exact maximum endpoint and remains at 100%.",
+      "screenshot": "screens/2ae3daafbf84b0e8e29169701a8178621427559bca1ba5c3dfc567687f3920e8.webp",
       "screenNumber": 5
     }
   ]

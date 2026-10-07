@@ -10,55 +10,55 @@
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Enable device flight mode and leave it on.",
+      "summary": "Turn on device flight mode, preserving unrelated settings.",
       "action": "execute",
-      "reason": "Flight mode is currently not shown as enabled, so the device setting must be changed.",
-      "screenshot": "screens/109f574ac25268a1657fc56ff384f05b78d7972e19b39fd9d161c2dbb22f9671.webp",
+      "reason": "Flight mode is not yet shown as enabled; use Settings to enable it.",
+      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Settings to locate and enable flight mode.",
+      "summary": "Open Settings to access the flight mode control.",
       "action": "launch(app=com.android.settings)",
       "reason": "",
-      "screenshot": "screens/109f574ac25268a1657fc56ff384f05b78d7972e19b39fd9d161c2dbb22f9671.webp",
+      "screenshot": "screens/f6c4c9e24b5c84e848cb3862cd5af44051ec1073faa28439830d37abefba6941.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Network & internet, where flight mode is typically available.",
+      "summary": "Open Network & internet, where the flight mode setting is located.",
       "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/d58a4a24e72f2f1113d4c3b598e0827d2d7609347d8f0da450dd43ca8ad94f56.webp",
+      "screenshot": "screens/9a4bc3c2c0c235581dc882812714a8c43132961df2e92c0f9f6f518813bd04e8.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Turn on the visible Airplane mode switch.",
+      "summary": "Turn on the currently off Airplane mode switch.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/1f5fe4840e705b319b7c5a5c57133741b64e7652fd25be5e3ac68800318dbb42.webp",
+      "screenshot": "screens/faf756dd03c55d172129286235599a5a7dee0c6771c0fc91899638827eedd11c.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Decision",
-      "summary": "Airplane mode is enabled and left on. The switch is visibly on, the Internet status says \"Airplane mode is on,\" and the status bar shows the airplane icon.",
+      "summary": "Flight mode is enabled. The Airplane mode switch is visibly on, the Internet status says \"Airplane mode is on,\" and the status bar shows the airplane icon; unrelated settings were left unchanged.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/baa3ce8fcfb889beb11b66a91c59777ffae74d7cd75c7c087a46a18e0d4579f1.webp",
+      "screenshot": "screens/8970d322185f4f9e3f1668e806db7618c020453f827604ac0c80f1bcadc9f632.webp",
       "screenNumber": 3
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Device flight mode is turned on and remains enabled.",
+      "summary": "Device flight mode is on. The Airplane mode switch is enabled, Settings reports “Airplane mode is on,” and the status bar shows the airplane icon.",
       "action": "complete",
-      "reason": "Device flight mode is turned on and remains enabled.",
-      "screenshot": "screens/baa3ce8fcfb889beb11b66a91c59777ffae74d7cd75c7c087a46a18e0d4579f1.webp",
+      "reason": "Device flight mode is on. The Airplane mode switch is enabled, Settings reports “Airplane mode is on,” and the status bar shows the airplane icon.",
+      "screenshot": "screens/8970d322185f4f9e3f1668e806db7618c020453f827604ac0c80f1bcadc9f632.webp",
       "screenNumber": 3
     }
   ]

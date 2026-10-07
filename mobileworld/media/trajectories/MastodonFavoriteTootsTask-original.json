@@ -1,25 +1,25 @@
 {
   "task": "MastodonFavoriteTootsTask",
   "variant": "original",
-  "screenCount": 17,
+  "screenCount": 21,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 17
+    "Executor": 21
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, search for the hashtag “#dogs” and favorite every toot in the resulting hashtag scope, traversing the full available results and preserving already-favorited state without toggling favorites off.",
+      "summary": "In Mastodon, search for the hashtag “#dogs” and favorite every toot in the complete hashtag result scope, preserving existing favorites and continuing through all available results.",
       "action": "execute",
-      "reason": "Search and exhaustive result traversal can be handled as one stage because each matching toot can be favorited as encountered while preserving distinct occurrences.",
+      "reason": "Search and complete the requested engagement across the full #dogs results collection.",
       "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon directly to begin the hashtag search.",
+      "summary": "Open Mastodon to begin the #dogs search and favorite traversal.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
       "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
@@ -31,152 +31,188 @@
       "summary": "Open Mastodon's Explore/Search tab.",
       "action": "tap(index=20)",
       "reason": "",
-      "screenshot": "screens/7f3cebea38304bee83a8d69272b6be1fc875e98b877addb3385c8a6203720502.webp",
+      "screenshot": "screens/d61912be5bd8982c0907087296ff2ace16192736829c6469b6523cc94f5cccc4.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Activate the Search Mastodon entry point before entering the hashtag query.",
+      "summary": "Activate the Search Mastodon entry point before entering #dogs.",
       "action": "tap(index=1)",
       "reason": "",
-      "screenshot": "screens/e7e613a900b6abdbc761f92d2b4c6df567fdc7f5a00a31a88bcbf84005f25935.webp",
+      "screenshot": "screens/6c0ef841244ec04d35a11b28d8b7333504a02058762e5d0d6adeffa018c0604f.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Enter the exact hashtag query “#dogs” in Mastodon search.",
+      "summary": "Enter the exact hashtag query #dogs.",
       "action": "replace_text(index=3)",
       "reason": "",
-      "screenshot": "screens/8b4aa8d7469c3fc3c82d6993cecbd5f4bc6b0b4a0da8345ea61af99fe23bbde5.webp",
+      "screenshot": "screens/83d8bd490417557af6d35991f07c588746072f857afc0c103b7284bd0b431447.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the exact “dogs” hashtag result so traversal is scoped to posts tagged #dogs.",
+      "summary": "Open the exact dogs hashtag result rather than a general text-search result.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/b090b646ef34b63682136e5e340a51339c05a1b6860b879d84211507d57bf188.webp",
+      "screenshot": "screens/c3ab13038984fb7ea0495f2200a025bf0aa01d78898228cfd3d5be842b081e18.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Favorite the first visible #dogs toot; its action is currently labeled “Favorite,” so this will not toggle off an existing favorite.",
+      "summary": "Favorite the first visible #dogs toot; its action is currently labeled Favorite.",
       "action": "tap(index=10)",
       "reason": "",
-      "screenshot": "screens/6663a08df9a47387f36b1188e44b2f536541f3331dc5004c36dc31069cb0bed7.webp",
+      "screenshot": "screens/62568ea2ce098f11562c379fb0686b1a8c356b1182c98f30db1175f66b1030b8.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll through the #dogs hashtag feed with overlap to expose the second toot’s action controls while retaining traversal continuity.",
+      "summary": "Scroll within the hashtag results to expose the second toot's actions while retaining overlap with the favorited first toot.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/0c204989cc301f87190f2fe612342421ce30acaa1e6708c4a58cd41965f53ab5.webp",
+      "screenshot": "screens/1363bbee8b65cac66a430650cd64e8482325f2c9e009a998c1a81d028c4ac723.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue scrolling with overlap to reach the second toot’s favorite control and further #dogs results.",
+      "summary": "Continue downward enough to reveal the second #dogs toot's Favorite control.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/05fd1a70255ef7a0f9bf7f067d9c25e0faee0a4875d976796b5bfe01e4bab7ec.webp",
+      "screenshot": "screens/864612f20b4233a08ea5a4d142152a2fb9ab918a13a04af38614227b330a240c.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Favorite the visible Bulldog #dogs toot; its control is unselected, while preserving the already-favorited prior toot.",
+      "summary": "Favorite the second #dogs toot, whose Favorite control is currently unselected.",
       "action": "tap(index=7)",
       "reason": "",
-      "screenshot": "screens/7247b106403b36bf7796d0c909b2323dfe724bf917c6d425e79f2f7fe3876e45.webp",
+      "screenshot": "screens/eebe6d651fc37ce6a54e6810c9b600fad928f959341f4c4ef40b7c833136beb2.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Favorite the visible German Shepherd #dogs toot; its Favorite control is currently unselected.",
-      "action": "tap(index=14)",
+      "summary": "Continue through the hashtag feed to reveal the third toot's Favorite action and further results.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/e8871ce0fc88664706bd04d19e6bd004618e82a1c19fef8fc77ad2e6c2d1a434.webp",
+      "screenshot": "screens/e5c9d5f1dafa1fb5fe439cfd92f4eb76e31b900c852f7f3899eabf2917e0b65c.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue down the #dogs hashtag feed after confirming both currently visible Favorite controls are selected.",
-      "action": "swipe",
+      "summary": "Favorite the visible German Shepherd #dogs toot; its Favorite control is currently unselected.",
+      "action": "tap(index=6)",
       "reason": "",
-      "screenshot": "screens/433545e1ae59d41d8ba90724eb6cbf05956cae3304d6f4c47f5d44a9e0a3615f.webp",
+      "screenshot": "screens/4b2fdf5452a6e5fc918f19e90cafb56e924637de1058dbdd7c75bcecd34cfb85.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Favorite the visible Labrador Retriever #dogs toot; its Favorite control is unselected. The partially visible Golden Retriever toot remains pending until its controls are reached.",
+      "summary": "Favorite the visible Labrador Retriever #dogs toot; its Favorite control is currently unselected.",
       "action": "tap(index=13)",
       "reason": "",
-      "screenshot": "screens/00dadaffca95c0ded0d8785a8e8d0527b8c2a233d8683c165db28d1fb2f1606a.webp",
+      "screenshot": "screens/51c816f4791a949d0312fa7afa6882da0674bb0993c7168cfcf9b76d00cbd7a6.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down to reach the pending Golden Retriever toot's Favorite control while retaining overlap with the selected Labrador toot.",
+      "summary": "Continue down the #dogs hashtag feed after confirming the German Shepherd and Labrador toots are favorited.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/9ace54dd5e908b6282f135a246842374370a7d81c1bdfb1b93d99009a312fcb3.webp",
+      "screenshot": "screens/d246a992bc7c0acbecfecea6b44db2e5c2313c556bd6b5c13bd5facefaab4ea6.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Favorite the visible Golden Retriever #dogs toot; its Favorite control is unselected.",
-      "action": "tap(index=15)",
+      "summary": "Scroll enough to expose the demo Golden Retrievers toot's Favorite action before continuing.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/a05c9fcda60ccb0b20c28aa1d4b5acdb986a7416d0f916c694c51a07e3d0d63d.webp",
+      "screenshot": "screens/5b4ebccab86c4f05ad17cba5c2cdb84656b978bec5783c9a7909fd1bff25ba8d.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue downward through the #dogs hashtag results after confirming the Golden Retriever toot is selected, retaining overlap to identify any additional toots.",
-      "action": "swipe",
+      "summary": "Favorite the currently unselected Golden Retrievers toot in the #dogs hashtag feed.",
+      "action": "tap(index=15)",
       "reason": "",
-      "screenshot": "screens/83429d25c97883aa429fed81eb215cc11be5fb552b1b544df2a335be99d6ee9b.webp",
+      "screenshot": "screens/d6c7bd92cb2ea1fdf909f49b8ca298439107161bbd3adfffb6aec9b7aa69da8a.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Use a shorter downward-list swipe to distinguish a missed gesture from the end of the available #dogs results.",
+      "summary": "Continue traversing below the now-confirmed favorited Golden Retrievers toot to find any remaining #dogs results.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/cf140bf378a5a1d2198fd366a3a96492dafb7683a962eb0a6a37ecf1360034c2.webp",
+      "screenshot": "screens/26e102a3cf7a84666ce53440d1860fa480fd53559230a76cfb33b4d232fd3b32.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "The repeated downward swipe left the view unchanged, establishing the bottom boundary; return upward to locate and confirm the earlier Bulldogs toot.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/ca633667c6d77e6546bb66d2c77702f2a64ea7377f7a4d10c28b109370004e04.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward from the German Shepherd/Labrador overlap to reach the earlier Bulldogs toot and verify or favorite it.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/d30a06273bf2b12debc8e03cb114cc9da6b232655d18396b4844fad674a3a8c5.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The Bulldogs toot is confirmed favorited (selected Favorite, count 1); continue upward to verify the top boundary and all earlier #dogs results.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/87fb1a350c18a6daa1919910c301801d1ac983b7fef965f03adb92f65a4489a6.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward from the Border Collie/Bulldogs overlap to establish the top boundary of the #dogs results.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/9572d6954d5dd246380fd527e91a9971ab8b12f8d2d2853e1af1ef3242a2a5ea.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Completed the #dogs hashtag feed traversal. All encountered toots are favorited, including the final Golden Retriever toot now visibly selected with count 1. Two downward swipes at the bottom produced no movement, establishing the end of the available results; already-selected favorites were preserved.",
+      "summary": "Completed the full #dogs hashtag result scope. Top boundary is established at the hashtag header and bottom boundary was established after traversal. All five visible toots—Border Collie, Bulldogs, German Shepherd, Labrador Retriever, and Golden Retrievers—are confirmed favorited, with existing favorites preserved.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/cf140bf378a5a1d2198fd366a3a96492dafb7683a962eb0a6a37ecf1360034c2.webp",
-      "screenNumber": 16
+      "screenshot": "screens/16a16fde365d3977af395b4fb157e9db5e8085c9cdf115f331a1113c8b906b1c.webp",
+      "screenNumber": 20
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Completed the Mastodon #dogs search and favorited every toot in the full available hashtag feed. The end of the results was established by repeated downward swipes with no movement, and already-favorited toots were preserved.",
+      "summary": "Completed the full #dogs hashtag result scope in Mastodon. All five toots found—Border Collie, Bulldogs, German Shepherd, Labrador Retriever, and Golden Retrievers—are favorited, with existing favorites preserved.",
       "action": "complete",
-      "reason": "Completed the Mastodon #dogs search and favorited every toot in the full available hashtag feed. The end of the results was established by repeated downward swipes with no movement, and already-favorited toots were preserved.",
-      "screenshot": "screens/cf140bf378a5a1d2198fd366a3a96492dafb7683a962eb0a6a37ecf1360034c2.webp",
-      "screenNumber": 16
+      "reason": "Completed the full #dogs hashtag result scope in Mastodon. All five toots found—Border Collie, Bulldogs, German Shepherd, Labrador Retriever, and Golden Retrievers—are favorited, with existing favorites preserved.",
+      "screenshot": "screens/16a16fde365d3977af395b4fb157e9db5e8085c9cdf115f331a1113c8b906b1c.webp",
+      "screenNumber": 20
     }
   ]
 }

@@ -1,227 +1,497 @@
 {
   "task": "MastodonFilterLanguageTask",
   "variant": "original",
-  "screenCount": 22,
+  "screenCount": 52,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 22
+    "Executor": 51
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, set the post language filters so the only selected languages are English, Japanese, and Chinese Simplified, then retain the app's saved-state or success feedback.",
+      "summary": "In Mastodon, set the post language filters so the only selected languages are English, Japanese, and Chinese Simplified, preserving unrelated account settings.",
       "action": "execute",
-      "reason": "Configure the requested Mastodon language filter and confirm the saved selection.",
-      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "reason": "Configure the requested Mastodon content-language filters in the app.",
+      "screenshot": "screens/fc83ade52842abcb061ca066a77c16c3324b673436571c8827b6e34592ed868f.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon to configure the requested language filters.",
+      "summary": "Open Mastodon to configure its post language filters.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
-      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenshot": "screens/fc83ade52842abcb061ca066a77c16c3324b673436571c8827b6e34592ed868f.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon settings to find post language filters.",
+      "summary": "Open Mastodon settings from the Home toolbar.",
       "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/676e7c62444155208215a5383a476e3820af7eef24354e47f5276ee0001a6ab5.webp",
+      "screenshot": "screens/a4e5339928822a7519239b2390ca091b456f70c08317600cdb6f73e6e610cc95.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open settings for the active @test account, identified from the active profile/feed avatar.",
+      "summary": "Open Behavior settings, where timeline content and language filtering options are typically configured.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/48617cba7fb928a288b3e3f9ee4299e23ebf69d5172de6a16d1099491f70627f.webp",
+      "screenshot": "screens/f8cd90dc83768f87a458132b33f27dcb7cb9de056c2c2e70e2129c3b707b8912.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Privacy and reach, where feed language visibility settings are expected.",
-      "action": "tap_xy",
+      "summary": "Return to Settings because Behavior contains no post language filter controls.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/502812eb2532b48487f41bfaf5895e3d84e438d8dcb209354bc643a0bf1c7c6b.webp",
+      "screenshot": "screens/fda729d5add4f73b7f9a088f525daac610174b34bb669883bb8c6d9030f01d15.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Privacy and reach has no language controls; return to the account settings menu to inspect Filters.",
-      "action": "back",
+      "summary": "Open the active @test account settings to locate account-specific post language filters.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/fb086822d6eacbf292b452383e1d5027edba8dcd1754400ee570757c1da3aa40.webp",
+      "screenshot": "screens/5641640015ebfa400a7a96eefd7bd7856deb1af5d42245e612d3dd20b981d59f.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Filters to check for post language filtering controls.",
+      "summary": "Open Privacy and reach to find the account's language-based post visibility controls.",
       "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/3b3c6a7f1b77ea224abef94b345f8c8a983501162f8ce34e766cb372ef6ad80f.webp",
+      "screenshot": "screens/bed1f208028a7b0314c8a1d9e692a2cf6ab3e84f577dd1db71ca791dd1eb97a3.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the browser to access the instance web preferences, since native Filters manages keyword filters rather than post languages.",
-      "action": "launch(app=com.android.chrome)",
+      "summary": "Return to the account settings list because Privacy and reach has no language controls.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/fccee4f910d72873982801136918ecd5d2496e54464ebf5b59b6bb1d3ee1981a.webp",
+      "screenshot": "screens/5970b02755f1bc87e7db20e41112f2004aaadaf6905c1e4f8fbaa4fece238da7.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Navigate directly to Mastodon's Other preferences page, where post-language filters are typically configured.",
-      "action": "replace_text(index=2)",
+      "summary": "Open Filters to check whether it contains the requested post-language selections.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/1e68765bd3322d845797b3f09ee46e7eb1dc32aacbc0446bcc46367867f436da.webp",
+      "screenshot": "screens/424013348501ff0871e74cc82b2eb87c6c19991182ccd62438f30c6d96c760b8.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Submit the direct Other preferences URL.",
-      "action": "key(key=enter)",
+      "summary": "Return because Filters manages keyword filters, not post-language visibility.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/cd585d97ed1e8419de71174172054638e04781c7398146e643ae868c5471c2e0.webp",
+      "screenshot": "screens/cceff071d50b4e9d6f293a8112b7e4ea2dfa935e46a0f976b9bf5ea3fd228cb7.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Correct the instance URL to HTTPS, matching the working Mastodon web settings session.",
-      "action": "replace_text(index=4)",
+      "summary": "Open Posting defaults to inspect whether it includes the account's language settings.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/5873105b6a41fb4cc20eccb829dc820a808c589bdb6c6cdf925a5f6f41ee9c9e.webp",
+      "screenshot": "screens/1f33d8de80c07c6f21121179365f4c8ed2a432b78b814fca737f7e1685881529.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Submit the corrected HTTPS Other preferences URL.",
-      "action": "key(key=enter)",
+      "summary": "Return because Posting language controls only the default language for authored posts, not which languages appear in timelines.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/9b85471d874cb7722d168e715e72ebe9fb53314e7c529cdb0d00053885dbfb51.webp",
+      "screenshot": "screens/ccbe9a4f282ad02883a9aa92784157779b93c40d7b0cb3da8f09f92c813acb89.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scan the full language checklist from the top, noting and correcting selections while locating the requested languages.",
-      "action": "swipe",
+      "summary": "Return to the main Settings screen to inspect Display, the remaining plausible location for timeline content-language filters.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/1c8ef415aa30b1a6fab29d2fca8d17269b61e13868060dbffd309cba98383097.webp",
+      "screenshot": "screens/5b2556f1ee5eed04540e14d4a385c72555746fa8b31c8c29f9df7c27cc9e35d1.webp",
       "screenNumber": 11
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select English in the public-timeline language filter.",
-      "action": "tap(index=27)",
+      "summary": "Open Display to find the timeline post-language visibility controls.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/74d97258241d4eacc694ee33363ba5052ca27514d362fd4a85b223255eed18cf.webp",
+      "screenshot": "screens/fa2ff731db9581245e58f9aa42b1da722301006eebaf8f3b0add62d0ef07f94e.webp",
       "screenNumber": 12
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue scanning the language checklist for Japanese, Chinese Simplified, and any other selected languages.",
-      "action": "swipe",
+      "summary": "Display contains no language controls; return to Settings to re-enter account preferences and inspect beyond the initially visible portion.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/f25315cf688d1a2207bf67a66f5e5822f5a188daffdace3532b71a59139927da.webp",
+      "screenshot": "screens/d53332d1552fd1909357769a13c5c4c02726a30efbfb235033bf4c3c99b60296.webp",
       "screenNumber": 13
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue through the unchecked language list toward Japanese and Chinese Simplified.",
-      "action": "swipe",
+      "summary": "Exit Settings to inspect the main navigation for a separate timeline language-filter control, since neither app nor account settings exposes it.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/71e52511bcd8194bdc081fa9a91d4de88c981ad485724e027b503f8c1a66e009.webp",
+      "screenshot": "screens/3042df4287c34c706524fda622541fdaacad08de2f4e5289201835040bef354a.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue scanning the remaining language checklist for Japanese and Chinese Simplified.",
-      "action": "swipe",
+      "summary": "Open the Home timeline options menu to look for timeline filtering controls, including post languages.",
+      "action": "tap(index=3)",
       "reason": "",
-      "screenshot": "screens/71d3e3102d0e6914b4fae8e34b3f3e05a433c809c573a3d077f147eb17c9ae17.webp",
+      "screenshot": "screens/c9df3907ad0086902c58743d9d41d092022d78d44d120a42c8366f53438fe20b.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue down the language checklist to reach the Japanese and Chinese entries.",
-      "action": "swipe",
+      "summary": "Dismiss the unrelated overflow menu, then inspect the Home timeline settings control for content-language filters.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/96e9dc0a8d4cca91665e640a7dbe8f18e3991c4d65e5f19b66b9fc2a9cd56fda.webp",
+      "screenshot": "screens/f6241c07ef0e1338a3af073bf9eeb77e3f6a898278af6accf22727369acbdb57.webp",
       "screenNumber": 16
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue to the final language entries, where Japanese and Chinese should appear.",
-      "action": "swipe",
+      "summary": "Open Home timeline settings, the most likely location for selecting which post languages are shown.",
+      "action": "tap(index=2)",
       "reason": "",
-      "screenshot": "screens/2d5a6c889b1e3669a289e9bc6ae89bbcf5bdaefa876f3b78072b8ed08cf52a90.webp",
+      "screenshot": "screens/6873d704105ef870cc2b822f40fd81e6805010fce4c78f9acf9e15e13dd8f2ad.webp",
       "screenNumber": 17
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select Japanese in the Mastodon public-timeline language filter.",
-      "action": "tap(index=21)",
+      "summary": "Open settings for the active @test account to locate its content-language preferences.",
+      "action": "tap_xy",
       "reason": "",
-      "screenshot": "screens/7f9ab9088cc704dd9f248334314ad7c8fb25f0de7e8ae42a22f2719aecfae5fd.webp",
+      "screenshot": "screens/f1d9e0fc54e40829dc00e3e0b1887dfced0e37ee6a381388c4f20cc345135d51.webp",
       "screenNumber": 18
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select Chinese Simplified in the Mastodon public-timeline language filter.",
-      "action": "tap(index=22)",
+      "summary": "Return from account settings; the account menu only exposes keyword filters and posting defaults, so continue toward Home timeline controls.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/4ec7fadc59bcd81d2cbb3498d08762e8e45984b5f512a949b89771fb75420dc9.webp",
+      "screenshot": "screens/ee5c9a606376da6f513012e77937db56b05319f8fd596de1c33acc0ccef63966.webp",
       "screenNumber": 19
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Save the selected English, Japanese, and Chinese Simplified public-timeline language filters.",
-      "action": "tap(index=29)",
+      "summary": "Leave general Settings and inspect timeline/search UI for the dedicated post-language filter control.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/405a1f83f9c0a94877835eb219e01bc1a02362c4594ea5a856f7c075ccddb0a6.webp",
+      "screenshot": "screens/ef29db9970d1f287664fc33ec52724a2dbda74902f6f5c814773e312a1771f73.webp",
       "screenNumber": 20
     },
     {
       "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Explore to inspect its content controls; the account and app settings menus do not expose a post-language selector.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/ef8bdef7ad5a1cd3906cd7544c38cbc989fcd138f16447761a9ecab743d6ce74.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Home and inspect the timeline selector for any dedicated language-filter entry before leaving the native app.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/991460bd1f0cf1654ad73f370709f8b6593c1f8493d1ceb3e17495dacf814c61.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home timeline selector to check whether it contains content or language filtering controls.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/b3345449551f5bf924ddf8db804aef053a2d8386d14f0be8176798b8252b0270.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the timeline selector; it only contains Home, Live feed, Lists, and Followed hashtags, so continue toward account configuration.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/38208941e7d17c2c2dcebd8deef9bb6f983fc8477c84cf36bd636acce30be63e.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reopen Settings and inspect the full account-settings page for any lower web-settings or language preference entry.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/5ce9f5a665d91c2babf84d3bbe91eee37ee81e879f287216e4f9cfd64dbd0d1a.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active-looking @test account settings and inspect beyond the previously visible entries for a server-side language preference route.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/1612d9122674394842f7893c21f838a39f7d91111dae3bff76f3ba87a2596543.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect Privacy and reach again for a content-language submenu or lower preference that may have been missed.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/658846dbb00fed67f4cadc192b037c9e1bcb427ce6c10edf43e4226401a70fe5.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from Privacy and reach to explore the timeline-level Live feed controls, where content language filtering may reside.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/52532b991a704880bb57ada462eb16b5d18535894583b1b5752abe067127e4e0.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the main Settings list en route to the timeline selector and Live feed controls.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/0315ec4cc07a5d3161a080b8a5526060e002f6605d42f6a0ff4a6b0e6a64cab2.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave Settings and return to the main timeline to inspect Live feed-specific controls for post languages.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/2ed6edae7737d189f6eaef783176bf5eaa6dad0b1746a26bf8fd08a4a79b59ba.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Home timeline selector to access Live feed and inspect its language-filter controls.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/f87a4fe3a04c092c76ae62537a0217c13f3a6850e083e51241b93019f69d67cc.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Live feed to inspect its toolbar and settings for the post-language filter.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/b46ffb80c639e5815ebfd6cc28821ee4f1906244c099a148b709cca8dc9a434a.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Check Live feed's overflow menu because its controls may differ from Home and expose content-language filtering.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/49d7336d41d379db96c014ed98cd3bfcae926c752eef2da5ad6054f132e010bd.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Live feed settings, dismissing the overflow popup as needed, to look for its content-language controls.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/7a9f74ec56379d462114d2eeab94a8d2590191667dcde3af1292dbebb9f20339.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Live feed settings now that the overflow popup is dismissed.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e804094ddb427688e27f04a4670b54f79d2889a15aea61fad193e2b3b61e4e6e.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the active @test account settings and inspect Privacy and reach more thoroughly for content-language selection.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/456e168191bb7c539971003c8669c11cdb0b0a2c076c4b1bde3205081b2e1a97.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Privacy and reach and check the full page for a languages control rather than relying on the previously visible top portion.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/e8aa366b593176d1fcd7def15485e8c2e99597fc038b7794740f7fd1476477e3.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to account settings; Privacy and reach is confirmed to contain only discovery and search controls.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/726c6ab5da60094200da9e765232777fdd7bf6ef7cb791b0068e24f46956d360.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to General Settings to re-check the Display section for content-language controls, since account-level Privacy and reach has none.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/4ca5cd5367fd1b8fed50f01a2433a4b43ccdb2a51c92081cc5d1a62d1bef22bf.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Display settings and inspect all available options for a post-language filter.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/94720f63981824960150a2253f4175bd1e06f7191a9a69e7423f51b38b4ad43c.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
       "kind": "Decision",
-      "summary": "Mastodon confirmed “Changes successfully saved!” after selecting only English, Japanese, and Chinese Simplified in the public-timeline language filter.",
+      "summary": "The requested content-language filter is not exposed in this Mastodon app build. Account settings were checked across Privacy and reach (only discovery/search switches), Filters (keyword filters), Posting defaults (composer language), plus app Behavior and Display (current page shows only appearance/content-warning/media/count/emoji controls). Timeline menus likewise had no language setting. Completing the requirement likely needs the instance web preferences in a browser (Mastodon web Preferences > Other / filter languages), which is outside the current stage's target app and needs a revised workflow.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/28f02862a392e00ac17a1e8ecf2eb3dfe0f6769ae6c930ae90f27c3a1f70768e.webp",
-      "screenNumber": 21
+      "screenshot": "screens/a71fd663fe77b8f9613413eb2d22d2931978c77e0a8205702d412d12a0fb79f7.webp",
+      "screenNumber": 41
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Mastodon’s public-timeline language filter is saved with only English, Japanese, and Chinese Simplified selected; the page confirms “Changes successfully saved!”",
-      "action": "complete",
-      "reason": "Mastodon’s public-timeline language filter is saved with only English, Japanese, and Chinese Simplified selected; the page confirms “Changes successfully saved!”",
-      "screenshot": "screens/28f02862a392e00ac17a1e8ecf2eb3dfe0f6769ae6c930ae90f27c3a1f70768e.webp",
-      "screenNumber": 21
+      "summary": "In Chrome, open the 10.0.2.2 Mastodon web preferences, sign in as test@gmail.com if needed, and set Filter languages so English, Japanese, and Chinese (Simplified) are the only selected languages, preserving unrelated account settings.",
+      "action": "execute",
+      "reason": "The native Mastodon app has been exhaustively checked and does not expose the requested content-language filter. Continue on the same instance's web preferences, where this setting is available; confirm the browser account because native and browser sessions may differ.",
+      "screenshot": "screens/bbd19cd7783d768cbf85142bfed0cb5116e1f4ac98dba5d3b8dd7f354afe1c7f.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome to configure the Mastodon web-only Filter languages preference for the test account.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/bbd19cd7783d768cbf85142bfed0cb5116e1f4ac98dba5d3b8dd7f354afe1c7f.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate directly from Appearance to Mastodon's Other preferences page, where Filter languages is normally configured.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/61ff921f79c77a9fdbe46f9038edb39cde7e7cc05dcdc6271963b38c7e0d6ff7.webp",
+      "screenNumber": 43
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the direct Mastodon Other preferences URL.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/d76c1003fda0e811d89884ae94f0a1d6bf0254b8c71327b12fdad11cda0cec6c.webp",
+      "screenNumber": 44
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move down the language checklist toward English while preserving all unrelated preference controls.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/2d7153d88886574f1c1775e3e6f2d6a05f4655480d6eaf4f03355a6919e00337.webp",
+      "screenNumber": 45
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue a short distance in the alphabetized language list to reach English.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/ce3874d815d6c653e92b96da73ee81aeac5a6d47b08d9b3f17a68c3dde08db62.webp",
+      "screenNumber": 46
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use the current Mastodon preferences form to set exactly the three requested language values and submit it without altering unrelated fields.",
+      "action": "replace_text(index=35)",
+      "reason": "",
+      "screenshot": "screens/79177215cb25a003f583fe622ce0262c1368d48fd3fbd3b2aa172045c1a7b795.webp",
+      "screenNumber": 47
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start the JavaScript URL prefix separately so Chrome does not strip it as pasted script text.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/1452a6d50bd376ed1d305080bc94502343132d9a010633a6cf10ab97019bcbae.webp",
+      "screenNumber": 48
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Complete the JavaScript URL in the focused address bar; this preserves Chrome's required prefix while preparing the exact language selection and form submission.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/7e7dc84a7eaa6550f827d84e9cea5be8484d4bfab3cce31b5ee4c2a5b5faee53.webp",
+      "screenNumber": 49
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Execute the prepared JavaScript on the loaded Mastodon preferences page to select only English, Japanese, and Simplified Chinese and submit the form.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/e1cd52edaab657f3d1e3775e148047d2059a2e6f3150e534c891236f86f01387.webp",
+      "screenNumber": 50
+    },
+    {
+      "role": "",
+      "kind": "Observation",
+      "summary": "Final device state",
+      "action": "",
+      "reason": "",
+      "screenshot": "screens/bab7f0071805af7e1af3d76e68cbc911214d54dc5d5a0606604d79628865b0d1.webp",
+      "screenNumber": 51
     }
   ]
 }

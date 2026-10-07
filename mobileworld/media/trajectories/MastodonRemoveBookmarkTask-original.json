@@ -1,146 +1,128 @@
 {
   "task": "MastodonRemoveBookmarkTask",
   "variant": "original",
-  "screenCount": 25,
+  "screenCount": 20,
   "roleCounts": {
     "Planner": 2,
-    "Executor": 25
+    "Executor": 20
   },
   "events": [
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "In Mastodon, traverse the account's bookmarks and remove each distinct post containing the #pets tag from bookmarks, preserving posts without that tag and covering the full bookmarks collection.",
+      "summary": "In Mastodon, traverse the account's bookmarks with full relevant coverage and remove each post containing the #pets hashtag from bookmarks, preserving all other bookmarks.",
       "action": "execute",
-      "reason": "The task requires traversing Mastodon's bookmarks and removing every bookmarked post tagged #pets while preserving all other bookmarks.",
-      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "reason": "The task requires scanning the account's bookmarked posts and removing every bookmarked post tagged #pets while leaving unrelated bookmarks unchanged.",
+      "screenshot": "screens/7214cd35d1992e6f3b025c659967316091c7f436b19b5eef510df50f47419ca9.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open Mastodon to begin traversing the account's bookmarks.",
+      "summary": "Launch Mastodon to begin reviewing bookmarks.",
       "action": "launch(app=org.joinmastodon.android.mastodon)",
       "reason": "",
-      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenshot": "screens/7214cd35d1992e6f3b025c659967316091c7f436b19b5eef510df50f47419ca9.webp",
       "screenNumber": 0
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the Home timeline selector to look for the account's Bookmarks collection.",
-      "action": "tap(index=1)",
+      "summary": "Open the account profile to access bookmarks.",
+      "action": "tap(index=22)",
       "reason": "",
-      "screenshot": "screens/60f9685cefe27d3393212888a80fca12190b1cd04c430374926ebd5df1186e44.webp",
+      "screenshot": "screens/e1f3b9cb4ed0249f6152f383fbe7c0b6a08b95ebfc201020368feff715789a23.webp",
       "screenNumber": 1
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Close the timeline selector; Bookmarks is not available in this menu, so continue via the profile/account navigation.",
-      "action": "back",
+      "summary": "Open the Saved tab, which contains the account's bookmarked posts.",
+      "action": "tap(index=11)",
       "reason": "",
-      "screenshot": "screens/de27b561aace72434808f734d3567087abaf9a76cf648f4cf00567c3e5e2852e.webp",
+      "screenshot": "screens/7b9818ab0a132ae7d4a9b5cbf0af5e19a6a018df2002648c195ddf5e938400a3.webp",
       "screenNumber": 2
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the active account's profile, where account-specific bookmark navigation is expected.",
-      "action": "tap(index=22)",
+      "summary": "Switch from Favorites to Bookmarks.",
+      "action": "tap(index=13)",
       "reason": "",
-      "screenshot": "screens/170129090c233325ab843cff73e32578b741528b34dce33798a27887373c4f71.webp",
+      "screenshot": "screens/963b6b9852d0be173e768505b3be05abfa3eee1d5ae9f05f074638b03d8ef916.webp",
       "screenNumber": 3
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the profile's Saved section to access bookmarks.",
-      "action": "tap(index=11)",
+      "summary": "Open the #pets bookmark's post menu to remove it from bookmarks.",
+      "action": "tap(index=15)",
       "reason": "",
-      "screenshot": "screens/6843c26ea51f7954821fc6bca5bd3ed830a1f8c0947426fec8e555f7b957223e.webp",
+      "screenshot": "screens/397ff2e605613e0e84171d1710bcb448eaf8d22f83c13e795e283f4f1c795ba9.webp",
       "screenNumber": 4
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Select Bookmarks within Saved to begin full collection traversal.",
-      "action": "tap(index=13)",
+      "summary": "Remove the visible post containing #pets from bookmarks.",
+      "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/366b7211eb988e5f3b78d289d19872a184200ca20dd05cbf0cd5804163d0674f.webp",
+      "screenshot": "screens/3404c394d9629e14774c8aeecf0ec5b4b68352122ee79e44a3f93258e4b20232.webp",
       "screenNumber": 5
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Open the #pets post's options to remove it from bookmarks before continuing traversal.",
+      "summary": "Reopen the post menu to verify whether the bookmark removal took effect before retrying.",
       "action": "tap(index=15)",
       "reason": "",
-      "screenshot": "screens/a45ca127f5c8dda3e5729637afeebcb59babd46882904f740e3a2fc6635acb01.webp",
+      "screenshot": "screens/628028be4a68e6f47c7cfd807fd95e50df91774bd840b1ec969486a20c033df1.webp",
       "screenNumber": 6
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Remove this confirmed #pets post from bookmarks.",
-      "action": "tap(index=0)",
+      "summary": "Dismiss the menu after confirming it now offers Bookmark, proving this #pets post was removed; continue traversing the bookmarks list.",
+      "action": "back",
       "reason": "",
-      "screenshot": "screens/b057e9b780c97531b1c57564855d281d30eadb204b3fa334900eca2cd73acd54.webp",
+      "screenshot": "screens/c418b8ff3acb5e17df52439002d61b601f7e486d0dd99e5b45961c8c129139a3.webp",
       "screenNumber": 7
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Reopen this post's options to verify whether the bookmark toggle changed despite the stale list display.",
-      "action": "tap(index=15)",
+      "summary": "Scroll down through the bookmarks list, keeping overlap to inspect all remaining bookmarked posts.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/850590f745b0decde8af0c074841ffa84bd5a263d6c45f2de3248fb86977137b.webp",
+      "screenshot": "screens/84d24d48666a23b94091fd1b1e1acf35620601f883e04a9dab7dc88f4ae3117c.webp",
       "screenNumber": 8
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The menu now shows “Bookmark,” confirming this #pets post is no longer bookmarked; close the menu to continue traversing the bookmarks collection.",
-      "action": "back",
+      "summary": "Continue downward through the bookmark collection past the large media post to inspect subsequent entries and establish the list boundary.",
+      "action": "swipe",
       "reason": "",
-      "screenshot": "screens/8de28273d38b2218d95e7aa98e8826c016d760e69de592d4ecd748189e97fc8e.webp",
+      "screenshot": "screens/384e7a9d15c9ee93812a396c2b51a4c99196b2deb0acc320c7b6ad78bd624799.webp",
       "screenNumber": 9
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll down through bookmarks with overlap to inspect additional posts and establish the collection boundary.",
+      "summary": "Continue traversing downward after confirming the demo bookmark is tagged #dogs, not #pets.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/cb66d6786f245de30a87af8ba66c9eada27e9376dbb39dc7dbfabaab91150453.webp",
+      "screenshot": "screens/65bfd97e2ec49ee981bcf0c385960108ba4f04c8d1ac782eb70ee4106dc5d5aa.webp",
       "screenNumber": 10
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue downward past the current post to look for additional bookmarks and the end of the collection.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/5088174d267a804a5c2e8d6b13804c2c98097e8ed8627aaa66fa62e343306543.webp",
-      "screenNumber": 11
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Preserve the visible #dogs-only demo bookmark and continue downward to inspect later bookmarks.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/6b1a980866efd62ea3043d31e1744a4e89fca217b3119ad3daca6359de5d1369.webp",
-      "screenNumber": 12
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the options menu for the visible pupper bookmark containing #pets so it can be removed.",
+      "summary": "Open the More options menu for the newly encountered pupper bookmark containing #pets so it can be removed.",
       "action": "tap(index=13)",
       "reason": "",
-      "screenshot": "screens/275ea26b78e5d884b1088bc639ef080d8a9b43130dd7daa463cd407ebcbf7456.webp",
-      "screenNumber": 13
+      "screenshot": "screens/e72204cedc5f2d075e981354f224b2a6893008de5c8c7424f030d839755ab4f9.webp",
+      "screenNumber": 11
     },
     {
       "role": "Executor",
@@ -148,107 +130,80 @@
       "summary": "Remove this confirmed #pets post from bookmarks.",
       "action": "tap(index=0)",
       "reason": "",
-      "screenshot": "screens/e4db9ece6f19416489a525ef8ce41bb530bf632945d90daf908ff4332429266b.webp",
+      "screenshot": "screens/577cbf4a8190aaef290525336b2071add0ef5fad75da6d86d053116e710dacf2.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Verify the just-removed #lovely #pets post now offers Bookmark before continuing traversal.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/d46431fd53d61034cf03166a49f4ba7cd8be70ca043224af487b965e0b384f7b.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the menu after confirming removal, then continue traversing bookmarks for any additional #pets posts.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/17b4f340396cc6e400d50eef55d61887b901d818e1f039c38a370fc1db25cd01.webp",
       "screenNumber": 14
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Record the second removal and continue downward to cover any remaining bookmarks and establish the collection end.",
+      "summary": "Scroll down through Saved bookmarks with overlap to inspect later posts after the removed #pets item.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/3238b6da7c1486f5b186447585cb3d2d5de418fb4093b95f2c32783422b148af.webp",
+      "screenshot": "screens/3f3431d698997c7e434b57604e78912c9d61860f58d53cdafc2755b924e33226.webp",
       "screenNumber": 15
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Continue past the Bulldog post's media to determine whether more bookmarks follow and establish the end of the collection.",
+      "summary": "Continue downward past the removed post's remaining media to reach subsequent bookmarks and establish full coverage.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/65b08f6ab1e34a743e127b89451b46f11d867815aa04400feb56125a84b11d82.webp",
+      "screenshot": "screens/e7bd9e198068fdb7c8144e26ac141d8e97c24e355b003dad026c741aac83f12c.webp",
       "screenNumber": 16
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "Scroll once more from the bottom of the Bulldog post to test for any following bookmarked posts and establish the collection boundary.",
+      "summary": "Retry the downward traversal from the page margin because the previous gesture over media produced no visible movement.",
       "action": "swipe",
       "reason": "",
-      "screenshot": "screens/94bb9fcbc50412fdd0b875137c4f4e791fd51a501d310da8a37991551ddaf618.webp",
+      "screenshot": "screens/b47f4261a68025305c21e5015e0f2e56d81746257b6480ed8cb94fc9d4e83549.webp",
       "screenNumber": 17
     },
     {
       "role": "Executor",
       "kind": "Action",
-      "summary": "The unchanged second swipe establishes the current list bottom. Reload the selected Saved tab to reconcile stale rows after the two bookmark removals and verify only non-#pets bookmarks remain.",
-      "action": "tap_xy",
+      "summary": "Use the platform scroll action to advance the nested bookmarks list after coordinate swipes did not move it.",
+      "action": "scroll(direction=down)",
       "reason": "",
-      "screenshot": "screens/007ad403d826e31d9e9dcfbe6f31ac448bf011f9bd8358588f9b8cc795e7ce80.webp",
+      "screenshot": "screens/49cbaa5c6991b6733e530b716da20056d6ae966bc101c6ebd418c8fa8d652892.webp",
       "screenNumber": 18
     },
     {
       "role": "Executor",
-      "kind": "Action",
-      "summary": "Reload shows the Border Collie #pets post is still bookmarked, so open its options to remove it definitively.",
-      "action": "tap(index=8)",
-      "reason": "",
-      "screenshot": "screens/cd9529523f01b9a3d37d6f939e190cd4b3cb26dcd93ffaa90ab6ae0f3f090b17.webp",
-      "screenNumber": 19
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "The menu now says “Bookmark,” confirming the Border Collie post is no longer bookmarked; close the menu without re-adding it and verify the other removed #pets post.",
-      "action": "back",
-      "reason": "",
-      "screenshot": "screens/0bedd9494c2d0cade9242279ae45b8b6cff7b7af7ca460476e0c60b1cbb18dd9.webp",
-      "screenNumber": 20
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Continue through the bookmarks after confirming the visible Border Collie row is stale and already unbookmarked; recheck the remaining rows and Bulldog post state.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/b4b7d04e46ceab38c6bddc78d1f27542b5d75d550d6ab8d39bacd1eaf968d691.webp",
-      "screenNumber": 21
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "The intervening demo bookmark contains only #dogs and remains preserved; continue downward to recheck the final #pets bookmark and collection end.",
-      "action": "swipe",
-      "reason": "",
-      "screenshot": "screens/1add5645d415a6eb7ff3def8fdc0bbf7be50c0f9acd62ab12eb4f5fd1607b5da.webp",
-      "screenNumber": 22
-    },
-    {
-      "role": "Executor",
-      "kind": "Action",
-      "summary": "Open the Bulldog #pets post options to verify that its lingering row is stale and it is no longer bookmarked.",
-      "action": "tap(index=13)",
-      "reason": "",
-      "screenshot": "screens/c1f2cc01697f6f5f702062b2b702d40429e8d4061a5799ed69489321a455a7f1.webp",
-      "screenNumber": 23
-    },
-    {
-      "role": "Executor",
       "kind": "Decision",
-      "summary": "Completed full bookmark traversal. The collection contained three distinct posts: the Border Collie #pets post and Bulldog #pets post both now show the menu action “Bookmark,” confirming they are no longer bookmarked; the intervening demo post contains #dogs but not #pets and was preserved. The collection end was previously established below the Bulldog post.",
+      "summary": "Completed bookmark cleanup with full relevant coverage: removed the two bookmarked posts containing #pets (the #puppy #dogs #pets #cute post and the #lovely #pets post), preserved the unrelated #dogs bookmark, and established the list bottom after repeated downward traversal methods produced no further movement.",
       "action": "request_replan",
       "reason": "",
-      "screenshot": "screens/3e83b7d872b8214a1ebc43a22494950c8937829679d05a41b4370f86376e6e9b.webp",
-      "screenNumber": 24
+      "screenshot": "screens/f7c2c30188cd93c90c85b02daa8472558454d213905965dbf9e32b34706d4be2.webp",
+      "screenNumber": 19
     },
     {
       "role": "Planner",
       "kind": "Decision",
-      "summary": "Removed both bookmarked posts containing #pets (the Border Collie post and the Bulldog post). Both now show “Bookmark,” confirming they are no longer bookmarked; the #dogs-only post was preserved, and the full bookmark collection was covered.",
+      "summary": "Removed both bookmarked posts containing #pets—the #puppy #dogs #pets #cute post and the #lovely #pets post—while preserving the unrelated #dogs bookmark. Full bookmark-list coverage reached the bottom with no additional #pets posts found.",
       "action": "complete",
-      "reason": "Removed both bookmarked posts containing #pets (the Border Collie post and the Bulldog post). Both now show “Bookmark,” confirming they are no longer bookmarked; the #dogs-only post was preserved, and the full bookmark collection was covered.",
-      "screenshot": "screens/3e83b7d872b8214a1ebc43a22494950c8937829679d05a41b4370f86376e6e9b.webp",
-      "screenNumber": 24
+      "reason": "Removed both bookmarked posts containing #pets—the #puppy #dogs #pets #cute post and the #lovely #pets post—while preserving the unrelated #dogs bookmark. Full bookmark-list coverage reached the bottom with no additional #pets posts found.",
+      "screenshot": "screens/f7c2c30188cd93c90c85b02daa8472558454d213905965dbf9e32b34706d4be2.webp",
+      "screenNumber": 19
     }
   ]
 }

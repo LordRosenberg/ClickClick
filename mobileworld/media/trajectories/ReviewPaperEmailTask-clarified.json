@@ -1,0 +1,443 @@
+{
+  "task": "ReviewPaperEmailTask",
+  "variant": "clarified",
+  "screenCount": 45,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 45
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在手机 Documents 文件夹中找出所有文件名以 review 开头且扩展名为 PDF 的文件，并将这些文件移动到 Documents/paper；保留其他文件不变。",
+      "action": "execute",
+      "reason": "先完成文件筛选与移动，再根据移动后的 paper 目录内容统一发送，符合用户要求的顺序。",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files 以进入 Documents 文件夹并筛选目标 PDF。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开存储位置侧栏，以进入实际的 Documents 路径而非分类视图。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/aa4fea5a5d8a87a1c16799b76ec3b26e06b62ada30ede0d083b659ddcd8835fb.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入设备存储根目录，以打开实际的 Documents 文件夹。",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/5e0f379c8d35612a621ad11396ac22bb40ec14cabe09709b109183b6e1cf5c2f.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开设备存储中的 Documents 文件夹。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/f3b4296891d6298162b7d1480f3c3bdadc96a1689d2d81ca16645bc6c2dcfe73.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在 Documents 中搜索 review，以定位所有以 review 开头的文件。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/8c4384ba9f47ce76b4057ec017581783e202c00f421f2f7e07f683b7e55a7cea.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "输入搜索词 review，筛选 Documents 中名称以 review 开头的候选文件。",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/92243ba059dd808d7c961d20611b35ad9788d3fe1d4eac4820731b659e372818.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "开始多选搜索结果中的第一个 review PDF；三个结果均符合“review 开头且为 PDF”。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/0eaa615edb98d9f0c54cafb60c488e129b780ff61e3eea93da078b661525d0eb.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第二个 review_revised.pdf 加入多选，保留两个同名但独立的文件。",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/d6f745c47bf9c4e9aa6abe91b11c3bd6f73c55e6c38d672ac11c36d253fdf84f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第三个匹配文件 review_v2.pdf 加入多选，以便统一移动全部三个 review 开头的 PDF。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/b2ce01103d96e4e6e348f6f4f8fedb24943d63b1cac33bdb3ec7e7f67294a53f.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开三项已选文件的更多操作菜单，准备选择移动到目标文件夹。",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/106d270d3bd95c6c4240003e67b591c0f604653473397cdc3372e20262204c6b.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择“Move to…”以将三个已选 PDF 移动到 Documents/paper。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/fdaf8d02379d0c9fc8b12ca3d3bfa7f6ad19a25f6c0cb25347bedf0ac57cdce9.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开存储位置侧栏，以从当前 Downloads 切换到设备存储中的 Documents/paper。",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/4e50df2519a5d0293a560bed1c52874ac8c005c38420b66815a1f96b1e087e39.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择设备存储根目录，以继续进入 Documents/paper 作为移动目标。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/246fa2ac0c31dd248d8290b99882d106190b00fc53450730808d3159617929ea.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents 文件夹，继续选择 paper 目录作为移动目标。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/8ebf6dd8f1fb9f7fdc8fb1ce6bb345fb692246926598a7df4b9030c53f25b433.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents/paper 目录，随后确认移动。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/31e806ca313b3b08d6ce7a0ae91b2f3cccd20f51debda7b59800c55f732c5dbb.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将已选中的 3 个 review 开头 PDF 移动到 Documents/paper。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/a63cc94f22fa1a9aee2c0148912f41cc667ab1b66817f2b8ffbc66ca380f672c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "移动提示已消失；退出搜索以检查 Documents/paper 中的实际文件，确认移动结果。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/e063293f0035b85fc06ec1c31fadc392961d7e9123ee6b1ef3fb45f9d13eda7b.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Documents/paper，核实目标 PDF 已移动到该目录且原有文件保留。",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/7a02581fcb158cbb64c798dd6f077464d6fb2fc4e7d842d69b6ea8a8b3ee8ff3.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已确认 Documents/paper 现包含原有 paper_565.txt 以及移动后的 3 个 PDF：review_revised (1).pdf、review_revised.pdf、review_v2.pdf。移动已完成，原有文件保留；同名冲突由系统将其中一份重命名为 review_revised (1).pdf。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/414eab78f5f8333c2aea267ccb93b5bcfd303463c36159163f929c37d8eb8c68.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "新建并发送一封邮件给 chen@gmail.com，标题为 paper，将 Documents/paper 当前全部 4 个文件 paper_565.txt、review_revised (1).pdf、review_revised.pdf、review_v2.pdf 作为同一封邮件的附件；不要遗漏或重复附件。",
+      "action": "execute",
+      "reason": "移动已完成，且 Documents/paper 的全部 4 个文件已确认；现在完成邮件发送。",
+      "screenshot": "screens/87a4cab9f643cec46112c724e17c9509ca3bbdd9916d8c8ef3f0342f0f686ae2.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Gmail clone，准备新建邮件并附加 Documents/paper 中确认的全部 4 个文件。",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/87a4cab9f643cec46112c724e17c9509ca3bbdd9916d8c8ef3f0342f0f686ae2.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击 Compose，新建要发送给 chen@gmail.com 的邮件。",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/29c0d818e03659cb907707cb75f7fd05ec42a0fcd70eb7bb2ac01a168f4faa0e.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "填写收件人为 chen@gmail.com。",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/c3113648911b3ab7b6a7f4f0e3dab1bae72dbc857f3d92b3fb55c9779b26bd84.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "填写邮件标题为 paper。",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/8bc768adaa85a587cdb0474c67e62d03e49b736d4edca620c29703adff306401.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开附件选择器，以添加 Documents/paper 下的全部 4 个文件。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/3a949cc17b94a20ebe250108fbaed8a7bbe2587b1e15a3eb8069025f70ccf9c6.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Files，进入系统文件选择器。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/42cfb9faa2cfd83768e082d9b53f48240738bcab86e4afe826505ea7caaf5d63.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开文件位置侧栏，以进入 Documents/paper。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/fedaeca74216d4b2029e2afd262e9281bd3e97ad91f61015a3acfca727484cf2.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择设备存储根目录，以进入 Documents/paper。",
+      "action": "tap(index=32)",
+      "reason": "",
+      "screenshot": "screens/736ee260d2649466d7ad2f75146ab2aa5a722fb981f61ccdcf9041eb2f3e3127.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents 文件夹，继续定位 paper 目录并选择全部 4 个附件。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/95c3e6fac2f5f9d96f954e4a72d8b35fd8614864e835d013c848fdeadee0c0a2.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents/paper 目录，准备一次多选全部 4 个文件。",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/8cf59e1a465376e738e147e320ab3ff7ea0188d7163329ce1ef05885c2ffebb5.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "长按 paper_565.txt 进入多选模式，随后将使用全选以避免遗漏或重复。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/783a0af3cc0c44edce27a7eaa271e19743072b86265fcb6922039684a92f8518.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开多选模式的更多选项，以使用“全选”选中 paper 目录内全部 4 个文件。",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/11d9226396b3bd83f96f0c21934e47106af3f427961b019563db3abba7c605f7.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "关闭仅含排序项的菜单，保留当前 1 个已选文件，改为逐项选择其余 3 个文件。",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/dda2a69af15f8bdb04996c99ce9f4f2a5131c0055f2a2010dc5908a224e1b06b.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择第二个附件 review_revised (1).pdf，继续构建同一封邮件的 4 文件附件集合。",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/d1ae684924c1da535e6bfee9bf556bef230d12b5215d773d0a9e18ab72936255.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "文件选择器当前只能保持单选；先确认添加 review_revised (1).pdf，返回邮件后再逐个添加其余 3 个文件，避免遗漏或重复。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/cdf6a797bd49cf4d97688624b2dca1c8fb7dfb8d694290ad7f126765eb116692.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开附件选择器，继续添加尚缺的 paper_565.txt、review_revised.pdf 和 review_v2.pdf。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/884347e686b0d4389abd5fa23c3a67c294e626e496ad904c550c822b3da6671b.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Files，进入系统文件选择器以添加下一个缺失附件。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/8e210559c05cae26231cf21a2bde282b675e441abd7c6e3ec178f1d1e7cd9e80.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择缺失附件 paper_565.txt；普通文件选择器中单击文件应直接返回邮件并附加。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/91ccf101f016bf016fb9a59848e8c5d4f3ace3762a9899c762660a97339bbfaa.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开附件菜单，继续添加 review_revised.pdf。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/e9ebaa9cd612f825a8b6dd4598fee78ada07d574cfe6af474d75e8ade8cd7041.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Files，进入 Documents/paper 添加 review_revised.pdf。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/354a18597e49fb91f3121d8ead19cb5b12a834bf2a1740fc10e35683cc305207.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 review_revised.pdf 并返回邮件，将其作为第三个附件添加。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/64f4d100554b816cdff70b9c77463096a502d005a299bd2ec62a7b63a6a70fd0.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开附件菜单，继续添加最后一个缺失文件 review_v2.pdf。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/4601f97b04d47b61de35780a6375cf47edb275b306fe272f67495c22e9c01847.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Files，进入 Documents/paper 添加最后一个附件 review_v2.pdf。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/87f4fdb74f4e036065643c0cc46abcfee90a6471d19858100b4c90daa73e08d5.webp",
+      "screenNumber": 41
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Documents/paper 中唯一尚未附加的 review_v2.pdf。",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/8c2c856c95c0590c3bb6a928725175395da992e424973980143abe83e28c19b1.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收件人、标题及 Documents/paper 的全部 4 个附件均已确认且无重复；点击发送。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/3503d52b11d9bd5fbca7f96874eaf0f6bbb634cdff6eb8405fd23ae4964f16d0.webp",
+      "screenNumber": 43
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "任务已完成：所有 review 开头的 PDF 已移至 Documents/paper；已将该目录当前全部 4 个文件作为同一封邮件附件发送给 chen@gmail.com，标题为 paper。界面明确显示“Email Sent”。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/594f062f1eca3e2464fc4f4fea31a0516e2fbbeaea024bd4a8456543528208fc.webp",
+      "screenNumber": 44
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "任务已完成：Documents 中所有以 review 开头的 PDF 已移动到 Documents/paper；该目录下的全部 4 个文件已作为同一封邮件的附件发送至 chen@gmail.com，邮件标题为 paper。界面已明确显示“Email Sent”。",
+      "action": "complete",
+      "reason": "任务已完成：Documents 中所有以 review 开头的 PDF 已移动到 Documents/paper；该目录下的全部 4 个文件已作为同一封邮件的附件发送至 chen@gmail.com，邮件标题为 paper。界面已明确显示“Email Sent”。",
+      "screenshot": "screens/594f062f1eca3e2464fc4f4fea31a0516e2fbbeaea024bd4a8456543528208fc.webp",
+      "screenNumber": 44
+    }
+  ]
+}
