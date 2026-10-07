@@ -3758,6 +3758,22 @@
       "task_seconds": 510.82134318351746,
       "data_disclosure": "Public synthetic benchmark fixtures",
       "poster": "photos-by-travel-location-cover.svg"
+    },
+    {
+      "task": "ReadQwen3PaperTask2",
+      "variant": "original",
+      "slug": "paper-core-contributors",
+      "title": "Read a paper and count contributors",
+      "titleZh": "读取论文并统计贡献者",
+      "apps": "Files → Docreader",
+      "description": "Find the downloaded Qwen3 paper, locate its core-contributor list and return the count in the requested format.",
+      "descriptionZh": "找到下载的 Qwen3 论文，定位核心贡献者名单，并按任务指定格式回答人数。",
+      "score": 1,
+      "actions": 20,
+      "rounds": 21,
+      "task_seconds": 441.8,
+      "data_disclosure": "Public synthetic benchmark fixtures",
+      "poster": "paper-core-contributors-cover.svg"
     }
   ]
 }
