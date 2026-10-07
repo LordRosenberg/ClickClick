@@ -2,9 +2,9 @@
 
 [README](../README.md) · [中文首页](../README.zh-CN.md) · [Task examples](task-examples.md)
 
-Latest [MobileWorld results](mobileworld-results-20261007.md): original **106/117 (90.60%)**, clarified comparison **112/117 (95.73%)**. [Inspect five successful cross-app workflows and all task trajectories](https://lordrosenberg.github.io/ClickClick/mobileworld/). Screenshots and role decisions use the October 7 evaluation.
+Latest [MobileWorld results](mobileworld-results-20261007.md): original **106/117 (90.60%)**, clarified comparison **112/117 (95.73%)**. [Inspect six successful cross-app workflows and all task trajectories](https://lordrosenberg.github.io/ClickClick/mobileworld/). Screenshots and role decisions use the October 7 evaluation.
 
-最新 MobileWorld 原题 **106/117（90.60%）**、澄清对照 **112/117（95.73%）**；网站提供本次五个成功跨应用工作流及全部逐题截图、角色决策。
+最新 MobileWorld 原题 **106/117（90.60%）**、澄清对照 **112/117（95.73%）**；网站提供本次六个成功跨应用工作流及全部逐题截图、角色决策。
 
 The AndroidWorld recordings below retain their separate September provenance.
 
