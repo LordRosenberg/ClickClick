@@ -249,8 +249,14 @@ See [third-party notices](THIRD_PARTY_NOTICES.md) for bundled components.
 
 ## Project trends
 
-[![Star History](https://api.star-history.com/svg?repos=LordRosenberg/ClickClick&type=Date)](https://www.star-history.com/#LordRosenberg/ClickClick&Date)
+<a href="https://www.star-history.com/?repos=LordRosenberg%2FClickClick&amp;type=date&amp;legend=top-left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=LordRosenberg/ClickClick&amp;type=date&amp;theme=dark&amp;legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=LordRosenberg/ClickClick&amp;type=date&amp;legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=LordRosenberg/ClickClick&amp;type=date&amp;legend=top-left" />
+  </picture>
+</a>
 
 [![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
 
-Installer downloads are sampled daily from the first observation. Only Windows/macOS installer assets are counted, including repeat downloads and upgrades; this is not a count of unique users.
+Star History updates automatically. Installer downloads refresh hourly and after each desktop release, with one total per day and the last update time shown on the chart. GitHub's image cache may delay what you see. Only Windows/macOS installer assets are counted, including repeat downloads and upgrades; this is not a count of unique users. History starts at the first sample.

@@ -16,7 +16,7 @@ from urllib.request import Request, urlopen
 INSTALLER = re.compile(r"^ClickClick-[0-9][0-9A-Za-z.+-]*-(?:windows-x86_64\.exe|macos-(?:x86_64|aarch64)\.zip)$")
 
 
-def sample(history, releases, date):
+def sample(history, releases, date, *, sampled_at=None):
     result = json.loads(json.dumps(history))
     assets = result.setdefault("assets", {})
     for release in releases:
@@ -31,6 +31,8 @@ def sample(history, releases, date):
     points = {point["date"]: point["downloads"] for point in result.get("daily", [])}
     points[date] = total
     result.update(schema=1, daily=[{"date": day, "downloads": value} for day, value in sorted(points.items())])
+    if sampled_at is not None:
+        result["sampled_at"] = sampled_at
     return result
 
 
@@ -43,6 +45,7 @@ def chart(history):
     dots = "".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="#5b69e8"/>' for x, y in coordinates)
     start = html.escape(points[0]["date"])
     end = html.escape(latest["date"])
+    updated = html.escape(history.get("sampled_at", end)).replace("T", " ").replace("Z", " UTC")
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="800" height="320" viewBox="0 0 800 320" role="img" aria-label="Installer downloads: {latest['downloads']}">
 <rect width="800" height="320" rx="12" fill="#fff"/>
 <g font-family="Arial,sans-serif" fill="#27334b">
@@ -52,8 +55,8 @@ def chart(history):
 <text x="60" y="86" text-anchor="end" font-size="12">{high:,}</text><text x="60" y="234" text-anchor="end" font-size="12">0</text>
 <polyline points="{line}" fill="none" stroke="#5b69e8" stroke-width="3"/>{dots}
 <text x="72" y="253" font-size="12">{start}</text><text x="730" y="253" text-anchor="end" font-size="12">{end}</text>
-<text x="32" y="283" font-size="12">Daily samples · includes repeat downloads and updates · not unique users</text>
-<text x="32" y="303" font-size="12">History starts {start}; removed assets retain their last observed count.</text>
+<text x="32" y="283" font-size="12">Updated {updated} · hourly refresh · daily totals</text>
+<text x="32" y="303" font-size="12">Includes repeat downloads and upgrades · not unique users · history starts {start}</text>
 </g></svg>\n'''
 
 
@@ -83,7 +86,10 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     file = args.output / "installer-downloads.json"
     history = json.loads(file.read_text(encoding="utf-8")) if file.exists() else {}
-    history = sample(history, fetch_releases(args.repository), datetime.now(timezone.utc).date().isoformat())
+    releases = fetch_releases(args.repository)
+    now = datetime.now(timezone.utc)
+    history = sample(history, releases, now.date().isoformat(),
+                     sampled_at=now.isoformat(timespec="seconds").replace("+00:00", "Z"))
     file.write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
     (args.output / "installer-downloads.svg").write_text(chart(history), encoding="utf-8")
     print(f"Published installer downloads: {history['daily'][-1]['downloads']}")

@@ -2,9 +2,12 @@ name: Update installer download trend
 
 on:
   schedule:
-    - cron: "23 1 * * *"
+    - cron: "23 * * * *"
   release:
     types: [published]
+  workflow_run:
+    workflows: [Build desktop installers]
+    types: [completed]
   push:
     branches: [main]
     paths:
@@ -21,10 +24,17 @@ concurrency:
 
 jobs:
   update:
-    if: github.repository == 'LordRosenberg/ClickClick'
+    if: >-
+      github.repository == 'LordRosenberg/ClickClick' &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        startsWith(github.event.workflow_run.head_branch, 'desktop-v')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -36,7 +46,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/project_stats.py --output site/stats
-      - name: Commit daily sample to website branch
+      - name: Commit refreshed download trend to website branch
         working-directory: site
         run: |
           git config user.name github-actions[bot]

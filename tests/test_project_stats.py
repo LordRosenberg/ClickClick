@@ -17,3 +17,13 @@ def test_only_installer_assets_are_counted_and_same_day_samples_replace():
     missing = sample(again, [], "2026-10-09")
     assert missing["daily"][-1]["downloads"] == 9
     assert "2026-10-08" in chart(missing)
+
+
+def test_hourly_refresh_keeps_daily_history_and_updates_timestamp():
+    first = sample({}, [], "2026-10-08", sampled_at="2026-10-08T01:23:00Z")
+    refreshed = sample(first, [], "2026-10-08", sampled_at="2026-10-08T02:23:00Z")
+    assert refreshed["daily"] == first["daily"]
+    assert refreshed["sampled_at"] == "2026-10-08T02:23:00Z"
+    assert first["sampled_at"] == "2026-10-08T01:23:00Z"
+    assert "Updated 2026-10-08 02:23:00 UTC" in chart(refreshed)
+    assert "hourly refresh" in chart(refreshed)
