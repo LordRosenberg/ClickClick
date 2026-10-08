@@ -1,5 +1,7 @@
 # 桌面版发布与更新维护
 
+本文面向准备构建和发布 ClickClick 的维护者。安装和日常使用请参考[桌面安装指南](desktop-setup.zh-CN.md)。
+
 ## 发布流程
 
 先把桌面构建工作流和相关代码合并到默认分支，再对要发布的提交创建并推送 `desktop-v<SemVer>` 标签，例如 `desktop-v0.2.0`。标签版本必须与安装器版本一致，不带 `+` 构建元数据；不同内容使用新版本，已公开的版本不覆盖。
@@ -8,7 +10,7 @@
 
 `workflow_dispatch` 可手动构建测试版本并下载 Actions artifacts，不创建公开 Release。`desktop-v0.2.0-rc.1` 等预览标签生成 prerelease，客户端稳定版检查忽略；develop 和 main 每次推送都会构建唯一的 `ci` 测试版本，产物在 Actions 中下载；这些构建不会创建 Release，也不会通知用户升级。Collector 发布使用自己的标签，客户端不会把 Collector 当作桌面新版。
 
-发布前应分别验收首次安装、旧版升级、后台注册、模型/设备配置与任务运行。macOS 正式公开分发还需要将 Developer ID 签名、公证后的 `.app` 重新归档并重新生成校验文件/清单；当前通用构建工作流没有配置签名证书或公证凭据，产物为未完成正式签名验收的测试包。不要把未签名产物宣称为可无提示自动升级的 macOS 正式版，更新器不会绕过 Gatekeeper。
+发布前应分别验收首次安装、旧版升级、后台注册、模型/设备配置与任务运行。发布 macOS 正式版前，请完成 Developer ID 签名和公证，再重新归档 `.app` 并生成校验文件及发布清单。默认工作流没有签名或公证凭据，生成的 macOS 包用于测试；正式发布需要额外完成签名验收。更新器遵循 Gatekeeper 检查。
 
 GitHub 对 `GITHUB_TOKEN` 创建涉及工作流变更的新标签 Release 有额外限制，因此先合并工作流到默认分支再打标签。[GitHub Releases API](https://docs.github.com/en/rest/releases/releases)。
 

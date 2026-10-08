@@ -36,7 +36,7 @@ ClickClick 将语义选择交给模型，将机械校验交给 Harness。以下�
 <a id="scrcpycollector-与-python"></a>
 ## scrcpy、Collector 与 Python
 
-**scrcpy 提供画面，Collector 提供结构，ADB 提供回退画面。** Agent 与 Console 共用 scrcpy，避免维护独立视频源；无障碍数据补充索引控件、窗口和交互证据。
+**scrcpy 提供画面，Collector 提供结构，ADB 提供回退画面。** scrcpy 视频流专用于任务观测，Console 查看任务已保存的截图；无障碍数据补充索引控件、窗口和交互证据。
 
 采集检查请求新鲜度与窗口状态，并采用有界静默区间和重采。普通内容更新只作为诊断，不自动触发新的树遍历，使动态页面仍然可被观察。窗口检查通过时，缺树也可交付可用画面。
 

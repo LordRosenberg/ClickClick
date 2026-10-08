@@ -49,4 +49,4 @@ After the frame-selection fix, six valid targeted episodes passed, as did four v
 
 The sample is small, runs are not repeated enough to estimate a robust failure distribution, and environment recovery can change latency. Provider billing usage was unavailable, so input estimates cannot be converted to monetary savings. Remaining observed limitations included conditional-deletion coverage within budget and intermittent graphics-path failures.
 
-This report publishes aggregate findings and experimental boundaries. Raw device databases, screenshots, model conversations, credentials and machine-specific logs are excluded from the source distribution. The [evaluation guide](evaluation.md) explains how to perform a new controlled comparison.
+Use the [evaluation guide](evaluation.md) to run a controlled comparison with your own model, device and task instances. Compare both task outcomes and total resource usage when choosing role and context settings.

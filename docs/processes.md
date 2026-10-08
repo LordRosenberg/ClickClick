@@ -1,20 +1,20 @@
 # Process topology
 
-[中文](processes.zh-CN.md)
+[中文](processes.zh-CN.md) · [README](../README.md) · [Architecture](architecture.md) · [Deployment](deployment.md)
 
-[README](../README.md) · [Current architecture](architecture.md) · [Deployment guide](deployment.md)
+The Control API hosts the agent harness: role orchestration, task sessions, device access and context management. Planner + Executor is the default, with on-demand Reviewer. Session data uses local SQLite and artifact storage; no separate database or session service is required.
 
-The Control API embeds the selected agent harness, including role orchestration, tool sessions and context/memory management. The default is Planner + Executor with on-demand Reviewer. The ContractAuthor-first runtime has been removed. The model, harness, Session and device-tool boundaries in the [architecture diagram](architecture.md) are logical responsibilities, with Console and evaluation around them. Session currently uses local SQLite/artifact storage; it is not a separately deployed session service.
-
-| Mode | Processes |
+| Entry point | Process relationship |
 | --- | --- |
-| Local device | Browser → Control API with embedded orchestrator and local driver → Android device. |
-| Remote device host | Browser → Control API with orchestrator → Driver RPC host → attached devices. |
-| Fixture | Control API uses a fixture driver; deterministic fake-agent tests also replace model calls. |
-| Standalone task | `clickclick-agent` runs a task using configured local or remote device access. |
+| Console with a local device | Browser → Control API with embedded orchestrator and local driver → Android device |
+| HTTP MCP | Assistant → independent HTTP MCP process → Control API → device |
+| stdio MCP | Assistant → lightweight stdio adapter → Control API → device |
+| Remote device host | Control API → Driver RPC host → attached devices |
+| Standalone task | `clickclick-agent` → configured local or remote driver → device |
+| Fixture tests | Control API → fixture driver; deterministic fake-agent tests also replace model calls |
 
-The built Console is served by Control API; a separate Vite process is only needed for frontend development. The vendored scrcpy server starts on demand and shares its stream between observation and Live view.
+HTTP MCP has its own event loop and port. Task submission, progress queries and control requests go to the backend; model and device work execute there. Multiple MCP clients can share that backend, and disconnecting a client does not cancel its tasks.
 
-See [deployment](deployment.md) for installation, ports, remote hubs, HTTPS and startup checks. See [architecture](architecture.md) for role transitions, session tools, observations and trace persistence. See [evaluation](evaluation.md) for the separate AndroidWorld processes and fixture requirements.
+Control API serves the built Console. A separate Vite process is needed only for frontend development. The scrcpy source belongs to task observation; Console displays saved screenshots without acquiring or resetting the source.
 
-Earlier descriptions of a mandatory three-role contract loop and a mandatory standalone Driver process have been superseded by these guides. Dated experiment reports remain historical evidence.
+See [deployment](deployment.md) for startup and device access, [local MCP](local-mcp.md) for assistant connection, and [evaluation](evaluation.md) for benchmark processes.

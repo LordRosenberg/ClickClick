@@ -1,9 +1,8 @@
 # Observation-bound native node clicks
 
-The executor previously resolved every `tap(index)` to the center of its basis
-observation's bounds. A layout change during model reasoning could therefore
-redirect a valid index selection to a different control. This change preserves
-the observed Android node for controls advertising `ACTION_CLICK`.
+For controls advertising `ACTION_CLICK`, an indexed tap preserves a reference
+to the observed Android node. This avoids redirecting a valid selection to a
+different control if its layout changes while the model is reasoning.
 
 ## Scope and execution
 
@@ -23,13 +22,12 @@ the observed Android node for controls advertising `ACTION_CLICK`.
   after selecting this path. Post-action observation remains in the existing
   transaction; node errors also get a fresh screenshot.
 
-Only standalone `tap(index)` is changed. Coordinate taps, long presses, drags,
-compound actions and targeted text-entry helper taps retain their existing paths.
-Older collectors and nodes without handles retain legacy coordinate resolution.
-Only the in-process Android driver advertises support; legacy HTTP transports
-keep coordinate resolution so serialization cannot silently lose a binding.
-`CLICKCLICK_NODE_CLICK_ENABLED=0` restores legacy executor resolution. This is
-an explicit rollback option, never an automatic fallback after an uncertain click.
+This behavior applies to standalone `tap(index)`. Coordinate taps, long presses,
+drags, compound actions and targeted text-entry helper taps use coordinate-based paths.
+Nodes without handles and unsupported Collector versions use coordinate resolution.
+Native node binding requires the in-process Android driver; HTTP driver transports
+use coordinates. Set `CLICKCLICK_NODE_CLICK_ENABLED=0` to choose coordinate
+resolution explicitly. An uncertain native click never falls back automatically.
 
 ## Feedback and limitations
 
@@ -48,16 +46,8 @@ Accessibility click behavior can differ from touch behavior in custom widgets;
 real app coverage matters. Android 13 Chrome behavior is tested below; other
 Android versions/OEM accessibility implementations still need device validation.
 
-The local APK is a development rebuild of Collector 0.4.4, installed with an
-explicit path/digest. No published release pin or previously frozen full-test runtime is
-changed. The previous installed APK is preserved for rollback.
-
 ## Validation
-
-The focused implementation suite passed 160 Python tests covering executor binding, native dispatch, action/observation transactions and persistent transport. Kotlin unit tests and an APK build also passed with JDK 17 and Gradle 8.9.
 
 On an Android API 33 emulator with Chrome, the diagnostic probe covered seven scenarios: stable target, moved target, removed target, replaced target, renamed target, disabled target and consumed-handle replay. Stable and moved targets received exactly one click on the original node; invalidated targets and replay received none. A stale-coordinate control hit a decoy at the old position. A second probe repeated all seven scenarios with anonymous buttons and also passed.
 
-Three later task regressions passed within their original action budgets: BrowserDraw used 17/20 actions, RetroSavePlaylist 35/50 and FilesMoveFile 14/20. Earlier scoped testing had a BrowserDraw failure associated with redundant navigation and insufficient remaining budget; its result was retained separately rather than replaced. These samples establish targeted behavior, not a universal success rate or a general latency improvement.
-
-The reproducible diagnostic entry point is `scripts/probe_native_node_click.py`. Supply an ADB executable through PATH or `--adb`, a device serial and a fresh output directory. Raw diagnostic traces, screenshots and earlier attempt logs are kept outside the public source distribution. The [evaluation guide](evaluation.md) describes how to record a new comparison.
+The reproducible diagnostic entry point is `scripts/probe_native_node_click.py`. Supply an ADB executable through PATH or `--adb`, a device serial and a fresh output directory. Inspect the output's target receipts and screenshots to check dispatch and app effects. The [evaluation guide](evaluation.md) describes how to record a controlled task comparison.

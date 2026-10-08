@@ -34,7 +34,7 @@ Historical messages and image blocks remain stable within the active budget. Rep
 
 ## scrcpy, Collector and Python
 
-**scrcpy supplies pixels, Collector supplies structure, and ADB supplies fallback pixels.** Sharing scrcpy between agent capture and Console avoids maintaining separate video sources. Accessibility data adds indexed controls, windows and interaction evidence.
+**scrcpy supplies pixels, Collector supplies structure, and ADB supplies fallback pixels.** The scrcpy stream serves task observation only; Console displays saved screenshots without acquiring or resetting that source. Accessibility data adds indexed controls, windows and interaction evidence.
 
 Acquisition checks request freshness and window state, with a bounded quiet interval and resampling. Content updates remain diagnostic rather than automatically forcing another tree traversal. This allows animated pages to remain observable. A missing tree can still yield usable image evidence when window checks pass.
 

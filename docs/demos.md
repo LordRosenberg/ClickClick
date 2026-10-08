@@ -6,6 +6,23 @@ Latest [MobileWorld results](mobileworld-results-20261007.md): original **106/11
 
 最新 MobileWorld 原题 **106/117（90.60%）**、澄清对照 **112/117（95.73%）**；网站提供本次六个成功跨应用工作流及全部逐题截图、角色决策。
 
+## MobileWorld recordings / MobileWorld 录屏
+
+The six README videos retain their October 2 recordings; the latest October 7 results and task trajectories are linked above. Click an animated preview in the README to watch the complete recording at **3× speed**. Shown accounts and records are synthetic benchmark fixtures.
+
+README 中的六个视频保留自 10 月 2 日的成功任务录屏；上方链接提供最新成绩与任务轨迹。点击动图预览可观看 **3 倍速完整视频**，展示账号与记录均为合成测试数据。
+
+| Task / 任务 | Workflow / 工作流 | Video / 完整视频 |
+| --- | --- | --- |
+| Project risk matrix / 项目风险矩阵 | Reconcile team status and milestones, email the matrix, schedule escalations and post counts. / 核对团队状态与里程碑，邮件发送风险矩阵、安排升级事件并发布统计。 | [Watch / 观看](assets/demos/mobileworld/project-risk-matrix.mp4) |
+| Resource conflicts / 资源预订冲突 | Check booking requests against the calendar, handle conflicts and email the report. / 对照日历处理资源预订与冲突，邮件发送报告。 | [Watch / 观看](assets/demos/mobileworld/resource-conflicts.mp4) |
+| Research to shopping plan / 网页资料转采购计划 | Read recipe ingredients, email the list and schedule shopping. / 阅读网页食谱，邮件发送清单并安排采购日程。 | [Watch / 观看](assets/demos/mobileworld/thanksgiving-preparation.mp4) |
+| Lectures to calendar / 讲座转日历 | Find a lecture on Mastodon and create a calendar event with a reminder. / 查找讲座信息并创建带提醒的日历事件。 | [Watch / 观看](assets/demos/mobileworld/lectures-to-calendar.mp4) |
+| Archive files and email record / 文件归档与邮件留档 | Archive old files, remove originals and email the deleted-file list. / 归档旧文件、删除原文件并邮件记录清单。 | [Watch / 观看](assets/demos/mobileworld/archive-old-files.mp4) |
+| Photos by travel location / 按旅行地点整理照片 | Read travel details from the calendar and organize photos by location. / 从日历读取旅行信息，按地点整理照片。 | [Watch / 观看](assets/demos/mobileworld/photos-by-travel-location.mp4) |
+
+## AndroidWorld recordings / AndroidWorld 录屏
+
 The AndroidWorld recordings below retain their separate September provenance.
 
 These videos show complete successful Android tasks at **3× playback speed**. The original screen sequence is preserved. Cropping removes unused black recording margins; an adjacent panel explains the task. Animated README previews sample eight moments and link to the full videos.

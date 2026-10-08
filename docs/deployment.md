@@ -2,9 +2,13 @@
 
 [README](../README.md) · [中文](deployment.zh-CN.md) · [Architecture](architecture.md) · [Evaluation setup](evaluation.md)
 
+For the easiest setup, use the [desktop installer](local-mcp.md#desktop-setup) and let a local assistant help with model configuration, phone connection and MCP registration. The installer includes the runtime and device tools.
+
+The steps below are for **running from source**. Use them when developing ClickClick or when no installer is available for your platform.
+
 ## Requirements
 
-- Python 3.12 is the validated choice for the pinned video decoder. Project metadata declares Python 3.11+; decoder wheel compatibility is a separate constraint.
+- Use Python 3.12 for source deployment. Python 3.11+ is supported by the project, but other versions also need compatible video-decoder packages.
 - Node.js/npm builds the Vite Console. Use `npm ci` with the committed lockfile.
 - Android 8.0+ is the Collector minimum. Authorize ADB on the target device. The AndroidWorld runner has stricter API 33/emulator requirements.
 - Model access is required for actual agent tasks. Fixture mode replaces device I/O, not the language model.
@@ -28,7 +32,7 @@ Each model entry accepts top-level `"tool_choice":"auto"` or `"tool_choice":"req
 
 For compatible relay aliases missing from LiteLLM's model registry, a model entry can explicitly set `"allowed_openai_params":["reasoning_effort"]` alongside `"reasoning":{"effort":"high"}`. This preserves the configured effort through LiteLLM's parameter validation; the upstream endpoint must still support it. The override is per model and does not enable global parameter dropping.
 
-The locally validated study used this subscription route:
+For Codex / ChatGPT subscription access, configure a model available to your account, for example:
 
 ```dotenv
 CLICKCLICK_DEFAULT_MODEL=chatgpt/gpt-5.6-sol
@@ -41,11 +45,11 @@ Authenticate using the project's login helper before starting tasks:
 python -m shared.chatgpt_login
 ```
 
-This route uses login tokens rather than the API-key/base-URL fields above. `CLICKCLICK_CHATGPT_TOKEN_DIR` optionally selects token storage. Provider/account availability can vary; the recorded experiment is not a promise that every account has that model. See [.env.example](../.env.example) and [model routing](../shared/model_router.py) for the project-side configuration.
+This route uses login tokens rather than the API-key/base-URL fields above. `CLICKCLICK_CHATGPT_TOKEN_DIR` optionally selects token storage. Available models depend on your account and provider; choose a model your account supports. See [.env.example](../.env.example) and [model routing](../shared/model_router.py) for the project-side configuration.
 
 ## Local device deployment
 
-The agent harness defaults to `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`: two roles with explicit on-demand review. `plan_reviewer` requires final review. The old `contract` mode has been removed. Keep the default unless you are deliberately comparing policies. Context tuning is part of the harness and is documented separately in [design decisions](design-decisions.md#context-budget).
+The agent harness defaults to `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`: two roles with explicit on-demand review. `plan_reviewer` requires final review. Keep the default unless you are deliberately comparing policies. Context tuning is part of the harness and is documented separately in [design decisions](design-decisions.md#context-budget).
 
 For a device attached to the API host:
 
@@ -176,7 +180,7 @@ npm --prefix web run dev
 
 Vite uses port 5173 and proxies `/api` to the Control API. Driver RPC defaults to 8765 and Control API to 8080. `clickclick-agent "YOUR_TASK"` is the standalone task entry point when a Console is unnecessary.
 
-For Live video viewed through a LAN address, enable HTTPS: browser WebCodecs needs a secure context. Configure both certificate paths:
+For Console access over a trusted LAN, use HTTPS to protect task content in transit. Configure both certificate paths:
 
 ```dotenv
 CLICKCLICK_API_HOST=0.0.0.0
@@ -192,8 +196,8 @@ The API generates a local development certificate when needed and redirects plai
 | --- | --- |
 | No device in Console | ADB authorization, intended local/remote URL, hub reachability and device initialization. |
 | Model fails before acting | Model ID/catalog match, route-specific login or credentials, and the recorded gateway failure. |
-| Page loads but Live is blank | Secure context, matching server version, device stream diagnostics and decoder installation. |
+| Task screenshots are missing | Select a recorded observation; check task capture errors, Collector permissions and decoder installation. Console displays saved screenshots. |
 | Frontend is absent | Run the build; the API can start without `web/dist`, but that does not build the Console. |
 | AndroidWorld cannot find NEXT | Use the required accessibility observer for onboarding and verify app readiness before snapshotting. |
 
-`data/` contains local databases, screenshots, traces and potentially login material. It is not part of the distributable documentation. Source-controlled configuration and experiment artifacts should identify versions and settings without including credentials.
+Back up `data/` to retain task history, screenshots, settings and credentials. Keep it private and review task content before sharing diagnostic files.

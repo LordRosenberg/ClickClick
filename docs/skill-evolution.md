@@ -1,10 +1,18 @@
 # Skill self-improvement
 
-[README](../README.md) · [中文](skill-evolution.zh-CN.md) · [Architecture](architecture.md) · [Skills guide](../skills/README.md)
+[README](../README.md) · [中文](skill-evolution.zh-CN.md) · [Skills guide](../skills/README.md)
 
-**Turn failures and detours from real tasks into guidance for the next run.** ClickClick's Learner analyzes task histories, explores missing app facts when needed, and proposes conditional skill revisions. An independent Skill Reviewer checks their quality and selects necessary trials with ordinary ClickClick execution.
+ClickClick can turn completed task histories into reusable app guidance. It may discover a hidden entry point, document when a control works, or suggest a shorter route through a task. Self-improvement updates knowledge in skill files; it does not train model weights.
 
-Self-improvement here means updating file-based skill knowledge, not training model weights. **Design and experimental status as of October 8, 2026:** local admission, execution benefits and some reuse have been demonstrated. Learning still requires an explicit research entry point; candidates enter pending review, and automatic publication is not implemented.
+## Optimize a workflow
+
+1. Open a task in Console and select **Optimize my workflow**.
+2. Set model-request, device-action and time limits, then confirm model costs and permission to operate the device.
+3. Follow progress. ClickClick analyzes the original task, explores missing facts when needed, and submits proposed guidance to an independent Skill Reviewer. You can stop the optimization.
+4. When candidates are available, open **Skills → Pending** to inspect their text, changes and review results.
+5. Decide whether to approve an eligible candidate. It does not enter the active skill library before approval. Missing evidence or a mismatch with the current library version must be resolved first.
+
+Learning uses additional model requests and may operate your phone. Save unfinished app edits and leave a suitable starting state for exploration. Setting a learning budget does not start optimization, and ordinary tasks do not automatically trigger extra learning after completion.
 
 ## What is learned: a better decision
 
@@ -21,7 +29,7 @@ An action is not inherently wasteful. Opening a menu may be a detour for renamin
 
 ![Skill self-improvement: main flow, optional exploration and trials, evidence feedback, and human publication boundary](assets/skill-evolution.svg)
 
-The main flow runs left to right; exploration and trials are optional branches below it. The loops address evidence gaps, and trial results also return to the continuous research conversation. Not every candidate requires device exploration or another task run. After successful checks, a final Reviewer verdict with no remaining checks or revisions lets the host archive actual feedback and finish without an extra closing model request. Failed, incomplete or disputed results still return to analysis.
+The main flow runs left to right; exploration and trials are optional branches below it. The loops address evidence gaps, and trial results also return to the continuous research conversation. Not every candidate requires device exploration or another task run. Failed, incomplete or disputed results still return to analysis.
 
 ### Responsibilities
 
@@ -68,7 +76,7 @@ Initial input contains necessary task facts, counts and a referenced chronologic
 
 When history exceeds its window, referenced checkpoints preserve dependencies and unresolved questions while originals remain retrievable. Format/reference validation does not prove semantic fidelity. Learning checkpoints differ from ordinary Executor history summaries; see [Memory and context design](memory-and-context.md) for task notes and summaries.
 
-Stable rules and tool contracts are placed before changing phase facts and budgets where possible for prompt caching. Actual cache usage and provider tokens are measured separately. Evidence, current budgets and context limits take priority over cache continuity. No new case index, background memory agent, experience-pruning service or arbitrary hard skill-token quota is introduced.
+Stable rules and tool contracts are placed before changing phase facts and budgets where possible for prompt caching. Actual cache usage and provider tokens are measured separately. Evidence, current budgets and context limits take priority over cache continuity.
 
 ## Output: conditional guidance and retrieval metadata
 
@@ -81,12 +89,6 @@ Reusable rules refer to purposes and observable mechanisms rather than this task
 ## Costs and device environment
 
 Evidence reading, exploration, compaction, repair, review and validation share explicit request, action and time budgets; retries do not reset them. Device exploration requires user authorization and can be cancelled. Candidates remain local and pending until independent review and validation complete.
-
-## Current capability and remaining limits
-
-Discoverable GUI mechanisms in this cohort reached a usable experimental stage: autonomous local procedures and pitfalls, independent review, some ordinary task benefits, and limited replication and cross-input evidence. Separate local rules are not complete task-family procedure packages.
-
-Complex cross-app failure exploration, long-run average utility, causal effects across starting states, production cost and statistical reliability remain unresolved. Complete authored skills are a direction, not this phase's mandatory parity threshold. Fixed-test-script generation remains deferred. Automatic publication, continuous pruning and unrestricted autonomous exploration are not implemented capabilities.
 
 ## Implementation entry points
 

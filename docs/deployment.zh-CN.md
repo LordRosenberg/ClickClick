@@ -2,9 +2,13 @@
 
 [English](deployment.md) · [中文首页](../README.zh-CN.md) · [架构](architecture.zh-CN.md) · [评测环境](evaluation.zh-CN.md)
 
+**推荐使用安装器**，并让本机 AI 助手协助完成配置、手机连接和 MCP 注册。安装器已包含运行环境和设备工具，按[桌面安装指南](desktop-setup.zh-CN.md)操作即可。
+
+以下是 **源码部署** 步骤，适合需要开发 ClickClick，或没有对应平台安装器的用户。
+
 ## 环境要求
 
-- Python 3.12 是固定视频解码器已验证的选择。项目元数据声明 Python 3.11+，解码器 wheel 兼容性是另一项约束。
+- 源码部署推荐 Python 3.12。项目支持 Python 3.11+，其他版本还需确认视频解码器的安装包兼容性。
 - Node.js／npm 用于构建 Vite Console，使用已提交的锁文件执行 `npm ci`。
 - Collector 最低支持 Android 8.0+，目标设备需授权 ADB。AndroidWorld 运行器有更严格的 API 33／模拟器要求。
 - 真实 Agent 任务需要可用模型。Fixture 模式替换设备 I/O，不替换语言模型。
@@ -29,7 +33,7 @@ CLICKCLICK_MODELS_JSON={"openai/YOUR_MODEL_ID":{"provider":"openai","base_url":"
 
 对于 LiteLLM 模型注册表未识别的兼容中转别名，可在该模型条目顶层显式设置 `"allowed_openai_params":["reasoning_effort"]`，配合 `"reasoning":{"effort":"high"}` 使用。这会保留推理强度并通过 LiteLLM 参数校验；上游接口仍须支持该参数。此覆盖只作用于该模型，不开启全局参数丢弃。
 
-本地已验证研究使用以下订阅路由：
+使用 Codex / ChatGPT 订阅时，配置你账号可用的模型，例如：
 
 ```dotenv
 CLICKCLICK_DEFAULT_MODEL=chatgpt/gpt-5.6-sol
@@ -42,11 +46,11 @@ CLICKCLICK_MODELS_JSON={"chatgpt/gpt-5.6-sol":{"provider":"chatgpt","reasoning_s
 python -m shared.chatgpt_login
 ```
 
-此路由使用登录 token，而非上述 API key／base URL 字段。`CLICKCLICK_CHATGPT_TOKEN_DIR` 可指定 token 存储位置。提供方／账户可用性可能不同，实验记录不保证每个账户都能使用该模型。项目配置见 [.env.example](../.env.example) 和[模型路由](../shared/model_router.py)。
+此路由使用登录 token，而非上述 API key／base URL 字段。`CLICKCLICK_CHATGPT_TOKEN_DIR` 可指定 token 存储位置。可用模型取决于账户和提供方，请选择你的账户支持的型号。项目配置见 [.env.example](../.env.example) 和[模型路由](../shared/model_router.py)。
 
 ## 本地设备部署
 
-Agent Harness 默认 `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`，即两角色加显式按需审核。`plan_reviewer` 要求最终审核；旧 `contract` 模式已删除。除非刻意比较策略，否则保留默认值。上下文调优属于 Harness，详见[设计取舍](design-decisions.zh-CN.md#context-budget)。
+Agent Harness 默认 `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`，即两角色加显式按需审核。`plan_reviewer` 要求最终审核。除非刻意比较策略，否则保留默认值。上下文调优属于 Harness，详见[设计取舍](design-decisions.zh-CN.md#context-budget)。
 
 设备连接到 API 主机时：
 
@@ -179,7 +183,7 @@ npm --prefix web run dev
 
 Vite 使用 5173 端口，将 `/api` 代理到 Control API。Driver RPC 默认 8765，Control API 默认 8080。不需要 Console 时，可用 `clickclick-agent "YOUR_TASK"` 运行独立任务。
 
-通过局域网地址查看 Live 时启用 HTTPS，浏览器 WebCodecs 需要安全上下文。配置两个证书路径：
+需要在可信局域网中访问 Console 时，使用 HTTPS 保护传输中的任务内容。配置两个证书路径：
 
 ```dotenv
 CLICKCLICK_API_HOST=0.0.0.0
@@ -195,8 +199,8 @@ API 按需生成本地开发证书，并将该公共端口上的普通 HTTP 重�
 | --- | --- |
 | Console 无设备 | ADB 授权、预期本地／远程 URL、Hub 可达性和设备初始化。 |
 | 模型在动作前失败 | 模型 ID 与配置目录匹配、对应路由登录／凭据、记录的网关错误。 |
-| 页面加载但 Live 空白 | 安全上下文、服务端版本、设备流诊断和解码器安装。 |
+| 看不到任务截图 | 选择已有观测步骤，检查任务采集错误、Collector 权限和解码器安装。Console 展示已保存的截图。 |
 | 前端不存在 | 执行构建；API 可在缺少 `web/dist` 时启动，但不会代为构建 Console。 |
 | AndroidWorld 找不到 NEXT | 引导阶段使用所需无障碍观察器，保存快照前验证应用就绪。 |
 
-`data/` 包含本地数据库、截图、轨迹及可能存在的登录材料，不属于分发文档。纳入版本管理的配置和实验产物应标识版本与设置，不包含凭据。
+备份 `data/` 可保留任务历史、截图、设置和登录凭据。请妥善保管该目录，分享排查资料前先检查其中的任务内容。

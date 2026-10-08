@@ -1,18 +1,20 @@
 # 进程拓扑
 
-[English](processes.md) · [中文首页](../README.zh-CN.md) · [当前架构](architecture.zh-CN.md) · [部署指南](deployment.zh-CN.md)
+[English](processes.md) · [中文首页](../README.zh-CN.md) · [架构](architecture.zh-CN.md) · [部署](deployment.zh-CN.md)
 
-Control API 内嵌所选 Agent Harness，包含角色编排、工具会话和上下文／记忆管理。默认 Planner + Executor，支持按需 Reviewer。以 ContractAuthor 开始的旧运行时已删除。[架构图](architecture.zh-CN.md)中的模型、Harness、Session 与设备工具是逻辑职责边界，Console 和评测位于外围。Session 当前使用本地 SQLite／产物存储，不是单独部署的会话服务。
+Control API 承载 Agent Harness，包括角色编排、任务会话、设备访问和上下文管理。默认使用 Planner + Executor，支持按需 Reviewer。会话数据使用本地 SQLite 和产物存储，无需单独部署数据库或会话服务。
 
-| 模式 | 进程关系 |
+| 入口 | 进程关系 |
 | --- | --- |
-| 本地设备 | 浏览器 → 内嵌编排器和本地 Driver 的 Control API → Android 设备。 |
-| 远程设备主机 | 浏览器 → 带编排器的 Control API → Driver RPC 主机 → 已连接设备。 |
-| Fixture | Control API 使用 fixture driver；确定性假 Agent 测试还会替换模型调用。 |
-| 独立任务 | `clickclick-agent` 使用配置的本地或远程设备访问运行任务。 |
+| Console 与本地设备 | 浏览器 → 内嵌编排器和本地 Driver 的 Control API → Android 设备 |
+| HTTP MCP | 助手 → 独立 HTTP MCP 进程 → Control API → 设备 |
+| stdio MCP | 助手 → 轻量 stdio 适配器 → Control API → 设备 |
+| 远程设备主机 | Control API → Driver RPC 主机 → 已连接设备 |
+| 独立任务 | `clickclick-agent` → 配置的本地或远程 Driver → 设备 |
+| Fixture 测试 | Control API → fixture driver；确定性假 Agent 测试还会替换模型调用 |
 
-构建后的 Console 由 Control API 提供；只有前端开发需要独立 Vite 进程。仓库固定版本的 scrcpy server 按需启动，观测与 Live 共享视频流。
+HTTP MCP 使用独立事件循环和端口，将任务提交、进度查询及控制请求转发给后台；模型和设备操作在后台执行。多个 MCP 客户端可共用后台，断开助手连接不会取消任务。
 
-[部署指南](deployment.zh-CN.md)介绍安装、端口、远程 Hub、HTTPS 和启动检查；[架构](architecture.zh-CN.md)介绍角色转换、会话工具、观测及轨迹持久化；[评测](evaluation.zh-CN.md)介绍独立 AndroidWorld 进程及 fixture 要求。
+构建后的 Console 由 Control API 提供，只有前端开发需要独立 Vite 进程。scrcpy 视频源专用于任务观测；Console 读取已保存截图，不获取或重置视频源。
 
-早期强制三角色合同循环和必须独立启动 Driver 的说明已由这些指南取代。带日期的实验报告保留为历史证据。
+[部署指南](deployment.zh-CN.md)介绍启动和设备访问，[本地 MCP](local-mcp.zh-CN.md)介绍助手接入，[评测指南](evaluation.zh-CN.md)介绍基准运行进程。

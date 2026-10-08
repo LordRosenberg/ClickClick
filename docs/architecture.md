@@ -108,7 +108,7 @@ Cancellation and task limits stop further work at runtime boundaries. A receipt 
 | Memory and context | [Memory and context design](memory-and-context.md) | Notes, structured summaries, source retrieval and storage |
 | Skill management | [Skills guide](../skills/README.md), [Role-specific delivery](design-decisions.md#role-specific-skills) | Skill organization, app/device scope and role delivery |
 | Skill self-improvement | [Skill self-improvement](skill-evolution.md) | Trajectory extraction, continuous exploration, independent review, selective validation and pending artifacts |
-| Observation and mirroring | [scrcpy observation](scrcpy-observation.md), [Collector setup](accessibility-collector-setup.md) | Shared video, frame freshness, UI structure and fallback |
+| Task observation | [scrcpy observation](scrcpy-observation.md), [Collector setup](accessibility-collector-setup.md) | Observation video, frame freshness, UI structure and fallback |
 | Actions and input | [Native node binding](design-decisions.md#native-node-binding), [Targeted text replacement](design-decisions.md#targeted-text-replacement) | Target validation, focus, replacement and readback |
 | Model integration | [Model routing](deployment.md#model-routing), [Prompt-cache continuity](design-decisions.md#prompt-cache-continuity) | Model configuration, role routing and request-context reuse |
 | Console and observability | [Observability design](observability.md) | Event records, timelines, model calls and artifact inspection |

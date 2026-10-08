@@ -1,12 +1,12 @@
 # Accessibility Collector Real-Device Benchmark
 
-> **时效说明**：本文是 2026-08-23 的测量记录，数据本身仍有效；但其中的标定结论已被后续
-> 测量更新——当前 collector 主超时为 **2500ms**（`TREE_PRIMARY_ATTEMPT_TIMEOUT_MS`），
-> 观测总 deadline 为 current **12000ms** / temporal **8000ms**，均集中在
-> `driver/observation_deadline.py`。文中的 2000ms 等数值为当时的决策依据，请勿直接引用为现状。
+> These measurements describe Collector 0.2.0 on August 23, 2026, rather than
+> performance guarantees for every device. Current timeout settings are centralized
+> in `driver/observation_deadline.py`: a **2500 ms** Collector primary attempt,
+> **12000 ms** current-observation deadline and **8000 ms** temporal deadline.
 
-Measured on 2026-08-23 with Xiaomi `REDACTED_MODEL`, Android 15 / API 35,
-serial `REDACTED_DEVICE`, collector `0.2.0`, 1200×2670 pixels. Each scenario uses
+Measured on 2026-08-23 with a Xiaomi device running Android 15 / API 35,
+Collector `0.2.0`, at 1200×2670 pixels. Each scenario uses
 10 current collector snapshot + ADB screencap + normalization samples unless
 noted otherwise. No OCR or CV path ran.
 
@@ -37,9 +37,9 @@ surface boundary without exposing an account session.
   smoke retained usable current evidence at 1901/1939ms rather than failing
   the whole tool call.
 
-## Calibration decisions
+## Historical timeout comparison
 
-- Use a 2000ms collector timeout. A 1500ms trial had one false fallback and a
+- The historical comparison used a 2000ms Collector timeout. A 1500ms trial had one false fallback and a
   13.5s legacy Frame-Gate long tail; 2000ms produced 10/10 complete large-tree
   samples while leaving enough of the 2500ms deadline for the measured
   screenshot and normalization stages.
@@ -51,7 +51,7 @@ surface boundary without exposing an account session.
 - Xiaomi/HyperOS sideloaded services require the operator to choose **Allow
   restricted settings**. Merely writing `enabled_accessibility_services`
   binds the service but can leave the active application root unavailable.
-  Initialization now detects the AppOp and reports `operator_action_required`.
+  Device initialization detects the AppOp and reports `operator_action_required`.
 
 ## Representative task smoke
 
@@ -81,7 +81,7 @@ On the same device, a 20-sample warm run measured tree-only p50/p95 at
 decode. Traversal p95 was 3.5 ms after the first sample and host decode stayed
 below 0.15 ms. Historical compatibility samples through the removed
 ContentProvider path measured 1208/1230 ms. The first process bootstrap measured 1724 ms, so
-device initialization now establishes and verifies the channel before a task
+device initialization establishes and verifies the channel before a task
 starts; subsequent observations remain on the warm connection.
 
 Current production capture performs one Tree route per complete observation:

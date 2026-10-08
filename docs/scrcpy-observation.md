@@ -79,8 +79,8 @@ logical dimensions from the connected display. That geometry is carried into
 ObservationBuilder: Accessibility bounds are scaled into SoM image pixels, and
 attached-image coordinate actions are transformed back into device pixels.
 
-Agent and Console acquire separate consumer leases on the same device-keyed
-session/ring. The last release starts the bounded idle timer rather than
+Task observation consumers acquire leases on the device-keyed session/ring.
+Console reads saved artifacts and holds no stream lease. The last release starts the bounded idle timer rather than
 immediately killing the server. A failed/restarted source advances generation,
 so temporal packages and invocation-local retry suppression cannot silently
 cross a recovery boundary.
@@ -104,7 +104,7 @@ pre-action image after navigation. Those numbers are historical performance
 evidence, not a correctness result; post-repair benchmarks must also prove the
 selected frame follows the action boundary and matches the Tree.
 
-The repaired path on device `REDACTED_DEVICE` measured 105.95/114.80ms static-current
+Historical post-boundary measurements on the test device recorded 105.95/114.80ms static-current
 p50/p95 (10/10 scrcpy), 140.44/178.08ms under a 30-sample shared Console+Agent
 post-action stress run, and 202.12/297.63ms while alternating Settings and Home
 across real navigation boundaries. All navigation samples were post-boundary,
@@ -125,7 +125,8 @@ When measurements justify recalibration, update the centralized constants above
 the measured p95 plus operational headroom and verify the parent safety guard.
 Add `--before-action home` or `--before-action back` to probe action boundaries.
 Use `--before-action alternate --shared-consumer` to alternate Settings/Home
-while a second Console-like subscriber drains the same source. Use
+while a second diagnostic subscriber drains the same source. This is a synthetic
+multi-consumer stress test; the current Console does not subscribe to the stream. Use
 `--force-scrcpy-failure` only as a diagnostic fault injection for the bounded
 ADB path.
 The output records provider, generation, stage timings, validation class,

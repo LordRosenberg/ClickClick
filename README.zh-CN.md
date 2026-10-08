@@ -39,15 +39,19 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## 效果演示
 
-最新 MobileWorld 测试中的六个成功跨应用工作流：资源预订冲突、网页资料转采购计划、讲座转日历、文件归档与邮件留档、按旅行地点整理照片、读取论文并统计贡献者。点击查看本次任务的截图、规划决策和设备操作；展示账号与数据均为合成测试数据。
+### MobileWorld 演示
 
-- [资源预订冲突](https://lordrosenberg.github.io/ClickClick/mobileworld/#MattermostResourceConflictResolutionTask)
-- [网页资料转采购计划](https://lordrosenberg.github.io/ClickClick/mobileworld/#ThanksgivingPrepTask)
-- [讲座转日历](https://lordrosenberg.github.io/ClickClick/mobileworld/#MastodonCreateMemoTask)
-- [文件归档与邮件留档](https://lordrosenberg.github.io/ClickClick/mobileworld/#LocalFileManagementTask2)
-- [按旅行地点整理照片](https://lordrosenberg.github.io/ClickClick/mobileworld/#PhotoManagementTask)
+六个跨应用成功任务录屏。点击预览，观看 **3 倍速完整视频**。
 
-- [读取论文并统计贡献者](https://lordrosenberg.github.io/ClickClick/mobileworld/#ReadQwen3PaperTask2)
+| 项目风险矩阵 | 资源预订冲突 | 网页资料转采购计划 |
+| --- | --- | --- |
+| [![项目风险矩阵](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![资源预订冲突](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![网页资料转采购计划](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
+
+| 讲座转日历 | 文件归档与邮件留档 | 按旅行地点整理照片 |
+| --- | --- | --- |
+| [![讲座转日历](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![文件归档与邮件留档](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![按旅行地点整理照片](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
+
+[任务指令与录屏说明](docs/demos.md#mobileworld-recordings--mobileworld-录屏) · [最新截图与执行轨迹](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 
 ### AndroidWorld 演示
 

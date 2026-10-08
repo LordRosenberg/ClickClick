@@ -8,9 +8,9 @@ ClickClick 提供本地 stdio 和 Streamable HTTP MCP 服务，两种方式共�
 
 ## 本地 HTTP MCP
 
-HTTP MCP 在独立进程和端口运行，桌面安装通常使用 `http://127.0.0.1:18081/mcp/`；首次安装时端口被占用会另选并保存。Console 仍使用 18080。通过 `export --client generic --transport http --output <完整本机文件路径>` 导出实际 URL 和本机 Bearer 凭据，由助手或用户注册。升级前已注册旧 18080 MCP 地址的用户需要重新导出并更新该连接。导出文件不要上传聊天或公开分享。桌面启动、托盘关闭和升级会统一管理两个服务；关闭助手连接不结束手机任务。
+HTTP MCP 在独立进程和端口运行，桌面安装通常使用 `http://127.0.0.1:18081/mcp/`；首次安装时端口被占用会另选并保存。Console 仍使用 18080。通过 `export --client generic --transport http --output <完整本机文件路径>` 导出实际 URL 和本机 Bearer 凭据，由助手或用户注册。导出文件不要上传聊天或公开分享。桌面启动、托盘关闭和升级会统一管理两个服务；关闭助手连接不结束手机任务。
 
-源码部署安装 `.[mcp]` 后，在自己的 `.env` 设置 `CLICKCLICK_MCP_HTTP_ENABLED=true`，保持 loopback API host。分别启动 `python -m control_api.main` 和 `python -m control_api.mcp_http`，使用同一工作目录、数据目录和配置。后台端口默认 8080，MCP 默认 8081，可用 `CLICKCLICK_MCP_HTTP_PORT` 修改，必须与后台端口不同。凭据自动保存在数据目录的 `mcp-token`。设置页通过本机同源浏览器取得配置权限，跨站请求被拒绝；设置页不依赖 MCP SDK。
+源码部署安装 `.[mcp]` 后，在自己的 `.env` 设置 `CLICKCLICK_MCP_HTTP_ENABLED=true`，保持 loopback API host。分别启动 `python -m control_api.main` 和 `python -m control_api.mcp_http`，使用同一工作目录、数据目录和配置。后台端口默认 8080，MCP 默认 8081，可用 `CLICKCLICK_MCP_HTTP_PORT` 修改，必须与后台端口不同。凭据自动保存在数据目录的 `mcp-token`。通过本机 Console 的设置页完成模型和设备配置，无需手动编辑文件。
 
 HTTP URL 适合具有本机连接能力的助手；云端连接器不因填写 localhost 就能访问用户电脑。stdio 客户端启动轻量适配器，适配器请求同一个后台。两种连接方式都使用 ClickClick 内部选定的 API 或订阅模型，客户端配置格式与启动入口按其实际要求填写。
 
@@ -143,6 +143,6 @@ Console 可查看设备、任务和模型目录；MCP 使用设置页选择的 A
 
 `paused` 期间设备仍被该任务占用，其他 ClickClick 任务不能抢用；用户可以手动操作手机。恢复保留原任务 ID、计划、对话、笔记和累计预算，重新观察当前手机并刷新设备日期。重复恢复不会启动第二个执行器。绝对截止时间继续流逝，恢复不会延长它；截止后恢复会结束任务而不继续操作。
 
-Checkpoint 使用现有数据库和 artifacts，不生成另一套 checkpoint 文件或 Python 对象快照。正常暂停的数据可在后台重启后显式恢复。正在运行时突然崩溃不代表存在安全 checkpoint，不会自动重放可能已经发生的操作；可在 Console 查看记录并取消遗留任务。
+正常暂停后会保存任务进度，后台重启后可恢复同一个任务。运行中意外中断的任务不会自动重放操作；请在 Console 查看记录，再决定如何处理。
 
-助手关闭、查询等待超时或 MCP 断开，不会自动取消后台手机任务。重连后通过 `list_tasks` 找回，再继续查询或控制。首版没有远程 MCP、内置调度、逐步点击工具或主动向所有客户端推送完成通知；定时执行由助手安排，运行时仍需要电脑和手机在线且本地 MCP 可访问。
+助手关闭、查询等待超时或 MCP 断开，不会自动取消后台手机任务。重连后通过 `list_tasks` 找回，再继续查询或控制。定时任务由助手的定时功能安排，完成通知也取决于助手支持的能力。执行期间需要电脑和手机在线，且助手能够访问本机 MCP。

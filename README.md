@@ -39,15 +39,19 @@ At the [public leaderboard](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3W
 
 ## See it in action
 
-Six successful cross-app workflows from the latest MobileWorld evaluation: resource conflicts, research to a shopping plan, lecture-to-calendar, file archiving with email records, photos organized by travel, and reading a paper to count contributors. Open each case for current screenshots, planning decisions and device actions. Shown accounts and records are synthetic benchmark fixtures.
+### MobileWorld demos
 
-- [Resource conflicts](https://lordrosenberg.github.io/ClickClick/mobileworld/#MattermostResourceConflictResolutionTask)
-- [Research to shopping](https://lordrosenberg.github.io/ClickClick/mobileworld/#ThanksgivingPrepTask)
-- [Lecture to calendar](https://lordrosenberg.github.io/ClickClick/mobileworld/#MastodonCreateMemoTask)
-- [File archive and email record](https://lordrosenberg.github.io/ClickClick/mobileworld/#LocalFileManagementTask2)
-- [Photos by travel](https://lordrosenberg.github.io/ClickClick/mobileworld/#PhotoManagementTask)
+Six successful cross-app tasks. Click a preview to watch the **complete video at 3× speed**.
 
-- [Read a paper and count contributors](https://lordrosenberg.github.io/ClickClick/mobileworld/#ReadQwen3PaperTask2)
+| Project risk matrix | Resource conflicts | Research to shopping plan |
+| --- | --- | --- |
+| [![Project risk matrix](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![Resource conflicts](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![Research to shopping plan](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
+
+| Lectures to calendar | Archive files and email record | Photos by travel location |
+| --- | --- | --- |
+| [![Lectures to calendar](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![Archive files and email record](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![Photos by travel location](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
+
+[Video details](docs/demos.md#mobileworld-recordings--mobileworld-录屏) · [Latest screenshots and execution traces](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 
 ### AndroidWorld demos
 

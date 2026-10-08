@@ -109,7 +109,7 @@ Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，
 | 记忆与上下文 | [记忆与上下文详设](memory-and-context.zh-CN.md) | 笔记、结构化摘要、来源回查与存储 |
 | 技能管理 | [Skills 指南](../skills/README.zh-CN.md)、[按角色交付](design-decisions.zh-CN.md#按角色交付-skills) | 技能组织、应用与设备作用域、角色交付 |
 | 技能自进化 | [Skills 自进化](skill-evolution.zh-CN.md) | 轨迹提炼、连续探索、独立审查、选择性验证与待审产物 |
-| 观测与投屏 | [scrcpy 观测通路](scrcpy-observation.md)、[Collector 接入](accessibility-collector-setup.zh-CN.md) | 共享视频流、帧新鲜度、UI 结构采集与回退 |
+| 任务观测 | [scrcpy 观测通路](scrcpy-observation.md)、[Collector 接入](accessibility-collector-setup.zh-CN.md) | 观测视频流、帧新鲜度、UI 结构采集与回退 |
 | 动作与输入 | [原生节点绑定](design-decisions.zh-CN.md#原生节点绑定)、[定向文本替换](design-decisions.zh-CN.md#定向文本替换) | 动作目标校验、聚焦、替换与读回 |
 | 模型接入 | [模型路由](deployment.zh-CN.md#model-routing)、[Prompt cache 连续性](design-decisions.zh-CN.md#prompt-cache-连续性) | 模型配置、角色路由与请求上下文复用 |
 | Console 与可观测性 | [可观测性设计](observability.zh-CN.md) | 事件记录、时间线、模型调用与产物查看 |
