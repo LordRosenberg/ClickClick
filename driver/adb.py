@@ -397,11 +397,13 @@ def _xml_tag(element: ElementTree.Element) -> str:
 
 
 def _platform_tools_archive(*, host: str | None = None) -> tuple[str, str]:
-    """Read the Windows Platform-Tools URL + SHA-1 from Google's repository."""
+    """Read the host's Platform-Tools URL + SHA-1 from Google's repository."""
     request = Request(_ANDROID_REPOSITORY_URL, headers={"User-Agent": "ClickClick/0.1"})
     with urlopen(request, timeout=30) as response:  # noqa: S310 - fixed HTTPS origin
         root = ElementTree.fromstring(response.read())
     host = host or ("windows" if os.name == "nt" else "darwin" if __import__("sys").platform == "darwin" else "linux")
+    # Google uses macosx in metadata, although the archive and Python use darwin.
+    host = {"darwin": "macosx", "macos": "macosx"}.get(host, host)
     for package in root.iter():
         if _xml_tag(package) != "remotePackage" or package.attrib.get("path") != "platform-tools":
             continue

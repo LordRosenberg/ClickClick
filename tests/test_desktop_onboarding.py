@@ -335,6 +335,32 @@ def test_managed_runtime_copies_physical_python_from_minor_version_symlink(tmp_p
     assert info["version"] == "3.12.15"
 
 
+@pytest.mark.parametrize("host, archive, checksum", [
+    ("windows", "win", "1" * 40),
+    ("darwin", "darwin", "2" * 40),
+    ("macosx", "darwin", "2" * 40),
+    ("linux", "linux", "3" * 40),
+])
+def test_platform_tools_uses_google_host_names(monkeypatch, host, archive, checksum):
+    from io import BytesIO
+    from driver import adb
+
+    archives = "".join(
+        f'<archive><host-os>{name}</host-os><complete>'
+        f'<url>platform-tools_{filename}.zip</url><checksum>{digest}</checksum>'
+        '</complete></archive>'
+        for name, filename, digest in [
+            ("windows", "win", "1" * 40), ("macosx", "darwin", "2" * 40),
+            ("linux", "linux", "3" * 40),
+        ]
+    )
+    metadata = f'<repository><remotePackage path="platform-tools"><archives>{archives}</archives></remotePackage></repository>'
+    monkeypatch.setattr(adb, "urlopen", lambda *args, **kwargs: BytesIO(metadata.encode()))
+    url, digest = adb._platform_tools_archive(host=host)
+    assert url == f"https://dl.google.com/android/repository/platform-tools_{archive}.zip"
+    assert digest == checksum
+
+
 def test_installed_profile_uses_private_environment(tmp_path, monkeypatch):
     from desktop.install import installed_environment
     home = tmp_path / "installed"
