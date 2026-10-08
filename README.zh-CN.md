@@ -257,6 +257,12 @@ python -m evaluation.androidworld.reproduce --install
   </picture>
 </a>
 
-[![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
+<a href="https://github.com/LordRosenberg/ClickClick/releases">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg" />
+    <img alt="ClickClick installer downloads" src="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg" />
+  </picture>
+</a>
 
 Star 趋势由 Star History 自动更新，图表服务设有 24 小时缓存。安装器下载数每小时刷新，桌面正式版发布后也会刷新，按天展示累计下载数，图中标注最后更新时间。GitHub 图片缓存可能带来额外的显示延迟。仅统计 Windows/macOS 安装包，包含重复下载与升级下载，不代表独立用户人数；趋势从首次采样开始积累。

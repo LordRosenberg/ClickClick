@@ -36,24 +36,28 @@ def sample(history, releases, date, *, sampled_at=None):
     return result
 
 
-def chart(history):
+def chart(history, *, dark=False):
+    background, foreground, axis, accent = (
+        ("#0d1117", "#e6edf3", "#484f58", "#a5b4fc") if dark else
+        ("#ffffff", "#27334b", "#bbc4d3", "#5b69e8")
+    )
     points = history["daily"]
     latest = points[-1]
     high = max(1, max(p["downloads"] for p in points))
     coordinates = [(72 + i * 658 / max(1, len(points) - 1), 230 - 150 * p["downloads"] / high) for i, p in enumerate(points)]
     line = " ".join(f"{x:.1f},{y:.1f}" for x, y in coordinates)
-    dots = "".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="#5b69e8"/>' for x, y in coordinates)
+    dots = "".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4" fill="{accent}"/>' for x, y in coordinates)
     start = html.escape(points[0]["date"])
     end = html.escape(latest["date"])
     updated = html.escape(history.get("sampled_at", end)).replace("T", " ").replace("Z", " UTC")
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="800" height="320" viewBox="0 0 800 320" role="img" aria-label="Installer downloads: {latest['downloads']}">
-<rect width="800" height="320" rx="12" fill="#fff"/>
-<g font-family="Arial,sans-serif" fill="#27334b">
+<rect width="800" height="320" rx="12" fill="{background}"/>
+<g font-family="Arial,sans-serif" fill="{foreground}">
 <text x="32" y="36" font-size="20" font-weight="bold">ClickClick installer downloads</text>
 <text x="730" y="36" font-size="22" text-anchor="end" font-weight="bold">{latest['downloads']:,}</text>
-<path d="M72 70V230H730" fill="none" stroke="#bbc4d3"/>
+<path d="M72 70V230H730" fill="none" stroke="{axis}"/>
 <text x="60" y="86" text-anchor="end" font-size="12">{high:,}</text><text x="60" y="234" text-anchor="end" font-size="12">0</text>
-<polyline points="{line}" fill="none" stroke="#5b69e8" stroke-width="3"/>{dots}
+<polyline points="{line}" fill="none" stroke="{accent}" stroke-width="3"/>{dots}
 <text x="72" y="253" font-size="12">{start}</text><text x="730" y="253" text-anchor="end" font-size="12">{end}</text>
 <text x="32" y="283" font-size="12">Updated {updated} · hourly refresh · daily totals</text>
 <text x="32" y="303" font-size="12">Includes repeat downloads and upgrades · not unique users · history starts {start}</text>
@@ -92,6 +96,7 @@ def main():
                      sampled_at=now.isoformat(timespec="seconds").replace("+00:00", "Z"))
     file.write_text(json.dumps(history, indent=2) + "\n", encoding="utf-8")
     (args.output / "installer-downloads.svg").write_text(chart(history), encoding="utf-8")
+    (args.output / "installer-downloads-dark.svg").write_text(chart(history, dark=True), encoding="utf-8")
     print(f"Published installer downloads: {history['daily'][-1]['downloads']}")
 
 

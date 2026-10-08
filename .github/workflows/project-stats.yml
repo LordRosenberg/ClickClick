@@ -51,7 +51,7 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add stats/installer-downloads.json stats/installer-downloads.svg
+          git add stats/installer-downloads.json stats/installer-downloads.svg stats/installer-downloads-dark.svg
           if ! git diff --cached --quiet; then
             git commit -m "stats: sample installer downloads"
             git pull --rebase origin codex/androidworld-gallery

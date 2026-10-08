@@ -257,6 +257,12 @@ See [third-party notices](THIRD_PARTY_NOTICES.md) for bundled components.
   </picture>
 </a>
 
-[![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
+<a href="https://github.com/LordRosenberg/ClickClick/releases">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg" />
+    <img alt="ClickClick installer downloads" src="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg" />
+  </picture>
+</a>
 
 Star History updates automatically, with a 24-hour cache at the chart provider. Installer downloads refresh hourly and after each desktop release, with one total per day and the last update time shown on the chart. GitHub's image cache may add a display delay. Only Windows/macOS installer assets are counted, including repeat downloads and upgrades; this is not a count of unique users. History starts at the first sample.
