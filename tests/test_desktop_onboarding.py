@@ -290,6 +290,8 @@ def test_application_allowlist_excludes_private_and_internal(tmp_path):
     import tomllib
     metadata = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
     assert "assets/*.png" in metadata["tool"]["setuptools"]["package-data"]["desktop"]
+    # Every configurable desktop feature must work without a user-side pip install.
+    assert set(metadata["project"]["optional-dependencies"]["jev"]) <= set(metadata["project"]["optional-dependencies"]["desktop"])
     assert not any(p.startswith(("data/", "evaluation/", "tests/", "openspec/", ".git/", ".agents/")) for p in files)
     assert {p for p in files if p.startswith("docs/")} == {"docs/local-mcp.zh-CN.md", "docs/desktop-setup.zh-CN.md"}
     assert not any(".env" in p or "__pycache__" in p or "integrations/android_world" in p for p in files)

@@ -27,7 +27,7 @@ dependencies = [
 
 [project.optional-dependencies]
 mcp = ["mcp>=1.30,<2"]
-desktop = ["mcp>=1.30,<2", "av==14.0.1", "tomlkit>=0.13,<1", "pystray>=0.19.5,<0.20", "psutil>=6,<8"]
+desktop = ["mcp>=1.30,<2", "av==14.0.1", "tomlkit>=0.13,<1", "pystray>=0.19.5,<0.20", "psutil>=6,<8", "typesafe-sdk==0.7.2"]
 jev = [
   # Separate optional experiment transport; does not require a LiteLLM upgrade.
   "typesafe-sdk==0.7.2",

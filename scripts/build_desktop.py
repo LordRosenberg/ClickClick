@@ -124,7 +124,7 @@ def build_payload(destination, *, version, keyboard_apk, keyboard_source):
     assets = device_assets(destination, keyboard_apk, keyboard_source)
     # Private runtime smoke-check: imports use only payload code/dependencies.
     env = {k: v for k, v in os.environ.items() if not k.startswith("CLICKCLICK_") and k not in {"PYTHONPATH", "PYTHONHOME"}}
-    run([python, "-I", "-c", "import desktop.main,control_api.main,mcp,av,tomlkit,pystray; print('payload imports OK')"], cwd=destination, env=env)
+    run([python, "-I", "-c", "import desktop.main,control_api.main,mcp,av,tomlkit,pystray,typesafe_sdk,httpx2,sqlite3; sqlite3.connect(':memory:').execute('select 1'); print('payload imports and SQLite OK')"], cwd=destination, env=env)
     env["TIKTOKEN_CACHE_DIR"] = str(destination / "tools/tiktoken")
     run([python, "-I", "-c", "import tiktoken; tiktoken.get_encoding('o200k_base'); tiktoken.get_encoding('cl100k_base')"], env=env)
     versions = run([python, "-c", "import importlib.metadata,json; print(json.dumps({d.metadata['Name']:d.version for d in importlib.metadata.distributions()}))"], env=env, capture_output=True).stdout

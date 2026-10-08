@@ -4,6 +4,8 @@
 
 Windows 安装器为 `.exe`；macOS 按 Apple Silicon/Intel 分别构建 `.app` 并压缩分发。安装包携带私有 Python、已经安装的运行依赖、常用分词资源、Console、运行提示词/技能、ADB、Collector 和 ADBKeyboard。用户不需要安装 Python、Node、Git 或运行 pip。
 
+数据库使用随私有 Python 提供的 SQLite，首次启动在安装目录的 `data/clickclick.db` 中创建本机数据库，无需另装数据库服务。Jev 的依赖也包含在安装包中，默认关闭，需要时在设置页启用并配置 API。运行仍需要系统自带的浏览器和后台服务、模型服务网络连接，以及手机调试授权；Windows 使用 USB 连接部分手机时可能需要厂商驱动，Wi-Fi ADB 不需要 USB 驱动。
+
 安装包按白名单构建，不包含内部设计文档、OpenSpec、测试/评测材料、历史任务、截图、日志、个人 `.env`、API Key 或仓库元数据。第三方许可证、依赖版本清单和单独 APK 所需的对应源码随包保留。
 
 发布流程尚需在对应平台构建和验收；不要把仓库源码压缩包当成桌面安装器。macOS 正式公开分发还应完成 Developer ID 签名和公证，否则系统可能要求用户在隐私与安全性设置中确认来源。
