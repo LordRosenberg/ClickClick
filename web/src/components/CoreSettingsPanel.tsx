@@ -6,7 +6,7 @@ import { JevSettingsPanel } from "@/components/JevSettingsPanel";
 import { ChatGPTLoginCard } from "@/components/ChatGPTLoginCard";
 import { getLearningPreferences, updateLearningPreferences } from "@/api/client";
 import type { LearningPreferences } from "@/api/client";
-import { emptyModel, emptyProfile, renameModel, settingsPayload, modelPresets, roleModelOptions, resolvedRoleModel, selectRoleModel, ROLE_LABELS } from "@/lib/console-settings";
+import { emptyModel, emptyProfile, renameModel, settingsPayload, modelPresets, roleModelOptions, resolvedRoleModel, selectRoleModel, selectCustomRoleModel, ROLE_LABELS } from "@/lib/console-settings";
 import type { Mode, ModelSettings, Profile, Role, RuntimeSettings, SettingsSummary, SetupRequest, JevSettings } from "@/lib/console-settings";
 import { KeyRound, UserRound, Check, Save } from "lucide-react";
 
@@ -34,6 +34,7 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [customModels, setCustomModels] = useState<Set<number>>(new Set());
+  const [customRoleNames, setCustomRoleNames] = useState<Partial<Record<Role, string>>>({});
   const [expandedModels, setExpandedModels] = useState<Record<string, boolean>>({});
   const [expandedParameters, setExpandedParameters] = useState<Record<string, boolean>>({});
   const modelCards = useRef(new Map<string, HTMLDetailsElement>());
@@ -81,6 +82,7 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
     models: profile.models.map((model, i) => i === index ? { ...model, ...values } : model) });
   async function save() {
     if (!runtime) throw new Error(t("设置尚未加载"));
+    if (Object.keys(customRoleNames).length) throw new Error(t("请先确认或取消自定义模型"));
     await request("settings", settingsPayload(mode, profile, runtime, jev));
     await load();
     await qc.invalidateQueries({ queryKey: ["models"] });
@@ -96,11 +98,39 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
   function roleCard(role: Role, label: string) {
     const id = resolvedRoleModel(profile, role);
     const selectedModel = profile.models.find(model => model.id === id);
+    const customName = customRoleNames[role];
+    const clearCustomName = () => setCustomRoleNames(previous => {
+      const next = { ...previous }; delete next[role]; return next;
+    });
     return <div key={role} className="rounded-xl border border-border bg-bg-base/30 p-4">
-      <label className="block text-sm">{t(label)}<select className={input} value={profile[role]} onChange={e => changeProfile(selectRoleModel(profile, role, e.target.value, mode))}>
+      <label className="block text-sm">{t(label)}<select className={input} value={customName !== undefined ? "__custom__" : profile[role]} onChange={e => {
+        if (e.target.value === "__custom__") {
+          setCustomRoleNames(previous => ({ ...previous, [role]: "" }));
+        } else {
+          clearCustomName();
+          changeProfile(selectRoleModel(profile, role, e.target.value, mode));
+        }
+      }}>
         <option value="">{role === "default_model" ? t("选择默认模型") : role === "skill_learner_model" ? t("跟随 Planner + Reviewer") : role === "skill_reviewer_model" ? t("跟随 Skill Learner") : t("跟随默认模型")}</option>
         {roleOptions.map(model => <option key={model.id} value={model.id}>{model.label}</option>)}
+        <option value="__custom__">{t("自定义模型…")}</option>
       </select></label>
+      {customName !== undefined && <div className="mt-4 space-y-3 rounded-lg border border-neon/20 bg-neon/[0.04] p-3">
+        <label className="block text-sm">{t("模型名称或 ID")}<input className={input} autoFocus maxLength={200} value={customName}
+          placeholder={mode === "api" ? "my-model / openai/my-model" : "my-model / chatgpt/my-model"}
+          onChange={e => setCustomRoleNames(previous => ({ ...previous, [role]: e.target.value }))} /></label>
+        <p className="text-xs leading-6 text-text-mute">{t(mode === "api" ? "填写服务商提供的模型名；未填写前缀时使用 openai/（兼容 API）。其他服务商请填写完整的服务商/模型 ID。" : "填写账号可用的模型名；未填写前缀时自动使用 chatgpt/。")}</p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className={button} disabled={!customName.trim()} onClick={() => {
+            try {
+              const next = selectCustomRoleModel(profile, role, customName, mode);
+              changeProfile(next); clearCustomName(); setNotice("");
+              editModelParameters(next[role]);
+            } catch (error) { setNotice(error instanceof Error ? t(error.message) : t("未能保存设置")); }
+          }}>{t("使用此模型")}</button>
+          <button type="button" className={button} onClick={clearCustomName}>{t("取消")}</button>
+        </div>
+      </div>}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs text-text-mute">{selectedModel ? t("{value0} · {value1}", { value0: modelName(id), value1: selectedModel.reasoning_supported ? t("思考强度：{value0}", { value0: selectedModel.reasoning_effort || t("服务默认") }) : t("未设置思考强度") }) : t("请先选择模型")}</p>
         <button type="button" className="text-xs text-neon underline underline-offset-4 disabled:opacity-40" aria-label={t("{value0}：编辑所选模型参数", { value0: t(label) })} disabled={!selectedModel} onClick={() => editModelParameters(id)}>{t("编辑所选模型参数")}</button>
@@ -115,7 +145,7 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
     <fieldset disabled={busy || !runtime} className="space-y-4 disabled:opacity-60">
       <div hidden={section !== "models"} className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-2">{(["subscription", "api"] as Mode[]).map(value => <label key={value} className={`relative flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${mode === value ? "border-neon/50 bg-neon/[0.06]" : "border-border bg-bg-base/40 hover:border-border-hi"}`}>
-        <input className="sr-only" type="radio" name="model-mode" checked={mode === value} onChange={() => { setMode(value); setCustomModels(new Set()); setNotice(""); }} />
+        <input className="sr-only" type="radio" name="model-mode" checked={mode === value} onChange={() => { setMode(value); setCustomModels(new Set()); setCustomRoleNames({}); setNotice(""); }} />
         {value === "api" ? <KeyRound size={19} className="mt-0.5 text-text-mute" /> : <UserRound size={19} className="mt-0.5 text-text-mute" />}
         <span className="pr-4"><span className="block text-sm font-medium">{value === "api" ? t("配置 API") : t("Codex / ChatGPT 订阅")}</span><span className="mt-1.5 block text-xs text-text-mute">{t(value === "api" ? "使用自己的模型服务与 API Key" : "用现有账号登录并授权")}</span></span>
         {mode === value && <Check size={15} className="absolute right-3 top-4 text-neon" />}
@@ -213,8 +243,8 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
       <JevSettingsPanel value={jev} onChange={setJev} />
       </div>
       <div className="flex items-center justify-between gap-4 border-t border-border pt-5">
-        <span className="text-xs text-text-mute">{t("保存后用于新任务")}</span>
-        <button className="setup-button setup-button-primary inline-flex items-center gap-2" type="button" disabled={!profile.default_model} onClick={() => perform(save)}><Save size={15} />{busy ? t("保存中…") : t("保存设置")}</button>
+        <span className="text-xs text-text-mute">{t(Object.keys(customRoleNames).length ? "请先确认或取消自定义模型" : "保存后用于新任务")}</span>
+        <button className="setup-button setup-button-primary inline-flex items-center gap-2" type="button" disabled={!profile.default_model || Object.keys(customRoleNames).length > 0} onClick={() => perform(save)}><Save size={15} />{busy ? t("保存中…") : t("保存设置")}</button>
       </div>
     </fieldset>
     {preferences && <details hidden={section !== "execution"} className="rounded-xl border border-border p-5"><summary className="cursor-pointer text-sm">{t("本地任务统计与报告导出")}</summary><div className="mt-3 space-y-3 text-sm">

@@ -84,6 +84,21 @@ export function resolvedRoleModel(profile: Profile, role: Role): string {
 export function selectRoleModel(profile: Profile, role: Role, id: string, mode: Mode): Profile {
   if (!id || profile.models.some(model => model.id === id)) return { ...profile, [role]: id };
   if (!modelPresets(mode).some(model => model.id === id)) return profile;
+  return addRoleModel(profile, role, id, mode);
+}
+export function selectCustomRoleModel(profile: Profile, role: Role, name: string, mode: Mode): Profile {
+  const value = name.trim();
+  const id = value.includes("/") ? value : `${mode === "api" ? "openai" : "chatgpt"}/${value}`;
+  if (!value || id.length > 200 || !/^[^\s/]+\/\S+$/.test(id) || /[\x00-\x1f\x7f]/.test(id)) {
+    throw new Error("请输入有效的模型名称或服务商/模型 ID，不要包含空格。");
+  }
+  if ((mode === "subscription") !== id.startsWith("chatgpt/") || id.startsWith("subscription/")) {
+    throw new Error("模型前缀与接入方式不一致：订阅使用 chatgpt/，API 使用对应服务商前缀。");
+  }
+  if (profile.models.some(model => model.id === id)) return { ...profile, [role]: id };
+  return addRoleModel(profile, role, id, mode);
+}
+function addRoleModel(profile: Profile, role: Role, id: string, mode: Mode): Profile {
   const source = profile.models.find(model => model.id === profile.default_model) ?? profile.models[0];
   const model = { ...(source ?? emptyModel()), id };
   if (mode === "api") model.credentials_from = source?.credentials_from || (source?.api_key_configured ? source.id : undefined);
