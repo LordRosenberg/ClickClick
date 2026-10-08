@@ -1,10 +1,48 @@
 {
-  "assets": {},
+  "assets": {
+    "622873100": {
+      "name": "ClickClick-0.2.2-macos-aarch64.zip",
+      "downloads": 0
+    },
+    "622873072": {
+      "name": "ClickClick-0.2.2-macos-x86_64.zip",
+      "downloads": 0
+    },
+    "622873095": {
+      "name": "ClickClick-0.2.2-windows-x86_64.exe",
+      "downloads": 2
+    },
+    "622173159": {
+      "name": "ClickClick-0.2.1-macos-aarch64.zip",
+      "downloads": 0
+    },
+    "622173130": {
+      "name": "ClickClick-0.2.1-macos-x86_64.zip",
+      "downloads": 0
+    },
+    "622173150": {
+      "name": "ClickClick-0.2.1-windows-x86_64.exe",
+      "downloads": 3
+    },
+    "621858658": {
+      "name": "ClickClick-0.2.0-macos-aarch64.zip",
+      "downloads": 0
+    },
+    "621858610": {
+      "name": "ClickClick-0.2.0-macos-x86_64.zip",
+      "downloads": 0
+    },
+    "621858646": {
+      "name": "ClickClick-0.2.0-windows-x86_64.exe",
+      "downloads": 2
+    }
+  },
   "schema": 1,
   "daily": [
     {
       "date": "2026-10-08",
-      "downloads": 0
+      "downloads": 7
     }
-  ]
+  ],
+  "sampled_at": "2026-10-08T20:36:58Z"
 }
