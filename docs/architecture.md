@@ -94,7 +94,7 @@ Each note has a versioned full body and an optional `retained` excerpt of at mos
 
 Planner selects stage skills from the catalog. Device profiles filter system-specific guidance; target and observed foreground identities determine applicable app knowledge. Role sections tailor the delivered body, with skill IDs, versions and content hashes recorded. App-owned compound recipes additionally require matching active stage and foreground scope. See the [skill authoring guide](../skills/README.md).
 
-An explicit research entry point can extract skill revisions from real failures and detours. Learner maintains continuous analysis; an independent Skill Reviewer checks quality and selects necessary validation. Candidates enter pending review rather than hot-writing the canonical library, and ordinary completion does not automatically start paid learning. See [Skill self-improvement](skill-evolution.md) for the cycle, evidence boundaries and current capability.
+An explicit research entry point can extract skill revisions from real failures and detours. Learner maintains continuous analysis; an independent Skill Reviewer checks quality and selects necessary validation. One job supports multiple app files, joint checks and local admission per file. Candidates enter pending review rather than hot-writing the canonical library, and ordinary completion does not automatically start paid learning. See [Skill self-improvement](skill-evolution.md) for the cycle, evidence boundaries and current capability.
 
 ## Operational boundaries
 
@@ -123,7 +123,7 @@ Cancellation and task limits stop further work at runtime boundaries. A receipt 
 | Harness: tools and decisions | [session.py](../agent/session.py), [revisable/session.py](../agent/revisable/session.py), [revisable/tools.py](../agent/revisable/tools.py) |
 | Harness: context and retrieval | [recall.py](../agent/revisable/recall.py), [context_projection.py](../agent/context_projection.py) |
 | Harness: skill management | [agent/skills/](../agent/skills/), [pending.py](../agent/skills/pending.py); content in [skills/](../skills/) |
-| Research: skill learning and review | [learning.py](../agent/skills/learning.py), [analysis_session.py](../agent/skills/analysis_session.py), [exploration.py](../agent/skills/exploration.py), [admission.py](../agent/skills/admission.py), [verification.py](../agent/skills/verification.py) |
+| Research: skill learning and review | [learning.py](../agent/skills/learning.py), [analysis_session.py](../agent/skills/analysis_session.py), [exploration.py](../agent/skills/exploration.py), [admission.py](../agent/skills/admission.py), [verification.py](../agent/skills/verification.py), [candidate_group.py](../agent/skills/candidate_group.py) |
 | Harness: action and input control | [action_observation.py](../agent/action_observation.py), [targeted_input.py](../agent/targeted_input.py) |
 | Device tools: capture and device access | [scrcpy_stream.py](../driver/scrcpy_stream.py), [scrcpy_observation.py](../driver/scrcpy_observation.py), [accessibility.py](../driver/accessibility.py), [perception/](../perception/) |
 | Harness: model routing | [llm_gateway.py](../shared/llm_gateway.py), [model_router.py](../shared/model_router.py) |

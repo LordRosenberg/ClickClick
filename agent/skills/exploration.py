@@ -720,7 +720,7 @@ class ExplorationBackend:
             if self.learner_conversation else None)
         self._record_research("learner", "verification_feedback",
             {"origin": "host", "feedback": feedback, "conversation_ref": ref},
-            budget, status="completed_no_followup")
+            budget, status="completed_no_followup" if feedback.get("closure") else "reviewed_feedback")
 
     def research_session_context(self):
         if not self.retain_probe_state:

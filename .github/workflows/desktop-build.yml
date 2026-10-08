@@ -101,7 +101,7 @@ jobs:
         working-directory: web
       - run: npm test
         working-directory: web
-      - run: python -m pytest tests/test_desktop_onboarding.py tests/test_desktop_updates.py tests/test_desktop_tray.py tests/test_desktop_upgrade.py tests/test_console_settings.py tests/test_mcp_connection_handoff.py tests/test_http_mcp_isolation.py -q
+      - run: python -m pytest tests/test_desktop_onboarding.py tests/test_desktop_updates.py tests/test_desktop_tray.py tests/test_desktop_upgrade.py tests/test_console_settings.py tests/test_mcp_connection_handoff.py tests/test_http_mcp_isolation.py tests/test_task_skill_learning.py tests/test_skill_candidate_group.py -q
       - name: Build offline private-runtime installer
         env:
           CLICKCLICK_DESKTOP_BUILD_VERSION: ${{ needs.prepare.outputs.version }}

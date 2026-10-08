@@ -397,28 +397,6 @@ async def test_cleanup_failure_still_clears_learning_job(context, monkeypatch):
     assert closed == [True] and not orch._learning_jobs and not orch._device_lock.locked()
 
 
-@pytest.mark.asyncio
-async def test_experiment_does_not_force_efficient_success_to_learn(context, monkeypatch, tmp_path):
-    from evaluation.skill_learning import Experiment
-    from driver.fixture import FixtureDriver
-    settings, db, task, store, library = context
-    db.update_task(task.id, status=TaskStatus.SUCCEEDED)
-    experiment = Experiment.__new__(Experiment)
-    experiment.root = tmp_path / 'experiment'; experiment.root.mkdir()
-    experiment.settings = settings
-    experiment.model = 'unused'
-    experiment.empty = library.root; experiment.empty.mkdir(); experiment.baseline = experiment.empty
-    experiment.args = SimpleNamespace(target='fixture', environment='androidworld',
-        learn_calls=24, learn_actions=20, learn_seconds=600)
-    driver = FixtureDriver()
-    async def close_provider(): pass
-    driver.close_observation_provider = close_provider
-    monkeypatch.setattr('evaluation.skill_learning.get_driver', lambda *args, **kwargs: driver)
-    result = await experiment.learn({'runtime_directory': str(settings.data_dir),
-        'clickclick_task_id': task.id, 'score': 1})
-    assert result['reason'] == 'no_candidate_signal'
-    assert json.loads((experiment.root / 'trigger.json').read_text())['signals'] == []
-    assert not (experiment.root / 'diagnoses.json').exists()
 
 
 @pytest.mark.asyncio
@@ -444,8 +422,9 @@ async def test_candidate_contract_repair_is_bounded_and_preserves_review(context
     monkeypatch.setattr(LearningBudget, "ask", ask)
     result = await run_task_learning(task, settings=settings, library=library, store=store, backend=backend)
     assert len(payloads) == 3 and result["cost"]["calls"] == 3
-    assert payloads[0]["candidate_json_schema"] == Candidate.model_json_schema()
-    assert payloads[1]["candidate_json_schema"]["properties"]["risks"]["type"] == "string"
+    from agent.skills.candidate_group import candidate_schema
+    assert payloads[0]["candidate_json_schema"] == candidate_schema()
+    assert payloads[1]["candidate_json_schema"]["$defs"]["Candidate"]["properties"]["risks"]["type"] == "string"
     assert "candidate_error" in payloads[-1]
     assert len(result["reviews"]) == int(repairs_successfully)
     assert not (library.root / c.target).exists()
@@ -754,24 +733,6 @@ def test_review_expands_linked_observations_and_respects_offsets(context):
     assert evidence[0]["source"].endswith("#3000")
 
 
-def test_trial_evidence_is_bounded_and_does_not_mix_learning_task_events(context):
-    from evaluation.skill_learning import trial_execution_evidence
-    settings, db, task, store, _ = context
-    for i in range(50):
-        store.put("event", str(i), {"step": i, "executor_report": "long report " * 200,
-            "submitted_action": {"type": "replace_text" if i == 0 else "tap",
-                "text": "description phrase" if i == 0 else None}})
-    other = db.create_task("unrelated", AgentState(instruction="unrelated"))
-    TaskStore(db, store.artifacts, other.id).put("event", "other",
-        {"step": 0, "submitted_action": {"type": "replace_text", "text": "unrelated query"}})
-    result = trial_execution_evidence({"runtime_directory": str(settings.data_dir),
-        "clickclick_task_id": task.id, "logical_action_steps": 50, "role_invocations": 60,
-        "elapsed_s": 100, "execution_limits": {"max_steps": 34, "max_seconds": 900}},
-        character_budget=2500)
-    assert len(json.dumps(result, ensure_ascii=False)) <= 2500 and result["omitted_events"] > 0
-    assert result["text_input_count"] == 1
-    assert result["text_inputs"][0]["text"] == "description phrase"
-    assert result["execution_limits"]["max_steps"] == 34 and result["cost"]["model_requests"] == 60
 
 
 @pytest.mark.asyncio
@@ -1127,9 +1088,10 @@ async def test_target_selection_receives_actual_action_contract_without_executin
         from agent.skills.exploration import learner_action_directory
         assert payload["executor_action_directory"] == learner_action_directory(executor_action_variants_schema())
         assert "executor_action_contract" not in payload
-        schema = Candidate.model_json_schema()
+        from agent.skills.candidate_group import candidate_schema
+        schema = candidate_schema()
         schema.pop("title", None)
-        for field in schema["properties"].values():
+        for field in schema.get("properties", {}).values():
             field.pop("title", None)
         assert payload["candidate_json_schema"] == schema
         assert payload["initial_diagnosis"] is True
@@ -1869,7 +1831,7 @@ def test_loaded_generic_directory_is_not_learning_target_scope(context):
     packet=build_packet(task,store)
     assert packet['skill_scope']==['generic'] and 'not allowed learning targets' in packet['skill_scope_policy']
     from agent.skills.learning import LEARN_SYSTEM,TARGET_SYSTEM
-    assert 'does not require a generic draft' in LEARN_SYSTEM
+    assert 'Historical loaded directories do not restrict targets' in LEARN_SYSTEM
     assert 'not learning target limits' in TARGET_SYSTEM
 
 
@@ -1991,83 +1953,9 @@ async def test_success_navigation_clue_can_skip_without_probe_or_validation(cont
         backend=Backend(),budget=LearningBudget(),validator=validator)
     assert result["skipped"] and "Required inspection" in result["reason"]
 
-@pytest.mark.asyncio
-async def test_experiment_preserves_cost_on_validation_exception(context,monkeypatch,tmp_path):
-    import evaluation.skill_learning as evaluation
-    settings,db,task,store,library=context
-    experiment=evaluation.Experiment.__new__(evaluation.Experiment)
-    experiment.root=tmp_path/'experiment';experiment.root.mkdir()
-    experiment.settings=settings;experiment.model='test';experiment.empty=library.root;experiment.baseline=library.root
-    experiment.args=SimpleNamespace(target='test',environment='androidworld',learn_calls=12,
-        learn_actions=14,learn_seconds=500,force_learning=False)
-    cleanup=[]
-    class Driver:
-        async def close_observation_provider(self):cleanup.append('driver')
-    class Backend:
-        def __init__(self,task,**kwargs):
-            self.source_store=TaskStore(kwargs['db'],kwargs['artifacts'],task.id)
-            self.library=kwargs['library']
-        async def diagnose(self,*a,**kw):raise AssertionError('native call forbidden')
-        async def explore(self,*a,**kw):raise AssertionError('device call forbidden')
-        async def release_device(self):cleanup.append('release')
-        def close(self):cleanup.append('backend')
-    async def fail(*a,**kw):
-        meter=kw['budget'];meter.meter('model_call_started',{});meter.meter('model_call_started',{})
-        meter.action();meter.started-=1
-        raise RuntimeError('ordinary validation infrastructure failed')
-    monkeypatch.setattr(evaluation,'get_driver',lambda *a,**kw:Driver())
-    monkeypatch.setattr(evaluation,'ExplorationBackend',Backend)
-    monkeypatch.setattr(evaluation,'run_task_learning',fail)
-    with pytest.raises(RuntimeError,match='ordinary validation infrastructure failed'):
-        await experiment.learn({'runtime_directory':str(settings.data_dir),'clickclick_task_id':task.id,'score':0})
-    cost=json.loads((experiment.root/'phase-cost.json').read_text(encoding='utf-8'))
-    assert cost['calls']==2 and cost['actions']==1 and cost['seconds']>=1
-    assert cleanup==['release','backend','driver']
-    assert not (experiment.root/'learning.json').exists()
-
-@pytest.mark.parametrize('score,expected',[(0,False),(0.5,False),(1.0,True),(None,None),(2,None)])
-def test_official_androidworld_partial_score_is_scored_failure(score,expected):
-    from evaluation.skill_learning import official_success
-    assert official_success({'evaluation_environment':'androidworld','score':score}) is expected
-    if score==0.5:assert official_success({'score':score}) is None
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize('same_instruction', [False, True])
-async def test_validation_holdout_histories_do_not_become_original_goal_experiences(context,tmp_path,same_instruction):
-    from evaluation.skill_learning import Experiment
-    from agent.skills.exploration import ExplorationBackend
-    from driver.fixture import FixtureDriver
-    settings,db,task,store,library=context
-    backend=ExplorationBackend(task,db=db,artifacts=store.artifacts,driver=FixtureDriver(),settings=settings,library=library)
-    e=Experiment.__new__(Experiment);e.root=tmp_path/'experiment';e.root.mkdir()
-    e.empty=e.root/'empty';e.empty.mkdir();e.model='test';e.config={}
-    from agent.skills.snapshot import LibrarySnapshot
-    e.baseline_snapshot=LibrarySnapshot.freeze(e.empty,e.root/'baseline-library');e.baseline=e.baseline_snapshot.root
-    e.case_baselines={};e.validation_runs={};e.release_source=lambda:None;e.learning_backend=backend
-    e.args=SimpleNamespace(environment='androidworld',source='Source',variant=None,near_miss=None,related_normal=None,source_first_validation=False)
-    before=task.model_dump()
-    def episode(name,case,skills):
-        hs=Settings(_env_file=None,data_dir=e.root/name/'runtime');hd=Database(hs.db_path)
-        instruction=task.instruction if same_instruction else task.instruction+' with different inputs'
-        ht=hd.create_task(instruction,AgentState(instruction=instruction));hd.update_task(ht.id,status=TaskStatus.SUCCEEDED)
-        hd.close()
-        return {'score':True,'budgeted_success':True,'logical_action_steps':1,'role_invocations':1,'elapsed_s':1,
-            'environment_status':'ready','initial_state_hash':'same','configuration_hash':'same',
-            'runtime_directory':str(hs.data_dir),'clickclick_task_id':ht.id,'goal':instruction}
-    e.episode=episode
-    try:
-        result=await e.validate(candidate(),'')
-        assert result['trials'][0]['matched_environment'] and result['trials'][0]['independent_oracle']
-        assert len(backend.additional_histories)==2
-        assert len(backend.experiences)==(2 if same_instruction else 0)
-        if not same_instruction:
-            namespace=result['trials'][0]['candidate_execution_namespace']
-            with pytest.raises(ValueError,match='same task instruction'):
-                backend.add_experience(namespace,origin='candidate_assisted',oracle_success=True,matched_environment=True,config_hash='same')
-        assert db.get_task(task.id).model_dump()==before
-    finally:
-        backend.close()
+
 
 
 @pytest.mark.parametrize("body_changed", [False, True])

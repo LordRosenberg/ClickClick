@@ -75,7 +75,7 @@ Real recordings of successful tasks. Click a preview to open the complete video 
 - **Plan, act and adapt.** Break a goal into meaningful stages, change course when the screen reveals new information, and continue from completed work. Independent review is available when a task needs another judgment.
 - **Carry information across apps.** Keep versioned notes and retained excerpts independently of structured history summaries. Summary items cite durable sources; recent full steps remain available, and missing details can be recalled from notes, screenshots and original records. [Memory and context](docs/architecture.md#context-memory-and-skills)
 - **Interact reliably with real interfaces.** Combine screenshots and accessibility structure to locate controls. Bind supported clicks to observed native nodes, verify text entry, and feed action results back into the next decision.
-- **Teach reusable app skills.** Add application knowledge without retraining the model. Share app-owned interface knowledge across devices, bind system-interface guidance to device profiles, and reuse general skills across apps. Supported compound actions can inspect a detail page and return while preserving what was read.
+- **Teach reusable app skills.** Add application knowledge without retraining the model. Learn procedures and pitfalls from task records through independent review and necessary verification, with multi-app candidates and local admission into pending review. [Skill self-improvement](docs/skill-evolution.md). Share app-owned interface knowledge across devices, bind system-interface guidance to device profiles, and reuse general skills across apps. Supported compound actions can inspect a detail page and return while preserving what was read.
 - **Choose your model and device.** Configure models for planning and execution, connect local phones or emulators, or host devices behind a remote Driver.
 
 The agent harness brings these capabilities together: **revisable plans + persistent memory + scoped skills + device feedback**. [Technical overview](docs/reliability-design.md)
@@ -197,6 +197,8 @@ Click **submit** and follow the task in Console. Select a Timeline call to inspe
 Tell ClickClick what you want done in Console—for example, “Add the recipes in this Markor note to Broccoli.” The agent plans the steps and operates the apps based on your goal and the current screen. No fixed prompt format or predefined sequence of steps is required.
 
 [Task examples](docs/task-examples.md) illustrate requests you can make. Adapt their apps, wording and data to your needs. Adding app-specific operating knowledge through [skills](skills/README.md) is an optional extension.
+
+You can also select **Optimize my workflow** in task details, authorize the learning budget and device exploration, then inspect candidates, evidence and independent reviews in **Skills → Pending** before approving individual files. Ordinary completion does not start learning automatically, and candidates are not automatically published.
 
 ### When should you add a Skill?
 

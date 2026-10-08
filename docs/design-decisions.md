@@ -58,6 +58,8 @@ This path applies to compatible Collector nodes and the in-process driver. Coord
 
 Supported app skills may authorize closed compound recipes. An inspect-and-return operation keeps intermediate evidence, while the returned screen becomes the action basis. This reduces repeated model handoffs but expands the action space: submitted units and physical subactions must be counted separately. The interface deliberately excludes arbitrary scripts and model-generated sequences. See [skill authoring](../skills/README.md).
 
+Multi-app learning separates files by knowledge ownership and selects necessary checks in one frozen overlay. Local validity is reviewed per file: whole-task failure does not refute independently supported knowledge, while failed dependencies and known regression block affected candidates. Approval rechecks exact body, base-library and runtime bindings. Full records remain accessible by source reference instead of repeatedly entering review context. See [Skill self-improvement](skill-evolution.md).
+
 ## Budgets and metrics
 
 Ordinary task limits are caller inputs. The reported AndroidWorld experiment uses complexity-derived action and model-call limits plus a 900-second deadline. Compression counts toward model calls; non-action stage handoffs do not count as device actions.

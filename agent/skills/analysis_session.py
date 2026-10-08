@@ -22,6 +22,7 @@ class Omission(BaseModel):
     condition: str = Field(min_length=1, max_length=500)
     purpose: str = Field(default="", max_length=400, description="User intent under which these steps are a detour; not an app-wide ban.")
     cost: str = Field(default="", max_length=600, description="Observed excess actions, added setup/recovery, and estimated net saving or unknown; cite basis in evidence.")
+    priority: Literal["high", "low", "unknown"] = "unknown"
     dependency_check: str = Field(min_length=1, max_length=700)
     changed_decision: str = Field(min_length=1, max_length=500)
     status: Literal["supported", "unknown", "rejected"]
@@ -73,6 +74,7 @@ TRAJECTORY_FORMAT = {
     "finding": {"statement": "text", "status": "observed|hypothesis|unknown|contradicted", "evidence": ["returned history or official_skill reference"]},
     "omission_candidates": [{"steps": ["native event reference"], "purpose": "specific user intent", "condition": "detectable precondition",
         "cost": "observed excess actions; extra setup/recovery; net saving estimated or unknown",
+        "priority": "high for substantial avoidable cost/harm; low for harmless minor work; unknown otherwise",
         "dependency_check": "state/information effects and later consumers; unknowns explicit",
         "changed_decision": "specific avoided work", "status": "supported|unknown|rejected", "evidence": ["native reference"]}],
     "next_reads": ["specific unresolved question or native locator"],
@@ -89,6 +91,8 @@ gaps and dependencies; aim below 4000 characters without dropping necessary fact
 Read to resolve a named gap. For needed visual state absent from text, read the
 known observation with read_history view=image; text omission is not screen absence.
 Resume checkpointed progress with its original statuses and native citations.
+Priority reflects net cost/harm, not detour presence. Preserve unresolved high-value
+opportunities after recovery; leave harmless minor work alone.
 Re-read only for a named gap, contradiction or review dispute, not merely because
 older exchanges left the window. Checkpoints are fallible, not independent proof.
 Namespace names are locators, not evidence references; cite pair_evidence_ref
@@ -102,8 +106,9 @@ A. An imaginary sorter: A/B discover an observed control used by C without chang
 its required state. A rule can retain that fact and use C directly, keeping C's
 prerequisites and verification. If D independently shows a wrong setting decision,
 one same-goal candidate may combine the supported entry shortcut and setting fix.
-State each condition and dependency; one combined trial can check both adoptions.
-Keep required identity/context checks; other routes need not be proven absent.
+Keep identity/context checks; if setup is uncertain, require its effect before C.
+Prefer C conditionally without proving globally shortest routes or absent alternatives.
+Another app owns its internal rule; only the handoff belongs to the starting app.
 An unknown reason for D's failure supports no setting fix and neither refutes the
 local omission nor proves task recovery.
 B. An imaginary test rig: P reports failure but enables calibration needed by Q.
@@ -142,6 +147,46 @@ def diagnostic_payload_content(payload):
     ordered = {key: payload[key] for key in prefix if key in payload}
     ordered.update((key, value) for key, value in payload.items() if key not in ordered)
     return json.dumps(ordered, ensure_ascii=False, separators=(",", ":"))
+
+
+def retained_admission_context(payload, directories):
+    """Park completed admission details; keep rule, outcomes and unresolved facts."""
+    from agent.skills.learning import digest, review_gate
+    import copy
+    review = payload.get("review_feedback")
+    if not isinstance(review, dict) or not review_gate(review) or review.get("changes") or review.get("tests"):
+        return payload
+    result = copy.deepcopy(payload)
+    def archive(value):
+        text = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+        ref = digest(text)
+        directories[ref] = text
+        return {"read_tool": "read_diagnostic_context", "ref": ref, "content_hash": ref,
+            "characters": len(text), "policy": "Exact completed record; read only for a new conflict or named gap."}
+    result["review_feedback"] = {"verdict": review["verdict"], "acceptance": review.get("acceptance"),
+        "criteria": {k: {"status": v["status"], "reason": "Passed for the exact retained rule; details remain readable."}
+            for k, v in review["criteria"].items()}, "changes": [], "tests": [], "details": archive(review)}
+    candidate = result.get("candidate")
+    if isinstance(candidate, dict) and isinstance(candidate.get("new_text"), str):
+        result["candidate"] = {k: candidate[k] for k in ("target", "new_text", "scope") if k in candidate}
+        result["candidate"]["details"] = archive(candidate)
+    validation = result.get("validation")
+    if isinstance(validation, dict):
+        keep = ("kind", "case_id", "goal", "matched_environment", "independent_oracle", "config_hash",
+            "baseline_success", "candidate_success", "efficiency_gain", "request_gain", "pair_evidence_ref",
+            "baseline_execution_namespace", "candidate_execution_namespace")
+        trials = []
+        for trial in validation.get("trials", []):
+            compact = {k: trial[k] for k in keep if k in trial}
+            for side in ("baseline_execution", "candidate_execution"):
+                execution = trial.get(side)
+                if isinstance(execution, dict):
+                    compact[side] = {k: execution[k] for k in ("cost", "execution_limits", "candidate_activation", "patch_activation") if k in execution}
+            trials.append(compact)
+        result["validation"] = {k: validation[k] for k in ("candidate_hash", "base_hash", "baseline_library_hash", "candidate_library_hash", "validation_stage") if k in validation}
+        result["validation"].update(trials=trials, details=archive(validation))
+    result["retained_admission_policy"] = "Retain completed local admission. Original failed-source facts stay unchanged. Assess only a distinct significant opportunity or new contradiction; do not re-prove passed criteria. Whole-task outcomes and local effects remain separate."
+    return result
 
 
 class LearnerConversation:
@@ -276,7 +321,7 @@ class LearnerConversation:
             raise ValueError("feedback conversation binding mismatch")
         message = {"role": "user", "content": json.dumps({
             "completed_verification_feedback": copy.deepcopy(feedback),
-            "policy": "Host-delivered independent review and completed measurements, not a Learner decision or new app evidence. Retain the reviewed scoped candidate and all declared unknowns. No additional check was selected; causal or transfer benefit is not inferred."},
+            "policy": "Host-delivered independent review and measurement receipts, not a Learner decision or new app evidence. Retain reviewed scoped candidates and all declared unknowns. Selected or deferred checks are not completed measurements; causal or transfer benefit is not inferred."},
             ensure_ascii=False, separators=(",", ":"))}
         return self.save([*previous["phase_input"], *self.checkpoint_message(),
             *copy.deepcopy(self.history), message])

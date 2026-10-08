@@ -159,6 +159,8 @@ def approve_pending(pending_id: str, *, root: Path | None = None) -> Path:
 
     new_text = (item.path.parent / f"{pending_id}.md").read_text(encoding="utf-8")
     review_meta = item.meta.get("review") or {}
+    if review_meta.get("experiment") == "task_explore_group":
+        return approve_pending_group([pending_id], root=lib_root)[0]
     if review_meta.get("experiment") == "task_explore":
         from agent.skills.learning import Candidate, digest, review_gate, validation_gate
         if digest(new_text) != review_meta.get("candidate_hash"):
@@ -202,6 +204,82 @@ def approve_pending(pending_id: str, *, root: Path | None = None) -> Path:
     meta["approved_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     item.path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return dest
+
+
+def approve_pending_group(pending_ids: list[str], *, root: Path | None = None) -> list[Path]:
+    """Approve a dependency-closed subset only after checking every file and receipt."""
+    from agent.skills.candidate_group import candidate_files, check_group_receipt
+    from agent.skills.library import parse_skill_markdown
+    from agent.skills.learning import digest
+    from agent.skills.exploration import build_review_contracts
+    from agent.skills.snapshot import library_manifest
+    from shared.config import get_settings
+    lib_root = (root or default_skills_root()).resolve()
+    items = [get_pending(pid, root=lib_root) for pid in pending_ids]
+    if not items or len(set(pending_ids)) != len(items) or any(i is None or i.status != "pending" for i in items):
+        raise ValueError("group approval requires distinct pending items")
+    metas = [i.meta.get("review") or {} for i in items]
+    receipt = metas[0].get("group_receipt")
+    receipt_hash = digest(receipt)
+    if any(m.get("experiment") != "task_explore_group" or m.get("receipt_hash") != receipt_hash or m.get("group_receipt") != receipt for m in metas):
+        raise ValueError("group receipt mismatch")
+    group, accepted = check_group_receipt(receipt)
+    patches = candidate_files(group)
+    requested = {i.target_rel for i in items}
+    if len(requested) != len(items) or not requested <= accepted:
+        raise ValueError("group patch not locally admitted")
+    approved = {i.target_rel for i in list_pending(root=lib_root, status="approved")
+        if (i.meta.get("review") or {}).get("receipt_hash") == receipt_hash}
+    expected = dict(receipt["manifest"]["files"])
+    import hashlib
+    for target in approved:
+        if target not in patches:
+            raise ValueError("foreign approved group member")
+        expected[target] = hashlib.sha256(patches[target].encode()).hexdigest()
+    if library_manifest(lib_root)["files"] != expected:
+        raise ValueError("official library changed since group review")
+    for target in requested:
+        if not set(group.dependencies.get(target, [])) <= requested | approved:
+            raise ValueError("approve dependent patches together")
+    destinations = []
+    approved_skill_ids = {parse_skill_markdown(patches[t]).id for t in approved}
+    for item, meta in zip(items, metas):
+        text = (item.path.parent / f"{item.id}.md").read_text(encoding="utf-8")
+        if text != patches[item.target_rel] or digest(text) != meta.get("candidate_hash") or meta.get("group_hash") != digest(patches):
+            raise ValueError("group pending body changed")
+        dest = (lib_root / item.target_rel).resolve()
+        dest.relative_to(lib_root)
+        current = dest.read_text(encoding="utf-8") if dest.exists() else ""
+        if current != receipt["base"][item.target_rel] or digest(current) != meta.get("base_hash"):
+            raise ValueError("group pending base changed")
+        contracts = build_review_contracts(text, SkillLibrary(lib_root), get_settings())
+        reviewed_contracts = receipt["contracts"][item.target_rel]
+        # Previously approved exact siblings are the only allowed library change.
+        # Their joint texts were reviewed in this receipt; unrelated guidance and
+        # runtime contracts must still be identical to the original review.
+        if approved_skill_ids:
+            contracts = {**contracts, "related_skills": [p for p in contracts["related_skills"] if p["id"] not in approved_skill_ids]}
+            reviewed_contracts = {**reviewed_contracts, "related_skills": [p for p in reviewed_contracts["related_skills"] if p["id"] not in approved_skill_ids]}
+        if digest(contracts) != digest(reviewed_contracts):
+            raise ValueError("group related contracts changed")
+        destinations.append(dest)
+    # All structural/dependency/contract checks precede the first canonical write.
+    originals = {dest: dest.read_bytes() if dest.exists() else None for dest in destinations}
+    try:
+        for item, dest in zip(items, destinations):
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(patches[item.target_rel].encode())
+    except OSError:
+        for dest, old in originals.items():
+            if old is None:
+                dest.unlink(missing_ok=True)
+            else:
+                dest.write_bytes(old)
+        raise
+    for item in items:
+        meta = {**item.meta, "status": "approved", "approved_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+        item.path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    return destinations
 
 
 def reject_pending(pending_id: str, *, reason: str = "", root: Path | None = None) -> None:

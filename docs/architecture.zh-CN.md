@@ -95,7 +95,7 @@ driver 管理 scrcpy 流供 Agent 获取画面；Console 只读取已保存的�
 
 Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，目标应用与实际前台身份决定适用的应用知识。角色分区调整正文交付范围，技能 ID、版本和内容哈希随调用记录。应用声明的复合动作还需满足当前阶段及前台作用域。参见[技能编写指南](../skills/README.zh-CN.md)。
 
-显式研究入口可以从真实任务的失败和绕路提炼技能修订。Learner 连续分析，独立 Skill Reviewer 审查并选择必要验证，候选进入 pending 而非热写正式库；普通任务结束不自动启动付费学习。闭环、证据边界和当前能力见[Skills 自进化](skill-evolution.zh-CN.md)。
+显式研究入口可以从真实任务的失败和绕路提炼技能修订。Learner 连续分析，独立 Skill Reviewer 审查并选择必要验证，同一作业支持多应用文件、联合验证与逐文件局部验收，候选进入 pending 而非热写正式库；普通任务结束不自动启动付费学习。闭环、证据边界和当前能力见[Skills 自进化](skill-evolution.zh-CN.md)。
 
 ## 运行边界
 
@@ -124,7 +124,7 @@ Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，
 | Harness：工具与决策 | [session.py](../agent/session.py)、[revisable/session.py](../agent/revisable/session.py)、[revisable/tools.py](../agent/revisable/tools.py) |
 | Harness：上下文与检索 | [recall.py](../agent/revisable/recall.py)、[context_projection.py](../agent/context_projection.py) |
 | Harness：技能管理 | [agent/skills/](../agent/skills/)、[pending.py](../agent/skills/pending.py)；内容位于 [skills/](../skills/) |
-| 研究：技能学习与审查 | [learning.py](../agent/skills/learning.py)、[analysis_session.py](../agent/skills/analysis_session.py)、[exploration.py](../agent/skills/exploration.py)、[admission.py](../agent/skills/admission.py)、[verification.py](../agent/skills/verification.py) |
+| 研究：技能学习与审查 | [learning.py](../agent/skills/learning.py)、[analysis_session.py](../agent/skills/analysis_session.py)、[exploration.py](../agent/skills/exploration.py)、[admission.py](../agent/skills/admission.py)、[verification.py](../agent/skills/verification.py), [candidate_group.py](../agent/skills/candidate_group.py) |
 | Harness：动作与输入控制 | [action_observation.py](../agent/action_observation.py)、[targeted_input.py](../agent/targeted_input.py) |
 | 设备工具：采集与设备访问 | [scrcpy_stream.py](../driver/scrcpy_stream.py)、[scrcpy_observation.py](../driver/scrcpy_observation.py)、[accessibility.py](../driver/accessibility.py)、[perception/](../perception/) |
 | Harness：模型路由 | [llm_gateway.py](../shared/llm_gateway.py)、[model_router.py](../shared/model_router.py) |

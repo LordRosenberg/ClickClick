@@ -1,4 +1,4 @@
-"""Immutable active-library snapshots and single-file candidate overlays."""
+"""Immutable active-library snapshots and exact candidate overlays."""
 from __future__ import annotations
 
 import hashlib
@@ -58,25 +58,38 @@ class LibrarySnapshot:
         return cls(destination, manifest)
 
     def overlay(self, target, text, destination):
-        relative = Path(target)
-        if relative.is_absolute() or ".." in relative.parts or any(p.startswith(("_", ".")) for p in relative.parts):
-            raise ValueError("invalid candidate target")
-        if relative.name != "SKILL.md":
-            raise ValueError("candidate target must be SKILL.md")
+        return self.overlay_many({target: text}, destination)
+
+    def overlay_many(self, patches, destination):
+        if not patches:
+            raise ValueError("empty candidate overlay")
+        normalized, physical_paths = {}, set()
+        for target, text in patches.items():
+            relative = Path(target)
+            if relative.is_absolute() or ".." in relative.parts or any(p.startswith(("_", ".")) for p in relative.parts):
+                raise ValueError("invalid candidate target")
+            if relative.name != "SKILL.md":
+                raise ValueError("candidate target must be SKILL.md")
+            physical = self.root / relative
+            if relative.as_posix() in normalized or physical in physical_paths:
+                raise ValueError("duplicate candidate target")
+            physical_paths.add(physical)
+            normalized[relative.as_posix()] = text
         if library_manifest(self.root) != self.manifest:
             raise ValueError("frozen baseline changed")
         destination = Path(destination).resolve()
-        if destination.exists():
+        if destination.exists() or destination == self.root or self.root in destination.parents:
             raise ValueError("overlay destination must be fresh")
         shutil.copytree(self.root, destination)
-        output = destination / relative
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_bytes(text.encode("utf-8"))
+        for relative, text in normalized.items():
+            output = destination / relative
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(text.encode("utf-8"))
         manifest = library_manifest(destination)
         changed = {p for p in self.manifest["files"].keys() | manifest["files"].keys()
                    if self.manifest["files"].get(p) != manifest["files"].get(p)}
-        if changed != {relative.as_posix()}:
-            raise ValueError("overlay must change exactly one target")
+        if changed != set(normalized):
+            raise ValueError("overlay must change exactly the declared targets")
         return LibrarySnapshot(destination, manifest)
 
     def directory(self, max_chars=2500, *, apps=None):

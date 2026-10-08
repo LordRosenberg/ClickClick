@@ -727,29 +727,28 @@ def review_gate(review):
 
 
 CANDIDATE_CONTRACT = """Candidate contract:
-For propose follow candidate_json_schema. Evidence uses returned versioned native
-records; source/ is valid and optional. official_skill refs belong in trajectory_analysis.
-target is relative to the library, without leading skills/.
-new_text is complete SKILL.md: --- YAML with name,description,version,kind,app; ---
-then concise Markdown. Keep the minimal rule, conditions and observed bottleneck,
-prerequisite or new risk; do not copy full workflows or existing prompt safeguards. Keep research
-costs, runner names and evidence limitations in structured metadata, not runtime
-instructions; use observable applicability conditions rather than benchmark names.
-Preserve unrelated text and identity/runtime fields, including stable name/ID.
-Increment version. Justified retrieval edits may add/change/remove description,
-tags, triggers, app_aliases or capability without body edits. Keep description nonempty;
-workflow requires capability and forbids triggers. State changed matches, value and risks.
-The same Reviewer checks metadata/body. Read the full existing SKILL.md; role projections
-omit metadata. A full frozen-library read survives checkpointing; re-read only missing
-details or changed bindings. Preserve every other field; never add executable verified_actions.
-source.skill_scope lists historically loaded directories, not permitted targets.
-A generic-only baseline does not require a generic draft. New observed app-scoped
-knowledge may target app core or workflow; do not demand cross-app transfer for it.
-App core may use apps/<observed package>/core/SKILL.md, kind app_core; workflow uses
-kind workflow, capability and nonempty ## Procedure / ## Verification sections.
-Generic scope needs cross-app justification; app scope needs transfer across inputs
-in its defined family, not unrelated goals. System interfaces need interface_scope:
-system and observed device_profiles. Do not hardcode instance content/coordinates.
+Follow candidate_json_schema: one candidate or {patches:[candidate,...],dependencies:
+{target:[required target,...]}}. Declare real dependencies, not every app transition.
+Each file is an indivisible supported change. Internal knowledge belongs to its app;
+handoff guidance belongs where needed before its decision. Do not split for quantity.
+One joint trial can check multiple patches; local admission is independent of task
+or sibling failure, unless the rule depends on the failed part.
+target is library-relative, without skills/. Evidence uses returned versioned native
+refs (optional source/); official_skill refs belong only in trajectory_analysis.
+new_text is complete SKILL.md: YAML name,description,version,kind,app plus concise
+Markdown. Keep conditions, necessary prerequisites and checks; avoid copied workflows,
+prompt safeguards, benchmark names, instance answers and historical coordinates.
+Research costs/limitations belong in structured fields, not executable prose.
+Read the full frozen existing file; checkpointed reads persist. Preserve unrelated
+text and all identity/runtime metadata except version. Only description,tags,triggers,
+app_aliases,capability may change; explain matches/value/risks. Description is nonempty;
+workflow requires capability and forbids triggers. Never alter verified_actions.
+Increment version on revision.
+App targets require observed packages: apps/<package>/core/SKILL.md (app_core) or
+apps/<package>/workflows/<name>/SKILL.md (workflow with Procedure/Verification).
+Historical loaded directories do not restrict targets, even for generic-only sources.
+App rules need transfer across inputs in their family; generic rules need cross-app
+justification. System interfaces need interface_scope:system and observed device_profiles.
 """
 
 from agent.skills.analysis_session import ANALYSIS_POLICY, FEW_SHOTS
@@ -758,6 +757,8 @@ from agent.skills.analysis_session import ANALYSIS_POLICY, FEW_SHOTS
 TRAJECTORY_POLICY = VERIFICATION_POLICY + "\n" + """Use existing evidence first; no matched pair or new probe is required.
 Explore the cheapest discriminating gap; state how its results change the rule.
 Assess unfinished-goal blockers and dominant source costs before drafting.
+Prioritize concrete failure/harm or substantial net waste; ignore harmless detours.
+Use observed routes first; probe only decision-changing gaps. Do not chase authored coverage.
 On failure prioritize correctness, but do not stop at one fix when same-goal,
 decision-relevant detours are visible in the supplied outline. Read specific missing
 dependencies when worthwhile; otherwise explain why that opportunity is deferred.
@@ -789,26 +790,22 @@ This is post-evidence assessment or candidate repair.
 """ + TRAJECTORY_POLICY + """
 
 Evidence and reasoning:
-Reports, matches, completion and failure explanations are claims; independent failure
-proves an unmet constraint, not its cause. Check preservation, distinct occurrences,
-inspection and coverage. Separate supported mechanisms, unattempted prerequisites
-and refuted hypotheses; preserve covered/unresolved frontiers. Missing data is unknown.
-Matched success is observational, not causal. Authored solutions/fixture answers are
-unavailable; invent no affordances. Historical coordinates cannot ground actions.
+Reports/matches are claims; independent failure proves an unmet constraint, not
+its cause. Preserve occurrence identity, state, coverage and unresolved frontiers;
+distinguish supported mechanisms, unattempted prerequisites and refuted hypotheses.
+Missing data stays unknown; matched success is observational, not causal. Authored
+solutions/fixture answers are unavailable; invent no affordances or current coordinates.
 
 Learning value:
 - Find a reusable app rule/strategy changing a concrete source decision. Root
   prompt/tool/schema faults need implementation fixes, not masking skills.
-- Compare with the cheapest supported feasible route to the SAME goal, preservation,
-  coverage and verification requirements. Include setup, navigation, clearing,
-  recovery, restoration and later coverage. Necessary inspection is not waste.
-  Distinguish research cleanup from ordinary task requirements: charge restoration
-  consistently to both routes when required, not to one merely because its probe
-  restored settings. Any retained setting change still needs scope/risk review.
-- A slow diagnostic probe may establish a mechanism but is not an ordinary procedure.
-  Proposed procedures must fit source.execution_limits, independently of acquisition
-  budgets. A shorter subpath or success without using the new mechanism proves no
-  utility. Single-run differences may be variance.
+- Compare the cheapest supported route under equal goals, preservation, coverage
+  and verification, including setup/recovery and later work. Charge ordinary required
+  restoration symmetrically; research-only cleanup is not an ordinary requirement.
+  Retained setting changes still need scope/risk review.
+- Diagnostic procedures are not ordinary workflows. Fit source.execution_limits,
+  independently of acquisition budgets. Partial paths or unused mechanisms prove
+  no utility; single-run differences may be variance.
 - In repeated rows, identical labels/content or global ordinal claims do not prove
   distinct occurrences or cross-view correspondence. Test scroll, detail-return
   and mutation transitions separately. Easier anchored positives leave ambiguous
@@ -1065,8 +1062,9 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
         library = SkillLibrary(frozen.root)
         packet["official_skill_directory"] = frozen.directory(apps=backend.observed_apps())
     model = resolve_learner_model(settings)
+    from agent.skills.candidate_group import candidate_schema
     payload = {"source": packet, "budget": budget.snapshot(),
-               "candidate_json_schema": Candidate.model_json_schema()}
+               "candidate_json_schema": candidate_schema()}
     from agent.skills.verification import available_checks, check_conditions, verification_plan
     host_checks = available_checks(validator)
     host_conditions = check_conditions(validator) if host_checks else {}
@@ -1134,7 +1132,8 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
                         raise ValueError("final draft assessment must propose or skip")
                     continue
                 successful_contrast = bool(getattr(backend, "experiences", {}))
-                contradictory_failure = "task_failed" in packet["signals"] or "independent_task_failure" in packet["signals"]
+                contradictory_failure = ("task_failed" in packet["signals"] or "independent_task_failure" in packet["signals"]) and (
+                    outcome_evidence or {}).get("prior_candidate_recovered_goal") is not True
                 if (not ledger_entries and not reviews and not synthesis_attempted
                     and contradictory_failure
                     and (successful_contrast or callable(getattr(backend, "review_probe", None)))
@@ -1212,7 +1211,7 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
                         repair_epochs.add(epoch)
                         repair_payload = {"source": packet, "experiment": experiment,
                             "probe_review": probe_reviews[-1], "acquisition_ledger": ledger(),
-                            "initial_diagnosis": True, "candidate_json_schema": Candidate.model_json_schema(),
+                            "initial_diagnosis": True, "candidate_json_schema": candidate_schema(),
                             "previous_experiments": experiments, "budget": budget.snapshot(),
                             # One read-only exchange can resolve evidence the audit
                             # explicitly found missing. Leave capacity for the final
@@ -1289,7 +1288,7 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
                 payload = {"source": packet, "evidence": evidence,
                            "previous_experiments": experiments, "acquisition_ledger": ledger(),
                            "budget": budget.snapshot(), "review_feedback": reviews[-1:],
-                           "candidate_json_schema": Candidate.model_json_schema(),
+                           "candidate_json_schema": candidate_schema(),
                            "diagnostic_read_rounds": max(0, budget.max_calls - budget.calls - final_calls)}
                 decision = await diagnose(LEARN_SYSTEM, payload)
                 continue
@@ -1303,6 +1302,15 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
                 if restoration is not None and isinstance(payload.get("evidence"), dict):
                     payload["evidence"] = {**payload["evidence"], "environment_restoration": restoration}
             try:
+                if isinstance(decision.get("candidate"), dict) and "patches" in decision["candidate"]:
+                    from agent.skills.candidate_group import CandidateGroup, run_candidate_group
+                    group_result = await run_candidate_group(CandidateGroup.model_validate(decision["candidate"]),
+                        task=task, settings=settings, library=library, publication_root=publication_root,
+                        backend=backend, budget=budget, frozen=frozen, packet=packet,
+                        validator=validator, phase_context={**phase_context,
+                            "proposed_verification": verification_plan(decision.get("verification"))})
+                    group_result["acquisition_ledger"] = ledger()
+                    return group_result
                 candidate = Candidate.model_validate(decision.get("candidate"))
                 candidate.new_text = candidate.new_text.rstrip() + "\n"
                 old_text = validate_candidate(candidate, library, backend.observed_apps())
@@ -1461,6 +1469,10 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
                     and t.get("independent_oracle") is True
                     and t.get("matched_environment") is True
                     for t in ordinary_validation["trials"]))
+            analysis = getattr(getattr(backend, "learner_conversation", None), "analysis", None) or {}
+            worthwhile = [item for item in analysis.get("omission_candidates", [])
+                if item.get("priority") == "high" and item.get("status") in {"supported", "unknown"}]
+            completed_no_followup = completed_no_followup and not worthwhile
             if completed_no_followup:
                 feedback = {"origin": "host", "candidate_hash": candidate_hash,
                     "selected": selected_verification, "review": review,
@@ -1499,6 +1511,9 @@ async def _run_task_learning(task, *, settings, library, store, backend, manual=
                 payload.setdefault("live_exploration_disabled", False)
                 payload["verification_feedback"] = {"selected": selected_verification,
                     "policy": "Assess actual adoption, scope and unknowns. Do not re-audit passed admission criteria without new conflicting evidence; read only unresolved measurement or reuse gaps. Propose a justified revision/check, explore a concrete gap, or skip to retain the reviewed scoped rule without claiming unproved utility. No unchanged repeat."}
+                if worthwhile:
+                    payload["remaining_opportunities"] = worthwhile
+                    payload["verification_feedback"]["policy"] += " Assess only still-unresolved high-value opportunities; do not manufacture more rules or re-audit the retained fix. Skip if none is worthwhile."
             decision = await diagnose(LEARN_SYSTEM, payload)
             if feedback_due:
                 verification_feedback.append({"candidate_hash":candidate_hash,
