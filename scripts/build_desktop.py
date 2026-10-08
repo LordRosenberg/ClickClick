@@ -38,9 +38,11 @@ def prepare_runtime(destination, work):
     cache = REPO / "data/desktop-build-cache"
     env = {**os.environ, "UV_PYTHON_INSTALL_DIR": str(cache / "managed-python"), "UV_CACHE_DIR": str(cache / "uv-cache")}
     run([uv, "python", "install", "--no-bin", "--no-registry", "3.12"], env=env)
-    executable = Path(run([uv, "python", "find", "--managed-python", "3.12"], env=env, capture_output=True).stdout.strip())
+    # uv may return a minor-version directory symlink on Unix. Resolve it before
+    # comparing with sys.base_prefix and copying the physical installation.
+    executable = Path(run([uv, "python", "find", "--managed-python", "3.12"], env=env, capture_output=True).stdout.strip()).resolve(strict=True)
     info = json.loads(run([executable, "-c", "import sys,json; print(json.dumps({'prefix':sys.base_prefix,'version':sys.version}))"], capture_output=True).stdout)
-    prefix = Path(info["prefix"])
+    prefix = Path(info["prefix"]).resolve(strict=True)
     shutil.copytree(prefix, destination, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "test", "tests", "idlelib", "tkinter", "ensurepip"))
     python = destination / executable.relative_to(prefix)
     deps = destination / "site-packages"

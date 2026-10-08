@@ -296,6 +296,43 @@ def test_application_allowlist_excludes_private_and_internal(tmp_path):
     assert not any(p.startswith("skills/") and ("mobileworld" in p or "androidworld" in p) for p in files)
 
 
+def test_managed_runtime_copies_physical_python_from_minor_version_symlink(tmp_path, monkeypatch):
+    from scripts import build_desktop
+
+    physical = tmp_path / "cpython-3.12.15"
+    (physical / "bin").mkdir(parents=True)
+    (physical / "bin/python3.12").write_bytes(b"private Python")
+    alias = tmp_path / "cpython-3.12"
+    try:
+        alias.symlink_to(physical, target_is_directory=True)
+    except OSError:
+        pytest.skip("Directory symlinks require privileges on this host")
+    destination = tmp_path / "payload/runtime"
+    destination.parent.mkdir()
+    calls = []
+
+    def run(command, **kwargs):
+        calls.append(command)
+        if command[1:3] == ["python", "find"]:
+            output = str(alias / "bin/python3.12")
+        elif command[1:2] == ["-c"] and "sys.base_prefix" in command[2]:
+            output = json.dumps({"prefix": str(physical), "version": "3.12.15"})
+        elif command[1:2] == ["-c"]:
+            output = str(destination / "lib/python3.12/site-packages")
+        else:
+            output = ""
+        return subprocess.CompletedProcess(command, 0, stdout=output)
+
+    monkeypatch.setattr(build_desktop, "run", run)
+    python, info = build_desktop.prepare_runtime(destination, destination.parent)
+    assert python == destination / "bin/python3.12"
+    assert python.read_bytes() == b"private Python"
+    dependency_install = next(call for call in calls if call[1:3] == ["pip", "install"])
+    assert dependency_install[dependency_install.index("--python") + 1] == python
+    assert (destination / "lib/python3.12/site-packages/clickclick.pth").is_file()
+    assert info["version"] == "3.12.15"
+
+
 def test_installed_profile_uses_private_environment(tmp_path, monkeypatch):
     from desktop.install import installed_environment
     home = tmp_path / "installed"
