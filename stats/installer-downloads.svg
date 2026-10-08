@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="320" viewBox="0 0 800 320" role="img" aria-label="Installer downloads: 0">
+<rect width="800" height="320" rx="12" fill="#fff"/>
+<g font-family="Arial,sans-serif" fill="#27334b">
+<text x="32" y="36" font-size="20" font-weight="bold">ClickClick installer downloads</text>
+<text x="730" y="36" font-size="22" text-anchor="end" font-weight="bold">0</text>
+<path d="M72 70V230H730" fill="none" stroke="#bbc4d3"/>
+<text x="60" y="86" text-anchor="end" font-size="12">1</text><text x="60" y="234" text-anchor="end" font-size="12">0</text>
+<polyline points="72.0,230.0" fill="none" stroke="#5b69e8" stroke-width="3"/><circle cx="72.0" cy="230.0" r="4" fill="#5b69e8"/>
+<text x="72" y="253" font-size="12">2026-10-08</text><text x="730" y="253" text-anchor="end" font-size="12">2026-10-08</text>
+<text x="32" y="283" font-size="12">Daily samples · includes repeat downloads and updates · not unique users</text>
+<text x="32" y="303" font-size="12">History starts 2026-10-08; removed assets retain their last observed count.</text>
+</g></svg>

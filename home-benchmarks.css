@@ -9,3 +9,5 @@
 .hero-copy .hero-proof{margin-top:28px}
 @media(max-width:700px){.hero-benchmark{padding:14px 12px}.hero-benchmark strong{font-size:32px}}
 @media(max-width:380px){.hero-benchmarks{grid-template-columns:1fr}}
+
+.install-section{background:#eef3ef}.install-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:24px}.install-card{padding:28px;background:white;border:1px solid #dce6e0;border-radius:12px}.install-card h3{margin:0 0 12px}.install-card p{line-height:1.75;color:#52635d;font-size:14px}.install-card h3:not(:first-child){margin-top:26px}.install-card textarea{width:100%;box-sizing:border-box;resize:vertical;border:1px solid #bacac1;border-radius:7px;padding:14px;font:13px/1.7 system-ui;background:#f7faf7;color:#283e34;margin:8px 0 16px}.install-links{display:flex;flex-wrap:wrap;gap:18px;margin-top:25px;color:#286b42}.install-card button{cursor:pointer}#installCopyStatus{min-height:1.75em;margin-bottom:0}@media(max-width:800px){.install-grid{grid-template-columns:1fr}.install-card{padding:22px}}
