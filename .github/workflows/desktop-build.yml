@@ -1,0 +1,144 @@
+name: Build desktop installers
+
+on:
+  push:
+    branches: [develop, main]
+    tags: ["desktop-v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Unique desktop payload version (no release is published)
+        required: true
+        default: "0.1.0-desktop.1"
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type == 'branch' }}
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: version
+        env:
+          DESKTOP_TAG: ${{ github.ref_name }}
+          DESKTOP_VERSION: ${{ inputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "push" ] && [ "$REF_TYPE" = "tag" ]; then
+            python scripts/desktop_release.py --tag "$DESKTOP_TAG"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            python scripts/desktop_release.py --version "$DESKTOP_VERSION"
+          else
+            BASE_VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+            python scripts/desktop_release.py --version "$BASE_VERSION-ci.$RUN_NUMBER.$RUN_ATTEMPT"
+          fi
+
+  keyboard:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: senzhk/ADBKeyBoard
+          ref: 65874bf129ffe44c813d60770b5f93825509eab9
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
+      - run: chmod +x gradlew
+      - run: ./gradlew assembleDebug
+      - run: git archive --format=zip HEAD -o ADBKeyboard-source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keyboard
+          path: |
+            keyboardservice/build/outputs/apk/debug/keyboardservice-debug.apk
+            ADBKeyboard-source.zip
+
+  desktop:
+    needs: [prepare, keyboard]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/download-artifact@v4
+        with:
+          name: keyboard
+          path: build/device-assets
+      - run: python -m pip install ".[desktop,dev]" "pyinstaller>=6,<7"
+      - run: npm ci
+        working-directory: web
+      - run: npm run build
+        working-directory: web
+      - run: npm test
+        working-directory: web
+      - run: python -m pytest tests/test_desktop_onboarding.py tests/test_desktop_updates.py tests/test_desktop_tray.py tests/test_desktop_upgrade.py tests/test_console_settings.py tests/test_mcp_connection_handoff.py tests/test_http_mcp_isolation.py -q
+      - name: Build offline private-runtime installer
+        env:
+          CLICKCLICK_DESKTOP_BUILD_VERSION: ${{ needs.prepare.outputs.version }}
+        shell: pwsh
+        run: >-
+          python scripts/build_desktop.py
+          --version $env:CLICKCLICK_DESKTOP_BUILD_VERSION
+          --keyboard-apk build/device-assets/keyboardservice/build/outputs/apk/debug/keyboardservice-debug.apk
+          --keyboard-source build/device-assets/ADBKeyboard-source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clickclick-${{ matrix.os }}
+          path: |
+            dist/desktop/*.exe
+            dist/desktop/*.zip
+            dist/desktop/*.sha256
+            dist/desktop/*-inventory.json
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/desktop-v')
+    needs: [prepare, desktop]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: desktop-release-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: clickclick-*
+          path: build/desktop-release
+      - name: Publish complete verified desktop release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DESKTOP_TAG: ${{ github.ref_name }}
+        run: python scripts/desktop_release.py --tag "$DESKTOP_TAG" --directory build/desktop-release --publish

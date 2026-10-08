@@ -298,7 +298,8 @@ export function deriveCallRows(calls: RoleCall[]): CallRow[] {
             call,
             label: String(index + 1).padStart(2, "0"),
             role: letters[call.role],
-            phase: phase ? phaseLabels[phase] : "call",
+            phase: (call[call.role]?.tool_calls ?? []).some((tool) => tool.name === "save_summary")
+                ? "摘要" : phase ? phaseLabels[phase] : "call",
         };
     });
 }

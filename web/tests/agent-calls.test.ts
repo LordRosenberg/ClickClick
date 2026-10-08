@@ -376,6 +376,12 @@ test("focused role calls expand Reviewer then Planner then Executor", () => {
   ]);
 });
 
+test("summary invocations are distinct from device action calls in the rail", () => {
+  const calls = expandRoleCalls([{step_seq: 24, executor: {step_seq: 24,
+    tool_calls: [{name: "save_summary", status: "failed", invocation_id: "compression"}]}}] as never);
+  assert.equal(deriveCallRows(calls)[0].phase, "摘要");
+});
+
 test("Planner is labelled before later calls and usage stays exact", () => {
   const plannerRound = {
     ...round(1, null),

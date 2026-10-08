@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import math
+import hashlib
+import json
 import time
 from typing import Any
 
@@ -262,6 +264,45 @@ class ObservabilityQueries:
     def __init__(self, db: Database, artifacts: ArtifactStore) -> None:
         self.db = db
         self.artifacts = artifacts
+
+    def jev_checks(self, task_id: str) -> dict[str, Any]:
+        """Small index; complete evidence and responses remain lazy artifacts."""
+        if self.db.get_task(task_id) is None:
+            raise KeyError(task_id)
+        entries = []
+        for kind in ("compaction", "compaction_check"):
+            for record in self.db.list_agent_records(task_id, kind):
+                payload = record["payload"]
+                # Match the compression invocation, never its historical source
+                # steps (those are evidence, not when the check ran).
+                invocation_ids = []
+                request_ref = payload.get("request_ref")
+                if isinstance(request_ref, str) and request_ref.startswith("llm/"):
+                    try:
+                        request = json.loads(self.artifacts.read_text(request_ref))
+                        request = request.get("original_request_snapshot") or request
+                        invocation_ids = list(dict.fromkeys(
+                            row["invocation_id"] for row in request.get("rounds", [])
+                            if isinstance(row, dict) and isinstance(row.get("invocation_id"), str)
+                        ))
+                    except (OSError, ValueError, AttributeError, TypeError):
+                        pass  # Historical audit gaps cannot break the Console.
+                refs = payload.get("jev_check_refs", payload.get("check_refs", []))
+                if payload.get("audit_ref"):
+                    refs = [*refs, payload["audit_ref"]]
+                for ordinal, ref in enumerate(dict.fromkeys(r for r in refs if isinstance(r, str))):
+                    if not (ref.startswith("jev-checks/") and ref.endswith(".json")
+                            and "/" not in ref[len("jev-checks/"):] and ".." not in ref):
+                        continue
+                    sidecar = "jev-io-index/" + hashlib.sha256(ref.encode()).hexdigest() + ".json"
+                    entries.append({"kind": kind, "key": record["key"], "version": record["version"],
+                        "check_index": ordinal, "report_ref": ref,
+                        "source_steps": payload.get("source_steps", []),
+                        "invocation_ids": invocation_ids,
+                        "committed_summary": payload.get("summary") if kind == "compaction" else None,
+                        "io_ref": sidecar if self.artifacts.resolve(sidecar).is_file() else None,
+                        "status": payload.get("status"), "reason": payload.get("reason")})
+        return {"task_id": task_id, "checks": entries}
 
     @staticmethod
     def _supported_traces(events: list[TraceEvent]) -> list[TraceEvent]:

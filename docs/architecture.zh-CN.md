@@ -17,7 +17,7 @@
 | Agent Harness | 组织规划、上下文、技能、工具、预算和反馈。 | 任务循环、角色工具会话与动作校验。 |
 | Session | 保存事件、观察、对话、笔记版本和产物。 | 基于 SQLite 与产物文件的 TaskStore。 |
 | 设备工具 | 采集 UI 状态并执行 Android 操作。 | Driver 动作与 ObservationPackage。 |
-| Console / Control API | 管理任务和设备，展示执行状态。 | HTTP API、SSE、Timeline 和实时投屏。 |
+| Console / Control API | 管理任务和设备，展示执行状态。 | HTTP API、SSE、Timeline 和已保存的截图。 |
 | 评测 | 初始化受控任务并独立检查结果。 | 基准适配器与外部成功判定函数。 |
 
 这些是逻辑边界。Control API 承载 Harness；设备工具可以在本机运行，也可以部署到远程 Driver。角色的有界工具会话不同于持久 Session。存储同时包含追加记录与可更新的任务快照。
@@ -69,7 +69,7 @@
 
 ## 观测通路
 
-共享 scrcpy 流同时提供 Console Live 和 Agent 画面。PyAV 解码帧，Accessibility Collector 返回节点、窗口及可用事件，感知层构造规范化 UI 与 Set-of-Mark 视图。ADB screencap 提供回退画面。
+driver 管理 scrcpy 流供 Agent 获取画面；Console 只读取已保存的任务截图。PyAV 解码帧，Accessibility Collector 返回节点、窗口及可用事件，感知层构造规范化 UI 与 Set-of-Mark 视图。ADB screencap 提供回退画面。
 
 新鲜度检查使用采集请求边界和窗口代数。有界重采处理窗口转换；结构缺失时仍可提供可用画面。像素与无障碍状态是异步来源，因此不构成动态界面的原子快照。参见[采集设计](design-decisions.zh-CN.md#scrcpycollector-与-python)。
 
@@ -95,6 +95,8 @@
 
 Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，目标应用与实际前台身份决定适用的应用知识。角色分区调整正文交付范围，技能 ID、版本和内容哈希随调用记录。应用声明的复合动作还需满足当前阶段及前台作用域。参见[技能编写指南](../skills/README.zh-CN.md)。
 
+显式研究入口可以从真实任务的失败和绕路提炼技能修订。Learner 连续分析，独立 Skill Reviewer 审查并选择必要验证，候选进入 pending 而非热写正式库；普通任务结束不自动启动付费学习。闭环、证据边界和当前能力见[Skills 自进化](skill-evolution.zh-CN.md)。
+
 ## 运行边界
 
 取消和任务预算在运行时边界阻止后续工作。动作回执记录设备通路的返回情况，语义成功由模型和外部评测判断。持久历史支持检查与继续执行，但不提供任意崩溃恢复、设备操作回滚或恰好一次输入保证。部署访问和 Android 授权独立于工具有效性检查。
@@ -106,6 +108,7 @@ Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，
 | 任务编排与角色 | [角色与转换](#角色与转换)、[角色策略](design-decisions.zh-CN.md#角色策略) | 阶段推进、重规划、按需审核与完成判定 |
 | 记忆与上下文 | [记忆与上下文详设](memory-and-context.zh-CN.md) | 笔记、结构化摘要、来源回查与存储 |
 | 技能管理 | [Skills 指南](../skills/README.zh-CN.md)、[按角色交付](design-decisions.zh-CN.md#按角色交付-skills) | 技能组织、应用与设备作用域、角色交付 |
+| 技能自进化 | [Skills 自进化](skill-evolution.zh-CN.md) | 轨迹提炼、连续探索、独立审查、选择性验证与待审产物 |
 | 观测与投屏 | [scrcpy 观测通路](scrcpy-observation.md)、[Collector 接入](accessibility-collector-setup.zh-CN.md) | 共享视频流、帧新鲜度、UI 结构采集与回退 |
 | 动作与输入 | [原生节点绑定](design-decisions.zh-CN.md#原生节点绑定)、[定向文本替换](design-decisions.zh-CN.md#定向文本替换) | 动作目标校验、聚焦、替换与读回 |
 | 模型接入 | [模型路由](deployment.zh-CN.md#model-routing)、[Prompt cache 连续性](design-decisions.zh-CN.md#prompt-cache-连续性) | 模型配置、角色路由与请求上下文复用 |
@@ -121,8 +124,9 @@ Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，
 | Harness：工具与决策 | [session.py](../agent/session.py)、[revisable/session.py](../agent/revisable/session.py)、[revisable/tools.py](../agent/revisable/tools.py) |
 | Harness：上下文与检索 | [recall.py](../agent/revisable/recall.py)、[context_projection.py](../agent/context_projection.py) |
 | Harness：技能管理 | [agent/skills/](../agent/skills/)、[pending.py](../agent/skills/pending.py)；内容位于 [skills/](../skills/) |
+| 研究：技能学习与审查 | [learning.py](../agent/skills/learning.py)、[analysis_session.py](../agent/skills/analysis_session.py)、[exploration.py](../agent/skills/exploration.py)、[admission.py](../agent/skills/admission.py)、[verification.py](../agent/skills/verification.py) |
 | Harness：动作与输入控制 | [action_observation.py](../agent/action_observation.py)、[targeted_input.py](../agent/targeted_input.py) |
-| 设备工具：采集与设备访问 | [scrcpy_mirror.py](../driver/scrcpy_mirror.py)、[scrcpy_observation.py](../driver/scrcpy_observation.py)、[accessibility.py](../driver/accessibility.py)、[perception/](../perception/) |
+| 设备工具：采集与设备访问 | [scrcpy_stream.py](../driver/scrcpy_stream.py)、[scrcpy_observation.py](../driver/scrcpy_observation.py)、[accessibility.py](../driver/accessibility.py)、[perception/](../perception/) |
 | Harness：模型路由 | [llm_gateway.py](../shared/llm_gateway.py)、[model_router.py](../shared/model_router.py) |
 | Session：记录与产物 | [store.py](../agent/revisable/store.py)、[db.py](../shared/db.py)、[artifacts.py](../shared/artifacts.py) |
 | Console 与运行时承载 | [control_api/](../control_api/)、[web/](../web/) |

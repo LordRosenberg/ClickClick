@@ -239,6 +239,17 @@ def test_text_reuse_preserves_images_order_original_and_changed_values():
     assert reuse_observation_text([original[1]]) == [original[1]]
 
 
+def test_history_keeps_distinct_metadata_even_when_tree_text_matches():
+    tree = 'depth=0 | TextView | text="source evidence"\n' * 80
+    messages = [{"role": "user", "content": [
+        {"type": "text", "text": f'CURRENT OBSERVATION:\n{{"sequence":{i}}}\nTREE:\n{tree}'},
+        {"type": "image_url", "image_url": {"url": f"pixels-{i}"}},
+    ]} for i in range(2)]
+    before = deepcopy(messages)
+    assert reuse_observation_text(messages) == before
+    assert messages == before
+
+
 def test_role_sections_require_explicit_opt_in_and_keep_unknown_sections():
     body = "## Shared\nExact source fields.\n## Execution\nTap route.\n## Verification\nRead saved fields.\n## Unclassified\nPreserve duplicates."
     text = serialize_skill_markdown(name="demo", body=body, extra_frontmatter={"role_sections": True})

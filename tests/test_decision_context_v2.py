@@ -71,6 +71,22 @@ def _tree(rendered: str) -> str:
     return rendered.split("\nTREE:\n", 1)[1] if "\nTREE:\n" in rendered else ""
 
 
+def test_executor_tree_format_is_independent_of_foreground_package() -> None:
+    package = _package()
+    package.ui.semantic_tree = [
+        UIElement(index=-1, role="View", resource_id="page-container", depth=0),
+        UIElement(index=-1, role="View", resource_id="pf16", depth=1),
+        *[UIElement(index=-1, role="TextView", text=str(n), depth=2) for n in range(3)],
+    ]
+    package.ui.app_id = "com.example.document"
+    before = package.ui.model_dump()
+    expected = _tree(render_executor_observation_v2(package))
+    assert package.ui.model_dump() == before
+    package.ui.app_id = "at.tomtasche.reader"
+    assert _tree(render_executor_observation_v2(package)) == expected
+    assert all(f'TextView | text="{n}"' in expected for n in range(3))
+
+
 def test_role_tree_recomputes_depth_and_keeps_readable_state_channels() -> None:
     tree = [
         UIElement(index=-1, role="FrameLayout", interactable=False, children=[1], depth=4),

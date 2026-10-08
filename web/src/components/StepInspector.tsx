@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, AlertTriangle, Bot, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +19,7 @@ function ObservationSection({ step, taskId }: {
     step: Step;
     taskId: string;
 }) {
+  useLocale();
     const obs = step.observation;
     const action = step.executor?.action ?? null;
     const targetIndex = action?.index ?? null;
@@ -31,14 +34,13 @@ function ObservationSection({ step, taskId }: {
     });
     const tier = tree.data?.filter_tier ?? null;
     const textForLlm = tree.data?.text_for_llm ?? null;
-    // live-screen-mirror: SoM image no longer lives here — it migrated to
-    // MirrorPanel's Frame mode (D7). ObservationSection is now a folded
-    // SemanticTree + exact capture-gap badges.
+    // ObservationPanel displays saved images; this section shows the semantic
+    // tree and exact capture-gap badges for the selected observation.
     const gap = obs?.gap_reasons ?? [];
     // console-ui-quirk-fixes (D2): the summary label reads "N 个元素". The
     // artifact's `elements_count` is primary; the rendered line count is the
-    // fallback because that field is unreliable across tiers (live-screen-
-    // mirror D8). Both are 0 when no tree is recorded, which keeps the "—".
+    // fallback because that field is unreliable across tiers. Both are 0
+    // when no tree is recorded, which keeps the "—".
     const treeLines = textForLlm ? textForLlm.split("\n").length : 0;
     const elementCount = tree.data?.elements_count || treeLines;
     const hasAnyObs = !!treeRef || gap.length > 0;
@@ -87,8 +89,7 @@ function ObservationSection({ step, taskId }: {
             widen the inspector column. */}
         <div className="min-w-0 space-y-2">
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wide text-text-mute">
-            <Activity className="h-3 w-3"/> 语义树
-          </div>
+            <Activity className="h-3 w-3"/> {t("语义树")}</div>
           {/* Uncontrolled: defaults collapsed; survives silent SSE re-renders.
             Parent keys ObservationSection by call_key so a new selection
             remounts collapsed. */}
@@ -97,7 +98,7 @@ function ObservationSection({ step, taskId }: {
               <span className="inline-block transition-transform group-open:rotate-90">
                 ▶
               </span>
-              <span>{elementCount > 0 ? `${elementCount} 个元素` : "—"}</span>
+              <span>{elementCount > 0 ? t("{value0} 个元素", { value0: elementCount }) : "—"}</span>
             </summary>
             <div className="border-t border-border p-2">
               <SemanticTree textForLlm={textForLlm} targetIndex={targetIndex} tier={tier}/>
@@ -119,6 +120,7 @@ function DecisionSection({ role, step, taskId, selectedVisualKey, onSelectVisual
     step: Step;
     taskId: string;
 } & ConversationVisualSelectionProps) {
+  useLocale();
     if (role === "reviewer" && step.reviewer) {
         return <ReviewerPanel tick={step.reviewer} taskId={taskId} selectedVisualKey={selectedVisualKey} onSelectVisual={onSelectVisual}/>;
     }
@@ -147,6 +149,7 @@ function DecisionSection({ role, step, taskId, selectedVisualKey, onSelectVisual
 function StepHeader({ call, }: {
     call: RoleCall;
 }) {
+  useLocale();
     const seq = call.step_seq;
     const roleName = call.role === "reviewer"
         ? "Reviewer"
@@ -197,6 +200,7 @@ function MetaChip({ label, value, accent, }: {
     value: string | null | undefined;
     accent: "cyan" | "violet" | "amber";
 }) {
+  useLocale();
     const accentClass = {
         cyan: "border-cyan/40 bg-cyan/10 text-cyan",
         violet: "border-violet/40 bg-violet/10 text-violet",
@@ -226,6 +230,7 @@ function viewStepFromCall(call: RoleCall): Step {
 function ActiveSkills({ call }: {
     call: RoleCall;
 }) {
+  useLocale();
     const skills = call.role === "reviewer"
         ? call.reviewer?.active_skills
         : call.role === "planner"
@@ -246,6 +251,7 @@ export function StepInspector({ call, taskId, selectedVisualKey, onSelectVisual,
     call: RoleCall;
     taskId: string;
 } & ConversationVisualSelectionProps) {
+  useLocale();
     const step = viewStepFromCall(call);
     return (<div className="space-y-4">
       <StepHeader call={call}/>

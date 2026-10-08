@@ -133,19 +133,13 @@ clickclick-driver
 # or: python -m driver.main
 ```
 
-## Live mirror (operators)
+## Task observations and Console screenshots
 
-Console Live uses the vendored standalone **scrcpy-server** jar
-(`driver/vendor/scrcpy-server-v3.3.1.jar`, version pin in
-`driver/scrcpy_mirror.py`) with `raw_stream=true`:
+The driver owns the standalone scrcpy-server transport in
+`driver/scrcpy_stream.py`; PyAV decodes task pixels. Remote hubs serve task
+observations through `/rpc`. Console reads saved image artifacts and has no
+video stream, browser decoder or device capture path.
 
-- **Local devices**: Control API pushes/forwards the jar on the API host and
-  pipes H.264 to `/api/device/mirror/stream`.
-- **Remote hubs**: `clickclick-driver` exposes `/mirror/stream`; the API relays
-  bytes to the browser. Lab hosts must ship the same jar.
-- **Browser**: Chromium WebCodecs (`VideoDecoder`). Vite dev proxy needs
-  `ws: true` (already set).
-
-Agent pixels still use scrcpy/ADB and do **not** require Console Live. Semantic
-trees use the collector first and fresh `uiautomator dump` only as fallback.
-Upgrade steps: see `driver/vendor/README.md`.
+Agent pixels use scrcpy with bounded ADB fallback. Semantic trees use the
+collector first and fresh `uiautomator dump` only as fallback. The pinned jar
+and upgrade steps are documented in `driver/vendor/README.md`.

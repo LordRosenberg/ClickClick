@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useState } from "react";
 import type { Action } from "@/api/types";
 import { artifactUrl } from "@/api/client";
@@ -29,6 +31,7 @@ export function SomOverlay({
    */
   onImageSize?: (size: { width: number; height: number }) => void;
 }) {
+  useLocale();
   const [errored, setErrored] = useState(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
@@ -36,8 +39,7 @@ export function SomOverlay({
   if (!somRef || errored) {
     return (
       <div className="flex h-48 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
-        无 SoM 记录
-      </div>
+        {t("截图不可用")}</div>
     );
   }
 
@@ -57,7 +59,7 @@ export function SomOverlay({
     <div className="relative flex h-full max-h-full max-w-full items-center justify-center">
       <img
         src={src}
-        alt="SoM"
+        alt={t("任务截图")}
         className="block h-full w-full max-h-full max-w-full rounded-md border object-contain"
         onLoad={(e) => {
           const img = e.currentTarget;
@@ -93,6 +95,7 @@ function OverlayShapes({
   action: Action;
   onHover: (p: { x: number; y: number } | null) => void;
 }) {
+  useLocale();
   const x = (action.x ?? 0) as number;
   const y = (action.y ?? 0) as number;
   const stroke = "#ef4444";
@@ -154,6 +157,7 @@ function OverlayShapes({
 }
 
 function ArrowHead({ x1, y1, x2, y2, stroke }: { x1: number; y1: number; x2: number; y2: number; stroke: string }) {
+  useLocale();
   const angle = Math.atan2(y2 - y1, x2 - x1);
   const len = 14;
   const a1 = angle - Math.PI / 6;

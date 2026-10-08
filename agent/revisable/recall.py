@@ -85,6 +85,10 @@ def read_history(store, args, ctx, initial_records):
         rows = [(kind, row, None) for _, _, kind, row in matches[:6]]
     items, attachments = [], []
     budget = 12000 if args.full and args.source else 3000
+    text_budget = ctx.state.get("history_text_budget", budget)
+    if type(text_budget) is not int or not 1 <= text_budget <= 12000:
+        raise ValueError("Invalid internal history text budget")
+    budget = min(budget, text_budget)
     for kind, row, offset in rows:
         source = source_id(kind, row)
         item = {"source": source}
@@ -134,6 +138,7 @@ def read_history(store, args, ctx, initial_records):
         if size <= 0:
             break
         excerpt = text[offset:offset + size]
+        item["offset"] = offset
         end = offset + len(excerpt)
         signature = (source, "text", excerpt)
         if signature in seen:

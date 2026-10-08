@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -88,6 +90,7 @@ function groupCanonical(rows: SkillSummary[]) {
 }
 
 export function SkillsView() {
+  useLocale();
   const [params, setParams] = useSearchParams();
   const deepId = params.get("id") || "";
   const tabParam = params.get("tab") === "pending" ? "pending" : "canonical";
@@ -239,8 +242,7 @@ export function SkillsView() {
           Skills
         </h1>
         <Button size="sm" variant="outline" onClick={startNew} className="font-mono text-[10px]">
-          <Plus className="mr-1 h-3 w-3" /> 新建
-        </Button>
+          <Plus className="mr-1 h-3 w-3" /> {t("新建")}</Button>
       </div>
 
       <Tabs
@@ -259,10 +261,9 @@ export function SkillsView() {
         }}
       >
         <TabsList>
-          <TabsTrigger value="canonical">正式技能</TabsTrigger>
+          <TabsTrigger value="canonical">{t("正式技能")}</TabsTrigger>
           <TabsTrigger value="pending">
-            待审 Pending
-            {pendingCount > 0 && (
+            {t("待审 Pending")}{pendingCount > 0 && (
               <Badge variant="outline" className="ml-1 border-amber/40 text-amber">
                 {pendingCount}
               </Badge>
@@ -463,21 +464,19 @@ export function SkillsView() {
                     onClick={() => saveMut.mutate()}
                     className="font-mono text-[10px]"
                   >
-                    <Save className="mr-1 h-3 w-3" /> 保存
-                  </Button>
+                    <Save className="mr-1 h-3 w-3" /> {t("保存")}</Button>
                   {!editor.isNew && (
                     <Button
                       size="sm"
                       variant="destructive"
                       disabled={deleteMut.isPending}
                       onClick={() => {
-                        if (!window.confirm(`确认删除正式技能 ${editor.id}？`)) return;
+                        if (!window.confirm(t("确认删除正式技能 {value0}？", { value0: editor.id }))) return;
                         deleteMut.mutate();
                       }}
                       className="font-mono text-[10px]"
                     >
-                      <Trash2 className="mr-1 h-3 w-3" /> 删除
-                    </Button>
+                      <Trash2 className="mr-1 h-3 w-3" /> {t("删除")}</Button>
                   )}
                 </div>
               </CardContent>
@@ -496,7 +495,7 @@ export function SkillsView() {
                   </div>
                 )}
                 {!pendingId && (
-                  <div className="text-text-mute">选择左侧 pending 条目查看 diff</div>
+                  <div className="text-text-mute">{t("选择左侧 pending 条目查看 diff")}</div>
                 )}
                 {pendingDetailQ.isLoading && (
                   <div className="text-text-mute">loading diff…</div>
@@ -539,8 +538,7 @@ export function SkillsView() {
                         onClick={() => approveMut.mutate()}
                         className="font-mono text-[10px] border-neon/40 text-neon"
                       >
-                        <Check className="mr-1 h-3 w-3" /> 批准
-                      </Button>
+                        <Check className="mr-1 h-3 w-3" /> {t("批准")}</Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -548,8 +546,7 @@ export function SkillsView() {
                         onClick={() => rejectMut.mutate()}
                         className="font-mono text-[10px] border-err/40 text-err"
                       >
-                        <X className="mr-1 h-3 w-3" /> 拒绝
-                      </Button>
+                        <X className="mr-1 h-3 w-3" /> {t("拒绝")}</Button>
                     </div>
                   </>
                 )}

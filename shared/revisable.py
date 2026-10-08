@@ -70,6 +70,7 @@ class TaskLimits(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     device_actions: int | None = Field(default=None, ge=0)
+    model_calls: int | None = Field(default=None, ge=1)
     prediction_rounds: int | None = Field(default=None, ge=1)
     deadline_at: float | None = Field(default=None, gt=0, allow_inf_nan=False)
 
@@ -96,6 +97,9 @@ class PlanRuntime(BaseModel):
     completed_stage_ids: list[str] = Field(default_factory=list)
     delivered_context: dict = Field(default_factory=dict)
     last_executor_stall: str = ""
+    checkpoint_version: int = 0
+    paused_at: float | None = None
+    compaction_failed_prefix: list[str] = Field(default_factory=list)
 
     def complete_stage(self, stage_id: str) -> bool:
         if stage_id in self.completed_stage_ids:

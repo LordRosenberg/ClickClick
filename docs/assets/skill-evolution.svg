@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="850" viewBox="0 0 1320 850" role="img" aria-labelledby="title desc" lang="en">
+<title id="title">From task experience to reusable skills</title>
+<desc id="desc">Real task records feed continuous Learner analysis, independent Skill Reviewer assessment, pending candidates and the canonical library after human approval. Optional exploration and ordinary task trials return evidence to research and review. Unproductive sources may skip. All phases retain provenance and share a budget.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#6B7B8E" stroke-width="1.5"/></marker>
+<marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#2B7B70" stroke-width="1.5"/></marker></defs>
+<rect x="0.5" y="0.5" width="1319" height="849" rx="16" fill="#F7F9FC" stroke="#E6EBF1" stroke-width="1"/>
+<text x="40" y="55" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="30" font-weight="700" fill="#24384F" text-anchor="start">From task experience to reusable skills</text>
+<text x="40" y="87" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#6B7B8E" text-anchor="start">Continuous learning · independent review · selective verification</text>
+<text x="1280" y="53" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="600" fill="#6B7B8E" text-anchor="end">CLICKCLICK / SKILL LEARNING</text>
+<path d="M784 198 V126 H490 V198" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<rect x="525.0" y="103" width="224" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="637" y="121" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">Revision / verification feedback</text>
+<text x="40" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">01</text>
+<text x="67" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="600" fill="#24384F" text-anchor="start">Task experience</text>
+<rect x="40" y="198" width="180" height="162" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="58" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="#24384F" text-anchor="start">Task history</text>
+<text x="58" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">Failure or detour</text>
+<text x="58" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">Actions · observations</text>
+<text x="58" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">Source remains intact</text>
+<text x="268" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">02</text>
+<text x="295" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="600" fill="#24384F" text-anchor="start">Continuous learning</text>
+<rect x="268" y="198" width="244" height="162" rx="12" fill="#24384F" stroke="#24384F" stroke-width="1"/>
+<text x="286" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="white" text-anchor="start">Learner</text>
+<text x="286" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="white" text-anchor="start">Improve a decision</text>
+<text x="286" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#D6E0EA" text-anchor="start">Facts · hypotheses · gaps</text>
+<text x="286" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#D6E0EA" text-anchor="start">Continuous checkpoints</text>
+<text x="560" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">03</text>
+<text x="587" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="600" fill="#24384F" text-anchor="start">Independent review</text>
+<rect x="560" y="198" width="244" height="162" rx="12" fill="#EDF6F3" stroke="#CFE3DB" stroke-width="1"/>
+<text x="578" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="#2B7B70" text-anchor="start">Skill Reviewer</text>
+<text x="578" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">Six quality criteria</text>
+<text x="578" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">Independent evidence reads</text>
+<text x="578" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">Judge the actual claim</text>
+<text x="852" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">04</text>
+<text x="879" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="600" fill="#24384F" text-anchor="start">Pending candidate</text>
+<rect x="852" y="198" width="192" height="162" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="870" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="21" font-weight="650" fill="#24384F" text-anchor="start">Candidate skill</text>
+<text x="870" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">Body + metadata</text>
+<text x="870" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">Bound review receipts</text>
+<text x="870" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">No automatic activation</text>
+<text x="1092" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">05</text>
+<text x="1119" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="600" fill="#24384F" text-anchor="start">Human publication</text>
+<rect x="1092" y="198" width="188" height="162" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="1110" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="#24384F" text-anchor="start">Skill library</text>
+<text x="1110" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">Write after approval</text>
+<text x="1110" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">Recheck bindings</text>
+<text x="1110" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">Guide future tasks</text>
+<path d="M225 276 H261" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M517 276 H553" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M809 276 H845" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M1049 276 H1085" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M330 360 V492" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<path d="M448 492 V360" fill="none" stroke="#2B7B70" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#evidence)"/>
+<rect x="276.5" y="416" width="107" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="330" y="434" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">Missing fact</text>
+<rect x="395.0" y="440" width="106" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="448" y="458" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">Evidence</text>
+<path d="M622 360 V492" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<path d="M740 492 V360" fill="none" stroke="#2B7B70" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#evidence)"/>
+<rect x="568.5" y="416" width="107" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="622" y="434" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">Selected check</text>
+<rect x="687.0" y="440" width="106" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="740" y="458" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">Results + costs</text>
+<rect x="268" y="492" width="244" height="126" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="286" y="522" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#24384F" text-anchor="start">Targeted exploration</text>
+<text x="286" y="553" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#6B7B8E" text-anchor="start">Exploration Executor</text>
+<text x="286" y="583" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">Test one question on</text>
+<text x="286" y="603" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">the current screen</text>
+<text x="508" y="481" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="500" fill="#6B7B8E" text-anchor="end">Optional</text>
+<rect x="560" y="492" width="244" height="126" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="578" y="522" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#24384F" text-anchor="start">Ordinary task trial</text>
+<text x="578" y="553" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#6B7B8E" text-anchor="start">ClickClick with an isolated library</text>
+<text x="578" y="589" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#24384F" text-anchor="start">Check outcome, adoption and cost</text>
+<text x="800" y="481" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="500" fill="#6B7B8E" text-anchor="end">Optional</text>
+<path d="M268 326 H244 V555 H220" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<rect x="40" y="492" width="180" height="126" rx="12" fill="#F0F3F7" stroke="none" stroke-width="1"/>
+<text x="58" y="524" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#24384F" text-anchor="start">Skip is valid</text>
+<text x="58" y="562" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">No forced skill</text>
+<text x="58" y="588" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">Keep open questions</text>
+<text x="852" y="513" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="20" font-weight="650" fill="#24384F" text-anchor="start">Spend on unresolved questions</text>
+<text x="852" y="552" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">Evidence already sufficient → review</text>
+<text x="852" y="581" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">Missing app fact → targeted exploration</text>
+<text x="852" y="610" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">Utility needs testing → ordinary task trial</text>
+<rect x="40" y="686" width="1240" height="108" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="60" y="717" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="19" font-weight="650" fill="#24384F" text-anchor="start">One traceable evidence base for learning and review</text>
+<text x="60" y="747" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">Original histories and images · frozen skills · version and content hashes · measured costs</text>
+<text x="60" y="775" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">Reads, exploration, compaction, repair, review, validation and cleanup all count</text>
+<rect x="1020" y="701" width="242" height="30" rx="6" fill="#EDF6F3" stroke="none" stroke-width="1"/>
+<text x="1141" y="722" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="600" fill="#2B7B70" text-anchor="middle">Explicit entry · shared budget</text>
+<path d="M40 823 H69" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="83" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">Main flow</text>
+<path d="M206 823 H235" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6"/>
+<text x="249" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">Optional research / revision</text>
+<path d="M473 823 H502" fill="none" stroke="#2B7B70" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="516" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">Evidence / trial feedback</text>
+<text x="1280" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="end">Local admission ≠ measured utility ≠ automatic publication</text>
+</svg>

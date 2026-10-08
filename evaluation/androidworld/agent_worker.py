@@ -69,6 +69,12 @@ async def capture_preflight(driver, output, *, timeout_s=20.0):
 
 def prepare_skill_root(branch, output, profile):
     """Keep evaluation guidance tied to the selected frozen runtime."""
+    external = os.environ.get('CLICKCLICK_EVAL_SKILLS_DIR')
+    if external:
+        root = Path(external).resolve()
+        if not root.is_dir():
+            raise ValueError('Explicit experiment skill library does not exist')
+        return root
     if profile == 'app':
         return branch/'skills'
     if profile != 'androidworld':
@@ -88,7 +94,7 @@ async def main(args):
     from agent.runtime import create_orchestrator
     from agent.traces import TraceWriter
     from driver.factory import get_driver
-    from driver.scrcpy_mirror import REGISTRY as mirror_registry
+    from driver.scrcpy_stream import REGISTRY as observation_streams
     from shared.artifacts import ArtifactStore
     from shared.config import Settings
     from shared.db import Database
@@ -135,12 +141,14 @@ async def main(args):
         from official_trajectory import install_observation_recorder
         install_observation_recorder(orch, output / 'official-observations')
     record = db.create_task(request['goal'], androidworld_agent_state(request['goal']),device_serial='emulator-5554')
+    from agent.skills.snapshot import library_manifest
     save(output/'runtime-manifest.json', {'task_id':record.id,'branch':str(branch),
         'runtime_module':sys.modules['agent.runtime'].__file__, 'model':model,
         'provider':{k:v for k,v in provider.items() if k in ['provider','reasoning','stream','reasoning_supported']},
         'settings':{'architecture':settings.agent_architecture,'executor_context_tokens':settings.executor_context_tokens,
                     'skill_profile':args.profile,'skill_root':str(skill_root),
                     'skill_overlay_root':str(branch/'evaluation/androidworld/skills') if args.profile == 'androidworld' else None},
+        'library_manifest':library_manifest(skill_root),
         'skill_hashes':{str(p.relative_to(skill_root)):hashlib.sha256(p.read_bytes()).hexdigest()
                         for p in skill_root.rglob('SKILL.md')},
         'runtime_hashes':{str(p.relative_to(branch)):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['agent','driver','perception','shared','skills'] for p in (branch/folder).rglob('*') if p.is_file() and p.suffix in ['.py','.md','.json']}})
@@ -201,7 +209,7 @@ async def main(args):
         try:
             # This worker owns the whole registry. Do not abandon its delayed
             # idle cleanup when asyncio.run() cancels background tasks on exit.
-            await mirror_registry.shutdown()
+            await observation_streams.shutdown()
         except Exception:
             (output/'worker-cleanup-error.txt').write_text(traceback.format_exc(),encoding='utf-8')
             raise

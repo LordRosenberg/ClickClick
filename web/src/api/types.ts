@@ -8,7 +8,7 @@
 // (executor > reviewer > planner), and optional focused-role members.
 // `step_seq` is the unique selection key for the Console — no `Array.find`
 // collision because only one Step object exists per `step_seq`.
-export type TaskStatus = "queued" | "running" | "succeeded" | "failed" | "cancelled";
+export type TaskStatus = "queued" | "running" | "pausing" | "paused" | "succeeded" | "failed" | "cancelled";
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
 export type ObservationMode = "tree-only" | "tree+image" | "image-only";
 export type ActionType = "tap" | "tap_xy" | "type" | "replace_text" | "swipe" | "long_press" | "scroll" | "drag" | "key" | "launch" | "back" | "home" | "sleep";
@@ -509,18 +509,6 @@ export interface TreeRefPayload {
     text_for_llm: string;
     elements_count?: number;
 }
-// --- live-screen-mirror: client-side mirror state (no backend surface) ---
-//
-// Mirror state is purely React-local — the orchestrator, traces, and step
-// payloads are unchanged. The backend only exposes a single WebSocket route
-// `/api/device/mirror/stream`; everything below is owned by MirrorPanel.
-/** MirrorPanel canvas mode. `"off"` keeps scrcpy disconnected, `"live"`
- *  streams H.264, and `"frame"` shows the selected step's SoM image. */
-export type MirrorMode = "off" | "live" | "frame";
-/** Connection lifecycle for the live-mode WebSocket. Transitions:
- *  connecting → live → reconnecting → live (or disconnected → manual retry).
- *  `unavailable` is terminal — scrcpy binary missing on the server. */
-export type MirrorConnectionState = "connecting" | "live" | "reconnecting" | "disconnected" | "unavailable";
 // --- model catalog + ChatGPT login ---
 export interface ModelCatalogEntry {
     id: string;

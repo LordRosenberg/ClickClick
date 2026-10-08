@@ -1,6 +1,7 @@
 """Task-scoped records. Storage assigns identity; models supply meaning."""
 
 import json
+import time
 import uuid
 from typing import Any
 
@@ -17,6 +18,11 @@ class TaskStore:
     def __init__(self, db: Database, artifacts: ArtifactStore, task_id: str):
         self.db, self.artifacts, self.task_id = db, artifacts, task_id
         self.budget_snapshot = None
+        self.jev_status_context = False
+
+    def project_summary(self, value, retained_packet=None):
+        from agent.revisable.memory_checks import summary_checks
+        return project_summary(value, retained_packet, text_checks=summary_checks(self, value))
 
     def put(self, kind: str, key: str, payload: dict) -> dict:
         return self.db.append_agent_record(self.task_id, kind, key, payload)
@@ -59,6 +65,7 @@ class TaskStore:
             package.observation_id,
             {
                 "step": state.step_number,
+                "recorded_at": time.time(),
                 "stage_id": state.revisable.stage_id,
                 "stage_ids": [state.revisable.stage_id],
                 "visits": [visit],
@@ -76,6 +83,7 @@ class TaskStore:
         payload = {
             "goal": runtime.stage.goal,
             "target_app": runtime.stage.target_app,
+            "skill_ids": list(runtime.stage.skill_ids),
             "first_seen_step": existing["payload"]["first_seen_step"]
             if existing
             else state.step_number,
@@ -110,7 +118,7 @@ class TaskStore:
     def retained_notes(self, character_budget: int = 3000) -> dict:
         """Restore selected text, not a model-generated summary or truth verdict."""
         rows = [row for row in reversed(self.records("note")) if row["payload"].get("retained")]
-        # Optional automatic memory must not displace executor-written facts.
+        # Legacy experiment records remain readable, behind executor-written facts.
         rows.sort(key=lambda row: row["payload"].get("origin") == "compaction_attempt")
         packet = {
             "items": [], "omitted_count": len(rows),
@@ -124,6 +132,11 @@ class TaskStore:
                          "omitted_count": packet["omitted_count"] - 1}
             if len(json.dumps(candidate, ensure_ascii=False)) <= character_budget:
                 packet = candidate
+        from agent.revisable.memory_checks import note_source_checks
+        selected = {item["source"] for item in packet["items"]}
+        checks = note_source_checks(self, [row for row in rows if source_id("note", row) in selected])
+        if checks:
+            packet["cited_summary_text_checks"] = checks
         return packet
 
     def context(
@@ -190,7 +203,8 @@ class TaskStore:
                 return [compact(item) for item in value]
             return value
 
-        earlier_summary = project_summary(state.revisable.summary, self.retained_notes())
+        retained = self.retained_notes()
+        earlier_summary = project_summary(state.revisable.summary, retained)
         summary_included = len(earlier_summary) <= character_budget
         if summary_included:
             character_budget -= len(earlier_summary)
@@ -205,7 +219,7 @@ class TaskStore:
             events.append(event)
             character_budget -= size
         return {
-            "earlier_executor_summary": earlier_summary if summary_included else None,
+            "earlier_executor_summary": self.project_summary(state.revisable.summary, retained) if summary_included else None,
             "earlier_summary_omitted": not summary_included,
             "events": list(reversed(events)),
             "omitted_event_count": len(records) - len(events),

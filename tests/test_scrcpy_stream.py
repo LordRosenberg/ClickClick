@@ -1,4 +1,4 @@
-"""web-scrcpy-live-decode: StreamSource registry + remote key routing."""
+"""Task-owned scrcpy transport, leases, codec delivery and cleanup."""
 
 from __future__ import annotations
 
@@ -11,17 +11,16 @@ from typing import AsyncIterator
 
 import pytest
 
-from driver.scrcpy_mirror import (
+from driver.scrcpy_stream import (
     AnnexBParser,
     LocalStreamSource,
-    MirrorSession,
-    MirrorRegistry,
-    MirrorShutdownError,
-    MirrorUnavailableError,
-    RemoteStreamSource,
+    ScrcpySession,
+    ScrcpyRegistry,
+    ScrcpyShutdownError,
+    ScrcpyUnavailableError,
     _new_scid,
     _scrcpy_socket_name,
-    is_mirror_server_available,
+    is_scrcpy_server_available,
     server_jar_path,
 )
 from driver.scrcpy_observation import FrameGeometry, FrameHandle, FrameRing
@@ -33,7 +32,6 @@ class _FakeSource:
         self.started = 0
         self.stopped = 0
         self._alive = False
-        self.codec_string = "avc1.42E01E"
 
     async def start(self) -> None:
         self.started += 1
@@ -46,7 +44,7 @@ class _FakeSource:
     def is_alive(self) -> bool:
         return self._alive
 
-    async def frames(self, chunk_size: int = 65536) -> AsyncIterator[bytes]:
+    async def frames(self) -> AsyncIterator[bytes]:
         yield b"\x00\x00\x00\x01\x67"  # pretend SPS start
         return
 
@@ -60,8 +58,7 @@ class _PushSource(_FakeSource):
         await super().stop()
         await self.queue.put(None)
 
-    async def frames(self, chunk_size: int = 65536) -> AsyncIterator[bytes]:
-        del chunk_size
+    async def frames(self) -> AsyncIterator[bytes]:
         while True:
             item = await self.queue.get()
             if item is None:
@@ -71,7 +68,37 @@ class _PushSource(_FakeSource):
 
 def test_vendored_jar_present():
     assert server_jar_path().is_file()
-    assert is_mirror_server_available()
+    assert is_scrcpy_server_available()
+
+
+@pytest.mark.parametrize("stuck", [False, True])
+def test_interpreter_exit_cleanup_belongs_to_source_owner(stuck):
+    class Process:
+        def __init__(self):
+            self.calls = []
+
+        def poll(self):
+            return None
+
+        def terminate(self):
+            self.calls.append("terminate")
+
+        def wait(self, timeout):
+            self.calls.append("wait")
+            if stuck and "kill" not in self.calls:
+                raise subprocess.TimeoutExpired("adb", timeout)
+
+        def kill(self):
+            self.calls.append("kill")
+
+    process = Process()
+    source = LocalStreamSource(serial="test")
+    source._proc = process
+    registry = ScrcpyRegistry()
+    registry.set_source_factory(lambda _: source)
+    registry.get("test")
+    registry.terminate_host_processes()
+    assert process.calls == (["terminate", "wait", "kill", "wait"] if stuck else ["terminate", "wait"])
 
 
 def test_scrcpy_sessions_use_isolated_31_bit_socket_names():
@@ -90,17 +117,17 @@ async def test_registry_keyed_by_device_key_shares_session():
         sources[key] = src
         return src
 
-    registry = MirrorRegistry()
+    registry = ScrcpyRegistry()
     registry.set_source_factory(factory)
 
-    a = await registry.start("lab-a/S1")
-    b = await registry.start("lab-a/S1")
+    a, first = await registry.acquire("lab-a/S1")
+    b, second = await registry.acquire("lab-a/S1")
     assert a is b
     assert sources["lab-a/S1"].started == 1
 
-    await registry.stop("lab-a/S1")
+    await registry.release("lab-a/S1", first)
     assert sources["lab-a/S1"].stopped == 0  # still one consumer
-    await registry.stop("lab-a/S1")
+    await registry.release("lab-a/S1", second)
     assert sources["lab-a/S1"].stopped == 1
 
 
@@ -113,10 +140,10 @@ async def test_registry_distinct_keys_collide_on_serial():
         sources[key] = src
         return src
 
-    registry = MirrorRegistry()
+    registry = ScrcpyRegistry()
     registry.set_source_factory(factory)
-    await registry.start("lab-a/emulator-5554")
-    await registry.start("lab-b/emulator-5554")
+    await registry.acquire("lab-a/emulator-5554")
+    await registry.acquire("lab-b/emulator-5554")
     assert set(sources) == {"lab-a/emulator-5554", "lab-b/emulator-5554"}
     assert sources["lab-a/emulator-5554"].started == 1
     assert sources["lab-b/emulator-5554"].started == 1
@@ -128,7 +155,7 @@ async def test_registry_distinct_keys_collide_on_serial():
 @pytest.mark.asyncio
 async def test_registry_shutdown_cancels_replaced_idle_tasks():
     source = _PushSource("S1")
-    registry = MirrorRegistry(idle_shutdown_seconds=30.0)
+    registry = ScrcpyRegistry(idle_shutdown_seconds=30.0)
     registry.set_source_factory(lambda _key: source)
     session, first = await registry.acquire("S1", "agent")
     await registry.release("S1", first)
@@ -149,11 +176,11 @@ async def test_registry_shutdown_failure_preserves_session_for_retry():
             raise RuntimeError("stop failed")
 
     source = FailingStopSource("S1")
-    registry = MirrorRegistry()
+    registry = ScrcpyRegistry()
     registry.set_source_factory(lambda _key: source)
     session, _lease = await registry.acquire("S1", "agent")
 
-    with pytest.raises(MirrorShutdownError, match="stop failed"):
+    with pytest.raises(ScrcpyShutdownError, match="stop failed"):
         await registry.shutdown()
 
     assert registry._sessions["S1"] is session
@@ -162,10 +189,9 @@ async def test_registry_shutdown_failure_preserves_session_for_retry():
 @pytest.mark.asyncio
 async def test_registry_unavailable_source_raises():
     class Boom:
-        codec_string = None
 
         async def start(self) -> None:
-            raise MirrorUnavailableError("jar missing")
+            raise ScrcpyUnavailableError("jar missing")
 
         async def stop(self) -> None:
             return
@@ -173,14 +199,14 @@ async def test_registry_unavailable_source_raises():
         def is_alive(self) -> bool:
             return False
 
-        async def frames(self, chunk_size: int = 65536) -> AsyncIterator[bytes]:
+        async def frames(self) -> AsyncIterator[bytes]:
             if False:
                 yield b""
 
-    registry = MirrorRegistry()
+    registry = ScrcpyRegistry()
     registry.set_source_factory(lambda _k: Boom())
-    with pytest.raises(MirrorUnavailableError):
-        await registry.start("S1")
+    with pytest.raises(ScrcpyUnavailableError):
+        await registry.acquire("S1")
 
 
 @pytest.mark.asyncio
@@ -195,7 +221,7 @@ async def test_cancelled_first_acquire_cleans_half_started_source():
             await asyncio.Event().wait()
 
     source = SlowSource("S1")
-    session = MirrorSession(device_key="S1", source=source)
+    session = ScrcpySession(device_key="S1", source=source)
     acquire = asyncio.create_task(session.acquire("agent"))
     await entered.wait()
     acquire.cancel()
@@ -211,7 +237,7 @@ async def test_cancelled_first_acquire_cleans_half_started_source():
 @pytest.mark.asyncio
 async def test_cancel_after_source_start_before_lease_commit_stops_source():
     source = _FakeSource("S1")
-    session = MirrorSession(device_key="S1", source=source)
+    session = ScrcpySession(device_key="S1", source=source)
     await session._lock.acquire()
     acquire = asyncio.create_task(session.acquire("agent"))
     try:
@@ -260,26 +286,17 @@ async def test_start_cleanup_reaps_process_after_initial_wait_timeout():
     assert source._proc is None
 
 
-@pytest.mark.asyncio
-async def test_remote_stop_bounds_stuck_websocket_close():
-    class WebSocket:
-        async def close(self):
-            await asyncio.Future()
-
-    source = RemoteStreamSource("http://hub", "S1")
-    source._ws = WebSocket()
-    source._alive = True
-
-    await asyncio.wait_for(source.stop(), timeout=1.2)
-
-    assert source.is_alive() is False
-    assert source._ws is None
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("platform", ["win32", "darwin"])
 async def test_local_cold_start_has_no_fixed_wait_and_orders_server_before_forward(
-    monkeypatch,
+    monkeypatch, platform,
 ):
+    from driver import processes
+
+    monkeypatch.setattr(processes, "platform", platform)
+    monkeypatch.setattr(subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False)
     order: list[str] = []
     processes: list[object] = []
 
@@ -316,6 +333,10 @@ async def test_local_cold_start_has_no_fixed_wait_and_orders_server_before_forwa
     def popen(*_args, **_kwargs):
         assert _kwargs["stdout"] == subprocess.PIPE
         assert _kwargs["stderr"] == subprocess.STDOUT
+        if platform == "win32":
+            assert _kwargs["creationflags"] == 0x08000000
+        else:
+            assert "creationflags" not in _kwargs
         order.append("server")
         process = Proc()
         processes.append(process)
@@ -337,8 +358,8 @@ async def test_local_cold_start_has_no_fixed_wait_and_orders_server_before_forwa
     monkeypatch.setattr("driver.adb.forward_localabstract_async", forward)
     monkeypatch.setattr("driver.adb.remove_forward_async", cleanup)
     monkeypatch.setattr("driver.adb.shell_async", cleanup)
-    monkeypatch.setattr("driver.scrcpy_mirror.subprocess.Popen", popen)
-    monkeypatch.setattr("driver.scrcpy_mirror.asyncio.open_connection", connect)
+    monkeypatch.setattr("driver.scrcpy_stream.subprocess.Popen", popen)
+    monkeypatch.setattr("driver.scrcpy_stream.asyncio.open_connection", connect)
 
     source = LocalStreamSource("S1")
     started = time.monotonic()
@@ -372,22 +393,22 @@ async def test_unknown_scrcpy_forward_port_reconciles_unique_socket(monkeypatch)
 
 
 @pytest.mark.asyncio
-async def test_registry_idempotent_stop():
-    registry = MirrorRegistry()
-    await registry.stop("never-seen")
+async def test_registry_idempotent_release():
+    registry = ScrcpyRegistry()
+    await registry.release("never-seen", "stale-token")
 
 
 @pytest.mark.asyncio
 async def test_explicit_leases_are_idempotent_and_restart_generations():
     source = _FakeSource("S1")
-    registry = MirrorRegistry()
+    registry = ScrcpyRegistry()
     registry.set_source_factory(lambda _key: source)
-    session, console = await registry.acquire("S1", "console")
+    session, first = await registry.acquire("S1", "first")
     _, agent = await registry.acquire("S1", "agent")
     assert source.started == 1
-    assert session.generation == console.generation == agent.generation
-    await registry.release("S1", console)
-    await registry.release("S1", console)  # stale release cannot stop agent
+    assert session.generation == first.generation == agent.generation
+    await registry.release("S1", first)
+    await registry.release("S1", first)  # stale release cannot stop agent
     assert source.stopped == 0
     await registry.release("S1", agent)
     assert source.stopped == 1
@@ -434,7 +455,7 @@ async def test_local_packet_rejects_unbounded_size_before_reading_body():
     source._reader = reader
     reader.feed_data(struct.pack(">QI", 0, 0xFFFFFFFF))
     stream = source.frames()
-    with pytest.raises(MirrorUnavailableError, match="packet size"):
+    with pytest.raises(ScrcpyUnavailableError, match="packet size"):
         await anext(stream)
 
 
@@ -469,10 +490,10 @@ def test_static_screen_change_decodes_without_a_following_packet(monkeypatch):
 @pytest.mark.asyncio
 async def test_late_subscriber_skips_cached_idr_and_waits_for_new_bootstrap():
     source = _PushSource("S1")
-    session = MirrorSession(device_key="S1", source=source)
-    lease = await session.acquire("console")
-    console_frames = session.frames()
-    first_console = asyncio.create_task(anext(console_frames))
+    session = ScrcpySession(device_key="S1", source=source)
+    lease = await session.acquire("first")
+    first_frames = session.frames()
+    first_first = asyncio.create_task(anext(first_frames))
     await asyncio.sleep(0)
     await source.queue.put(
         b"\0\0\0\x01\x67sps"
@@ -481,7 +502,7 @@ async def test_late_subscriber_skips_cached_idr_and_waits_for_new_bootstrap():
         b"\0\0\0\x01\x41p1"
         b"\0\0\0\x01\x41p2"
     )
-    bootstrap = await asyncio.wait_for(first_console, timeout=0.2)
+    bootstrap = await asyncio.wait_for(first_first, timeout=0.2)
     assert b"\x67sps" in bootstrap
     assert b"\x68pps" in bootstrap
     assert b"\x65idr" in bootstrap
@@ -508,7 +529,7 @@ async def test_late_subscriber_skips_cached_idr_and_waits_for_new_bootstrap():
     assert session.metrics()["bootstrap_cached"] is True
 
     await late_frames.aclose()
-    await console_frames.aclose()
+    await first_frames.aclose()
     await session.release(lease)
     assert session.metrics()["bootstrap_cached"] is False
 

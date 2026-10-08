@@ -8,7 +8,7 @@ from PIL import Image
 
 from driver.android import AndroidDriver
 from driver.observation_deadline import ObservationDeadline
-from driver.scrcpy_mirror import AnnexBParser
+from driver.scrcpy_stream import AnnexBParser
 from driver.scrcpy_observation import FrameGeometry, FrameHandle, ScrcpyObservationProvider
 
 

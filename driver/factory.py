@@ -66,7 +66,7 @@ def _build_android_driver(
     if settings is not None and resolved_serial:
         # Provider order is a runtime invariant: construct the shared scrcpy
         # consumer and let health determine automatic ADB fallback.
-        from driver.scrcpy_mirror import REGISTRY
+        from driver.scrcpy_stream import REGISTRY
         from driver.scrcpy_observation import ScrcpyObservationProvider
         stream_provider = ScrcpyObservationProvider(REGISTRY, resolved_serial)
     provisioning = AndroidProvisioningOptions(

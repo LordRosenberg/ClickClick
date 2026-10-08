@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMs } from "@/lib/utils";
@@ -7,6 +9,8 @@ import type { Task, TaskTimeline } from "@/api/types";
 const statusVariant: Record<string, "default" | "secondary" | "success" | "destructive" | "neon" | "warn"> = {
   queued: "secondary",
   running: "neon",
+  pausing: "warn",
+  paused: "warn",
   succeeded: "secondary",
   failed: "destructive",
   cancelled: "warn",
@@ -15,6 +19,8 @@ const statusVariant: Record<string, "default" | "secondary" | "success" | "destr
 const statusLabel: Record<string, string> = {
   queued: "排队",
   running: "运行中",
+  pausing: "正在暂停",
+  paused: "已暂停",
   succeeded: "运行时完成",
   failed: "运行时失败",
   cancelled: "已取消",
@@ -29,6 +35,7 @@ export function TaskHeader({
   executionElapsedMs?: number | null;
   liveTask?: Task;
 }) {
+  useLocale();
   const step = liveTask?.step_number ?? timeline.step_number ?? 0;
   const runtime = timeline.metrics?.runtime_terminal_status;
   const persistedMetrics = timeline.metrics;
@@ -69,7 +76,7 @@ export function TaskHeader({
             task header
           </CardTitle>
           <Badge variant={statusVariant[runtimeStatus] ?? "secondary"}>
-            runtime: {statusLabel[runtimeStatus] ?? runtimeStatus}
+            runtime: {t(statusLabel[runtimeStatus] ?? runtimeStatus)}
           </Badge>
           <Badge variant="outline" className="font-mono text-[10px] text-text-mute">
             semantic true success: {semanticStatus}

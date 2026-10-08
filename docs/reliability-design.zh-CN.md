@@ -42,5 +42,6 @@ Console 将模型输入、决策、动作和观察串起来，便于理解结果
 | --- | --- |
 | 模块如何连接、角色如何转换 | [系统架构](architecture.zh-CN.md) |
 | 记忆、上下文与技能如何组织 | [架构中的记忆与技能](architecture.zh-CN.md#上下文记忆与技能)，再进入专项详设 |
+| 如何从失败和绕路学到可复用知识 | [Skills 自进化](skill-evolution.zh-CN.md) |
 | 关键方案为何这样选择 | [设计取舍](design-decisions.zh-CN.md) |
 | 如何查看一次真实执行 | [Console 指南](observability.zh-CN.md) |

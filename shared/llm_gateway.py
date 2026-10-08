@@ -473,6 +473,11 @@ def _build_completion_kwargs(
         "messages": messages,
         "timeout": GATEWAY_REQUEST_TIMEOUT_S,
     }
+    allowed_params=provider.get('allowed_openai_params')
+    if isinstance(allowed_params,list) and allowed_params and all(isinstance(v,str) for v in allowed_params):
+        # Explicit capabilities also apply to newly named ChatGPT models whose
+        # backend support precedes LiteLLM's static model registry.
+        kwargs['allowed_openai_params']=list(allowed_params)
     if provider.get("stream") is True:
         kwargs["stream"] = True
     # ChatGPT subscription auth/base are owned by LiteLLM OAuth; do not pass
@@ -485,15 +490,6 @@ def _build_completion_kwargs(
         configured_extra_body = provider.get("extra_body")
         if isinstance(configured_extra_body, dict) and configured_extra_body:
             kwargs["extra_body"] = dict(configured_extra_body)
-        allowed_params = provider.get("allowed_openai_params")
-        if (
-            isinstance(allowed_params, list)
-            and allowed_params
-            and all(isinstance(param, str) for param in allowed_params)
-        ):
-            # Explicit per-model capability override for compatible relay aliases
-            # missing from LiteLLM's model registry. Keep strict defaults elsewhere.
-            kwargs["allowed_openai_params"] = list(allowed_params)
         if max_output_tokens is not None:
             kwargs["max_tokens"] = int(max_output_tokens)
         elif "max_tokens" in provider and provider["max_tokens"]:
@@ -521,7 +517,7 @@ def _build_completion_kwargs(
     # providers. ChatGPT subscription is the sole exception: Codex expects its
     # own client identity, so we omit ClickClick's forced browser UA.
     if not chatgpt:
-        ua = settings.gateway_user_agent or DEFAULT_GATEWAY_USER_AGENT
+        ua = provider.get("user_agent") or settings.gateway_user_agent or DEFAULT_GATEWAY_USER_AGENT
         kwargs["extra_headers"] = {"User-Agent": ua}
     return kwargs
 
@@ -677,6 +673,13 @@ async def complete(
     # Lazy import so unit tests can mock the gateway without importing litellm.
     import litellm  # type: ignore[import-not-found]
 
+    if _is_chatgpt_subscription_provider(model,s) and s.provider_for(model).get('api_mode')=='responses':
+        # Explicit per-model metadata is needed when a newer subscription model
+        # is absent from LiteLLM's bundled registry. Keep the backend model name.
+        litellm.register_model({model:{'litellm_provider':'chatgpt','mode':'responses',
+            'supports_function_calling':True,
+            'supports_reasoning':bool(s.provider_for(model).get('reasoning_supported'))}})
+
     last_exc: Exception | None = None
     retry_cap = GATEWAY_MAX_RETRIES if max_retries is None else max(0, int(max_retries))
     streaming = kwargs.get("stream") is True
@@ -708,6 +711,10 @@ async def complete(
                     attempt=attempt + 1,
                     allow_reasoning_content=bool(
                         effective_reasoning and effective_reasoning.summary
+                    ),
+                    recover_responses_terminal=(
+                        _is_chatgpt_subscription_provider(model, s)
+                        and s.provider_for(model).get("api_mode") == "responses"
                     ),
                 )
             latency_ms = (time.monotonic() - t0) * 1000.0
@@ -785,12 +792,51 @@ async def _notify_stream(sink: StreamSink | None, payload: dict[str, Any]) -> No
         return
 
 
+def _completed_responses_payload(stream: Any) -> Any:
+    """Find LiteLLM's retained terminal event through its known stream wrappers.
+
+    ChatGPT may emit arguments only in done/completed events. Its chat bridge
+    currently forwards only deltas, but retains the original completed response.
+    No transport hooks, global patches or additional request are needed.
+    """
+    seen: set[int] = set()
+    for _ in range(6):
+        if stream is None or id(stream) in seen:
+            return None
+        seen.add(id(stream))
+        payload = _value(_value(stream, "completed_response"), "response")
+        if _value(payload, "status") == "completed":
+            return payload
+        stream = next((value for key in ("_stream", "completion_stream", "streaming_response")
+                       if (value := _value(stream, key)) is not None), None)
+    return None
+
+
+def _completed_function_calls(payload: Any) -> list[dict[str, Any]] | None:
+    output = _value(payload, "output")
+    if not isinstance(output, list) or any(_value(item, "type") == "custom_tool_call" for item in output):
+        return None  # Leave other response shapes on their existing adapter path.
+    calls: list[dict[str, Any]] = []
+    ids: set[str] = set()
+    for item in output:
+        if _value(item, "type") != "function_call":
+            continue
+        call_id, name, arguments = (_value(item, key) for key in ("call_id", "name", "arguments"))
+        if (not isinstance(call_id, str) or not call_id or call_id in ids
+                or not isinstance(name, str) or not name or not isinstance(arguments, str)):
+            raise GatewayError("Invalid completed Responses function-call payload", category="config")
+        ids.add(call_id)
+        calls.append({"id":call_id, "type":"function", "function":{"name":name, "arguments":arguments}})
+    return calls
+
+
 async def _aggregate_stream(
     response: Any,
     *,
     stream_sink: StreamSink | None,
     attempt: int,
     allow_reasoning_content: bool,
+    recover_responses_terminal: bool = False,
 ) -> Any:
     """Consume LiteLLM chunks into a normal response without leaking tool args."""
     if not hasattr(response, "__aiter__"):
@@ -868,6 +914,18 @@ async def _aggregate_stream(
             if item["name"]
         ],
     }
+    if recover_responses_terminal:
+        payload = _completed_responses_payload(response)
+        if payload is not None:
+            completed_calls = _completed_function_calls(payload)
+            if completed_calls:
+                # Empty terminal output is also a valid backend shape: in that
+                # case the earlier deltas remain the evidence for emitted calls.
+                # Complete argument strings replace, never concatenate with,
+                # streamed fragments. Match native call IDs, not output indices.
+                message["tool_calls"] = completed_calls
+            if _value(payload, "usage") is not None:
+                usage = _value(payload, "usage")
     if summary_parts:
         message["reasoning_summary"] = "".join(summary_parts)
     aggregate = {

@@ -31,6 +31,7 @@ from evaluation.mobileworld.long_run_health import (
 )
 from evaluation.mobileworld.recording import EpisodeRecorder
 from evaluation.mobileworld.fixture_context import prepare_fixture_context, fixture_prompt_context
+from evaluation.mobileworld.photo_picker_health import prepare_photo_picker
 from evaluation.mobileworld.recovery import audited_episode, phase
 from shared.artifacts import ArtifactStore
 from shared.config import get_settings
@@ -109,7 +110,7 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
     limits = episode_budgets(args.max_steps, args.max_model_calls, args.max_seconds)
     data_dir = Path(args.data_dir).resolve()
     data_dir.mkdir(parents=True, exist_ok=True)
-    settings = get_settings().model_copy(
+    settings = (getattr(args, "runtime_settings", None) or get_settings()).model_copy(
         update={
             "data_dir": data_dir,
             "default_model": args.model,
@@ -200,7 +201,7 @@ def main() -> None:
     parser.add_argument("--backend", default="http://127.0.0.1:6800")
     parser.add_argument("--environment-device", default="emulator-5554")
     parser.add_argument("--target", default="127.0.0.1:5556")
-    parser.add_argument("--expected-device-serial", default="")
+    parser.add_argument("--expected-device-serial", default="EMULATOR36X2X12X0")
     parser.add_argument("--container", default="mobile_world_env_0")
     parser.add_argument("--model", default="chatgpt/gpt-5.6-sol")
     parser.add_argument("--max-round", "--max-steps", dest="max_steps", type=int, default=50)
@@ -254,6 +255,10 @@ def _execute_episode(args: argparse.Namespace, limits: dict) -> None:
         initialization_check["readiness_fix"] = readiness_fix
         initialization_check["asset_access"] = inspect_task_asset_access(target, list(metadata.get("apps") or []))
         initialization_check["ready"] &= initialization_check["asset_access"]["ready"]
+        initialization_check["photo_picker"] = prepare_photo_picker(
+            target, list(metadata.get("apps") or []),
+        )
+        initialization_check["ready"] &= initialization_check["photo_picker"]["ready"]
         fixture_context = prepare_fixture_context(
             target, list(metadata.get("apps") or []), Path(args.data_dir),
         )
@@ -303,6 +308,11 @@ def _execute_episode(args: argparse.Namespace, limits: dict) -> None:
         result["environment_status"] = "ready"
         result["initialization_check"] = session_check
         result["fixture_context"] = fixture_context
+        # Preserve measured runtime costs even if recording/scoring/cleanup
+        # fails. This receipt has no official task outcome.
+        atomic_json(Path(args.data_dir) / "runtime-result.json", {
+            **result, "score": None, "environment_status": "not_scored",
+        })
         # Some official evaluators run `adb root`, restarting adbd and killing
         # attached shell processes. Finalize the complete agent video first.
         # A video failure must still preserve the first official task score.

@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Clipboard } from "lucide-react";
@@ -5,6 +7,7 @@ import { ChevronRight, Clipboard } from "lucide-react";
 import type { AgentLlmRound, AgentToolCall } from "@/api/types";
 import { getArtifactText } from "@/api/client";
 import { cn, formatMs } from "@/lib/utils";
+import { JevTimelineChecks } from "@/components/JevChecksPanel";
 import {
   agentFoldKey,
   buildAgentCallRows,
@@ -60,6 +63,7 @@ function FoldBlock({
   onSelect?: () => void;
   taskId: string;
 }) {
+  useLocale();
   const artifact = useQuery({
     queryKey: conversationArtifactQueryKey(taskId, refId),
     queryFn: () => getArtifactText(refId!, taskId),
@@ -140,6 +144,7 @@ function InputFoldBlock({
   refId?: string | null;
   taskId: string;
 }) {
+  useLocale();
   const artifact = useQuery({
     queryKey: conversationArtifactQueryKey(taskId, refId),
     queryFn: () => getArtifactText(refId!, taskId),
@@ -234,6 +239,7 @@ export function AgentCallsBlock({
   scopeKey?: string;
   taskId: string;
 } & ConversationVisualSelectionProps) {
+  useLocale();
   const rows = buildAgentCallRows(rounds ?? [], calls ?? []);
   const modelRows = rows.filter((row) => row.kind === "model").map((row) => row.round);
   const invocationId = modelRows[0]?.invocation_id;
@@ -258,8 +264,8 @@ export function AgentCallsBlock({
           const inputKey = agentFoldKey(scopeKey, round, "input");
           const modelVisuals = modelConversationVisuals(scopeKey, round);
           const outputKey = agentFoldKey(scopeKey, round, "output");
-          const diagnosticsKey = agentFoldKey(scopeKey, round, "diagnostics");
           const reasoningKey = `${outputKey}:reasoning`;
+          const reasoningSummary = round.reasoning_summary?.trim();
           const roundCalls = (calls ?? []).filter((call) => (
             call.invocation_id === round.invocation_id
             && call.llm_round_order === round.order
@@ -308,38 +314,15 @@ export function AgentCallsBlock({
                   taskId={taskId}
                 />
               </div>
-              <div className="ml-3">
-                <FoldBlock
-                  foldKey={diagnosticsKey}
-                  label="Round diagnostics"
-                  summary={`${round.message_count ?? "—"} messages · ${round.image_count ?? "—"} images`}
-                  value={{
-                    usage: round.usage,
-                    stable_prefix_hash: round.stable_prefix_hash || null,
-                    tool_catalog_hash: round.tool_catalog_hash || null,
-                    stop_reason: round.stop_reason,
-                  }}
-                  open={conversationFoldOpen(folds, diagnosticsKey)}
-                  setOpen={setOpen}
-                  taskId={taskId}
-                />
-              </div>
-              {round.reasoning_status && round.reasoning_status !== "not_requested" && (
+              {reasoningSummary && (
                 <div className="relative border-l-2 border-amber/40 pl-3">
                   <span className="absolute -left-[5px] top-3 h-2 w-2 rounded-full bg-amber" />
                   <FoldBlock
                     foldKey={reasoningKey}
-                    label="Reasoning diagnostic"
-                    summary={`${round.reasoning_status || "supported"}${round.reasoning_effort ? ` · ${round.reasoning_effort}` : ""}`}
-                    value={{
-                      diagnostic_only: true,
-                      status: round.reasoning_status,
-                      effort: round.reasoning_effort,
-                      summary_preference: round.reasoning_summary_preference,
-                      summary: round.reasoning_summary,
-                      reasoning_tokens: round.usage?.reasoning_tokens ?? null,
-                    }}
-                    open={conversationFoldOpen(folds, reasoningKey)}
+                    label={t("Thinking · 接口摘要")}
+                    summary={reasoningSummary}
+                    value={t("接口返回的思考摘要（{value0}）；仅展示已返回内容。\n\n{value1}", { value0: round.reasoning_summary_preference || t("未指定长度"), value1: reasoningSummary })}
+                    open={conversationFoldOpen(folds, reasoningKey, isLatestOutput)}
                     setOpen={setOpen}
                     taskId={taskId}
                   />
@@ -389,6 +372,11 @@ export function AgentCallsBlock({
           </div>
         );
       })}
+      {(calls ?? []).some((call) => call.name === "save_summary") &&
+        <JevTimelineChecks taskId={taskId}
+          completionKey={(calls ?? []).filter((call) => call.name === "save_summary")
+            .map((call) => `${call.invocation_id}:${call.call_id}:${call.status}`).join("|")}
+          invocationIds={[...new Set(modelRows.map((round) => round.invocation_id))]} />}
     </section>
   );
 }

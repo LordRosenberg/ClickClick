@@ -15,9 +15,11 @@ from perception.input_evidence import build_interaction_state, editability_evide
 from perception.observation import ObservationPackage
 from perception.observation import has_model_visible_tree_content
 from shared.schemas import CanonicalUI, UIElement
+from agent.tree_text_runs import encode_text_runs
 
 INTERACTION_ACK_MODEL_VISIBLE_ENV = "CLICKCLICK_INTERACTION_ACK_MODEL_VISIBLE"
 SURFACE_BOUNDS_ENV = "CLICKCLICK_SURFACE_BOUNDS_ENABLED"
+TEXT_RUNS_ENV = "CLICKCLICK_TEXT_RUNS_ENABLED"
 
 
 def _json(value: Any) -> str:
@@ -301,8 +303,17 @@ def render_role_tree(
     include_action_indexes: bool,
     projected_focused_editable_identity: str = "",
     image_bounds_by_identity: dict[int, list[int]] | None = None,
+    compact_text_runs: bool = False,
 ) -> str:
     """Render the shared, locator-aware role Tree grammar."""
+    elements = list(elements)
+    parents: dict[int, list[tuple[int, int]]] = {}
+    if compact_text_runs:
+        for parent, element in enumerate(elements):
+            for position, child in enumerate(element.children):
+                if 0 <= child < len(elements):
+                    parents.setdefault(id(elements[child]), []).append((parent, position))
+    rows = []
     lines: list[str] = []
     for depth, element in _projected_tree_rows(
         elements,
@@ -346,7 +357,20 @@ def render_role_tree(
         if element.window_wrapper and element.window_type is not None:
             fields.append(f"window_type={element.window_type}")
         lines.append(" | ".join(fields))
-    return "\n".join(lines)
+        if compact_text_runs:
+            links = parents.get(id(element), [])
+            eligible = (
+                len(links) == 1 and not element.children and element.index < 0
+                and not element.interactable and not element.clickable
+                # Enabled is capture metadata, absent from the existing Tree
+                # grammar; interactive/semantic states still block grouping.
+                and not any(value for name, value in element.states.items() if name != "enabled")
+                and not element.window_wrapper
+                and not element.desc and not element.hint and image_bounds is None
+            )
+            sibling = (*links[0], element.window_id, element.display_id) if eligible else None
+            rows.append((lines[-1], sibling))
+    return encode_text_runs(rows) if compact_text_runs else "\n".join(lines)
 
 
 def semantic_tree_projection(
@@ -612,6 +636,7 @@ def render_executor_observation_v2(
             _coordinate_surface_image_bounds(package, current_elements)
             if include_surface_bounds else None
         ),
+        compact_text_runs=os.getenv(TEXT_RUNS_ENV, "0").strip().lower() in {"1", "true", "yes", "on"},
     )
     return (
         "CURRENT OBSERVATION:\n" + _json(metadata)

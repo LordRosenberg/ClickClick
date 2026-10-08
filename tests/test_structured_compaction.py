@@ -80,8 +80,7 @@ def test_note_eviction_restores_summary_for_every_role(memory):
     assert reloaded.revisable.summary == state.revisable.summary
 
 
-@pytest.mark.parametrize("attempts", [False, True])
-async def test_real_compaction_contract_preserves_tail_notes_and_full_previous_summary(memory, monkeypatch, attempts):
+async def test_real_compaction_contract_preserves_tail_notes_and_full_previous_summary(memory, monkeypatch):
     store, state = memory
     text = "Atlas: 27.4 units, candidate only"
     save_note(store, WriteNote(note_key="value", content=text, retained=text,
@@ -96,8 +95,7 @@ async def test_real_compaction_contract_preserves_tail_notes_and_full_previous_s
         calls.append(payload)
         schema = kwargs["tools"][0]["function"]["parameters"]
         assert "unresolved" not in schema["properties"]
-        assert set(schema["properties"]) == {"results", "decisions_and_attempts", "critical_context"} | (
-            {"attempt_updates"} if attempts else set())
+        assert set(schema["properties"]) == {"results", "decisions_and_attempts", "critical_context"}
         assert "Do not duplicate retained notes in the narrative summary" not in str(messages)
         assert "instead of relying on the narrative summary to carry them" not in str(messages)
         if len(calls) == 2:
@@ -116,8 +114,7 @@ async def test_real_compaction_contract_preserves_tail_notes_and_full_previous_s
                 refs.append(state.revisable.dialogue_refs[-1])
         expected_tail = store.read_dialogue(refs[-4:])
         restored = await restore_dialogue(store, state, model="test",
-            settings=Settings(_env_file=None, executor_context_tokens=1,
-                              compaction_attempt_notes=attempts),
+            settings=Settings(_env_file=None, executor_context_tokens=1),
             meter=None, event_sink=None)
         assert restored[-4:] == expected_tail
         assert state.revisable.dialogue_refs == refs[-4:]

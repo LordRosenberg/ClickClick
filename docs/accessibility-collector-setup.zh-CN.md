@@ -74,12 +74,8 @@ clickclick-driver
 # or: python -m driver.main
 ```
 
-## 实时镜像
+## 任务观测与 Console 截图
 
-Console Live 使用仓库固定的独立 **scrcpy-server** jar（`driver/vendor/scrcpy-server-v3.3.1.jar`，版本固定在 `driver/scrcpy_mirror.py`），开启 `raw_stream=true`：
+driver 通过 `driver/scrcpy_stream.py` 管理独立 scrcpy-server 传输，PyAV 解码任务画面；远程 Hub 通过 `/rpc` 返回任务观测。Console 只读取已保存的截图文件，没有视频流、浏览器解码器或设备采集入口。
 
-- **本地设备**：Control API 在 API 主机推送／转发 jar，将 H.264 传到 `/api/device/mirror/stream`。
-- **远程 Hub**：`clickclick-driver` 提供 `/mirror/stream`，API 向浏览器转发字节；实验室主机必须携带相同 jar。
-- **浏览器**：使用 Chromium WebCodecs（`VideoDecoder`）。Vite 开发代理需要 `ws: true`，仓库已配置。
-
-Agent 画面仍使用 scrcpy／ADB，**不依赖** Console Live。语义树优先使用 Collector，仅在降级时使用新的 `uiautomator dump`。升级步骤见 [driver/vendor/README.md（英文）](../driver/vendor/README.md)。
+Agent 画面使用 scrcpy，失败时走有界 ADB 回退。语义树优先使用 Collector，仅在降级时使用新的 `uiautomator dump`。固定 jar 及升级步骤见 [driver/vendor/README.md（英文）](../driver/vendor/README.md)。

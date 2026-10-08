@@ -11,7 +11,7 @@ import time
 from agent.action_observation import ActionObservationTransaction
 from driver import adb
 from driver.factory import get_driver
-from driver.scrcpy_mirror import REGISTRY
+from driver.scrcpy_stream import REGISTRY
 from perception.observation import ObservationBuilder
 from shared.config import get_settings
 from shared.schemas import Action

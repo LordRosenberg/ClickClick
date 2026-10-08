@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { Route } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +14,7 @@ export function PlannerPanel({
   selectedVisualKey,
   onSelectVisual,
 }: { tick: PlannerTick; taskId: string } & ConversationVisualSelectionProps) {
+  useLocale();
   const currentPlan = tick.plan;
   return (
     <Card className="border-border bg-bg-1">
@@ -32,13 +35,13 @@ export function PlannerPanel({
 
         {currentPlan?.current_stage && (
           <div className="space-y-2">
-            <p>当前目标：{currentPlan.current_stage.goal}</p>
+            <p>{t("当前目标：")}{currentPlan.current_stage.goal}</p>
             {!!currentPlan.current_stage.skill_ids?.length && (
-              <p className="text-text-mute">阶段技能：{currentPlan.current_stage.skill_ids.join("、")}</p>
+              <p className="text-text-mute">{t("阶段技能：")}{currentPlan.current_stage.skill_ids.join("、")}</p>
             )}
             {currentPlan.assumption_roadmap.length > 0 && (
               <div className="text-text-mute">
-                <p>后续设想（待验证，将随执行反馈更新）</p>
+                <p>{t("后续设想（待验证，将随执行反馈更新）")}</p>
                 <ul>{currentPlan.assumption_roadmap.map((goal, i) => <li key={i}>{goal}</li>)}</ul>
               </div>
             )}

@@ -42,5 +42,6 @@ Traceable sources do not guarantee correct interpretation, successful input does
 | --- | --- |
 | How do modules connect and roles transition? | [System architecture](architecture.md) |
 | How are memory, context and skills organized? | [The architecture's memory and skills section](architecture.md#context-memory-and-skills), with links to subsystem designs |
+| How can failures and detours become reusable guidance? | [Skill self-improvement](skill-evolution.md) |
 | Why were particular approaches chosen? | [Design decisions](design-decisions.md) |
 | How can an execution be inspected? | [Console guide](observability.md) |

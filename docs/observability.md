@@ -17,7 +17,7 @@ Source: [trace writer](../agent/traces.py), [task store](../agent/revisable/stor
 
 Open a task and select **Timeline**. Pick a role invocation and expand its input, output and tool records. Check the supplied instruction, context and returned decision before attributing a failure to the model. Only provider-returned output or reasoning summaries are available; hidden internal reasoning is not reconstructed.
 
-Inspect **active skills** to verify delivered IDs and versions. Open the observation and select a conversation image when comparing what a particular call saw. The mirror's **Frame** mode displays selected historical visual evidence; **Live** displays the device now. They answer different questions and should not be compared as if captured simultaneously.
+Inspect **active skills** to verify delivered IDs and versions. Open the observation and select a conversation image when comparing what a particular call saw. The observation screenshot panel displays saved visual evidence from the selected call or model round. Following latest tracks new task records; the displayed image is historical and does not prove the current device state.
 
 Use **Trace 流** for errors, cancellation and diagnostic events. Not every capture or compression field has a dedicated UI chart: deeper inspection uses the associated artifact or an offline query. A task marked **运行时完成** means the runtime accepted a completion decision. It does not independently establish that every business field is correct.
 
@@ -43,7 +43,7 @@ Provider call counts and input volume help compare resource demand when billing 
 | Repeated tap or scroll | Compare observation IDs, targets and resulting content. The same coordinates can act on different records or reveal new rows. |
 | Repeated replan/review | Inspect stage changes and evidence available to each call. Determine whether a new fact appeared or the same question was repeated. |
 | Expensive history | Inspect actual request sections, retrieved history, image sends and compaction events. A shorter summary does not by itself imply fewer total calls or lower cost. |
-| UI and action mismatch | Use Frame to see the screenshot supplied to the model, compare the action target and result, then check Trace 流 for capture failures or retries. Live shows the screen now, so it cannot reconstruct what the model saw earlier. |
+| UI and action mismatch | Select the saved observation or model image, compare the matching action target and result, then check Trace 流 for capture failures or retries. Use the recorded step/time to identify the evidence. |
 
 The general method is to separate model choice, tool validation, actual dispatch, observed effect and saved task result. This supports diagnosis; it does not automatically classify every error or prove causal explanations.
 

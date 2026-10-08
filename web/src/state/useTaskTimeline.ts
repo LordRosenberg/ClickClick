@@ -5,10 +5,11 @@ import { openTaskStream } from "@/api/sse";
 import type { ExecutorTick, LoopTick, PlannerTick, ReviewerTick, Step, TaskTimeline, TraceEvent, } from "@/api/types";
 import { resolveRoleCalls, upsertLiveRoleEvent, upsertRoleCall, } from "@/lib/expandRoleCalls";
 import { observationFromTracePayload, observationRoleWins, reconcileObservation, } from "@/lib/observationReplay";
+import { taskIsActive, taskIsNonterminal } from "@/lib/taskLifecycle";
 const timelineKey = (id: string) => ["timeline", id] as const;
 const taskKey = (id: string) => ["task", id] as const;
 function isRunning(status?: string): boolean {
-    return status === "running" || status === "queued";
+    return taskIsActive(status);
 }
 function findOrCreateStep(steps: Step[], seq: number | null | undefined): Step {
     const key = seq ?? null;
@@ -58,9 +59,14 @@ export function useTaskTimeline(taskId: string | undefined) {
             const data = query.state.data as {
                 status?: string;
             } | undefined;
-            return data && isRunning(data.status) ? 2000 : false;
+            return data && taskIsNonterminal(data.status) ? (data.status === "paused" ? 5000 : 2000) : false;
         },
     });
+    useEffect(() => {
+        if (taskId && task.data?.status) {
+            qc.invalidateQueries({ queryKey: timelineKey(taskId) });
+        }
+    }, [taskId, task.data?.status, qc]);
     useEffect(() => {
         if (!taskId)
             return;

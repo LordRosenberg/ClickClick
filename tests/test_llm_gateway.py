@@ -95,6 +95,20 @@ def _install_fake_litellm(monkeypatch, *, responses=None, exc=None):
 def _settings(**kw) -> Settings:
     return Settings(**kw)  # type: ignore[arg-type]
 
+async def test_new_chatgpt_model_explicit_responses_metadata_preserves_backend_name(monkeypatch,tmp_path):
+    calls=_install_fake_litellm(monkeypatch)
+    registrations=[]
+    sys.modules['litellm'].register_model=lambda values:registrations.append(values)
+    settings=Settings(_env_file=None,chatgpt_token_dir=str(tmp_path),models_json=json.dumps({
+        'chatgpt/gpt-6.1-sol':{'provider':'chatgpt','api_mode':'responses','allowed_openai_params':['reasoning_effort'],
+            'reasoning_supported':True,'reasoning':{'effort':'high'},'api_key':'must-not-send','max_tokens':1024}}))
+    await complete('chatgpt/gpt-6.1-sol',[{'role':'user','content':'hi'}],settings=settings)
+    assert registrations==[{'chatgpt/gpt-6.1-sol':{'litellm_provider':'chatgpt','mode':'responses',
+        'supports_function_calling':True,'supports_reasoning':True}}]
+    assert calls[0]['model']=='chatgpt/gpt-6.1-sol' and calls[0]['reasoning_effort']=='high'
+    assert calls[0]['allowed_openai_params']==['reasoning_effort']
+    assert not {'api_key','api_base','max_tokens','extra_headers'}&calls[0].keys()
+
 
 # ---------------------------------------------------------------------------
 # Tests
@@ -944,3 +958,48 @@ async def test_non_streaming_model_ignores_stream_callback(monkeypatch):
     assert "stream" not in calls[0]
     assert result.content == "ok"
     assert updates == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fragments", [False, True])
+async def test_responses_terminal_arguments_recover_parallel_calls_without_duplicate_fragments(fragments):
+    from shared.llm_gateway import _aggregate_stream, _build_response
+    complete_args = ['{"source":"source/event:4@1"}', '{"source":"source/observation:frame@2","include_image":true}']
+    terminal = {"status":"completed", "output":[{"type":"reasoning"}, *[
+        {"type":"function_call", "call_id":f"native_{i}", "name":"read_review_evidence", "arguments":args}
+        for i,args in enumerate(complete_args)]], "usage":{"input_tokens":120, "output_tokens":25, "total_tokens":145}}
+    chunks = [{"choices":[{"delta":{"tool_calls":[
+        {"index":i,"id":f"native_{i}","function":{"name":"read_review_evidence", "arguments":args[:10] if fragments else ""}}
+        for i,args in enumerate(complete_args)]}}]}]
+    if fragments:
+        chunks.append({"choices":[{"delta":{"tool_calls":[{"index":i,"function":{"arguments":args[10:]}} for i,args in enumerate(complete_args)]}}]})
+    chunks.append({"choices":[{"delta":{},"finish_reason":"tool_calls"}]})
+    stream = _FakeStream(chunks)
+    stream._stream = types.SimpleNamespace(completion_stream=types.SimpleNamespace(streaming_response=types.SimpleNamespace(completed_response=types.SimpleNamespace(response=terminal))))
+    updates=[]
+    raw=await _aggregate_stream(stream,stream_sink=updates.append,attempt=1,allow_reasoning_content=False,recover_responses_terminal=True)
+    result=_build_response(raw,"chatgpt/test",None,1,reasoning=(None,False))
+    assert [(t.id,t.arguments) for t in result.tool_calls] == [(f"native_{i}",args) for i,args in enumerate(complete_args)]
+    assert result.usage["input_tokens"]==120 and result.usage["output_tokens"]==25
+    assert updates[-1]["tool_call_count"]==2 and "arguments" not in str(updates)
+
+
+@pytest.mark.asyncio
+async def test_incomplete_responses_terminal_does_not_upgrade_partial_arguments():
+    from shared.llm_gateway import _aggregate_stream
+    stream=_FakeStream([{"choices":[{"delta":{"tool_calls":[{"index":0,"id":"native","function":{"name":"read","arguments":"{partial"}}]},"finish_reason":"length"}]}])
+    stream.completed_response=types.SimpleNamespace(response={"status":"incomplete","output":[{"type":"function_call","call_id":"native","name":"read","arguments":"{made_up_completion}"}]})
+    raw=await _aggregate_stream(stream,stream_sink=None,attempt=1,allow_reasoning_content=False,recover_responses_terminal=True)
+    assert raw["choices"][0]["message"]["tool_calls"][0]["function"]["arguments"]=="{partial"
+    assert raw["choices"][0]["finish_reason"]=="length"
+
+
+@pytest.mark.asyncio
+async def test_empty_completed_output_keeps_native_streamed_call():
+    from shared.llm_gateway import _aggregate_stream
+    stream=_FakeStream([
+        {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"native_call","function":{"name":"read_review_evidence","arguments":""}}]}}]},
+        {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":'{"source":"native/event:4@1"}'}}]},"finish_reason":"stop"}]}])
+    stream.completed_response=types.SimpleNamespace(response={"status":"completed","output":[]})
+    raw=await _aggregate_stream(stream,stream_sink=None,attempt=1,allow_reasoning_content=False,recover_responses_terminal=True)
+    assert raw["choices"][0]["message"]["tool_calls"]==[{"id":"native_call","type":"function","function":{"name":"read_review_evidence","arguments":'{"source":"native/event:4@1"}'}}]

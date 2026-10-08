@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Any, Literal, TypeVar
 
-from pydantic import Field
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 JsonContainer = TypeVar("JsonContainer", dict, list)
@@ -48,20 +48,53 @@ class Settings(BaseSettings):
     Runtime policies and algorithm thresholds intentionally do not live here:
     once a rule is established, its owning module provides the canonical
     default.  This keeps environment configuration focused on values an
-    operator may legitimately need to change between deployments.
+    operator may legitimately need to change between deployments. The opt-in
+    Jev experiment exposes its frozen historical-replay profile explicitly.
     """
 
     model_config = SettingsConfigDict(env_prefix="CLICKCLICK_", env_file=".env", extra="ignore")
 
     agent_architecture: Literal["plan_reviewer", "plan_executor"] = "plan_executor"
     executor_context_tokens: int = Field(default=16000, ge=1)
-    compaction_attempt_notes: bool = False
+    # Opt-in text-fidelity harness; credentials are never part of model input.
+    jev_mode: Literal["off", "shadow", "enforce"] = "off"
+    # Experimental model-facing metadata; admission and checking are unchanged.
+    jev_status_context: bool = False
+    jev_allow_external: bool = False
+    jev_api_key: SecretStr = Field(default="", repr=False, validation_alias=AliasChoices(
+        "CLICKCLICK_JEV_API_KEY", "TYPESAFE_API_KEY", "jev_api_key"))
+    jev_base_url: str = "https://api.typesafe.ai"
+    jev_model: str = "jev-1.13.0"
+    jev_check_strategy: Literal['relation','facets'] = 'facets'
+    jev_fidelity_reject_threshold: float = Field(default=.88,ge=0,le=1)
+    jev_whole_reject_threshold: float = Field(default=.95,ge=0,le=1)
+    jev_detail_reject_threshold: float = Field(default=.74,ge=0,le=1)
+    jev_failure_policy: Literal['bypass', 'rollback'] = 'bypass'
+    jev_failure_cooldown_s: float = Field(default=60.0, gt=0, le=3600)
+    # Frozen isolated profile; see docs/jev-final-harness-20261002.md.
+    jev_support_threshold: float = Field(default=0.6, ge=0, le=1)
+    jev_reject_threshold: float = Field(default=1.0, ge=0, le=1)
+    jev_issue_threshold: float = Field(default=0.85, ge=0, le=1)
+    jev_timeout_s: float = Field(default=8.0, gt=0, le=60)
+    jev_compaction_timeout_s: float = Field(default=90.0, gt=0, le=600)
+    jev_max_source_chars: int = Field(default=160000, ge=1, le=500000)
+    jev_max_state_tokens: int = Field(default=28000, ge=1, le=30000)
+    jev_max_request_tokens: int = Field(default=56000, ge=1, le=60000)
     chatgpt_history_tokens: int | None = Field(default=None, ge=1)
+    default_task_model_calls: int | None = Field(default=None, ge=1, le=200)
+    default_task_device_actions: int | None = Field(default=None, ge=1, le=10000)
+    default_task_seconds: int | None = Field(default=None, ge=1, le=86400)
+    learning_default_calls: int = Field(default=24, ge=12, le=64)
+    learning_default_actions: int = Field(default=30, ge=1, le=100)
+    learning_default_seconds: int = Field(default=900, ge=30, le=1800)
 
     # Storage and process bindings.
     data_dir: Path = Path("./data")
     api_host: str = "127.0.0.1"
     api_port: int = 8080
+    # Explicit opt-in; source deployments do not need the MCP SDK by default.
+    mcp_http_enabled: bool = False
+    mcp_http_port: int = Field(default=8081, ge=1, le=65535)
     console_run_roots: str = ""
     # Optional TLS for the console. Both must be set to enable HTTPS.
     # LAN access over plain http:// is NOT a secure context, so browser
@@ -76,10 +109,12 @@ class Settings(BaseSettings):
     use_fixture_driver: bool = False
 
     # Model routing and credentials.
-    default_model: str = "openai/MiniMax-M3"
+    default_model: str = "openai/gpt-5.6-sol"
     manager_model: str = ""
     executor_model: str = ""
     skill_learner_model: str = ""
+    skill_reviewer_model: str = ""
+    skill_learning_mode: Literal["legacy", "task_explore"] = "legacy"
     models_json: str = ""
     gateway_user_agent: str = ""
     # Empty → LiteLLM default (~/.config/litellm/chatgpt). When set, exported

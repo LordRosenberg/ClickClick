@@ -4,6 +4,8 @@
 
 Skill 保存可复用的应用操作知识。用户仍然用自然语言描述目标；Agent 根据任务选择适用内容，不要求用户指定 Skill ID 或按照 Skill 的结构提问。
 
+本文介绍技能格式、编写与运行时交付。从真实任务自动提炼候选、独立审查和验证的设计见[Skills 自进化](../docs/skill-evolution.zh-CN.md)；学习需要显式研究入口，候选不会自动发布。
+
 <a id="when-to-add-a-skill"></a>
 ## 什么时候需要补充 Skill？
 

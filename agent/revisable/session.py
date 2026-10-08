@@ -53,7 +53,7 @@ def executor_submission_schema():
     return schema
 
 
-def terminal_registry(session, schema, name, description, handler):
+def terminal_registry(session, schema, name, description, handler, *, timeout_ms=10000):
     registry = AgentToolRegistry()
     legacy = session._build_registry({})
     for spec in legacy.specs_for_role(session.role):
@@ -84,6 +84,7 @@ def terminal_registry(session, schema, name, description, handler):
             name=name,
             description=description,
             category=ToolCategory.TERMINAL,
+            timeout_ms=timeout_ms,
             roles=(AgentRole(session.role),),
             parameters=tool_schema(schema),
         ),

@@ -30,6 +30,8 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 from zipfile import ZipFile
 
+from driver.processes import background_process_kwargs
+
 # uiautomator dump writes to a path on the device, then we pull it.
 # This is a prefix only; each attempt gets an isolated, unguessable path.
 _DEVICE_DUMP_PATH = "/sdcard/clickclick_window_dump.xml"
@@ -394,12 +396,12 @@ def _xml_tag(element: ElementTree.Element) -> str:
     return element.tag.rsplit("}", 1)[-1]
 
 
-def _platform_tools_archive() -> tuple[str, str]:
+def _platform_tools_archive(*, host: str | None = None) -> tuple[str, str]:
     """Read the Windows Platform-Tools URL + SHA-1 from Google's repository."""
     request = Request(_ANDROID_REPOSITORY_URL, headers={"User-Agent": "ClickClick/0.1"})
     with urlopen(request, timeout=30) as response:  # noqa: S310 - fixed HTTPS origin
         root = ElementTree.fromstring(response.read())
-    host = "windows" if os.name == "nt" else "linux"
+    host = host or ("windows" if os.name == "nt" else "darwin" if __import__("sys").platform == "darwin" else "linux")
     for package in root.iter():
         if _xml_tag(package) != "remotePackage" or package.attrib.get("path") != "platform-tools":
             continue
@@ -494,6 +496,7 @@ def _run(args: list[str], *, capture_bytes: bool = False, timeout: float = 30.0)
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=timeout,
+            **background_process_kwargs(),
         )
     except FileNotFoundError as exc:
         raise AdbError(f"adb invocation failed: {exc}") from exc
@@ -518,6 +521,7 @@ async def _run_async(args: list[str], *, timeout: float) -> bytes:
             stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            **background_process_kwargs(),
         )
         try:
             stdout, stderr = await asyncio.wait_for(
@@ -564,7 +568,9 @@ async def _terminate_and_reap(proc: asyncio.subprocess.Process) -> None:
 
 def list_device_serials() -> list[str]:
     """Return serials of connected devices in 'device' state."""
-    out = subprocess.check_output([adb_bin(), "devices"], text=True)
+    out = subprocess.check_output(
+        [adb_bin(), "devices"], text=True, **background_process_kwargs()
+    )
     serials: list[str] = []
     for line in out.splitlines()[1:]:
         line = line.strip()

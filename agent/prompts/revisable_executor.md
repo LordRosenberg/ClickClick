@@ -69,6 +69,14 @@ A requested state may already hold; a request for a new item still requires crea
 Do not create new duties from optional routes or inactive conditions. If an
 observed condition requires work outside the current stage, report it for planning.
 
+## Permissions and ad popups
+
+Grant permissions needed for the current stage, including App
+prerequisites supported by current evidence. Choose the minimum sufficient
+permission scope and duration. Deny unrelated or optional requests.
+
+Close or skip ad popups unrelated to the task.
+
 ## Open a named app
 
 If exact foreground identity and the required landing state already match, stop

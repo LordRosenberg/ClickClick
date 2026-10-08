@@ -1,0 +1,41 @@
+name: Build Collector test APK
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - android/accessibility-collector/**
+      - driver/collector_release.py
+      - .github/workflows/collector-build.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collector-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  collector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+      - run: chmod +x gradlew
+        working-directory: android/accessibility-collector
+      - run: ./gradlew testDebugUnitTest assembleDebug
+        working-directory: android/accessibility-collector
+      - name: Record build checksum
+        run: sha256sum android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk > collector-test-apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: collector-test-${{ github.sha }}
+          path: |
+            android/accessibility-collector/app/build/outputs/apk/debug/app-debug.apk
+            collector-test-apk.sha256
+          if-no-files-found: error

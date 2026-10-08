@@ -4,6 +4,8 @@
 
 Skills hold reusable knowledge about operating apps. Users still describe goals in natural language; the agent selects applicable guidance without requiring Skill IDs or a matching prompt format.
 
+This guide covers authoring, format and runtime delivery. See [Skill self-improvement](../docs/skill-evolution.md) for extraction from real tasks, independent review and validation. Learning requires an explicit research entry point and does not automatically publish candidates.
+
 <a id="when-to-add-a-skill"></a>
 ## When should you add a Skill?
 

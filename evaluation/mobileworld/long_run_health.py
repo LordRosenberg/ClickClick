@@ -60,7 +60,7 @@ class FullRestartRequired(RuntimeError):
 class MobileWorldTarget:
     backend: str = "http://127.0.0.1:6800"
     adb_target: str = "127.0.0.1:5556"
-    expected_serial: str = ""
+    expected_serial: str = "EMULATOR36X2X12X0"
     environment_device: str = "emulator-5554"
     container: str = "mobile_world_env_0"
 
@@ -225,6 +225,9 @@ def probe_channels(target: MobileWorldTarget) -> dict[str, Any]:
 def prepare_clickclick_device(target: MobileWorldTarget, collector_apk: Path, ime_apk: Path) -> dict[str, Any]:
     script = Path(__file__).with_name("prepare_device.py")
     python = Path(__file__).parents[2] / ".venv" / "Scripts" / "python.exe"
+    if not python.is_file():
+        import sys
+        python = Path(sys.executable)
     output = _run([
         str(python), str(script), "--target", target.adb_target,
         "--expected-device-serial", target.expected_serial,

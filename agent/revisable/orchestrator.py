@@ -5,6 +5,7 @@ import time
 from functools import partial
 
 from agent.orchestrator import Orchestrator
+from agent.pause import TaskPauseRequested
 from agent.revisable.store import TaskStore
 from agent.tool_registry import stable_hash
 from driver.observation_deadline import ObservationStageError
@@ -30,7 +31,7 @@ class PlanOrchestrator(Orchestrator):
         remaining = {
             "device_actions": None if limits.device_actions is None else max(0, limits.device_actions - runtime.execution_count),
             "executor_decisions": None if self.max_steps is None else max(0, self.max_steps - state.step_number),
-            "model_calls": None if self.max_role_invocations is None else max(0, self.max_role_invocations - state.role_invocation_count),
+            "model_calls": None if self._model_call_limit(state) is None else max(0, self._model_call_limit(state) - state.role_invocation_count),
             "seconds": None if limits.deadline_at is None else max(0, int(limits.deadline_at - time.time())),
         }
         if limits.prediction_rounds is not None:
@@ -52,6 +53,8 @@ class PlanOrchestrator(Orchestrator):
         def check_and_record(kind, payload):
             if self.is_cancel_requested(task_id) or state.revisable.limits.expired():
                 raise asyncio.CancelledError
+            if self.is_pause_requested(task_id):
+                raise TaskPauseRequested
             record(kind, payload)
 
         return check_and_record
@@ -70,13 +73,17 @@ class PlanOrchestrator(Orchestrator):
     ):
         if provider_warm_task is not None:
             await asyncio.gather(provider_warm_task, return_exceptions=True)
+        if self.is_pause_requested(task_id):
+            return self._pause(task_id, state)
         await self._wake_and_unlock()
         # Resolve system scope before inspecting Planner-selected skill IDs.
         # Executor.act_once binds too late for the handoff below.
         await executor._session.bind_device_skills(executor.driver)
         store = TaskStore(self.db, self.artifacts, task_id)
+        store.jev_status_context = self.settings.jev_status_context and self.settings.jev_mode == "enforce"
         store.budget_snapshot = partial(self._remaining_budget, state)
         executor.store = store
+        executor.pause_requested = lambda: self.is_pause_requested(task_id)
         executor.cancel_requested = lambda: (
             self.is_cancel_requested(task_id) or state.revisable.limits.expired()
         )
@@ -89,6 +96,8 @@ class PlanOrchestrator(Orchestrator):
         while True:
             if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
                 return cancelled
+            if self.is_pause_requested(task_id):
+                return self._pause(task_id, state)
             if (runtime.limits.prediction_rounds is not None
                     and runtime.prediction_round_count >= runtime.limits.prediction_rounds):
                 return TaskStatus.RUNNING

@@ -158,6 +158,42 @@ def approve_pending(pending_id: str, *, root: Path | None = None) -> Path:
         raise SkillPathJailError(f"refusing to write into pending/drafts: {dest}")
 
     new_text = (item.path.parent / f"{pending_id}.md").read_text(encoding="utf-8")
+    review_meta = item.meta.get("review") or {}
+    if review_meta.get("experiment") == "task_explore":
+        from agent.skills.learning import Candidate, digest, review_gate, validation_gate
+        if digest(new_text) != review_meta.get("candidate_hash"):
+            raise ValueError("experimental candidate changed since review")
+        current = dest.read_text(encoding="utf-8") if dest.exists() else ""
+        if digest(current) != review_meta.get("base_hash"):
+            raise ValueError("canonical base changed since validation")
+        if not review_gate(review_meta.get("review") or {}):
+            raise ValueError("Skill Reviewer has not passed all six criteria")
+        candidate = Candidate(target=target_rel, new_text=new_text, gist=item.gist,
+            evidence=review_meta.get("evidence") or ["pending"],
+            scope=review_meta.get("scope") or "pending", benefit="reviewed", risks="reviewed")
+        if (review_meta.get("validation") or {}).get("mode") == "source_evidence":
+            candidate = Candidate.model_validate(review_meta.get("candidate_contract") or {})
+            if review_meta["validation"].get("source_task_id") != item.meta.get("source_task_id"):
+                raise ValueError("source-evidence task binding changed")
+            if candidate.target != target_rel or candidate.new_text != new_text:
+                raise ValueError("source-evidence candidate contract changed")
+        manifest = review_meta.get("baseline_manifest")
+        if manifest is not None:
+            from agent.skills.snapshot import library_manifest
+            if library_manifest(lib_root) != manifest:
+                raise ValueError("official library/resources changed since validation")
+        environment = review_meta.get("environment_receipt")
+        if environment and (environment.get("unresolved_effects") or environment.get("status") == "interrupted"):
+            raise ValueError("research environment has unresolved effects")
+        valid, reason = validation_gate(candidate, digest(current), review_meta.get("validation"), baseline_manifest=manifest,
+            review=review_meta.get("review"), contracts_hash=review_meta.get("contracts_hash"))
+        if not valid:
+            raise ValueError(f"experimental validation blocked: {reason}")
+        from agent.skills.exploration import build_review_contracts
+        from shared.config import get_settings
+        contracts = build_review_contracts(new_text, SkillLibrary(lib_root), get_settings())
+        if review_meta.get("contracts_hash") != digest(contracts):
+            raise ValueError("related skills/prompts/schemas changed since review")
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(new_text if new_text.endswith("\n") else new_text + "\n", encoding="utf-8")
 

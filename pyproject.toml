@@ -18,7 +18,6 @@ dependencies = [
   "pydantic>=2.9.0",
   "pydantic-settings>=2.6.0",
   "httpx[socks]>=0.27.0",
-  "websockets>=12.0",
   "cryptography>=43.0.0",
   "pillow>=10.4.0",
   "aiofiles>=24.1.0",
@@ -27,6 +26,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+mcp = ["mcp>=1.30,<2"]
+desktop = ["mcp>=1.30,<2", "av==14.0.1", "tomlkit>=0.13,<1", "pystray>=0.19.5,<0.20", "psutil>=6,<8"]
+jev = [
+  # Separate optional experiment transport; does not require a LiteLLM upgrade.
+  "typesafe-sdk==0.7.2",
+]
 dev = [
   "pytest>=8.3.0",
   "pytest-asyncio>=0.24.0",
@@ -39,13 +44,16 @@ decode = [
 clickclick-driver = "driver.main:main"
 clickclick-agent = "agent.main:main"
 clickclick-api = "control_api.main:main"
+clickclick-mcp = "control_api.mcp:main"
+clickclick = "desktop.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["shared*", "driver*", "agent*", "control_api*", "perception*"]
+include = ["shared*", "driver*", "agent*", "control_api*", "perception*", "desktop*"]
 
 [tool.setuptools.package-data]
 driver = ["vendor/*.jar", "vendor/README.md"]
+desktop = ["assets/*.png"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -3,20 +3,17 @@
 Supports either a single ``DeviceDriver`` (tests / legacy) or a local
 ``DriverPool`` hub so one driver URL can serve many ADB serials.
 
-Also exposes operator-side ``/mirror/stream`` (WebSocket) for Console Live
-relay — independent of ``/rpc`` agent traffic.
+Task observations and actions are served through /rpc.
 """
 
 from __future__ import annotations
 
 import asyncio
 import base64
-import json
-import logging
 import math
 from typing import Any
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from driver.observation_deadline import (
@@ -24,20 +21,9 @@ from driver.observation_deadline import (
     ObservationDeadline,
     ObservationStageError,
 )
-from driver.scrcpy_mirror import (
-    LocalStreamSource,
-    MirrorRegistry,
-    MirrorUnavailableError,
-    is_mirror_server_available,
-)
+from driver.scrcpy_stream import REGISTRY as OBSERVATION_STREAMS
 from shared.protocol import RPC_METHODS, UnsupportedPlatformError
 from shared.schemas import Action
-
-logger = logging.getLogger(__name__)
-
-_WS_CLOSE_TRY_AGAIN = 1013
-_WS_CLOSE_INTERNAL = 1011
-
 
 class RpcBody(BaseModel):
     method: str
@@ -58,13 +44,6 @@ def create_driver_app(
         raise ValueError("create_driver_app requires driver= or pool=")
 
     app = FastAPI(title="ClickClick Driver", version="0.1.0")
-    # Hub-local Live sessions (scrcpy-server on this host's adb). Separate
-    # from agent /rpc so Live does not share the DriverPool action lock.
-    mirror_registry = MirrorRegistry()
-    mirror_registry.set_source_factory(
-        lambda key: LocalStreamSource(serial=key)
-    )
-
     async def _inventory() -> list[dict[str, Any]]:
         if pool is not None:
             return await pool.inventory()
@@ -286,92 +265,11 @@ def create_driver_app(
         except Exception as exc:  # noqa: BLE001
             return {"id": body.id, "error": str(exc)}
 
-    @app.websocket("/mirror/stream")
-    async def hub_mirror_stream(websocket: WebSocket) -> None:
-        """Raw H.264 relay for Control API RemoteStreamSource (operator-only)."""
-        await websocket.accept()
-        serial: str | None = None
-        try:
-            if not is_mirror_server_available():
-                await websocket.send_text(
-                    json.dumps(
-                        {
-                            "type": "error",
-                            "reason": "mirror_unavailable",
-                            "detail": "vendored scrcpy-server jar missing on hub",
-                        }
-                    )
-                )
-                await websocket.close(code=_WS_CLOSE_TRY_AGAIN)
-                return
-            try:
-                hello = await asyncio.wait_for(websocket.receive_text(), timeout=10.0)
-            except asyncio.TimeoutError:
-                await websocket.close(
-                    code=_WS_CLOSE_INTERNAL,
-                    reason=json.dumps({"reason": "hello_timeout"}),
-                )
-                return
-            try:
-                payload = json.loads(hello)
-            except json.JSONDecodeError:
-                payload = {}
-            serial = payload.get("serial") if isinstance(payload, dict) else None
-            if not isinstance(serial, str) or not serial.strip():
-                await websocket.send_text(
-                    json.dumps({"type": "error", "reason": "missing_serial"})
-                )
-                await websocket.close(code=_WS_CLOSE_INTERNAL)
-                return
-            serial = serial.strip()
-            try:
-                session = await mirror_registry.start(serial)
-            except MirrorUnavailableError as exc:
-                await websocket.send_text(
-                    json.dumps(
-                        {
-                            "type": "error",
-                            "reason": "mirror_unavailable",
-                            "detail": str(exc),
-                        }
-                    )
-                )
-                await websocket.close(code=_WS_CLOSE_TRY_AGAIN)
-                return
-            await websocket.send_text(
-                json.dumps(
-                    {
-                        "type": "hello",
-                        "serial": serial,
-                        "codec": "h264",
-                        "codec_string": session.codec_string or "avc1.42E01E",
-                    }
-                )
-            )
-            async for chunk in session.frames():
-                if not chunk:
-                    break
-                await websocket.send_bytes(chunk)
-        except WebSocketDisconnect:
-            pass
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("hub mirror stream error serial=%s: %s", serial, exc)
-            try:
-                await websocket.close(code=_WS_CLOSE_INTERNAL, reason=str(exc)[:120])
-            except Exception:  # noqa: BLE001
-                pass
-        finally:
-            if serial is not None:
-                try:
-                    await mirror_registry.stop(serial)
-                except Exception as exc:  # noqa: BLE001
-                    logger.debug("hub mirror stop error: %s", exc)
-
     @app.on_event("shutdown")
-    async def _shutdown_hub_mirror() -> None:
+    async def _shutdown_observation_resources() -> None:
         from driver.accessibility import CHANNEL_REGISTRY
 
         await CHANNEL_REGISTRY.shutdown()
-        await mirror_registry.shutdown()
+        await OBSERVATION_STREAMS.shutdown()
 
     return app

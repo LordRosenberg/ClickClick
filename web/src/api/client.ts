@@ -2,7 +2,7 @@
 // origin (dev: proxied by Vite; prod: served by the same process via
 // StaticFiles). Artifact refs are fetched as raw text/JSON for the LLM
 // input/output viewers and the semantic-tree renderer.
-import type { DeviceInfo, FailedTask, SkillLinks, SkillSummary, Task, TaskTimeline, TraceEvent, TreeRefPayload, ModelCatalog, ChatGPTStatus, ChatGPTLoginStart, ChatGPTLoginPoll, } from "./types";
+import type { DeviceInfo, FailedTask, SkillLinks, SkillSummary, Task, TaskTimeline, TraceEvent, TreeRefPayload, ModelCatalog } from "./types";
 export const DEFAULT_SKILL_LEARN = false;
 async function getJson<T>(path: string): Promise<T> {
     const res = await fetch(path, { headers: { Accept: "application/json" } });
@@ -41,6 +41,22 @@ export async function getTaskPage(page: number, pageSize: 10 | 20, status?: "fai
 }
 export async function getTask(id: string): Promise<Task> {
     return getJson<Task>(`/api/tasks/${id}`);
+}
+export interface JevCheckEntry {
+    kind: string;
+    key: string;
+    version: number;
+    check_index: number;
+    report_ref: string;
+    io_ref?: string | null;
+    source_steps: number[];
+    invocation_ids?: string[];
+    committed_summary?: string | null;
+    status?: string | null;
+    reason?: string | null;
+}
+export async function getJevChecks(id: string): Promise<{ checks: JevCheckEntry[] }> {
+    return getJson(`/api/tasks/${encodeURIComponent(id)}/jev-checks`);
 }
 export async function getTimeline(id: string): Promise<TaskTimeline> {
     return getJson<TaskTimeline>(`/api/tasks/${id}/timeline`);
@@ -97,15 +113,6 @@ export async function createTask(instruction: string, deviceSerials: string[], o
 export async function getModelCatalog(): Promise<ModelCatalog> {
     return getJson<ModelCatalog>("/api/models");
 }
-export async function getChatGPTStatus(): Promise<ChatGPTStatus> {
-    return getJson<ChatGPTStatus>("/api/chatgpt/status");
-}
-export async function startChatGPTLogin(): Promise<ChatGPTLoginStart> {
-    return sendJson<ChatGPTLoginStart>("/api/chatgpt/login/start", "POST");
-}
-export async function pollChatGPTLogin(): Promise<ChatGPTLoginPoll> {
-    return sendJson<ChatGPTLoginPoll>("/api/chatgpt/login/poll", "POST");
-}
 export type CancelTaskResponse = {
     task_id: string;
     status: string;
@@ -118,21 +125,18 @@ export async function cancelTask(id: string): Promise<CancelTaskResponse> {
         throw new Error(`${res.status} ${await res.text()}`);
     return res.json() as Promise<CancelTaskResponse>;
 }
+export async function pauseTask(id: string): Promise<{ task_id: string; status: string }> {
+    return sendJson(`/api/tasks/${encodeURIComponent(id)}/pause`, "POST");
+}
+export async function resumeTask(id: string): Promise<{ task_id: string; status: string }> {
+    return sendJson(`/api/tasks/${encodeURIComponent(id)}/resume`, "POST");
+}
 export async function listDevices(): Promise<DeviceInfo[]> {
     return getJson<DeviceInfo[]>("/api/devices");
 }
 /** Display label: market_name || model || serial */
 export function deviceLabel(d: Pick<DeviceInfo, "serial" | "model" | "market_name">): string {
     return d.market_name || d.model || d.serial;
-}
-/** ADB serial from a task binding key (strips ``driver_id/`` for remote hubs). */
-export function adbSerialFromKey(key: string | null | undefined): string {
-    if (!key)
-        return "";
-    if (key === "fixture")
-        return key;
-    const i = key.indexOf("/");
-    return i >= 0 ? key.slice(i + 1) : key;
 }
 /** Build an encoded artifact URL, scoped to a task whenever its id is known. */
 export function artifactUrl(ref: string, taskId?: string): string {
@@ -168,17 +172,6 @@ export interface HealthPayload {
 }
 export async function getHealth(): Promise<HealthPayload> {
     return getJson<HealthPayload>("/api/health");
-}
-export async function getScrcpyHint(): Promise<{
-    tool: string;
-    command: string;
-    note: string;
-    /** True when local jar and/or remote hubs can serve Live. */
-    available: boolean;
-    server_jar?: boolean;
-    remote_hubs?: string[];
-}> {
-    return getJson("/api/device/scrcpy");
 }
 export type SkillUpsert = {
     id: string;
@@ -243,6 +236,7 @@ export async function getPendingSkill(id: string): Promise<{
     diff: string;
     new_text: string;
     old_text: string;
+    meta?: Record<string, unknown>;
 }> {
     return getJson(`/api/skills/pending/${encodeURIComponent(id)}`);
 }
@@ -258,12 +252,82 @@ export async function rejectPendingSkill(id: string, reason = ""): Promise<{
         reason,
     });
 }
-export async function learnFromTask(taskId: string): Promise<{
+export type PersonalLearningRequest = {
+    accept_model_cost: boolean;
+    allow_device_operations: boolean;
+    max_calls: number;
+    max_actions: number;
+    max_seconds: number;
+};
+export type LearningPreferences = {
+    local_recording: boolean;
+    contribution_enabled: boolean;
+};
+export function getLearningPreferences(): Promise<LearningPreferences> {
+    return getJson("/api/learning/preferences");
+}
+export function getLearningDefaults(): Promise<{ max_calls: number; max_actions: number; max_seconds: number }> {
+    return getJson("/api/learning/defaults");
+}
+export function updateLearningPreferences(value: LearningPreferences): Promise<LearningPreferences> {
+    return sendJson("/api/learning/preferences", "PUT", value);
+}
+export function getLearningContribution(taskId: string): Promise<Record<string, unknown>> {
+    return getJson(`/api/tasks/${encodeURIComponent(taskId)}/learning-contribution`);
+}
+export async function learnFromTask(taskId: string, request: PersonalLearningRequest): Promise<{
     ok: boolean;
     skipped?: boolean;
     pending_id?: string;
     gist?: string;
     error?: string;
+    reason?: string;
 }> {
-    return sendJson(`/api/tasks/${encodeURIComponent(taskId)}/learn`, "POST", {});
+    return sendJson(`/api/tasks/${encodeURIComponent(taskId)}/learn`, "POST", request);
+}
+
+export interface LearningTraceEntry {
+    ref: string;
+    order: number;
+    role: "learner" | "reviewer";
+    phase: string;
+    status: string;
+    created_at: number;
+    model?: string | null;
+}
+export interface LearningTraceSession {
+    job_id: string;
+    source_task_id: string;
+    origin: string;
+    catalog_ref?: string | null;
+    latest_phase?: string | null;
+    entry_total: number;
+    older_entry_count: number;
+    omitted_entry_count: number;
+    cost: Record<string, unknown> | null;
+    updated_at: number;
+    entries: LearningTraceEntry[];
+    histories: Array<{ namespace: string; task_id: string; available: boolean; status: string | null; data_source: string | null }>;
+}
+export interface LearningTraces {
+    task_id: string;
+    running: boolean;
+    session_total: number;
+    session_offset: number;
+    session_limit: number;
+    result_total: number;
+    result_offset: number;
+    result_limit: number;
+    pending_omitted_count: number;
+    sessions: LearningTraceSession[];
+    pending: Array<{ id: string; status: string; gist: string; target: string; verdict: string | null; review: Record<string, unknown> }>;
+    results: Array<{ ref: string; status: string; reason: string | null; created_at: number; cost: Record<string, unknown> | null }>;
+    notes: string[];
+    policy: string;
+}
+export async function getTaskLearningTraces(id: string, options: {
+    session_offset?: number; result_offset?: number; job_id?: string; entry_before?: number;
+} = {}): Promise<LearningTraces> {
+    const query = new URLSearchParams(Object.entries(options).map(([key, value]) => [key, String(value)]));
+    return getJson(`/api/tasks/${encodeURIComponent(id)}/learning-traces?${query}`);
 }

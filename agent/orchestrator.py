@@ -86,6 +86,51 @@ class Orchestrator:
         self.settings = settings
         self.observation_builder = ObservationBuilder()
         self.cancel_registry = CancelRegistry()
+        self._device_lock = asyncio.Lock()
+        self._learning_jobs: set[str] = set()
+        self._pause_requested: set[str] = set()
+
+    def request_pause(self, task_id: str) -> None:
+        self._pause_requested.add(task_id)
+
+    def clear_pause(self, task_id: str) -> None:
+        self._pause_requested.discard(task_id)
+
+    def is_pause_requested(self, task_id: str) -> bool:
+        return task_id in self._pause_requested
+
+    def _pause(self, task_id: str, state: AgentState) -> TaskStatus:
+        """Commit a clean business checkpoint; paused is published after cleanup."""
+        from agent.revisable.store import TaskStore
+
+        try:
+            if state.revisable.dialogue_refs:
+                store = TaskStore(self.db, self.artifacts, task_id)
+                # A role can save its decision before the parent dispatches.
+                # Only completed steps (with receipts) belong to resume history.
+                closed_refs = [ref for ref in state.revisable.dialogue_refs
+                               if store.get("dialogue", ref)["payload"]["step"] < state.step_number]
+                store.read_dialogue(closed_refs)
+                state.revisable.dialogue_refs = closed_refs
+        except Exception as exc:
+            return self._fail(task_id, state, f"pause_checkpoint_invalid:{exc}")
+        state.revisable.delivered_context = {}
+        state.revisable.checkpoint_version += 1
+        state.revisable.paused_at = time.time()
+        with self.db.transaction():
+            self.db.update_task(task_id, status=TaskStatus.PAUSING, state=state)
+        return TaskStatus.PAUSED
+
+    def _finish_pause(self, task_id: str, state: AgentState) -> TaskStatus:
+        if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
+            return cancelled
+        task = self.db.get_task(task_id)
+        if task and task.status == TaskStatus.PAUSING:
+            self.db.update_task(task_id, status=TaskStatus.PAUSED, state=state)
+            self.traces.write(task_id, kind="system", message="task_paused",
+                              payload={"event": "task_paused"})
+        self.clear_pause(task_id)
+        return task.status if task and task.status != TaskStatus.PAUSING else TaskStatus.PAUSED
 
     def request_cancel(self, task_id: str) -> None:
         self.cancel_registry.request(task_id)
@@ -143,8 +188,12 @@ class Orchestrator:
         if task is None or task.state is None:
             raise KeyError(task_id)
         state = task.state
+        if task.status in (TaskStatus.SUCCEEDED, TaskStatus.FAILED, TaskStatus.CANCELLED):
+            return task.status
+        if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
+            return cancelled
         serial = task.device_serial
-        lock = None
+        lock = self._device_lock
         if self.driver_pool is not None and serial:
             owner = self.db.busy_serials().get(serial)
             if owner is not None and owner != task_id:
@@ -154,13 +203,14 @@ class Orchestrator:
             lock = self.driver_pool.lock_for(serial)
 
         async def body() -> TaskStatus:
-            return await self._run_task_body(
+            status = await self._run_task_body(
                 task_id,
                 state,
                 serial,
                 max_device_actions=max_device_actions,
                 max_action_attempts=max_action_attempts,
             )
+            return self._finish_pause(task_id, state) if status == TaskStatus.PAUSED else status
 
         try:
             if lock is None:
@@ -179,6 +229,10 @@ class Orchestrator:
         max_device_actions: int | None = None,
         max_action_attempts: int | None = None,
     ) -> TaskStatus:
+        from agent.pause import TaskPauseRequested
+
+        if self.is_pause_requested(task_id):
+            return self._pause(task_id, state)
         try:
             # Driver construction may sync-connect ADB; keep it off the loop.
             driver = await asyncio.to_thread(self._resolve_driver, serial)
@@ -186,6 +240,8 @@ class Orchestrator:
             self.db.update_task(task_id, status=TaskStatus.RUNNING)
             return self._fail(task_id, state, f"device_unavailable:{exc}")
 
+        if self.is_pause_requested(task_id):
+            return self._pause(task_id, state)
         self.db.update_task(task_id, status=TaskStatus.RUNNING)
         self.traces.write(
             task_id,
@@ -231,7 +287,7 @@ class Orchestrator:
                     "device_environment_reconciliation_failed:initialization_failed",
                 )
         date_reader = getattr(driver, "current_device_date", None)
-        if callable(date_reader) and not state.current_device_date:
+        if callable(date_reader) and (not state.current_device_date or state.revisable.checkpoint_version):
             try:
                 state.current_device_date = str(await date_reader())
             except asyncio.CancelledError:
@@ -261,6 +317,8 @@ class Orchestrator:
 
         warm_task: asyncio.Task[Any] | None = None
         try:
+            if self.is_pause_requested(task_id):
+                raise TaskPauseRequested
             session_starter = getattr(driver, "begin_task_session", None)
             if callable(session_starter):
                 session = await session_starter(task_id)
@@ -299,6 +357,8 @@ class Orchestrator:
                 max_device_actions=max_device_actions,
                 max_action_attempts=max_action_attempts,
             )
+        except TaskPauseRequested:
+            return self._pause(task_id, state)
         except asyncio.CancelledError:
             return self._cancel(task_id, state, mode="hard")
         finally:
@@ -356,7 +416,6 @@ class Orchestrator:
                 except Exception:  # noqa: BLE001
                     pass
             _current_driver.reset(token)
-            self.cancel_registry.clear(task_id)
 
 
     async def _call_role(
@@ -388,6 +447,11 @@ class Orchestrator:
                     raise
         raise AssertionError("unreachable role retry state")
 
+    def _model_call_limit(self, state: AgentState) -> int | None:
+        limits = [value for value in (self.max_role_invocations, state.revisable.limits.model_calls)
+                  if value is not None]
+        return min(limits) if limits else None
+
     def _model_call_meter(
         self,
         task_id: str,
@@ -396,10 +460,11 @@ class Orchestrator:
     ) -> Callable[[str, dict[str, Any]], None]:
         """Persist one count immediately before each actual provider request."""
         def record(_kind: str, payload: dict[str, Any]) -> None:
-            if self.max_role_invocations is not None and state.role_invocation_count >= self.max_role_invocations:
+            limit = self._model_call_limit(state)
+            if limit is not None and state.role_invocation_count >= limit:
                 raise RoleInvocationLimitExceeded(
                     "role_invocation_limit_exhausted:"
-                    f"{state.role_invocation_count}/{self.max_role_invocations}"
+                    f"{state.role_invocation_count}/{limit}"
                 )
             state.role_invocation_count += 1
             self._persist(task_id, state)
@@ -629,31 +694,69 @@ class Orchestrator:
         return TaskStatus.FAILED
 
     def _schedule_skill_learner(self, task_id: str) -> None:
+        """Compatibility name: terminal recording only, never schedule research."""
+        from agent.revisable.store import TaskStore
+        from agent.skills.policy import record_local_clue
         task = self.db.get_task(task_id)
-        if task is None or not getattr(task, "skill_learn", False):
+        if task is None:
             return
-        from agent.skills.learner import run_skill_learner
+        try:
+            record_local_clue(task, TaskStore(self.db, self.artifacts, task_id))
+        except Exception as exc:  # Recording must not change the task outcome.
+            self.traces.write(task_id, kind="skill", level=LogLevel.WARN,
+                message=f"local_learning_clue_error: {type(exc).__name__}")
 
-        async def run() -> None:
+    async def learn_from_task(self, task_id: str, *, force: bool = False, request=None) -> dict:
+        """Explicit personal optimization owns the device after source completion."""
+        task = self.db.get_task(task_id)
+        if task is None:
+            raise KeyError(task_id)
+        from agent.skills.policy import PersonalLearningRequest
+        # Old flags and force cannot spend the user's channel or operate a device.
+        if request is None:
+            return {"ok": False, "reason": "explicit_personal_request_required"}
+        request = PersonalLearningRequest.model_validate(request)
+        if not request.authorized:
+            return {"ok": False, "reason": "personal_cost_and_device_consent_required"}
+        if task_id in self._learning_jobs:
+            return {"ok": False, "reason": "learning_already_running"}
+        if task.status not in {TaskStatus.SUCCEEDED, TaskStatus.FAILED, TaskStatus.CANCELLED}:
+            return {"ok": False, "reason": "source_task_not_terminal"}
+        from agent.skills.exploration import ExplorationBackend
+        from agent.skills.learning import LearningBudget, run_task_learning
+        from agent.skills.library import SkillLibrary, default_skills_root
+        driver = self._resolve_driver(task.device_serial)
+        lock = self.driver_pool.lock_for(task.device_serial) if self.driver_pool else self._device_lock
+        if lock.locked():
+            return {"ok": False, "reason": "device_busy"}
+        self._learning_jobs.add(task_id)
+        backend = None
+        try:
+            async with lock:
+                if task.device_serial and self.db.busy_serials().get(task.device_serial):
+                    return {"ok": False, "reason": "device_busy"}
+                cancelled = lambda: self.is_cancel_requested(task_id)
+                backend = ExplorationBackend(task, db=self.db, artifacts=self.artifacts,
+                    driver=driver, settings=self.settings, library=SkillLibrary(default_skills_root()),
+                    cancelled=cancelled)
+                budget = LearningBudget(cancelled=cancelled, max_calls=request.max_calls,
+                    max_actions=request.max_actions, max_seconds=request.max_seconds,
+                    max_job_seconds=request.max_seconds, reserve_calls=min(8, request.max_calls // 3))
+                backend.source_store.put("learning_request", "personal", {
+                    **request.model_dump(), "billing_scope": "personal", "publication_scope": "local_pending"})
+                result = await run_task_learning(task, settings=self.settings, library=backend.library,
+                    store=backend.source_store, backend=backend, manual=True, budget=budget)
+                return {**result, "billing_scope": "personal", "publication_scope": "local_pending"}
+        finally:
             try:
-                result = await run_skill_learner(task, settings=self.settings)
-                self.traces.write(
-                    task_id,
-                    kind="skill",
-                    message="skill_learner",
-                    payload=(
-                        result if isinstance(result, dict) else {"result": str(result)}
-                    ),
-                )
-            except Exception as exc:  # noqa: BLE001
-                self.traces.write(
-                    task_id,
-                    kind="skill",
-                    level=LogLevel.WARN,
-                    message=f"skill_learner_error: {exc}",
-                )
-
-        asyncio.get_running_loop().create_task(run())
+                if backend:
+                    try:
+                        await backend.release_device()
+                    finally:
+                        backend.close()
+            finally:
+                self._learning_jobs.discard(task_id)
+                self.cancel_registry.clear(task_id)
 
     def _soft_cancel_if_requested(
         self,
@@ -700,4 +803,5 @@ class Orchestrator:
             payload={"mode": mode, "reason": reason},
         )
         self.cancel_registry.clear(task_id)
+        self._schedule_skill_learner(task_id)
         return TaskStatus.CANCELLED

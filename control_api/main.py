@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 import asyncio
-import atexit
 import json
+import hashlib
 import logging
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal
 
 import uvicorn
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from agent.skills.policy import LearningPreferences, PersonalLearningRequest
 from agent.executor import Executor
 from agent.runtime import create_orchestrator
 from agent.traces import TraceWriter
@@ -23,9 +25,7 @@ from control_api.data_sources import ConsoleDataSources
 from control_api.services import ObservabilityQueries, task_execution_elapsed_ms
 from control_api.sse import EventBus, TooManySubscribers
 from driver.pool import DriverPool
-from driver.pool import LOCAL_DRIVER_ID, FIXTURE_DRIVER_ID, parse_device_key
-from driver.scrcpy_mirror import REGISTRY as MIRROR_REGISTRY
-from driver.scrcpy_mirror import LocalStreamSource, MirrorUnavailableError, RemoteStreamSource, is_mirror_server_available
+from driver.scrcpy_stream import REGISTRY as OBSERVATION_STREAMS
 from shared.artifacts import ArtifactStore
 from shared.chatgpt_auth import PendingDeviceLogin, chatgpt_status, poll_device_login, start_device_login
 from shared.config import get_settings
@@ -40,7 +40,7 @@ DIST_DIR = WEB_DIR / "dist"
 class CreateTaskBody(BaseModel):
     instruction: str = Field(min_length=1)
     device_serials: list[str] = Field(min_length=1)
-    skill_learn: bool = False
+    skill_learn: bool = Field(default=False, description="Deprecated: never authorizes post-task model/device research")
     manager_model: str | None = Field(
         default=None,
         description=(
@@ -48,6 +48,7 @@ class CreateTaskBody(BaseModel):
         ),
     )
     executor_model: str | None = None
+    request_key: str | None = Field(default=None, min_length=1, max_length=160)
 
 
 class SkillUpsertBody(BaseModel):
@@ -91,11 +92,6 @@ def _sse_format(event: dict[str, Any]) -> str:
     return f"{body}\n"
 
 
-# WebSocket close codes per RFC 6455. 1011 = internal error, 1013 = try
-# again later (used here for "scrcpy unavailable" so the MirrorPanel can
-# branch into the unavailable state without parsing payloads).
-_WS_CLOSE_INTERNAL = 1011
-_WS_CLOSE_TRY_AGAIN = 1013
 _DEVICE_ENVIRONMENT_RECONCILE_INTERVAL_S = 30.0
 
 
@@ -116,7 +112,8 @@ def create_app(
     callers omit them and get the llm-gateway-backed Reviewer, Planner, and
     Executor. Reviewer and Planner share the configured decision model.
     """
-    settings = get_settings()
+    from desktop.configuration import apply_saved_settings
+    settings = apply_saved_settings(get_settings())
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     db = Database(settings.db_path)
     artifacts = ArtifactStore(settings.artifacts_dir)
@@ -133,20 +130,6 @@ def create_app(
     traces = TraceWriter(db, artifacts, bus=bus)
     queries = ObservabilityQueries(db, artifacts)
     pool = DriverPool(settings)
-
-    # Live mirror: local jar on API host, or relay to configured remote hubs.
-    hub_by_id = {h["id"]: h["url"] for h in settings.driver_hubs()}
-
-    def _mirror_source_for(device_key: str):
-        driver_id, serial = parse_device_key(device_key)
-        if driver_id in (LOCAL_DRIVER_ID, FIXTURE_DRIVER_ID):
-            return LocalStreamSource(serial=serial)
-        url = hub_by_id.get(driver_id)
-        if not url:
-            raise MirrorUnavailableError(f"unknown mirror hub id={driver_id!r}")
-        return RemoteStreamSource(hub_url=url, serial=serial, hub_id=driver_id)
-
-    MIRROR_REGISTRY.set_source_factory(_mirror_source_for)
 
     app = FastAPI(title="ClickClick Console API", version="0.1.0")
     app.state.db = db
@@ -175,6 +158,8 @@ def create_app(
 
     # Retained handles so operator cancel can hard-stop a stuck run.
     _running: dict[str, asyncio.Task] = {}
+    _submission_lock = asyncio.Lock()
+    app.state.running_tasks = _running
     _environment_reconcile_task: asyncio.Task[None] | None = None
     _TERMINAL = (
         TaskStatus.SUCCEEDED,
@@ -193,6 +178,7 @@ def create_app(
         finally:
             _running.pop(task_id, None)
             orch.cancel_registry.clear(task_id)
+            orch.clear_pause(task_id)
 
     async def _schedule_run(task_id: str) -> None:
         """Start the agent after the create HTTP response has been sent.
@@ -202,6 +188,12 @@ def create_app(
         and delay the response — the Console then waits on submit before
         navigating to the detail page.
         """
+        task = db.get_task(task_id)
+        if task is None or task.status != TaskStatus.QUEUED:
+            return
+        existing = _running.get(task_id)
+        if existing is not None and not existing.done():
+            return
         handle = asyncio.create_task(_run(task_id))
         _running[task_id] = handle
 
@@ -255,7 +247,7 @@ def create_app(
                 resolved.append(matches[0]["key"])
                 continue
             unknown.append(raw)
-        return resolved, unknown
+        return list(dict.fromkeys(resolved)), unknown
 
     async def _devices_payload() -> list[dict[str, Any]]:
         inv = await pool.inventory()
@@ -286,7 +278,7 @@ def create_app(
                     and record.device_serial
                 }
                 await pool.reconcile_environments(
-                    skip_keys=live_busy_keys,
+                    skip_keys=live_busy_keys | set(db.busy_serials()),
                 )
             except asyncio.CancelledError:
                 return
@@ -374,8 +366,7 @@ def create_app(
                 raise HTTPException(501, "driver does not support environment initialization")
             return await initialize()
 
-    @app.post("/api/tasks")
-    async def create_task(
+    async def _create_task(
         body: CreateTaskBody, background_tasks: BackgroundTasks
     ) -> dict[str, Any]:
         # Deduplicate while preserving order. Entries are device keys
@@ -390,6 +381,16 @@ def create_app(
             requested.append(s)
         if not requested:
             raise HTTPException(400, "device_serials must be non-empty")
+
+        fingerprint = hashlib.sha256(json.dumps({
+            **body.model_dump(exclude={"request_key", "device_serials"}),
+            "device_serials": sorted(requested),
+        }, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        if body.request_key and (submission := db.get_submission(body.request_key)):
+            if submission["request_hash"] != fingerprint:
+                raise HTTPException(409, "request_key already used with a different payload")
+            return {"tasks": [db.get_task(tid).model_dump() for tid in submission["task_ids"]],
+                    "replayed": True}
 
         known = catalog_model_ids(settings)
         manager_model = (body.manager_model or "").strip() or None
@@ -422,22 +423,39 @@ def create_app(
             )
 
         created = []
-        for serial in serials:
-            record = db.create_task(
-                body.instruction,
-                AgentState(
-                    instruction=body.instruction,
-                    skill_learn=bool(body.skill_learn),
-                    manager_model=manager_model,
-                    executor_model=executor_model,
-                ),
-                device_serial=serial,
-            )
-            created.append(record.model_dump())
+        from desktop.updates import require_admission
+        require_admission(settings.data_dir)
+        with db.transaction():
+            for serial in serials:
+                record = db.create_task(
+                    body.instruction,
+                    AgentState(
+                        instruction=body.instruction,
+                        skill_learn=bool(body.skill_learn),
+                        manager_model=manager_model,
+                        executor_model=executor_model,
+                        revisable={"limits": {
+                            "model_calls": settings.default_task_model_calls,
+                            "device_actions": settings.default_task_device_actions,
+                            "deadline_at": (time.time() + settings.default_task_seconds
+                                            if settings.default_task_seconds is not None else None),
+                        }},
+                    ),
+                    device_serial=serial,
+                )
+                created.append(record.model_dump())
+            if body.request_key:
+                db.save_submission(body.request_key, fingerprint, [t["id"] for t in created])
+        for record in created:
             # Defer agent start until after this response is flushed.
-            background_tasks.add_task(_schedule_run, record.id)
+            background_tasks.add_task(_schedule_run, record["id"])
 
         return {"tasks": created}
+
+    @app.post("/api/tasks")
+    async def create_task(body: CreateTaskBody, background_tasks: BackgroundTasks):
+        async with _submission_lock:
+            return await _create_task(body, background_tasks)
 
     @app.get("/api/tasks")
     async def list_tasks(status: str | None = None, summary: bool = False) -> list[dict[str, Any]]:
@@ -507,13 +525,16 @@ def create_app(
         if not t:
             raise HTTPException(404, "task not found")
         if t.status in _TERMINAL:
+            if task_id in orch._learning_jobs:
+                orch.request_cancel(task_id)
+                return {"task_id": task_id, "status": t.status.value, "cancel_requested": True, "learning": True}
             return {
                 "task_id": task_id,
                 "status": t.status.value,
                 "cancel_requested": False,
                 "already_terminal": True,
             }
-        if t.status not in (TaskStatus.QUEUED, TaskStatus.RUNNING):
+        if t.status not in (TaskStatus.QUEUED, TaskStatus.RUNNING, TaskStatus.PAUSING, TaskStatus.PAUSED):
             raise HTTPException(409, f"cannot cancel status={t.status.value}")
 
         handle = _running.get(task_id)
@@ -540,6 +561,61 @@ def create_app(
             "cancel_requested": True,
             "already_terminal": bool(latest and latest.status in _TERMINAL),
         }
+
+    @app.post("/api/tasks/{task_id}/pause")
+    async def pause_task(task_id: str):
+        task = db.get_task(task_id)
+        if task is None:
+            raise HTTPException(404, "task not found")
+        if task.status in _TERMINAL or task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED):
+            return {"task_id": task_id, "status": task.status.value,
+                    "pause_requested": task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED)}
+        handle = _running.get(task_id)
+        live = handle is not None and not handle.done()
+        if not live and task.status != TaskStatus.QUEUED:
+            raise HTTPException(409, "orphan running task has no safe pause checkpoint; inspect or cancel it")
+        orch.request_pause(task_id)
+        if not live:
+            state = task.state or AgentState(instruction=task.instruction)
+            status = orch._pause(task_id, state)
+            if status == TaskStatus.PAUSED:
+                status = orch._finish_pause(task_id, state)
+            return {"task_id": task_id, "status": status.value, "pause_requested": True}
+        db.update_task(task_id, status=TaskStatus.PAUSING)
+        traces.write(task_id, kind="system", message="operator_pause_requested",
+                     payload={"event": "operator_pause_requested"})
+        return {"task_id": task_id, "status": "pausing", "pause_requested": True}
+
+    @app.post("/api/tasks/{task_id}/resume")
+    async def resume_task(task_id: str, background_tasks: BackgroundTasks):
+        task = db.get_task(task_id)
+        if task is None:
+            raise HTTPException(404, "task not found")
+        if task.status in _TERMINAL:
+            return {"task_id": task_id, "status": task.status.value, "resumed": False}
+        if task.status in (TaskStatus.RUNNING, TaskStatus.QUEUED):
+            handle = _running.get(task_id)
+            if task.status == TaskStatus.RUNNING and (handle is None or handle.done()):
+                raise HTTPException(409, "orphan running task cannot resume; inspect or cancel it")
+            return {"task_id": task_id, "status": task.status.value, "resumed": False}
+        if task.status != TaskStatus.PAUSED:
+            raise HTTPException(409, "pause has not reached a safe checkpoint yet")
+        if task.state is None or not task.state.revisable.checkpoint_version:
+            raise HTTPException(409, "task has no clean checkpoint")
+        state = task.state
+        if state.revisable.limits.expired():
+            status = orch._cancel(task_id, state, mode="soft", reason="task_deadline_exhausted")
+            return {"task_id": task_id, "status": status.value, "resumed": False}
+        from desktop.updates import require_admission
+        require_admission(settings.data_dir)
+        orch.clear_pause(task_id)
+        orch.cancel_registry.clear(task_id)
+        state.revisable.paused_at = None
+        db.update_task(task_id, status=TaskStatus.QUEUED, state=state)
+        traces.write(task_id, kind="system", message="operator_resume_requested",
+                     payload={"event": "operator_resume_requested"})
+        background_tasks.add_task(_schedule_run, task_id)
+        return {"task_id": task_id, "status": "queued", "resumed": True}
 
     @app.get("/api/tasks/{task_id}")
     async def get_task(task_id: str) -> dict[str, Any]:
@@ -570,6 +646,14 @@ def create_app(
             return data_sources.decorate(source.queries.timeline(task_id), source)
         except KeyError:
             raise HTTPException(404, "task not found") from None
+
+    @app.get("/api/tasks/{task_id}/jev-checks")
+    async def jev_checks(task_id: str) -> dict[str, Any]:
+        located = data_sources.locate(task_id)
+        if located is None:
+            raise HTTPException(404, "task not found")
+        _task, source = located
+        return data_sources.decorate(source.queries.jev_checks(task_id), source)
 
     @app.get("/api/tasks/{task_id}/steps/{node_id}/{seq}/debug")
     async def step_debug(task_id: str, node_id: str, seq: int) -> dict[str, Any]:
@@ -814,14 +898,53 @@ def create_app(
         return {"ok": True, "id": pending_id, "status": "rejected"}
 
     @app.post("/api/tasks/{task_id}/learn")
-    async def learn_from_task(task_id: str) -> dict[str, Any]:
-        from agent.skills.learner import run_skill_learner
-
+    async def learn_from_task(task_id: str, body: PersonalLearningRequest) -> dict[str, Any]:
+        defaults = {"max_calls": settings.learning_default_calls, "max_actions": settings.learning_default_actions,
+                    "max_seconds": settings.learning_default_seconds}
+        body = body.model_copy(update={key: value for key, value in defaults.items() if key not in body.model_fields_set})
         task = db.get_task(task_id)
         if task is None:
             raise HTTPException(404, "task not found")
-        result = await run_skill_learner(task, settings=settings, force=True)
+        if not body.authorized:
+            raise HTTPException(400, "personal_cost_and_device_consent_required")
+        result = await orch.learn_from_task(task_id, request=body)
+        # Keep skipped and rejected runs observable even when no pending skill exists.
+        from agent.skills.telemetry import safe_payload
+        try:
+            artifacts.save_json("skill-learning/results/" + task_id, {
+                "source_task_id": task_id, "created_at": time.time(),
+                "status": "completed" if result.get("ok") else "stopped",
+                "result": {**safe_payload(result), "cost": result.get("cost")}})
+        except (OSError, ValueError):
+            logging.getLogger(__name__).exception("Could not persist learning Console outcome")
         return result
+
+    @app.get("/api/learning/preferences")
+    async def learning_preferences() -> dict[str, Any]:
+        from agent.skills.policy import preferences
+        return preferences(db).model_dump()
+
+    @app.get("/api/learning/defaults")
+    async def learning_defaults() -> dict[str, Any]:
+        return {"max_calls": settings.learning_default_calls, "max_actions": settings.learning_default_actions,
+                "max_seconds": settings.learning_default_seconds}
+
+    @app.put("/api/learning/preferences")
+    async def update_learning_preferences(body: LearningPreferences) -> dict[str, Any]:
+        from agent.skills.policy import save_preferences
+        return save_preferences(db, body)
+
+    @app.get("/api/tasks/{task_id}/learning-contribution")
+    async def learning_contribution(task_id: str) -> dict[str, Any]:
+        from agent.skills.policy import export_contribution
+        if db.get_task(task_id) is None:
+            raise HTTPException(404, "task not found")
+        try:
+            return export_contribution(task_id, db)
+        except PermissionError as exc:
+            raise HTTPException(403, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
 
     @app.get("/api/skills/{skill_id}")
     async def get_skill(skill_id: str) -> dict[str, Any]:
@@ -875,6 +998,24 @@ def create_app(
             raise HTTPException(400, str(exc)) from exc
         return {"ok": True, "id": skill_id}
 
+    @app.get("/api/tasks/{task_id}/learning-traces")
+    async def learning_traces(task_id: str,
+        session_offset: int = Query(0, ge=0), session_limit: int = Query(20, ge=1, le=20),
+        entry_limit: int = Query(60, ge=1, le=100), entry_before: int | None = Query(None, ge=1),
+        job_id: str | None = Query(None, max_length=128),
+        result_offset: int = Query(0, ge=0), result_limit: int = Query(20, ge=1, le=20),
+    ) -> dict[str, Any]:
+        from control_api.learning_traces import task_learning_traces
+        located = data_sources.locate(task_id)
+        if located is None:
+            raise HTTPException(404, "task not found")
+        _task, source = located
+        result = task_learning_traces(task_id, source, data_sources, _skills_lib().root,
+            session_offset=session_offset, session_limit=session_limit, entry_limit=entry_limit,
+            entry_before=entry_before, job_id=job_id, result_offset=result_offset, result_limit=result_limit)
+        result["running"] = task_id in orch._learning_jobs
+        return data_sources.decorate(result, source)
+
     @app.get("/api/tasks/{task_id}/skill-links")
     async def task_skill_links(task_id: str) -> dict[str, Any]:
         located = data_sources.locate(task_id)
@@ -923,180 +1064,34 @@ def create_app(
             {"task_id": task_id, "skill_ids": used, "pending": pending}, source,
         )
 
-    @app.get("/api/device/scrcpy")
-    async def scrcpy_hint() -> dict[str, Any]:
-        jar_ok = is_mirror_server_available()
-        return {
-            "tool": "scrcpy-server",
-            "required": False,
-            "command": "scrcpy",
-            "note": (
-                "Console Live uses vendored scrcpy-server (local or hub relay). "
-                "Desktop scrcpy remains an optional external fallback."
-            ),
-            "available": jar_ok or bool(hub_by_id),
-            "server_jar": jar_ok,
-            "remote_hubs": list(hub_by_id.keys()),
-        }
-
-    # ------------------------------------------------------------------
-    # live-screen-mirror: GET /api/device/mirror/stream
-    # ------------------------------------------------------------------
-    # Operator-side WebSocket: local scrcpy-server bridge or remote hub relay.
-    # Off the agent path — screencap / get_frame unchanged.
-    @app.websocket("/api/device/mirror/stream")
-    async def mirror_stream(websocket: WebSocket) -> None:
-        await websocket.accept()
-
-        device_key: str | None = None
-        try:
-            try:
-                hello = await asyncio.wait_for(websocket.receive_text(), timeout=10.0)
-            except asyncio.TimeoutError:
-                await websocket.close(
-                    code=_WS_CLOSE_INTERNAL,
-                    reason=json.dumps({"reason": "hello_timeout"}),
-                )
-                return
-            try:
-                hello_payload = json.loads(hello)
-            except json.JSONDecodeError:
-                hello_payload = {}
-            if not isinstance(hello_payload, dict):
-                hello_payload = {}
-
-            key = hello_payload.get("device_key")
-            serial = hello_payload.get("serial")
-            if isinstance(key, str) and key.strip():
-                device_key = key.strip()
-            elif isinstance(serial, str) and serial.strip():
-                device_key = serial.strip()
-            else:
-                await websocket.close(
-                    code=_WS_CLOSE_INTERNAL,
-                    reason=json.dumps({"reason": "missing_serial"}),
-                )
-                return
-
-            # Local sessions need the vendored jar on this host; remote hubs
-            # only need a configured hub URL (jar lives on the lab host).
-            try:
-                driver_id, adb_serial = parse_device_key(device_key)
-            except ValueError as exc:
-                await websocket.close(
-                    code=_WS_CLOSE_INTERNAL,
-                    reason=json.dumps({"reason": "invalid_device_key", "detail": str(exc)}),
-                )
-                return
-
-            if driver_id in (LOCAL_DRIVER_ID, FIXTURE_DRIVER_ID) and not is_mirror_server_available():
-                await websocket.close(
-                    code=_WS_CLOSE_TRY_AGAIN,
-                    reason=json.dumps(
-                        {
-                            "reason": "mirror_unavailable",
-                            "detail": "vendored scrcpy-server jar missing on API host",
-                        }
-                    ),
-                )
-                return
-
-            try:
-                session = await MIRROR_REGISTRY.start(device_key)
-            except MirrorUnavailableError as exc:
-                await websocket.close(
-                    code=_WS_CLOSE_TRY_AGAIN,
-                    reason=json.dumps(
-                        {"reason": "mirror_unavailable", "detail": str(exc)}
-                    ),
-                )
-                return
-            except FileNotFoundError as exc:
-                await websocket.close(
-                    code=_WS_CLOSE_TRY_AGAIN,
-                    reason=json.dumps(
-                        {"reason": "mirror_unavailable", "detail": str(exc)}
-                    ),
-                )
-                return
-
-            await websocket.send_text(
-                json.dumps(
-                    {
-                        "type": "hello",
-                        "serial": adb_serial,
-                        "device_key": device_key,
-                        "codec": "h264",
-                        "codec_string": session.codec_string or "avc1.42E01E",
-                    }
-                )
-            )
-
-            async for chunk in session.frames():
-                if not chunk:
-                    break
-                try:
-                    await websocket.send_bytes(chunk)
-                except (WebSocketDisconnect, RuntimeError):
-                    # Client / Vite proxy already closed — stop quietly.
-                    break
-        except WebSocketDisconnect:
-            pass
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("mirror stream error key=%s: %s", device_key, exc)
-            try:
-                await websocket.close(code=_WS_CLOSE_INTERNAL, reason=str(exc)[:120])
-            except Exception:  # noqa: BLE001
-                pass
-        finally:
-            if device_key is not None:
-                try:
-                    await MIRROR_REGISTRY.stop(device_key)
-                except Exception as exc:  # noqa: BLE001
-                    logger.debug(
-                        "mirror registry stop error key=%s: %s", device_key, exc
-                    )
-
-    # R6: register shutdown hooks so scrcpy subprocesses don't outlive the
-    # FastAPI process. FastAPI's lifespan handler is the modern hook; we
-    # also register an `atexit` fallback for uvicorn workers that bypass it.
+    # Release process-owned task observation resources on normal shutdown.
     @app.on_event("shutdown")
-    async def _shutdown_mirror_registry() -> None:
+    async def _shutdown_observation_streams() -> None:
         nonlocal _environment_reconcile_task
         reconcile_task, _environment_reconcile_task = _environment_reconcile_task, None
         if reconcile_task is not None:
             reconcile_task.cancel()
             await asyncio.gather(reconcile_task, return_exceptions=True)
         data_sources.close()
-        await MIRROR_REGISTRY.shutdown()
+        await OBSERVATION_STREAMS.shutdown()
 
-    def _atexit_shutdown() -> None:
-        """Sync fallback for environments where the lifespan event doesn't fire.
+    from control_api.assistant import mount_assistant_api
 
-        ``asyncio.run`` cannot safely be called from ``atexit`` (the loop is
-        already closing), so we walk the registry and SIGTERM any still-live
-        subprocesses directly. The Popen instances are the only real resource
-        — the asyncio drain task gets cancelled by Python's interpreter
-        shutdown sequence.
-        """
-        for session in list(MIRROR_REGISTRY._sessions.values()):  # noqa: SLF001
-            proc = session._proc  # noqa: SLF001
-            if proc is None:
-                continue
-            try:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=1.0)
-                except Exception:  # noqa: BLE001
-                    try:
-                        proc.kill()
-                        proc.wait(timeout=1.0)
-                    except Exception:  # noqa: BLE001
-                        pass
-            except Exception:  # noqa: BLE001
-                pass
+    mount_assistant_api(app, db=db, artifacts=artifacts, pool=pool, settings=settings,
+                        create_task=_create_task, task_body=CreateTaskBody,
+                        submission_lock=_submission_lock)
 
-    atexit.register(_atexit_shutdown)
+    if settings.mcp_http_enabled:
+        from control_api.mcp_http import http_base_url
+        from starlette.responses import JSONResponse
+
+        @app.api_route("/mcp", methods=["GET", "POST", "DELETE"])
+        @app.api_route("/mcp/{path:path}", methods=["GET", "POST", "DELETE"])
+        async def moved_mcp(path: str = ""):
+            return JSONResponse({"detail": "HTTP MCP now runs as a separate local service; re-export the connection.",
+                                 "mcp_url": http_base_url(settings) + "/mcp/"}, status_code=410)
+    from control_api.setup import mount_setup_api
+    mount_setup_api(app, settings=settings, submission_lock=_submission_lock)
 
     # Serve the built Console as an SPA. StaticFiles(html=True) only falls back
     # to index.html for directory paths, so React Router deep links like
@@ -1129,6 +1124,12 @@ def create_app(
 
 def main() -> None:
     settings = get_settings()
+    from desktop.configuration import model_environment
+    import os
+    saved_model = model_environment(settings.data_dir)
+    if saved_model:
+        os.environ.update(saved_model)
+        settings = get_settings()
     app = create_app()
     ssl_certfile = settings.api_ssl_certfile or None
     ssl_keyfile = settings.api_ssl_keyfile or None

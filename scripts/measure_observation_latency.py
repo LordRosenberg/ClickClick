@@ -18,7 +18,7 @@ from typing import Any
 from agent.read_tools import OBSERVE_SCREEN_DEFAULT_DURATION_MS, make_observe_screen_handler
 from agent.tool_registry import AgentRole, ToolExecutionContext
 from driver.factory import get_driver
-from driver.scrcpy_mirror import REGISTRY
+from driver.scrcpy_stream import REGISTRY
 from driver.observation_deadline import CURRENT_DEADLINE_MS, TEMPORAL_DEADLINE_MS
 from perception.observation import ObservationBuilder
 from shared.config import get_settings

@@ -1,18 +1,14 @@
-"""Shared scrcpy transport for Console live view and Agent observations.
+"""Task observation video transport, owned by the driver process.
 
-Pushes a vendored standalone ``scrcpy-server`` jar, bridges its raw H.264
-stream over ADB forward (local) or relays from a remote driver hub, and
-yields binary chunks for the Console ``/api/device/mirror/stream`` WebSocket.
-
-One device source fans codec-safe H.264 units to independent consumers. The
-Agent decoder consumes every unit; Console presentation cannot throttle or
-corrupt the canonical observation stream.
+One per-device scrcpy source supplies codec-safe H.264 units to observation
+decoders. Explicit leases, startup bootstrap and idle cleanup also support
+task pause/resume. Console image viewing reads saved artifacts separately.
 """
 
 from __future__ import annotations
 
 import asyncio
-import json
+import atexit
 import logging
 import struct
 import subprocess
@@ -20,8 +16,10 @@ import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, AsyncIterator, Protocol
+from typing import Any, AsyncIterator, Callable, Protocol
 from uuid import uuid4
+
+from driver.processes import background_process_kwargs
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +34,12 @@ SCRCPY_CONTROL_RESET_VIDEO = 17
 VENDOR_DIR = Path(__file__).resolve().parent / "vendor"
 DEVICE_SERVER_PATH = "/data/local/tmp/clickclick-scrcpy-server.jar"
 
-RECONNECT_GRACE_SECONDS: float = 30.0
-_CHUNK_SIZE = 65536
+OBSERVATION_IDLE_GRACE_SECONDS: float = 30.0
 
 
 @dataclass(frozen=True)
 class ConsumerLease:
-    """A single ownership claim on a shared mirror source."""
+    """A single task consumer's ownership claim on a scrcpy source."""
     token: str
     consumer: str
     generation: int
@@ -103,17 +100,17 @@ def server_jar_path() -> Path:
     return VENDOR_DIR / SCRCPY_SERVER_JAR_NAME
 
 
-def is_mirror_server_available() -> bool:
+def is_scrcpy_server_available() -> bool:
     """True when the vendored scrcpy-server jar is present on this host."""
     return server_jar_path().is_file()
 
 
-class MirrorUnavailableError(RuntimeError):
-    """Raised when the mirror server jar is missing or a session cannot start."""
+class ScrcpyUnavailableError(RuntimeError):
+    """Raised when the scrcpy server jar is missing or a session cannot start."""
 
 
-class MirrorShutdownError(RuntimeError):
-    """Raised when a process-owned mirror session cannot be stopped."""
+class ScrcpyShutdownError(RuntimeError):
+    """Raised when a process-owned scrcpy session cannot be stopped."""
 
 
 class StreamSource(Protocol):
@@ -122,9 +119,7 @@ class StreamSource(Protocol):
     async def start(self) -> None: ...
     async def stop(self) -> None: ...
     def is_alive(self) -> bool: ...
-    def frames(self, chunk_size: int = _CHUNK_SIZE) -> AsyncIterator[bytes]: ...
-    @property
-    def codec_string(self) -> str | None: ...
+    def frames(self) -> AsyncIterator[bytes]: ...
 
 
 def _new_scid() -> int:
@@ -155,21 +150,16 @@ class LocalStreamSource:
     )
     _port: int | None = field(default=None, init=False, repr=False)
     _output_thread: threading.Thread | None = field(default=None, init=False, repr=False)
-    _codec_string: str | None = field(default=None, init=False, repr=False)
     packet_complete: bool = field(default=True, init=False)
     _scid: int | None = field(default=None, init=False, repr=False)
     _socket_name: str = field(default="", init=False, repr=False)
     _output_lines: list[str] = field(default_factory=list, init=False, repr=False)
 
-    @property
-    def codec_string(self) -> str | None:
-        return self._codec_string
-
     async def start(self) -> None:
         if self._proc is not None and self.is_alive():
             return
-        if not is_mirror_server_available():
-            raise MirrorUnavailableError(
+        if not is_scrcpy_server_available():
+            raise ScrcpyUnavailableError(
                 f"vendored scrcpy-server jar missing: {server_jar_path()}"
             )
         jar = server_jar_path()
@@ -190,9 +180,9 @@ class LocalStreamSource:
             await asyncio.shield(self._cleanup_start_failure())
             if isinstance(exc, asyncio.CancelledError):
                 raise
-            if isinstance(exc, MirrorUnavailableError):
+            if isinstance(exc, ScrcpyUnavailableError):
                 raise
-            raise MirrorUnavailableError(f"failed to start scrcpy-server: {exc}") from exc
+            raise ScrcpyUnavailableError(f"failed to start scrcpy-server: {exc}") from exc
 
     async def _start_transport(
         self, *, jar: Path, scid: int, socket_name: str
@@ -235,6 +225,7 @@ class LocalStreamSource:
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
             start_new_session=True,
+            **background_process_kwargs(),
         )
 
         self._output_thread = threading.Thread(
@@ -253,17 +244,17 @@ class LocalStreamSource:
                 self.serial, socket_name, timeout=1.0,
             )
         except Exception as exc:  # noqa: BLE001
-            raise MirrorUnavailableError(f"adb forward failed: {exc}") from exc
+            raise ScrcpyUnavailableError(f"adb forward failed: {exc}") from exc
 
         port = self._port
         if port is None:
-            raise MirrorUnavailableError("adb forward returned no local port")
+            raise ScrcpyUnavailableError("adb forward returned no local port")
 
         last_err: Exception | None = None
         for _ in range(40):
             await asyncio.sleep(0.05)
             if self._proc.poll() is not None:
-                raise MirrorUnavailableError(
+                raise ScrcpyUnavailableError(
                     self._early_exit_reason()
                 )
             try:
@@ -275,7 +266,7 @@ class LocalStreamSource:
                 except asyncio.TimeoutError:
                     writer.close()
                     await writer.wait_closed()
-                    last_err = MirrorUnavailableError("scrcpy handshake timeout")
+                    last_err = ScrcpyUnavailableError("scrcpy handshake timeout")
                     continue
                 if not first:
                     writer.close()
@@ -283,18 +274,18 @@ class LocalStreamSource:
                         await writer.wait_closed()
                     except Exception:  # noqa: BLE001
                         pass
-                    last_err = MirrorUnavailableError("empty forward socket")
+                    last_err = ScrcpyUnavailableError("empty forward socket")
                     continue
                 if first != b"\x00":
                     writer.close()
                     await writer.wait_closed()
-                    raise MirrorUnavailableError("invalid scrcpy handshake")
+                    raise ScrcpyUnavailableError("invalid scrcpy handshake")
                 await self._attach_video_connection(reader, writer)
                 return
             except OSError as exc:
                 last_err = exc
                 continue
-        raise MirrorUnavailableError(
+        raise ScrcpyUnavailableError(
             f"could not connect to scrcpy-server on port {port}: {last_err}"
         )
 
@@ -305,7 +296,6 @@ class LocalStreamSource:
     ) -> None:
         self._reader = reader
         self._writer = writer
-        self._codec_string = "avc1.42E01E"
         if self._port is not None:
             await self._connect_control_socket(self._port)
 
@@ -435,6 +425,21 @@ class LocalStreamSource:
         self._scid = None
         self._socket_name = ""
 
+    def terminate_host_process(self) -> None:
+        """Best-effort interpreter-exit fallback; normal cleanup uses stop()."""
+        proc = self._proc
+        if proc is None or proc.poll() is not None:
+            return
+        try:
+            proc.terminate()
+            proc.wait(timeout=1.0)
+        except Exception:  # noqa: BLE001
+            try:
+                proc.kill()
+                proc.wait(timeout=1.0)
+            except Exception:  # noqa: BLE001
+                pass
+
     def _close_output(self, proc: subprocess.Popen[bytes] | None) -> None:
         stream = proc.stdout if proc is not None else None
         if stream is not None:
@@ -494,8 +499,7 @@ class LocalStreamSource:
             return False
         return self._proc.poll() is None
 
-    async def frames(self, chunk_size: int = _CHUNK_SIZE) -> AsyncIterator[bytes]:
-        del chunk_size
+    async def frames(self) -> AsyncIterator[bytes]:
         reader = self._reader
         if reader is None:
             return
@@ -506,149 +510,24 @@ class LocalStreamSource:
                 header = await reader.readexactly(12)
                 _pts_and_flags, size = struct.unpack(">QI", header)
                 if not 0 < size <= 16 * 1024 * 1024:
-                    raise MirrorUnavailableError("invalid scrcpy packet size")
+                    raise ScrcpyUnavailableError("invalid scrcpy packet size")
                 yield await reader.readexactly(size)
         except (asyncio.CancelledError, asyncio.IncompleteReadError, ConnectionError, OSError):
             return
 
 
 @dataclass
-class RemoteStreamSource:
-    """Relay H.264 from a remote clickclick-driver hub ``/mirror/stream``."""
-
-    hub_url: str
-    serial: str
-    hub_id: str = ""
-
-    _ws: Any = field(default=None, init=False, repr=False)
-    _alive: bool = field(default=False, init=False, repr=False)
-    _codec_string: str | None = field(default=None, init=False, repr=False)
-    _queue: asyncio.Queue[bytes | None] | None = field(default=None, init=False, repr=False)
-    _reader_task: asyncio.Task[None] | None = field(default=None, init=False, repr=False)
-
-    @property
-    def codec_string(self) -> str | None:
-        return self._codec_string
-
-    async def start(self) -> None:
-        if self._alive:
-            return
-        try:
-            import websockets
-        except ImportError as exc:
-            raise MirrorUnavailableError(
-                "websockets package required for remote mirror relay"
-            ) from exc
-
-        base = self.hub_url.rstrip("/")
-        if base.startswith("https://"):
-            ws_url = "wss://" + base[len("https://") :] + "/mirror/stream"
-        elif base.startswith("http://"):
-            ws_url = "ws://" + base[len("http://") :] + "/mirror/stream"
-        else:
-            ws_url = base + "/mirror/stream"
-
-        try:
-            ws = await websockets.connect(
-                ws_url, open_timeout=10, max_size=8 * 1024 * 1024
-            )
-            self._ws = ws
-            await ws.send(json.dumps({"serial": self.serial}))
-            first = await asyncio.wait_for(ws.recv(), timeout=15.0)
-            self._queue = asyncio.Queue()
-            if isinstance(first, str):
-                try:
-                    payload = json.loads(first)
-                    if payload.get("type") == "error":
-                        await asyncio.wait_for(ws.close(), timeout=1.0)
-                        raise MirrorUnavailableError(
-                            payload.get("detail")
-                            or payload.get("reason")
-                            or "hub mirror error"
-                        )
-                    self._codec_string = payload.get("codec_string") or "avc1.42E01E"
-                except json.JSONDecodeError:
-                    self._codec_string = "avc1.42E01E"
-            elif isinstance(first, (bytes, bytearray)):
-                self._codec_string = "avc1.42E01E"
-                await self._queue.put(bytes(first))
-            self._alive = True
-            self._reader_task = asyncio.create_task(
-                self._pump(), name=f"hub-mirror-{self.hub_id}-{self.serial}"
-            )
-        except BaseException as exc:  # noqa: BLE001
-            await asyncio.shield(self.stop())
-            if isinstance(exc, asyncio.CancelledError):
-                raise
-            if isinstance(exc, MirrorUnavailableError):
-                raise
-            raise MirrorUnavailableError(
-                f"hub mirror unreachable hub={self.hub_id or self.hub_url}: {exc}"
-            ) from exc
-
-    async def _pump(self) -> None:
-        assert self._ws is not None and self._queue is not None
-        try:
-            async for message in self._ws:
-                if isinstance(message, (bytes, bytearray)):
-                    await self._queue.put(bytes(message))
-                # ignore further text
-        except Exception as exc:  # noqa: BLE001
-            logger.debug("hub mirror pump ended: %s", exc)
-        finally:
-            await self._queue.put(None)
-            self._alive = False
-
-    async def stop(self) -> None:
-        self._alive = False
-        task = self._reader_task
-        self._reader_task = None
-        ws = self._ws
-        self._ws = None
-        if ws is not None:
-            try:
-                await asyncio.wait_for(ws.close(), timeout=1.0)
-            except Exception:  # noqa: BLE001
-                pass
-        if task is not None:
-            task.cancel()
-            try:
-                await asyncio.wait_for(task, timeout=0.5)
-            except (asyncio.CancelledError, Exception):  # noqa: BLE001
-                pass
-        if self._queue is not None:
-            try:
-                self._queue.put_nowait(None)
-            except Exception:  # noqa: BLE001
-                pass
-
-    def is_alive(self) -> bool:
-        return self._alive
-
-    async def frames(self, chunk_size: int = _CHUNK_SIZE) -> AsyncIterator[bytes]:
-        q = self._queue
-        if q is None:
-            return
-        while True:
-            item = await q.get()
-            if item is None:
-                return
-            yield item
-
-
-@dataclass
-class MirrorSession:
+class ScrcpySession:
     """One StreamSource bound to a device key, with shared consumer fan-out.
 
-    A single background pump reads the source TCP/WS once and copies chunks
-    into per-consumer queues. Multiple WebSocket clients (React Strict Mode
-    remount / reconnect) MUST NOT each call ``source.frames()`` — that races
-    on one StreamReader and immediately EOFs Live.
+    A single background pump reads the source TCP once and copies chunks
+    into per-consumer queues. Observation consumers MUST NOT each read ``source.frames()`` directly;
+    one pump owns that reader across task lease and decoder lifecycles.
     """
 
     device_key: str
     source: StreamSource
-    available: bool = field(default_factory=is_mirror_server_available)
+    available: bool = field(default_factory=is_scrcpy_server_available)
     idle_shutdown_seconds: float = 0.0
 
     _last_activity: float = field(default=0.0, init=False, repr=False)
@@ -681,14 +560,6 @@ class MirrorSession:
 
         task.add_done_callback(settle)
 
-    @property
-    def codec_string(self) -> str | None:
-        return self.source.codec_string
-
-    async def start(self) -> None:
-        """Compatibility acquire for legacy Console callers."""
-        await self.acquire("legacy")
-
     async def acquire(self, consumer: str = "agent") -> ConsumerLease:
         """Acquire an explicit lease; only first acquisition starts the source."""
         async with self._lifecycle:
@@ -707,10 +578,10 @@ class MirrorSession:
                     if self._pump_task is None or self._pump_task.done():
                         self._pump_task = asyncio.create_task(
                             self._pump(),
-                            name=f"mirror-pump-{self.device_key}",
+                            name=f"scrcpy-pump-{self.device_key}",
                         )
                         self._track_background_task(self._pump_task)
-                    logger.info("mirror: started session key=%s", self.device_key)
+                    logger.info("scrcpy: started session key=%s", self.device_key)
                 except BaseException:
                     # Start, state commit, and lease publication form one
                     # transaction; cancellation before publication owns cleanup.
@@ -722,17 +593,11 @@ class MirrorSession:
             self._consumer_count = len(self._leases)
             self._last_activity = time.monotonic()
             logger.info(
-                "mirror: consumer+ key=%s consumers=%d",
+                "scrcpy: consumer+ key=%s consumers=%d",
                 self.device_key,
                 self._consumer_count,
             )
             return lease
-
-    async def stop(self) -> None:
-        """Compatibility release of one legacy lease."""
-        token = next((t for t, l in self._leases.items() if l.consumer == "legacy"), None)
-        if token:
-            await self.release(token)
 
     async def release(self, lease: ConsumerLease | str) -> None:
         """Idempotently release one lease; stale tokens are harmless."""
@@ -744,7 +609,7 @@ class MirrorSession:
                 return
             self._consumer_count = len(self._leases)
             logger.info(
-                "mirror: consumer- key=%s consumers=%d",
+                "scrcpy: consumer- key=%s consumers=%d",
                 self.device_key,
                 self._consumer_count,
             )
@@ -756,7 +621,7 @@ class MirrorSession:
                 generation = self._generation
                 self._idle_task = asyncio.create_task(
                     self._stop_after_idle(generation),
-                    name=f"mirror-idle-{self.device_key}",
+                    name=f"scrcpy-idle-{self.device_key}",
                 )
                 self._track_background_task(self._idle_task)
                 return
@@ -818,8 +683,8 @@ class MirrorSession:
         try:
             await self.source.stop()
         except BaseException as exc:
-            raise MirrorShutdownError(
-                f"mirror source cleanup failed for {self.device_key}: {exc}",
+            raise ScrcpyShutdownError(
+                f"scrcpy source cleanup failed for {self.device_key}: {exc}",
             ) from exc
 
     def is_alive(self) -> bool:
@@ -827,7 +692,7 @@ class MirrorSession:
             return False
         if self._consumer_count > 0:
             return True
-        return (time.monotonic() - self._last_activity) <= RECONNECT_GRACE_SECONDS
+        return (time.monotonic() - self._last_activity) <= OBSERVATION_IDLE_GRACE_SECONDS
 
     def touch(self) -> None:
         self._last_activity = time.monotonic()
@@ -865,7 +730,7 @@ class MirrorSession:
         except asyncio.CancelledError:
             raise
         except Exception as exc:  # noqa: BLE001
-            logger.warning("mirror pump ended key=%s: %s", self.device_key, exc)
+            logger.warning("scrcpy pump ended key=%s: %s", self.device_key, exc)
         finally:
             async with self._lock:
                 subscribers = list(self._subscribers)
@@ -875,8 +740,7 @@ class MirrorSession:
                 except Exception:  # noqa: BLE001
                     pass
 
-    async def frames(self, chunk_size: int = _CHUNK_SIZE) -> AsyncIterator[bytes]:
-        del chunk_size  # fan-out uses source chunk sizes
+    async def frames(self) -> AsyncIterator[bytes]:
         sub = _Subscriber(asyncio.Queue(maxsize=32))
         async with self._lock:
             self._subscribers.append(sub)
@@ -918,17 +782,17 @@ class MirrorSession:
         }
 
 
-class MirrorRegistry:
-    """Process-wide registry of MirrorSession instances keyed by device key."""
+class ScrcpyRegistry:
+    """Process-wide registry of ScrcpySession instances keyed by device key."""
 
     def __init__(self, idle_shutdown_seconds: float = 0.0) -> None:
-        self._sessions: dict[str, MirrorSession] = {}
+        self._sessions: dict[str, ScrcpySession] = {}
         self._lock = asyncio.Lock()
-        self._source_factory: Any | None = None
+        self._source_factory: Callable[[str], StreamSource] | None = None
         self.idle_shutdown_seconds = max(0.0, float(idle_shutdown_seconds))
 
-    def set_source_factory(self, factory: Any) -> None:
-        """Inject ``(device_key) -> StreamSource`` for tests / Control API routing."""
+    def set_source_factory(self, factory: Callable[[str], StreamSource]) -> None:
+        """Inject ``(device_key) -> StreamSource`` for deterministic transport tests."""
         self._source_factory = factory
 
     def _default_source(self, device_key: str) -> StreamSource:
@@ -937,17 +801,17 @@ class MirrorRegistry:
         driver_id, serial = parse_device_key(device_key)
         if driver_id in (LOCAL_DRIVER_ID, "fixture"):
             return LocalStreamSource(serial=serial)
-        # Remote keys without a factory cannot start — Control API installs one.
-        raise MirrorUnavailableError(
+        # Observation sources belong to the local driver process; tests may inject a factory.
+        raise ScrcpyUnavailableError(
             f"no StreamSource factory for remote key={device_key!r}"
         )
 
-    def get(self, device_key: str) -> MirrorSession:
+    def get(self, device_key: str) -> ScrcpySession:
         session = self._sessions.get(device_key)
         if session is None:
             factory = self._source_factory or self._default_source
             source = factory(device_key)
-            session = MirrorSession(
+            session = ScrcpySession(
                 device_key=device_key,
                 source=source,
                 idle_shutdown_seconds=self.idle_shutdown_seconds,
@@ -955,12 +819,7 @@ class MirrorRegistry:
             self._sessions[device_key] = session
         return session
 
-    async def start(self, device_key: str) -> MirrorSession:
-        session = self.get(device_key)
-        await session.start()
-        return session
-
-    async def acquire(self, device_key: str, consumer: str = "agent") -> tuple[MirrorSession, ConsumerLease]:
+    async def acquire(self, device_key: str, consumer: str = "agent") -> tuple[ScrcpySession, ConsumerLease]:
         session = self.get(device_key)
         return session, await session.acquire(consumer)
 
@@ -970,11 +829,11 @@ class MirrorRegistry:
             return
         await session.release(lease)
 
-    async def stop(self, device_key: str) -> None:
-        session = self._sessions.get(device_key)
-        if session is None:
-            return
-        await session.stop()
+    def terminate_host_processes(self) -> None:
+        """Fallback owned here, without exposing subprocess internals to APIs."""
+        for session in list(self._sessions.values()):
+            if isinstance(session.source, LocalStreamSource):
+                session.source.terminate_host_process()
 
     async def shutdown(self) -> None:
         async with self._lock:
@@ -991,8 +850,8 @@ class MirrorRegistry:
                         self._sessions.pop(key, None)
         if failures:
             first = failures[0]
-            raise MirrorShutdownError(
-                f"mirror registry cleanup failed: {first}",
+            raise ScrcpyShutdownError(
+                f"scrcpy registry cleanup failed: {first}",
             ) from first
 
 
@@ -1018,4 +877,5 @@ def _drain_output(
         logger.debug("scrcpy-server[%s] output drain ended: %s", serial, exc)
 
 
-REGISTRY: MirrorRegistry = MirrorRegistry(RECONNECT_GRACE_SECONDS)
+REGISTRY: ScrcpyRegistry = ScrcpyRegistry(OBSERVATION_IDLE_GRACE_SECONDS)
+atexit.register(REGISTRY.terminate_host_processes)

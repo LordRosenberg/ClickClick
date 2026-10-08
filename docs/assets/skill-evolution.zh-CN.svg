@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="850" viewBox="0 0 1320 850" role="img" aria-labelledby="title desc" lang="zh-CN">
+<title id="title">从任务经验到可复用技能</title>
+<desc id="desc">主流程由真实轨迹进入连续 Learner、独立 Skill Reviewer、待审候选及人工批准后的正式技能库。定向探索和普通任务验证按需运行，其证据返回研究与审查。无有价值改进时允许跳过。所有阶段保留来源与共享预算。</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#6B7B8E" stroke-width="1.5"/></marker>
+<marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#2B7B70" stroke-width="1.5"/></marker></defs>
+<rect x="0.5" y="0.5" width="1319" height="849" rx="16" fill="#F7F9FC" stroke="#E6EBF1" stroke-width="1"/>
+<text x="40" y="55" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="30" font-weight="700" fill="#24384F" text-anchor="start">从任务经验到可复用技能</text>
+<text x="40" y="87" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="16" font-weight="400" fill="#6B7B8E" text-anchor="start">连续提炼 · 独立审查 · 按需验证</text>
+<text x="1280" y="53" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="600" fill="#6B7B8E" text-anchor="end">CLICKCLICK / SKILL LEARNING</text>
+<path d="M784 198 V126 H490 V198" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<rect x="558.0" y="103" width="158" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="637" y="121" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">修订与验证反馈</text>
+<text x="40" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">01</text>
+<text x="67" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="17" font-weight="600" fill="#24384F" text-anchor="start">真实经验</text>
+<rect x="40" y="198" width="180" height="162" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="58" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="#24384F" text-anchor="start">任务轨迹</text>
+<text x="58" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#24384F" text-anchor="start">失败 / 成功但绕路</text>
+<text x="58" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">动作 · 观测 · 结果</text>
+<text x="58" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#6B7B8E" text-anchor="start">原始记录保持不变</text>
+<text x="268" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">02</text>
+<text x="295" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="17" font-weight="600" fill="#24384F" text-anchor="start">持续学习</text>
+<rect x="268" y="198" width="244" height="162" rx="12" fill="#24384F" stroke="#24384F" stroke-width="1"/>
+<text x="286" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="white" text-anchor="start">Learner</text>
+<text x="286" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="white" text-anchor="start">找出可改变的决策</text>
+<text x="286" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#D6E0EA" text-anchor="start">事实 · 假设 · 未知</text>
+<text x="286" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#D6E0EA" text-anchor="start">连续会话与检查点</text>
+<text x="560" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">03</text>
+<text x="587" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="17" font-weight="600" fill="#24384F" text-anchor="start">独立审查</text>
+<rect x="560" y="198" width="244" height="162" rx="12" fill="#EDF6F3" stroke="#CFE3DB" stroke-width="1"/>
+<text x="578" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="#2B7B70" text-anchor="start">Skill Reviewer</text>
+<text x="578" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#24384F" text-anchor="start">六项质量审查</text>
+<text x="578" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">独立读取原始证据</text>
+<text x="578" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#6B7B8E" text-anchor="start">按声明范围判断</text>
+<text x="852" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">04</text>
+<text x="879" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="17" font-weight="600" fill="#24384F" text-anchor="start">待审候选</text>
+<rect x="852" y="198" width="192" height="162" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="870" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="21" font-weight="650" fill="#24384F" text-anchor="start">候选 skill</text>
+<text x="870" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#24384F" text-anchor="start">正文 + 匹配元信息</text>
+<text x="870" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">精确版本与审查回执</text>
+<text x="870" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#6B7B8E" text-anchor="start">不自动进入正式库</text>
+<text x="1092" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="700" fill="#6B7B8E" text-anchor="start">05</text>
+<text x="1119" y="164" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="17" font-weight="600" fill="#24384F" text-anchor="start">人工发布</text>
+<rect x="1092" y="198" width="188" height="162" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="1110" y="234" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="650" fill="#24384F" text-anchor="start">正式技能库</text>
+<text x="1110" y="272" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#24384F" text-anchor="start">人工批准后写入</text>
+<text x="1110" y="297" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">批准前重查绑定</text>
+<text x="1110" y="333" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="400" fill="#6B7B8E" text-anchor="start">用于后续任务</text>
+<path d="M225 276 H261" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M517 276 H553" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M809 276 H845" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M1049 276 H1085" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow)"/>
+<path d="M330 360 V492" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<path d="M448 492 V360" fill="none" stroke="#2B7B70" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#evidence)"/>
+<rect x="289.0" y="416" width="82" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="330" y="434" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">缺失事实</text>
+<rect x="404.0" y="440" width="88" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="448" y="458" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">观测证据</text>
+<path d="M622 360 V492" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<path d="M740 492 V360" fill="none" stroke="#2B7B70" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#evidence)"/>
+<rect x="581.0" y="416" width="82" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="622" y="434" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">必要检查</text>
+<rect x="696.0" y="440" width="88" height="25" rx="4" fill="#F7F9FC" stroke="none" stroke-width="1"/>
+<text x="740" y="458" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="500" fill="#6B7B8E" text-anchor="middle">结果与成本</text>
+<rect x="268" y="492" width="244" height="126" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="286" y="522" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#24384F" text-anchor="start">定向探索</text>
+<text x="286" y="553" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">Exploration Executor</text>
+<text x="286" y="589" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">当前屏幕上测试一个问题</text>
+<text x="508" y="481" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="500" fill="#6B7B8E" text-anchor="end">按需</text>
+<rect x="560" y="492" width="244" height="126" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="578" y="522" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#24384F" text-anchor="start">普通任务验证</text>
+<text x="578" y="553" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">隔离库中的 ClickClick</text>
+<text x="578" y="589" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#24384F" text-anchor="start">核对正确性、采用和成本</text>
+<text x="800" y="481" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="500" fill="#6B7B8E" text-anchor="end">按需</text>
+<path d="M268 326 H244 V555 H220" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6" marker-end="url(#arrow)"/>
+<rect x="40" y="492" width="180" height="126" rx="12" fill="#F0F3F7" stroke="none" stroke-width="1"/>
+<text x="58" y="524" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#24384F" text-anchor="start">允许 skip</text>
+<text x="58" y="562" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">不强制生成 skill</text>
+<text x="58" y="588" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">保留未解问题</text>
+<text x="852" y="513" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="20" font-weight="650" fill="#24384F" text-anchor="start">只为尚未解决的问题继续花费</text>
+<text x="852" y="552" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">已有证据够用 → 直接审查</text>
+<text x="852" y="581" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">缺失应用事实 → 定向探索</text>
+<text x="852" y="610" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">需要检验效用 → 普通任务验证</text>
+<rect x="40" y="686" width="1240" height="108" rx="12" fill="white" stroke="#DCE4EC" stroke-width="1"/>
+<text x="60" y="717" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="19" font-weight="650" fill="#24384F" text-anchor="start">同一份可追溯证据，支撑分析与审查</text>
+<text x="60" y="747" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="400" fill="#6B7B8E" text-anchor="start">原始轨迹与截图 · 冻结技能库 · 版本与内容哈希 · 实测成本</text>
+<text x="60" y="775" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="start">读取、探索、压缩、修复、审查、验证及清理均计量</text>
+<rect x="1020" y="701" width="242" height="30" rx="6" fill="#EDF6F3" stroke="none" stroke-width="1"/>
+<text x="1141" y="722" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="13" font-weight="600" fill="#2B7B70" text-anchor="middle">显式启动 · 共享预算</text>
+<path d="M40 823 H69" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="83" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">主流程</text>
+<path d="M184 823 H213" fill="none" stroke="#6B7B8E" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 6"/>
+<text x="227" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">按需研究与修订</text>
+<path d="M402 823 H431" fill="none" stroke="#2B7B70" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="445" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="12" font-weight="400" fill="#6B7B8E" text-anchor="start">观测与验证反馈</text>
+<text x="1280" y="828" font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="400" fill="#6B7B8E" text-anchor="end">局部准入 ≠ 整体收益 ≠ 自动发布</text>
+</svg>

@@ -131,7 +131,7 @@ def main() -> None:
     parser.add_argument("--output-root", default="data/mobileworld/preflight-all")
     parser.add_argument("--backend", default="http://127.0.0.1:6800")
     parser.add_argument("--target", default="127.0.0.1:5556")
-    parser.add_argument("--expected-device-serial", default="")
+    parser.add_argument("--expected-device-serial", default="EMULATOR36X2X12X0")
     parser.add_argument("--environment-device", default="emulator-5554")
     parser.add_argument("--container", default="mobile_world_env_0")
     parser.add_argument("--collector-apk", default="data/mobileworld/device-apks/clickclick-collector-0.4.5-debug.apk")

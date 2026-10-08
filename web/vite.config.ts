@@ -26,7 +26,6 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
         secure: !apiTls,
-        ws: true,
       },
     },
   },

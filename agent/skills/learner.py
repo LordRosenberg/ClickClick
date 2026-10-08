@@ -104,7 +104,7 @@ async def run_skill_learner(
     settings = settings or get_settings()
     library = library or SkillLibrary(default_skills_root())
 
-    if not force and not getattr(task.state, "skill_learn", False):
+    if not force and not (task.skill_learn or getattr(task.state, "skill_learn", False)):
         return {"ok": True, "skipped": True, "reason": "skill_learn=false"}
 
     outcome = "success" if task.status == TaskStatus.SUCCEEDED else (

@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatMs } from "@/lib/utils";
@@ -20,8 +22,9 @@ interface RoundRowProps {
  * background when selected.
  */
 function RoundRow({ label, role, phase, selected, live, elapsedMs, onSelect, }: RoundRowProps) {
+  useLocale();
     const roleName = role === "R" ? "Reviewer" : role === "P" ? "Planner" : "Executor";
-    return (<button type="button" onClick={onSelect} className={cn("group relative mx-auto grid w-[9rem] grid-cols-[2rem_1.25rem_2.5rem_1fr] items-center rounded font-mono transition-colors", selected ? "bg-neon/[0.06]" : "hover:bg-bg-2")} title={`${roleName} · ${phase} · ${formatMs(elapsedMs)}`}>
+    return (<button type="button" onClick={onSelect} className={cn("group relative mx-auto grid w-[9rem] grid-cols-[2rem_1.25rem_2.5rem_1fr] items-center rounded font-mono transition-colors", selected ? "bg-neon/[0.06]" : "hover:bg-bg-2")} title={`${roleName} · ${t(phase)} · ${formatMs(elapsedMs)}`}>
       <span className={cn("flex h-9 items-center justify-end pr-1 text-[11px] tabular-nums", selected
             ? "text-neon"
             : live
@@ -40,40 +43,40 @@ function RoundRow({ label, role, phase, selected, live, elapsedMs, onSelect, }: 
         </span>
       </span>
       <span className="pl-1 text-left text-[9px] uppercase text-text-mute">
-        {phase}
+        {t(phase)}
       </span>
       <span className="pr-1 text-right text-[8px] tabular-nums text-text-mute">
         {formatMs(elapsedMs)}
       </span>
     </button>);
 }
-export function Timeline({ calls, selectedCallKey, onSelectCall, running, followLive, onFollowLiveChange, }: {
+export function Timeline({ calls, selectedCallKey, onSelectCall, running, followLatest, onFollowLatestChange, }: {
     calls: RoleCall[];
     selectedCallKey: string | null;
     onSelectCall: (callKey: string) => void;
     running: boolean;
-    followLive: boolean;
-    onFollowLiveChange: (v: boolean) => void;
+    followLatest: boolean;
+    onFollowLatestChange: (v: boolean) => void;
 }) {
+  useLocale();
     const scrollRef = useRef<HTMLDivElement>(null);
     const lastCallKey = calls.length > 0 ? calls[calls.length - 1].call_key : null;
     const rows = useMemo(() => deriveCallRows(calls), [calls]);
     useEffect(() => {
-        if (!followLive || !running || !scrollRef.current)
+        if (!followLatest || !running || !scrollRef.current)
             return;
         const el = scrollRef.current;
         el.scrollTop = el.scrollHeight;
-    }, [rows.length, running, followLive]);
+    }, [rows.length, running, followLatest]);
     return (<div className="flex h-full flex-col">
-      <div className="relative flex h-8 items-center justify-center px-2">
+      <div className="flex h-8 items-center justify-between gap-2 px-2">
         <span className="font-mono text-[10px] uppercase tracking-wide text-text-mute">
           Calls
         </span>
-        <label className="absolute right-2 inline-flex cursor-pointer items-center gap-1" title={followLive ? "follow live on" : "follow live off"}>
-          <input type="checkbox" checked={followLive} onChange={(e) => onFollowLiveChange(e.target.checked)} className="h-3 w-3 accent-neon"/>
+        <label className="inline-flex cursor-pointer items-center gap-1 whitespace-nowrap" title={followLatest ? t("跟随最新步骤 on") : t("跟随最新步骤 off")}>
+          <input type="checkbox" checked={followLatest} onChange={(e) => onFollowLatestChange(e.target.checked)} className="h-3 w-3 accent-neon"/>
           <span className="font-mono text-[9px] uppercase tracking-wide text-text-mute">
-            {followLive ? "on" : "off"}
-          </span>
+            {t("跟随最新步骤")}</span>
         </label>
       </div>
 
@@ -87,7 +90,7 @@ export function Timeline({ calls, selectedCallKey, onSelectCall, running, follow
             const key = row.call.call_key;
             const selected = key === selectedCallKey;
             const live = running && key === lastCallKey;
-            return (<RoundRow key={key} label={row.label} role={row.role} phase={row.phase} selected={selected} live={live} elapsedMs={row.call.elapsed_ms} onSelect={() => onSelectCall(key)}/>);
+            return (<RoundRow key={key} label={t(row.label)} role={row.role} phase={row.phase} selected={selected} live={live} elapsedMs={row.call.elapsed_ms} onSelect={() => onSelectCall(key)}/>);
         }))}
         </div>
       </ScrollArea>

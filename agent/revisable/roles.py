@@ -134,6 +134,8 @@ class PlanExecutor(Executor):
         self.directive = ""
         self.completed_stage_id = None
         self._restored_history = None
+        self.system_suffix = ""
+        self.pause_requested = lambda: False
 
     async def act_once(self, subgoal, package, prior_result="", *, task_id="", state=None,
                        model_call_meter=None, observe_after_handoff=None):
@@ -180,7 +182,7 @@ class PlanExecutor(Executor):
         stage = state.revisable.stage
         self._session.set_stage_skills(state.active_target_app, stage.skill_ids if stage else [])
         self._session.set_stable_system(
-            prompt("executor") + "\n\nOriginal instruction:\n" + state.instruction
+            prompt("executor") + "\n\nOriginal instruction:\n" + state.instruction + self.system_suffix
         )
         old_render = context["render_observation_bucket"]
 
@@ -235,6 +237,9 @@ class PlanExecutor(Executor):
         )
         if self.cancel_requested():
             raise asyncio.CancelledError
+        if self.pause_requested():
+            from agent.pause import TaskPauseRequested
+            raise TaskPauseRequested
         self.directive = result.context_state["directive"]
         self.completed_stage_id = result.context_state.get("completed_stage_id")
         self.store.save_dialogue(result.dialogue_messages, state)

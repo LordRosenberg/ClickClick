@@ -19,6 +19,11 @@ from shared.schemas import (
 )
 
 SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS local_preferences (
+  key TEXT PRIMARY KEY,
+  payload_json TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS tasks (
   id TEXT PRIMARY KEY,
   instruction TEXT NOT NULL,
@@ -65,6 +70,12 @@ CREATE TABLE IF NOT EXISTS traces (
 CREATE INDEX IF NOT EXISTS idx_traces_task_level ON traces(task_id, level);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_device_serial ON tasks(device_serial);
+
+CREATE TABLE IF NOT EXISTS task_submissions (
+  request_key TEXT PRIMARY KEY,
+  request_hash TEXT NOT NULL,
+  task_ids_json TEXT NOT NULL
+);
 """
 
 
@@ -83,6 +94,12 @@ class Database:
         self._conn.row_factory = sqlite3.Row
         self._transaction_depth = 0
         if not read_only:
+            # Task startup writes many records before the first model await.
+            # Reusing a WAL avoids rollback-journal file creation/deletion on
+            # every commit, which can stall the shared API/MCP event loop on
+            # Windows. Keep FULL durability for task state and checkpoints.
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            self._conn.execute("PRAGMA synchronous=FULL")
             self.migrate()
 
     def migrate(self) -> None:
@@ -230,11 +247,52 @@ class Database:
             """
             SELECT id, device_serial FROM tasks
             WHERE device_serial IS NOT NULL AND device_serial != ''
-              AND status IN (?, ?)
+              AND status IN (?, ?, ?, ?)
             """,
-            (TaskStatus.QUEUED.value, TaskStatus.RUNNING.value),
+            (TaskStatus.QUEUED.value, TaskStatus.RUNNING.value,
+             TaskStatus.PAUSING.value, TaskStatus.PAUSED.value),
         ).fetchall()
         return {r["device_serial"]: r["id"] for r in rows}
+
+    def get_submission(self, request_key: str) -> dict[str, Any] | None:
+        row = self._conn.execute(
+            "SELECT request_hash, task_ids_json FROM task_submissions WHERE request_key=?",
+            (request_key,),
+        ).fetchone()
+        return {"request_hash": row["request_hash"],
+                "task_ids": json.loads(row["task_ids_json"])} if row else None
+
+    def save_submission(self, request_key: str, request_hash: str, task_ids: list[str]) -> None:
+        self._conn.execute(
+            "INSERT INTO task_submissions VALUES (?, ?, ?)",
+            (request_key, request_hash, json.dumps(task_ids)),
+        )
+        self._commit()
+
+    def assistant_task_page(self, *, status: TaskStatus | None, limit: int,
+                            before: tuple[float, str] | None = None) -> list[TaskRecord]:
+        clauses, params = [], []
+        if status is not None:
+            clauses.append("status=?")
+            params.append(status.value)
+        if before is not None:
+            clauses.append("(created_at < ? OR (created_at = ? AND id < ?))")
+            params.extend((before[0], before[0], before[1]))
+        where = " WHERE " + " AND ".join(clauses) if clauses else ""
+        rows = self._conn.execute(
+            "SELECT * FROM tasks" + where + " ORDER BY created_at DESC, id DESC LIMIT ?",
+            (*params, limit),
+        ).fetchall()
+        return [self._row_to_task(row) for row in rows]
+
+    def latest_agent_record(self, task_id: str, kind: str, *, image_only=False) -> dict | None:
+        image_filter = " AND json_extract(payload_json, '$.image_ref') IS NOT NULL" if image_only else ""
+        row = self._conn.execute(
+            "SELECT record_key, version, payload_json FROM agent_records "
+            "WHERE task_id=? AND kind=?" + image_filter + " ORDER BY rowid DESC LIMIT 1",
+            (task_id, kind),
+        ).fetchone()
+        return self._agent_record(row) if row else None
 
     def update_task(
         self,
@@ -410,3 +468,17 @@ class Database:
     @staticmethod
     def _agent_record(row) -> dict:
         return {"key": row[0], "version": row[1], "payload": json.loads(row[2])}
+
+    def get_local_preference(self, key: str) -> dict | None:
+        row = self._conn.execute(
+            "SELECT payload_json FROM local_preferences WHERE key=?", (key,)
+        ).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def set_local_preference(self, key: str, value: dict) -> None:
+        self._conn.execute(
+            "INSERT INTO local_preferences VALUES (?, ?) ON CONFLICT(key) "
+            "DO UPDATE SET payload_json=excluded.payload_json",
+            (key, json.dumps(value, ensure_ascii=False)),
+        )
+        self._commit()

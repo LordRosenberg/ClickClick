@@ -16,6 +16,37 @@ from shared.schemas import Action, ActionPipeline, ActionPipelineStage, ActionRe
 from tests.fake_agents import FakeExecutor
 
 
+def test_jev_index_is_lazy_task_scoped_and_includes_degraded_checks(tmp_path):
+    import hashlib
+    db = Database(tmp_path / 'jev.db')
+    task = db.create_task('Jev task')
+    other = db.create_task('Other task')
+    artifacts = ArtifactStore(tmp_path / 'artifacts')
+    ref = artifacts.save_json('jev-checks', {'batches': [], 'results': []})
+    sidecar = 'jev-io-index/' + hashlib.sha256(ref.encode()).hexdigest() + '.json'
+    artifacts.resolve(sidecar).parent.mkdir()
+    artifacts.resolve(sidecar).write_text('{"requests": []}', 'utf-8')
+    request = artifacts.save_json('llm', {'rounds': [
+        {'invocation_id': 'compression-id', 'order': 1},
+        {'invocation_id': 'compression-id', 'order': 2}]})
+    db.append_agent_record(task.id, 'compaction', '0', {'source_steps': [1, 2],
+        'request_ref': request, 'summary': 'corrected persisted summary',
+        'jev_check_refs': [ref, ref, None, 'jev-checks/../../secret.json']})
+    db.append_agent_record(task.id, 'compaction_check', '0', {'status': 'degraded_compaction',
+        'reason': 'timeout', 'check_refs': [ref]})
+    query = ObservabilityQueries(db, artifacts)
+    rows = query.jev_checks(task.id)['checks']
+    assert len(rows) == 2 and rows[0]['source_steps'] == [1, 2]
+    assert rows[0]['io_ref'] == sidecar and rows[1]['reason'] == 'timeout'
+    assert rows[0]['invocation_ids'] == ['compression-id']
+    assert rows[0]['committed_summary'] == 'corrected persisted summary'
+    assert rows[1]['invocation_ids'] == []  # No invented source-step association.
+    assert query.jev_checks(other.id)['checks'] == []
+    with pytest.raises(KeyError):
+        query.jev_checks('missing')
+    db.close()
+
+
 def test_task_execution_elapsed_uses_terminal_update_or_current_time(tmp_path: Path):
     db = Database(tmp_path / "elapsed.db")
     task = db.create_task("timed task")

@@ -7,6 +7,7 @@ import { TaskListView } from "@/views/TaskListView";
 import { TaskDetailView } from "@/views/TaskDetailView";
 import { DeviceView } from "@/views/DeviceView";
 import { SkillsView } from "@/views/SkillsView";
+import { SetupView } from "@/views/SetupView";
 import { RootLayout } from "@/views/RootLayout";
 import "./index.css";
 
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: "tasks/:id", element: <TaskDetailView /> },
       { path: "device", element: <DeviceView /> },
       { path: "skills", element: <SkillsView /> },
+      { path: "setup", element: <SetupView /> },
     ],
   },
 ]);

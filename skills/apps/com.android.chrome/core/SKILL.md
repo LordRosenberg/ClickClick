@@ -1,7 +1,7 @@
 ---
 name: chrome-page-navigation
 description: Chrome loading states, verification pages, Google source links, downloads, and compact search results.
-version: 1.0.11
+version: 1.0.13
 app_aliases: [Chrome]
 app: com.android.chrome
 interface_scope: app

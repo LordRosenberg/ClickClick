@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -10,14 +12,13 @@ import { Separator } from "@/components/ui/separator";
 import {
   cancelTask,
   createTask,
-  DEFAULT_SKILL_LEARN,
   deviceLabel,
   getModelCatalog,
   listDevices,
   getTaskPage,
 } from "@/api/client";
-import { ChatGPTLoginCard } from "@/components/ChatGPTLoginCard";
 import { cn, formatMs } from "@/lib/utils";
+import { taskIsNonterminal } from "@/lib/taskLifecycle";
 import type { ModelCatalogEntry, TaskStatus } from "@/api/types";
 
 const NO_MODELS: ModelCatalogEntry[] = [];
@@ -28,6 +29,8 @@ const statusVariant: Record<
 > = {
   queued: "secondary",
   running: "neon",
+  pausing: "warn",
+  paused: "warn",
   succeeded: "secondary",
   failed: "destructive",
   cancelled: "warn",
@@ -36,6 +39,8 @@ const statusVariant: Record<
 const statusLabel: Record<TaskStatus, string> = {
   queued: "排队",
   running: "运行中",
+  pausing: "正在暂停",
+  paused: "已暂停",
   succeeded: "运行时完成",
   failed: "运行时失败",
   cancelled: "已取消",
@@ -46,6 +51,8 @@ function statusAccent(status: TaskStatus): string {
     case "running":
       return "border-neon/40 bg-neon/[0.06] hover:border-neon/60";
     case "queued":
+    case "pausing":
+    case "paused":
       return "border-amber/30 hover:border-amber/50";
     case "succeeded":
       return "border-emerald-500/30 hover:border-emerald-500/50";
@@ -61,6 +68,8 @@ function statusDot(status: TaskStatus): string {
     case "running":
       return "bg-neon animate-pulse-neon shadow-neon";
     case "queued":
+    case "pausing":
+    case "paused":
       return "bg-amber";
     case "succeeded":
       return "bg-emerald-500";
@@ -87,11 +96,12 @@ function TaskRow({
     execution_elapsed_ms?: number;
   };
 }) {
+  useLocale();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [stopping, setStopping] = useState(false);
   const canStop =
-    !task.read_only && (task.status === "running" || task.status === "queued");
+    !task.read_only && taskIsNonterminal(task.status);
 
   const stopMutation = useMutation({
     mutationFn: () => cancelTask(task.id),
@@ -103,7 +113,7 @@ function TaskRow({
   });
 
   useEffect(() => {
-    if (task.status !== "running" && task.status !== "queued") {
+    if (!taskIsNonterminal(task.status)) {
       setStopping(false);
     }
   }, [task.status]);
@@ -120,7 +130,7 @@ function TaskRow({
       <div className="flex flex-wrap items-center gap-2">
         <span className={cn("inline-block h-2 w-2 rounded-full", statusDot(task.status))} />
         <span className="font-mono text-xs text-text-mute">{task.id.slice(0, 8)}</span>
-        <Badge variant={statusVariant[task.status]}>{statusLabel[task.status]}</Badge>
+        <Badge variant={statusVariant[task.status]}>{t(statusLabel[task.status])}</Badge>
         {task.read_only ? (
           <Badge variant="outline" title={task.data_source}>
             {(task.data_source ?? "eval").split("/")[0]}
@@ -150,15 +160,15 @@ function TaskRow({
             size="sm"
             className="h-6 px-2 font-mono text-[10px]"
             disabled={stopping || stopMutation.isPending}
-            title="强制终止"
+            title={t("强制终止")}
             onClick={(e) => {
               e.stopPropagation();
-              if (!window.confirm("确认强制终止该任务？")) return;
+              if (!window.confirm(t("确认强制终止该任务？"))) return;
               stopMutation.mutate();
             }}
           >
             <Square className="mr-1 h-3 w-3 fill-current" />
-            {stopping || stopMutation.isPending ? "正在停止…" : "终止"}
+            {stopping || stopMutation.isPending ? t("正在停止…") : t("终止")}
           </Button>
         )}
       </div>
@@ -181,11 +191,11 @@ function TaskRow({
 }
 
 function SubmitForm() {
+  useLocale();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [instruction, setInstruction] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
-  const [skillLearn, setSkillLearn] = useState(DEFAULT_SKILL_LEARN);
   const [decisionModel, setDecisionModel] = useState("");
   const [executorModel, setExecutorModel] = useState("");
   const devices = useQuery({
@@ -306,7 +316,7 @@ function SubmitForm() {
               mutation.mutate({
                 text,
                 serials: selected,
-                skill_learn: skillLearn,
+                skill_learn: false,
                 decision_model: decisionModel || undefined,
                 executor_model: executorModel || undefined,
               });
@@ -316,7 +326,7 @@ function SubmitForm() {
         >
           <textarea
             className="min-h-[100px] w-full rounded border border-border bg-bg-2 px-3 py-2 font-mono text-xs text-text placeholder:text-text-mute/60 focus-visible:border-cyan focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan"
-            placeholder="输入指令，例如：打开设置并关闭蓝牙"
+            placeholder={t("输入指令，例如：打开设置并关闭蓝牙")}
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
           />
@@ -392,14 +402,8 @@ function SubmitForm() {
               </div>
             )}
           </div>
-          <label className="flex cursor-pointer items-center gap-2 font-mono text-[11px] text-text-mute">
-            <input
-              type="checkbox"
-              checked={skillLearn}
-              onChange={(e) => setSkillLearn(e.target.checked)}
-            />
-            skill learn (post-task, opt-in)
-          </label>
+          <p className="font-mono text-[11px] text-text-mute">
+            {t("任务结束仅保留本地学习线索，不额外调用模型或操作设备。可在任务详情关闭记录。")}</p>
           <div className="space-y-1.5">
             <div className="font-mono text-[10px] uppercase tracking-wide text-text-mute">
               devices {selected.length > 0 ? `(${selected.length})` : ""}
@@ -453,7 +457,7 @@ function SubmitForm() {
             >
               <Send className="mr-1 h-3 w-3" />
               {mutation.isPending
-                ? "提交中…"
+                ? t("提交中…")
                 : selected.length > 1
                   ? `submit ×${selected.length}`
                   : "submit"}
@@ -471,6 +475,7 @@ function SubmitForm() {
 }
 
 function TaskList({ status }: { status?: "failed" }) {
+  useLocale();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<10 | 20>(10);
   const { data, isLoading, isFetching, error } = useQuery({
@@ -486,27 +491,26 @@ function TaskList({ status }: { status?: "failed" }) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
         <label className="flex items-center gap-2 text-text-mute">
-          每页
-          <select aria-label="每页任务数" value={pageSize}
+          {t("每页")}<select aria-label={t("每页任务数")} value={pageSize}
             className="rounded border border-border bg-bg-2 px-2 py-1 text-text"
             onChange={(e) => { setPageSize(Number(e.target.value) as 10 | 20); setPage(1); }}>
-            <option value={10}>10 条</option>
-            <option value={20}>20 条</option>
+            <option value={10}>{t("10 条")}</option>
+            <option value={20}>{t("20 条")}</option>
           </select>
         </label>
         <Button variant="outline" disabled={page <= 1 || isFetching}
-          onClick={() => setPage((n) => n - 1)}>上一页</Button>
+          onClick={() => setPage((n) => n - 1)}>{t("上一页")}</Button>
         <span aria-live="polite" className="text-text-mute">
           {data?.indexing
-            ? `正在索引历史任务 · 已发现 ${data.total} 条`
-            : data ? `第 ${data.page} / ${totalPages} 页 · 共 ${data.total} 条` : `第 ${page} 页`}
+            ? t("正在索引历史任务 · 已发现 {value0} 条", { value0: data.total })
+            : data ? t("第 {value0} / {value1} 页 · 共 {value2} 条", { value0: data.page, value1: totalPages, value2: data.total }) : t("第 {value0} 页", { value0: page })}
         </span>
         <Button variant="outline" disabled={!data || data.indexing || page >= totalPages || isFetching}
-          onClick={() => setPage((n) => n + 1)}>下一页</Button>
+          onClick={() => setPage((n) => n + 1)}>{t("下一页")}</Button>
       </div>
       {isLoading && <div className="font-mono text-xs text-text-mute">loading tasks…</div>}
       {error && <div className="font-mono text-xs text-err">load failed</div>}
-      {data?.index_error && <div className="font-mono text-xs text-err">历史任务索引暂不可用，稍后重试。</div>}
+      {data?.index_error && <div className="font-mono text-xs text-err">{t("历史任务索引暂不可用，稍后重试。")}</div>}
       {data?.total === 0 && !data.indexing && !data.index_error && <div className="font-mono text-xs text-text-mute">— no tasks</div>}
       {data?.items.map((task) => <TaskRow key={task.id} task={task} />)}
     </div>
@@ -514,6 +518,7 @@ function TaskList({ status }: { status?: "failed" }) {
 }
 
 export function TaskListView() {
+  useLocale();
   const [tab, setTab] = useState<"all" | "failed">("all");
   return (
     <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -549,7 +554,7 @@ export function TaskListView() {
       </div>
       <div className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
         <SubmitForm />
-        <ChatGPTLoginCard />
+        <p className="text-sm text-text-mute">{t("模型与订阅登录请前往")}<a href="/setup" className="text-cyan">{t("设置")}</a>。</p>
       </div>
     </div>
   );

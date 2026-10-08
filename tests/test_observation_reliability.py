@@ -31,13 +31,13 @@ from driver.observation_deadline import (
     ObservationDeadline,
     ObservationStageError,
 )
-from driver.scrcpy_mirror import MirrorRegistry
+from driver.scrcpy_stream import ScrcpyRegistry
 from driver.scrcpy_observation import FrameGeometry, FrameHandle
 from perception.observation import ObservationBuilder, ObservationPackage, PreparedObservation
 from perception.som import A11Y_COLOR
 from shared.config import Settings
 from shared.llm_gateway import GatewayResponse, ToolCall
-from shared.schemas import Action, CanonicalUI, ObservationMode, UIElement
+from shared.schemas import CanonicalUI, ObservationMode, UIElement
 
 
 def _png(color: str = "white") -> bytes:
@@ -312,7 +312,6 @@ class _Source:
         self.started = 0
         self.stopped = 0
         self.alive = False
-        self.codec_string = "avc1.42E01E"
 
     async def start(self) -> None:
         self.started += 1
@@ -325,8 +324,7 @@ class _Source:
     def is_alive(self) -> bool:
         return self.alive
 
-    async def frames(self, chunk_size: int = 65536) -> AsyncIterator[bytes]:
-        del chunk_size
+    async def frames(self) -> AsyncIterator[bytes]:
         await asyncio.Event().wait()
         if False:
             yield b""
@@ -439,15 +437,15 @@ async def test_direct_screenshot_falls_back_to_adb(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_registry_shares_console_and_agent_then_stops_after_idle():
+async def test_registry_shares_first_consumer_and_agent_then_stops_after_idle():
     source = _Source("S1")
-    registry = MirrorRegistry(idle_shutdown_seconds=0.02)
+    registry = ScrcpyRegistry(idle_shutdown_seconds=0.02)
     registry.set_source_factory(lambda _key: source)
-    session, console = await registry.acquire("S1", "console")
+    session, first_consumer = await registry.acquire("S1", "first_consumer")
     same, agent = await registry.acquire("S1", "agent")
     assert same is session
     assert source.started == 1
-    await registry.release("S1", console)
+    await registry.release("S1", first_consumer)
     await registry.release("S1", agent)
     assert source.stopped == 0
     # Await the actual shutdown; a 40ms sleep is not a scheduling guarantee.
@@ -458,9 +456,9 @@ async def test_registry_shares_console_and_agent_then_stops_after_idle():
 @pytest.mark.asyncio
 async def test_registry_reacquire_during_idle_keeps_generation_and_source():
     source = _Source("S1")
-    registry = MirrorRegistry(idle_shutdown_seconds=0.04)
+    registry = ScrcpyRegistry(idle_shutdown_seconds=0.04)
     registry.set_source_factory(lambda _key: source)
-    session, first = await registry.acquire("S1", "console")
+    session, first = await registry.acquire("S1", "first_consumer")
     await registry.release("S1", first)
     await asyncio.sleep(0.01)
     _, second = await registry.acquire("S1", "agent")
@@ -473,7 +471,7 @@ async def test_registry_reacquire_during_idle_keeps_generation_and_source():
 def test_provider_diagnostics_expose_health_and_freshness(monkeypatch):
     from driver.scrcpy_observation import ScrcpyObservationProvider
 
-    registry = MirrorRegistry()
+    registry = ScrcpyRegistry()
     provider = ScrcpyObservationProvider(
         registry, "S1", lambda: FrameGeometry(32, 64, 32, 64),
         frame_max_age_ms=1000,
@@ -497,7 +495,7 @@ def _live_provider(*, frame_age_s: float = 0.0, frame_generation: int = 3):
     from driver.scrcpy_observation import ScrcpyObservationProvider
 
     provider = ScrcpyObservationProvider(
-        MirrorRegistry(), "S1", lambda: FrameGeometry(32, 64, 32, 64),
+        ScrcpyRegistry(), "S1", lambda: FrameGeometry(32, 64, 32, 64),
         frame_max_age_ms=1000,
     )
     provider._session = SimpleNamespace(

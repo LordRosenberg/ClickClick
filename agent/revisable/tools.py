@@ -167,11 +167,16 @@ def register_memory_tools(
         ))
 
     if role == "executor" or len(store.records("observation")) > 1 or store.records("note") or store.records("event") or store.records("stage"):
+        parameters = tool_schema(ReadHistory)
+        # Match the existing runtime requirement; {} must not be advertised as
+        # a valid read. Empty optional defaults remain usable with the other key.
+        parameters["oneOf"] = [{"required": [key], "properties": {key: {"pattern": r"\S"}}}
+                               for key in ("source", "query")]
         registry.register(AgentToolSpec(
             name="read_history",
-            description="Read history only for a fact missing or contradicted in supplied evidence. Pass a known source, or query keywords to get relevant excerpts directly. Stop when answered.",
+            description="Read a missing or contradicted fact. Supply exactly one nonempty source or query: a copied source ID, or literal search keywords. Stop when answered.",
             category=ToolCategory.KNOWLEDGE, roles=(AgentRole(role),),
-            parameters=tool_schema(ReadHistory),
+            parameters=parameters,
         ), read)
 
     if role == "executor":

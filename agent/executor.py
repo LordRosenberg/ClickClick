@@ -1182,6 +1182,9 @@ class Executor:
             )
             if self.cancel_requested():
                 raise asyncio.CancelledError
+            if getattr(self, "pause_requested", lambda: False)():
+                from agent.pause import TaskPauseRequested
+                raise TaskPauseRequested
             if action.type == "replace_text" and action.index is not None:
                 from agent.targeted_input import replace_target_text
                 runtime = state.revisable if state is not None else None

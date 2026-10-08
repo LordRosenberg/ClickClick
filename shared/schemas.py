@@ -20,6 +20,8 @@ class LogLevel(str, Enum):
 class TaskStatus(str, Enum):
     QUEUED = "queued"
     RUNNING = "running"
+    PAUSING = "pausing"
+    PAUSED = "paused"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
     CANCELLED = "cancelled"

@@ -1,7 +1,7 @@
 ---
 name: google-maps-arrival-estimates
 description: Interpret Google Maps driving-duration ranges and arrival estimates.
-version: 1.0.2
+version: 1.0.4
 app_aliases: [Maps, Google Maps]
 app: com.google.android.apps.maps
 interface_scope: app
@@ -21,6 +21,9 @@ source: authored
   obtained under `Leave now` describes a different departure condition.
 - `Typically A to B` is a duration range. If `Arrive around T` equals the
   selected departure time plus B, T is the upper bound, not a separate typical
-  arrival estimate. For an approximate ETA, retain both arrival bounds and
-  their traffic uncertainty when reporting or messaging the result instead
-  of presenting that upper-bound label as the sole expected arrival.
+  arrival estimate; do not present that upper bound as the typical arrival.
+- Follow any explicit output format required by the task. Otherwise, when Maps
+  gives a duration range and the task asks for arrival time, add both bounds to
+  the selected departure time and report the estimated arrival interval. When
+  Maps gives a single value, report a single value. Label derived arrival times
+  as estimates; do not claim that Maps displayed them.

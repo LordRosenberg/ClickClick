@@ -9,7 +9,7 @@ from typing import Any
 
 from agent.action_observation import ActionObservationTransaction
 from driver.factory import get_driver
-from driver.scrcpy_mirror import REGISTRY
+from driver.scrcpy_stream import REGISTRY
 from perception.observation import ObservationBuilder
 from shared.config import get_settings
 from shared.schemas import Action

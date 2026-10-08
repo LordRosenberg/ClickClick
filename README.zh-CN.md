@@ -4,9 +4,9 @@
 
 **让 AI 在 Android 上完成真正的工作。**
 
-跨应用任务 · 可靠设备交互 · 可复用技能 · 完整执行可观测性
+跨应用任务 · PC 助手接入 · 执行过程可查看
 
-[English](README.md) · [评测成绩](https://lordrosenberg.github.io/ClickClick/) · [效果演示](#效果演示) · [快速开始](#部署) · [架构](docs/architecture.zh-CN.md) · [文档](#文档导航)
+[English](README.md) · [评测成绩](https://lordrosenberg.github.io/ClickClick/) · [效果演示](#效果演示) · [快速开始](#通过-mcp-接入-pc-端-ai-助手) · [源码部署](#部署) · [文档](#文档导航)
 
 [![MobileWorld GUI-only](https://img.shields.io/badge/MobileWorld%20GUI--only-95.73%25%20%28112%2F117%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 [![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
@@ -17,6 +17,8 @@
 </div>
 
 ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，它就能跨应用搬运信息、填写复杂表单、管理记录、配置日程，并规划步骤、操作设备和检查结果。Web Console 让你随时查看执行进度，深入检查每一次决策。
+
+通过 **MCP** 接入 PC 端 AI 助手后，你可以直接在助手对话中交办手机任务、查看进度，或暂停和恢复执行。
 
 ## MobileWorld 纯 GUI：95.73%，成绩对比第 1
 
@@ -76,12 +78,12 @@ Agent Harness 将 **可修订规划、持久记忆、作用域技能和设备反
 
 ## 看见并理解每次执行
 
-Console 将实时设备画面与 Agent 执行历史放在同一个工作区。
+Console 将已保存的观测截图与 Agent 执行历史放在同一个工作区。
 
-- **跟随进度：** 查看实时投屏、当前阶段和流式模型响应。
+- **跟随进度：** 查看最新记录的观测截图、当前阶段和流式模型响应。
 - **浏览历史任务：** 分页查看任务概览，筛选失败任务，按需打开执行详情。
 - **检查决策：** 打开 Timeline 调用，查看实际模型输入、返回决策、激活技能、工具调用和关联截图。
-- **定位问题：** 沿动作追查目标、回执和结果观测，回看历史页面，并随时切回设备当前画面。
+- **定位问题：** 沿动作追查目标、回执和结果观测，回看所选步骤或模型轮次的历史画面。截图不会重新采集手机。
 - **分析开销：** 查看任务与模型耗时、调用次数，以及提供方返回的输入、输出和缓存用量。
 
 [Console 与可观测性指南 →](docs/observability.zh-CN.md)
@@ -96,9 +98,39 @@ Harness 分别组装原始任务、当前阶段、新鲜观测、结构化摘要
 
 [架构与模块接口](docs/architecture.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md)
 
+## 通过 MCP 接入 PC 端 AI 助手
+
+把 ClickClick 接入支持 MCP 的 PC 端 AI 助手，在对话中交办手机任务、查询进度，也可以随时暂停、恢复或取消。
+
+### 推荐安装方式：让 AI 助手安装并连接
+
+如果你的助手能在电脑上执行命令，把下面这段话发给它，让它代办下载、安装、手机连接和 MCP 设置：
+
+> 请帮我在这台电脑上安装并连接 ClickClick（https://github.com/LordRosenberg/ClickClick）。按安装指南识别 Windows/macOS 和 CPU 架构，从官方 Releases 下载匹配的安装器并核对该发布的 SHA-256；没有匹配安装器时，按源码部署指南处理，不把源码压缩包当安装器。安装后检查退出状态及后台 identity。打开本机设置页，让我选择订阅登录或 API，协助官方授权；API Key 由我在页面填写，不放进聊天。问我用 Wi-Fi、USB 还是已有模拟器，代办电脑侧连接并具体指导手机调试与权限确认。在设置页的“让助手添加”入口取得包含完整本机配置文件路径的接入提示词，读取该 stdio 配置，并用你自己的官方 MCP 管理命令或配置入口注册 clickclick，保留已有设置。若通过安装版 CLI 导出，必须指定 --client generic --transport stdio --output 和一个明确的本机文件完整路径，再读取该文件；不要调用 ClickClick register 代替你的注册步骤。能在当前会话加载 MCP 就调用 get_status，检查模型配置和手机初始化，分享 Console 链接。若需我重启客户端或新开会话，请报告“注册完成，待验证”，给出具体操作，并让我在新会话发送：“请调用 ClickClick 的 get_status，检查连接、模型配置和手机初始化，说明是否就绪及未完成事项。”不要把注册或 ADB 在线当成验证成功；get_status 不进行模型请求或手机任务测试。只有我明确要求时才执行实际手机测试任务。
+
+你只需在设置页选择 Codex 订阅登录或 API、完成模型和手机授权，并确认助手操作权限。[详细安装指南](docs/desktop-setup.zh-CN.md#两种首次安装入口)
+
+### 也可以手动安装
+
+1. **安装 ClickClick。** 从 [GitHub Releases](https://github.com/LordRosenberg/ClickClick/releases) 选择适合你 Windows 或 macOS 电脑的安装包。没有对应安装包时，可按[源码部署指南](docs/deployment.zh-CN.md)安装。
+2. **配置模型，连接手机。** 打开设置页，选择 Codex 订阅登录或配置 API，通过 Wi-Fi 或 USB 连接 Android 手机，也可使用已有模拟器。按页面提示在手机上开启调试并确认权限。
+3. **接入助手。** 在设置页复制“助手接入提示词”发给助手；也可以展开“手动添加”，按所用助手执行命令或添加配置。如需重开会话，使用页面单独提供的连接验证指令。
+
+### 开始使用
+
+连接就绪后，在助手对话中描述你要完成的事情，例如：
+
+> 用 ClickClick 把这篇笔记里的三份食谱录入食谱 App，保留食材和做法，核对保存结果，并告诉我是否完成。
+
+执行中可以继续问“现在进展如何？”或说“暂停这个任务”。让助手提供 Console 链接，即可查看执行步骤和保存的截图。运行时请保持电脑与手机在线。
+
+[安装、手机连接与助手配置](docs/desktop-setup.zh-CN.md) · [MCP 接入指南](docs/local-mcp.zh-CN.md)
+
+安装后可从桌面或应用程序入口启动 ClickClick，通过托盘图标打开控制台、启动/停止后台和设置开机启动。有任务运行时，关闭前可选择暂停或取消；关闭浏览器不会停止后台。
+
 ## 部署
 
-需要 Python 3.12、Node.js/npm、Android SDK Platform-Tools，以及支持图像和工具调用的模型服务。先从本机连接的设备开始；远程部署见[部署指南](docs/deployment.zh-CN.md)。
+以下适用于从源码安装；使用桌面安装器时无需执行这些步骤。需要 Python 3.12、Node.js/npm、Android SDK Platform-Tools，以及支持图像和工具调用的模型服务。先从本机连接的设备开始；远程部署见[部署指南](docs/deployment.zh-CN.md)。
 
 ### 1. 安装服务并配置模型
 
@@ -154,7 +186,7 @@ ClickClick 自动检测设备并部署 Accessibility Collector。保持设备解
 
 > 打开系统设置，在搜索框输入 Wi-Fi，查看无线网络相关设置并报告当前状态，不修改任何开关。
 
-点击 **submit**，在 Console 中跟随执行进度。选择 Timeline 中的调用可查看模型输入、工具和截图；**Live** 展示设备当前画面，**Frame** 展示所选步骤的历史画面。
+点击 **submit**，在 Console 中跟随执行进度。选择 Timeline 中的调用可查看模型输入、工具和保存的观测截图；开启“跟随最新步骤”查看新记录，点击模型图片查看该轮输入画面。
 
 ## 用自然语言下达任务
 
@@ -192,6 +224,8 @@ python -m evaluation.androidworld.reproduce --install
 
 | 文档 | 内容 | English |
 | --- | --- | --- |
+| [PC 助手 MCP 接入](docs/local-mcp.zh-CN.md) | 接入、八个任务工具、进展与暂停恢复。 | [English](docs/local-mcp.md) |
+| [桌面安装与连接](docs/desktop-setup.zh-CN.md) | 安装器、订阅/API、Wi-Fi/USB、注册与升级。 | [English quickstart](docs/local-mcp.md#desktop-setup) |
 | [技术概览](docs/reliability-design.zh-CN.md) | 设计目标与核心机制：为什么这样组织 Agent。 | [English](docs/reliability-design.md) |
 | [架构详解](docs/architecture.zh-CN.md) | 模块、接口与执行流程，以及各模块的详细设计。 | [English](docs/architecture.md) |
 | [设计取舍](docs/design-decisions.zh-CN.md) | 审核、上下文、采集与输入的设计选择。 | [English](docs/design-decisions.md) |
@@ -200,7 +234,17 @@ python -m evaluation.androidworld.reproduce --install
 | [任务实例](docs/task-examples.zh-CN.md) | 自然语言任务示例和结果验证。 | [English](docs/task-examples.md) |
 | [评测指南](docs/evaluation.zh-CN.md) | 基准配置、评分与复现。 | [English](docs/evaluation.md) |
 | [Skills 指南](skills/README.zh-CN.md) | 应用知识、操作经验和技能编写。 | [English](skills/README.md) |
+| [Skills 自进化](docs/skill-evolution.zh-CN.md) | 从真实任务提炼经验、独立审查、选择性验证与能力边界。 | [English](docs/skill-evolution.md) |
 
 许可证：[Apache 2.0](LICENSE)。
 
 第三方组件见[许可证说明](THIRD_PARTY_NOTICES.md)。
+
+
+## 项目趋势
+
+[![Star History](https://api.star-history.com/svg?repos=LordRosenberg/ClickClick&type=Date)](https://www.star-history.com/#LordRosenberg/ClickClick&Date)
+
+[![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
+
+安装器下载数按天记录，从首次采样开始积累趋势。仅统计 Windows/macOS 安装包，包含重复下载与升级下载，不代表独立用户人数。

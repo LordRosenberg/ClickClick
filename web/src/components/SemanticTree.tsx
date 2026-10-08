@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +26,7 @@ export function SemanticTree({
   targetIndex: number | null | undefined;
   tier?: string | null;
 }) {
+  useLocale();
   const [interactableOnly, setInteractableOnly] = useState(false);
 
   const lines = useMemo(() => (textForLlm ?? "").split("\n"), [textForLlm]);
@@ -101,7 +104,7 @@ export function SemanticTree({
           onClick={() => setInteractableOnly((v) => !v)}
           className="font-mono text-[10px] uppercase"
         >
-          {interactableOnly ? "仅可交互" : "全部"}
+          {interactableOnly ? t("仅可交互") : t("全部")}
         </Button>
       </div>
       {/* live-screen-mirror (D8b): horizontally scrollable so long

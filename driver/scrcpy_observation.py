@@ -1,7 +1,7 @@
 """Provider-neutral primitives for scrcpy-backed observations.
 
-This module deliberately contains no agent/model types.  It is usable by the
-Console transport and by a driver-side observation provider alike.
+This module contains no agent/model types. Driver-owned transport, decode and
+frame selection feed task observations; Console reads their saved artifacts.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from typing import Any, Callable, TYPE_CHECKING
 from driver.observation_deadline import SCRCPY_START_ATTEMPT_TIMEOUT_MS
 
 if TYPE_CHECKING:
-    from driver.scrcpy_mirror import ConsumerLease, MirrorRegistry, MirrorSession
+    from driver.scrcpy_stream import ConsumerLease, ScrcpyRegistry, ScrcpySession
 
 
 @dataclass(frozen=True)
@@ -244,10 +244,10 @@ class CurrentFrameResult:
 
 
 class ScrcpyObservationProvider:
-    """One decoder consumer attached to a shared :class:`MirrorSession`."""
+    """One decoder consumer attached to a shared :class:`ScrcpySession`."""
     def __init__(
         self,
-        registry: "MirrorRegistry",
+        registry: "ScrcpyRegistry",
         device_key: str,
         geometry: Callable[[], FrameGeometry] | None = None,
         *,
@@ -262,7 +262,7 @@ class ScrcpyObservationProvider:
         self.ring = FrameRing(retention_seconds, max_bytes)
         self.decoder = PyAVDecoder(self.ring, self._geometry_template, max_fps)
         self._decode_lock = asyncio.Lock()
-        self._session: "MirrorSession | None" = None
+        self._session: "ScrcpySession | None" = None
         self._lease: "ConsumerLease | None" = None
         self._task = None
         self.status = "stopped"

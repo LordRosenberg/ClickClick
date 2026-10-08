@@ -237,7 +237,7 @@ async def test_history_returns_answer_directly_without_changing_action_basis(set
     register_memory_tools(registry, "reviewer", store, state)
     ctx = ToolExecutionContext(AgentRole.REVIEWER, "read", {"active_observation_id": "current"})
     page = await registry.execute("read_history", {"query": "value=4"}, ctx)
-    assert page.data["items"] == [{"source": "observation:obs_1@1", "observation_id": "obs_1", "text": "value=4"}]
+    assert page.data["items"] == [{"source": "observation:obs_1@1", "observation_id": "obs_1", "text": "value=4", "offset": 0}]
     read = await registry.execute("read_history", {"source": page.data["items"][0]["source"]}, ctx)
     assert read.data["items"][0]["already_supplied"]
     assert not read.actionable_observation_id

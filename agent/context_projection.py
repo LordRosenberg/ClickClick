@@ -32,6 +32,41 @@ def _observation_text_blocks(messages):
                 yield block
 
 
+def reuse_research_context(messages: list[dict]) -> list[dict]:
+    """Reuse exact native research envelopes within a request; keep changing state."""
+    eligible = []
+    for index, message in enumerate(messages):
+        content = message.get("content")
+        if message.get("role") != "user" or not isinstance(content, str) or not content.startswith('{"research_context":'):
+            continue
+        try:
+            envelope = json.loads(content)
+        except ValueError:
+            continue
+        if set(envelope) != {"research_context", "environment", "budget"} or not isinstance(envelope["research_context"], dict):
+            continue
+        literal = json.dumps(envelope["research_context"], ensure_ascii=False, sort_keys=True)
+        if len(literal) >= 1200:
+            eligible.append((index, literal, envelope))
+    counts = Counter(literal for _, literal, _ in eligible)
+    if not any(count > 1 for count in counts.values()):
+        return messages
+    result = copy.deepcopy(messages)
+    seen = {}
+    for index, literal, envelope in eligible:
+        if counts[literal] < 2:
+            continue
+        if literal not in seen:
+            seen[literal] = "research-context-" + hashlib.sha256(literal.encode()).hexdigest()[:16]
+            envelope["research_context_id"] = seen[literal]
+        else:
+            envelope.pop("research_context")
+            envelope["research_context_reference"] = {"id":seen[literal],
+                "policy":"Research context repeats the earlier identified envelope exactly within this request. Environment and budget below remain this occurrence's values."}
+        result[index]["content"] = json.dumps(envelope, ensure_ascii=False)
+    return result
+
+
 def reuse_observation_text(messages: list[dict]) -> list[dict]:
     """Reuse identical long historical observation text, keeping every image.
 
@@ -39,6 +74,7 @@ def reuse_observation_text(messages: list[dict]) -> list[dict]:
     results, notes or current observation are removed. Reuse references resolve
     within the returned list, including after restoration/compaction.
     """
+    messages = reuse_research_context(messages)
     counts = Counter(block["text"] for block in _observation_text_blocks(messages))
     if not any(count > 1 for count in counts.values()):
         return messages

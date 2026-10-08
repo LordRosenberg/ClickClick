@@ -8,16 +8,25 @@ from shared.config import Settings
 def test_settings_contains_only_operator_controlled_fields():
         assert set(Settings.model_fields) == {
         "data_dir", "api_host", "api_port", "api_ssl_certfile", "api_ssl_keyfile",
-        "console_run_roots",
+        "console_run_roots", "mcp_http_enabled", "mcp_http_port",
         "driver_url", "driver_urls_json", "platform", "use_fixture_driver",
         "default_model", "manager_model", "executor_model",
-        "skill_learner_model",
+        "skill_learner_model", "skill_reviewer_model", "skill_learning_mode",
         "models_json", "gateway_user_agent", "chatgpt_token_dir",
         "ime_auto_setup", "ime_apk_path",
         "accessibility_collector_enabled", "accessibility_collector_apk_path",
         "device_stay_awake_while_plugged", "task_cancel_hard_timeout_s",
         "app_resolver_cache_path", "agent_architecture", "executor_context_tokens",
-        "compaction_attempt_notes", "chatgpt_history_tokens",
+        "chatgpt_history_tokens",
+        "default_task_model_calls", "default_task_device_actions", "default_task_seconds",
+        "learning_default_calls", "learning_default_actions", "learning_default_seconds",
+        "jev_mode", "jev_status_context", "jev_allow_external", "jev_api_key", "jev_base_url", "jev_model",
+        "jev_support_threshold", "jev_reject_threshold", "jev_issue_threshold", "jev_timeout_s",
+        "jev_compaction_timeout_s", "jev_max_source_chars", "jev_max_state_tokens",
+        "jev_max_request_tokens",
+        "jev_check_strategy", "jev_fidelity_reject_threshold", "jev_whole_reject_threshold",
+        "jev_detail_reject_threshold",
+        "jev_failure_policy", "jev_failure_cooldown_s",
     }
 
 

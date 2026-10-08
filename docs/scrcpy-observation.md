@@ -1,7 +1,8 @@
 # scrcpy observation provider
 
-Console and agent consumers share a single per-device scrcpy source through
-explicit leases.  The source parses Annex-B H.264 and new/slow consumers begin
+Task observation consumers own a single per-device scrcpy source through
+explicit leases in `driver/scrcpy_stream.py`. Console reads saved artifacts
+without acquiring or resetting this source. The source parses Annex-B H.264 and new/slow consumers begin
 only at SPS/PPS + IDR boundaries.  A source restart increments its generation;
 temporal queries never silently cross generations.
 
@@ -15,8 +16,8 @@ Host decode is the primary pixel source for current, temporal, baseline-frame,
 and direct screenshot requests. Install the `decode` extra
 (`pip install clickclick[decode]`) to provide PyAV (LGPL/GPL obligations depend
 on the wheel/build you choose); macOS and Linux wheels are published by PyAV.
-If PyAV is unavailable, diagnostics report the provider unavailable, Console
-encoded mirroring continues, and pixel requests use the bounded ADB path.
+If PyAV is unavailable, diagnostics report the provider unavailable and pixel
+requests use the bounded ADB path. Console can still display saved screenshots.
 
 The pinned scrcpy server (3.3.1) supports the official `RESET_VIDEO` control
 message (type 17) on the control socket, which restarts capture/encoding and

@@ -1,6 +1,7 @@
 """Schema validation and SQLite migration smoke tests (closed-loop model)."""
 
 from pathlib import Path
+import sqlite3
 
 import pytest
 from pydantic import ValidationError
@@ -98,6 +99,51 @@ def test_sqlite_migrate_and_task_state_roundtrip(tmp_path: Path):
     assert again.current_subgoal == "b"
     assert again.step_number == 2
     db.close()
+
+
+def test_wal_reader_does_not_block_committed_task_progress(tmp_path: Path):
+    path = tmp_path / "concurrent.db"
+    db = Database(path)
+    task = db.create_task("concurrent progress")
+    reader = sqlite3.connect(path, timeout=.1)
+    try:
+        assert db._conn.execute("PRAGMA synchronous").fetchone()[0] == 2
+        reader.execute("BEGIN")
+        assert reader.execute("SELECT state_json FROM tasks WHERE id=?", (task.id,)).fetchone()
+        state = AgentState(instruction=task.instruction, step_number=1)
+        db.update_task(task.id, state=state)
+        # The polling reader keeps its old snapshot without delaying the write.
+        assert '"step_number":0' in reader.execute(
+            "SELECT state_json FROM tasks WHERE id=?", (task.id,)).fetchone()[0]
+        reader.rollback()
+        observer = Database(path, read_only=True)
+        try:
+            assert observer.get_task(task.id).step_number == 1
+        finally:
+            observer.close()
+    finally:
+        reader.close()
+        db.close()
+    reopened = Database(path)
+    try:
+        assert reopened.get_task(task.id).step_number == 1
+    finally:
+        reopened.close()
+
+
+def test_existing_rollback_database_preserves_history_when_opened(tmp_path: Path):
+    path = tmp_path / "legacy.db"
+    db = Database(path)
+    task = db.create_task("keep existing history")
+    db.close()
+    with sqlite3.connect(path) as connection:
+        assert connection.execute("PRAGMA journal_mode=DELETE").fetchone()[0] == "delete"
+    reopened = Database(path)
+    try:
+        assert reopened.get_task(task.id).instruction == task.instruction
+        assert reopened._conn.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
+    finally:
+        reopened.close()
 
 
 def test_task_and_trace_transaction_rolls_back_together(tmp_path: Path):

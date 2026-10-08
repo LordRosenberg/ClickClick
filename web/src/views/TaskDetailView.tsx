@@ -1,3 +1,5 @@
+import { t } from "@/lib/locale";
+import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,9 +13,14 @@ import { Timeline } from "@/components/Timeline";
 import { TraceStream } from "@/components/TraceStream";
 import { StepInspector } from "@/components/StepInspector";
 import { TaskHeader } from "@/components/TaskHeader";
-import { MirrorPanel } from "@/components/MirrorPanel";
+import { ObservationPanel } from "@/components/ObservationPanel";
+import { resolveObservationImage } from "@/lib/observationImage";
 import { TaskSkillLinks } from "@/components/TaskSkillLinks";
-import { adbSerialFromKey, cancelTask, learnFromTask } from "@/api/client";
+import { SkillLearningPanel } from "@/components/SkillLearningPanel";
+import { LearningControls } from "@/components/LearningControls";
+import { JevChecksPanel } from "@/components/JevChecksPanel";
+import { cancelTask, pauseTask, resumeTask } from "@/api/client";
+import { taskCanPause, taskCanResume, taskIsActive, taskIsNonterminal, taskStatusLabel } from "@/lib/taskLifecycle";
 import { useTaskTimeline } from "@/state/useTaskTimeline";
 import {
   agentCallHash,
@@ -28,6 +35,7 @@ type SelectedConversationVisual = ConversationVisual & {
 };
 
 export function TaskDetailView() {
+  useLocale();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -35,7 +43,7 @@ export function TaskDetailView() {
   const [selectedCallKey, setSelectedCallKey] = useState<string | null>(null);
   const [selectedConversationVisual, setSelectedConversationVisual] =
     useState<SelectedConversationVisual | null>(null);
-  const [followLive, setFollowLive] = useState(true);
+  const [followLatest, setFollowLatest] = useState(true);
   const [stopping, setStopping] = useState(false);
   // Last call key we already navigated to (rail click or hash scroll).
   // Silent `calls` merges must not re-scroll while this matches.
@@ -49,7 +57,17 @@ export function TaskDetailView() {
   }, [tl]);
   const readOnly = Boolean(tk?.read_only || tl?.read_only);
   const running =
-    !readOnly && (tk?.status === "running" || tk?.status === "queued");
+    !readOnly && taskIsActive(tk?.status);
+  const canStop = !readOnly && taskIsNonterminal(tk?.status);
+  const lifecycleMutation = useMutation({
+    mutationFn: (operation: "pause" | "resume") => operation === "pause" ? pauseTask(id!) : resumeTask(id!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["task", id] });
+      qc.invalidateQueries({ queryKey: ["timeline", id] });
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      qc.invalidateQueries({ queryKey: ["devices"] });
+    },
+  });
 
   const cancelMutation = useMutation({
     mutationFn: () => cancelTask(id!),
@@ -62,23 +80,16 @@ export function TaskDetailView() {
     },
   });
 
-  const learnMutation = useMutation({
-    mutationFn: () => learnFromTask(id!),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["skills"] });
-    },
-  });
-
   useEffect(() => {
-    if (!running) setStopping(false);
-  }, [running]);
+    if (!canStop) setStopping(false);
+  }, [canStop]);
 
   useEffect(() => {
     const syncFromHash = (forceScroll: boolean) => {
       const callKey = callKeyForAgentHash(calls, window.location.hash);
       if (callKey == null) return;
       setSelectedCallKey(callKey);
-      setFollowLive(false);
+      setFollowLatest(false);
       if (!forceScroll && navigatedCallKeyRef.current === callKey) return;
       navigatedCallKeyRef.current = callKey;
       window.requestAnimationFrame(() => {
@@ -96,8 +107,9 @@ export function TaskDetailView() {
   }, [calls]);
 
   const selectCall = (callKey: string) => {
+    setSelectedConversationVisual(null);
     setSelectedCallKey(callKey);
-    setFollowLive(false);
+    setFollowLatest(false);
     // Rail click already places the inspector; mark navigated so the next
     // SSE-driven `calls` sync does not steal scroll back to the anchor.
     navigatedCallKeyRef.current = callKey;
@@ -118,11 +130,12 @@ export function TaskDetailView() {
     return calls[calls.length - 1].call_key;
   }, [calls]);
 
-  const changeFollowLive = (enabled: boolean) => {
-    setFollowLive(enabled);
+  const changeFollowLatest = (enabled: boolean) => {
+    setFollowLatest(enabled);
     if (!enabled) return;
+    setSelectedConversationVisual(null);
 
-    // Re-entering live mode explicitly leaves any historical deep-link
+    // Re-entering follow mode explicitly leaves any historical deep-link
     // selection behind. Otherwise the calls-driven hash effect would see
     // the old anchor again on the next update and immediately force OFF.
     setSelectedCallKey(defaultCallKey);
@@ -143,6 +156,7 @@ export function TaskDetailView() {
     ? selectedConversationVisual
     : null;
   const selectConversationVisual = (visual: ConversationVisual) => {
+    setFollowLatest(false);
     setSelectedConversationVisual({
       ...visual,
       callKey: effectiveCallKey,
@@ -152,13 +166,13 @@ export function TaskDetailView() {
     setSelectedConversationVisual(null);
   }, [effectiveCallKey]);
   useEffect(() => {
-    if (!running || !followLive) return;
+    if (!running || !followLatest) return;
     if (defaultCallKey != null && defaultCallKey !== selectedCallKey) {
       setSelectedCallKey(defaultCallKey);
       navigatedCallKeyRef.current = defaultCallKey;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, followLive, defaultCallKey]);
+  }, [running, followLatest, defaultCallKey]);
 
   if (timeline.isLoading && !tl) {
     return <div className="font-mono text-xs text-text-mute">loading task…</div>;
@@ -179,17 +193,7 @@ export function TaskDetailView() {
         </span>
         {tk?.status && (
           <Badge variant="outline">
-            {tk.status === "cancelled"
-              ? "已取消"
-              : tk.status === "failed"
-                ? "运行时失败"
-                : tk.status === "succeeded"
-                  ? "运行时完成"
-                  : tk.status === "running"
-                    ? "运行中"
-                    : tk.status === "queued"
-                      ? "排队"
-                      : tk.status}
+            {t(taskStatusLabel[tk.status])}
           </Badge>
         )}
         {readOnly && (
@@ -210,23 +214,15 @@ export function TaskDetailView() {
             ● live
           </span>
         )}
-        {!running && !readOnly && id && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="ml-auto font-mono text-[10px]"
-            disabled={learnMutation.isPending}
-            onClick={() => learnMutation.mutate()}
+        {(taskCanPause(tk?.status, readOnly) || taskCanResume(tk?.status, readOnly)) && (
+          <Button type="button" variant="outline" size="sm"
+            disabled={lifecycleMutation.isPending || stopping || cancelMutation.isPending}
+            onClick={() => lifecycleMutation.mutate(tk?.status === "paused" ? "resume" : "pause")}
           >
-            {learnMutation.isPending
-              ? "learning…"
-              : learnMutation.isSuccess
-                ? "learn queued"
-                : "learn from this task"}
+            {lifecycleMutation.isPending ? t("处理中…") : tk?.status === "paused" ? t("恢复任务") : t("暂停任务")}
           </Button>
         )}
-        {running && (
+        {canStop && (
           <Button
             type="button"
             variant="destructive"
@@ -234,15 +230,21 @@ export function TaskDetailView() {
             className="ml-auto font-mono text-[10px]"
             disabled={stopping || cancelMutation.isPending || !id}
             onClick={() => {
-              if (!window.confirm("确认强制终止该任务？")) return;
+              if (!window.confirm(t("确认强制终止该任务？"))) return;
               cancelMutation.mutate();
             }}
           >
             <Square className="mr-1 h-3 w-3 fill-current" />
-            {stopping || cancelMutation.isPending ? "正在停止…" : "强制终止"}
+            {stopping || cancelMutation.isPending ? t("正在停止…") : t("强制终止")}
           </Button>
         )}
       </div>
+
+      {(lifecycleMutation.error || cancelMutation.error) && (
+        <div role="alert" className="text-sm text-err">
+          {String(lifecycleMutation.error || cancelMutation.error)}
+        </div>
+      )}
 
       <TaskHeader
         timeline={tl}
@@ -251,11 +253,14 @@ export function TaskDetailView() {
       />
 
       {id ? <TaskSkillLinks taskId={id} /> : null}
+      {id && !canStop && !readOnly ? <LearningControls taskId={id} /> : null}
 
       <Tabs defaultValue="timeline">
         <TabsList>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="traces">Trace 流</TabsTrigger>
+          <TabsTrigger value="traces">{t("Trace 流")}</TabsTrigger>
+          <TabsTrigger value="jev">{t("Jev 摘要检查")}</TabsTrigger>
+          <TabsTrigger value="learning">{t("Skill 学习")}</TabsTrigger>
         </TabsList>
         <TabsContent value="timeline">
           <div className="grid gap-4 lg:grid-cols-[160px_1fr] xl:grid-cols-[160px_1fr_420px]">
@@ -266,8 +271,8 @@ export function TaskDetailView() {
                   selectedCallKey={effectiveCallKey}
                   onSelectCall={selectCall}
                   running={running}
-                  followLive={followLive}
-                  onFollowLiveChange={changeFollowLive}
+                  followLatest={followLatest}
+                  onFollowLatestChange={changeFollowLatest}
                 />
               </CardContent>
             </Card>
@@ -290,32 +295,9 @@ export function TaskDetailView() {
             <div className="hidden lg:block lg:col-span-2 xl:col-span-1">
               <div className="lg:max-w-none xl:sticky xl:top-20 xl:self-start">
                 {id ? (
-                  <MirrorPanel
+                  <ObservationPanel
                     taskId={id}
-                    deviceKey={tk?.device_serial || tl.device_serial || null}
-                    deviceSerial={
-                      adbSerialFromKey(tk?.device_serial || tl.device_serial) ||
-                      null
-                    }
-                    selectedFrameKey={
-                      activeConversationVisual
-                        ? activeConversationVisual.rowKey
-                        : selectedCall?.call_key ?? null
-                    }
-                    selectedSomRef={
-                      activeConversationVisual?.artifactRef
-                        ?? selectedCall?.observation?.model_image_ref
-                        ?? selectedCall?.observation?.som_ref
-                        ?? null
-                    }
-                    action={
-                      !activeConversationVisual && selectedCall?.role === "executor"
-                        ? (selectedCall.executor?.action ?? null)
-                        : null
-                    }
-                    frameGeometry={
-                      selectedCall?.observation?.frame_geometry ?? null
-                    }
+                    image={resolveObservationImage(calls, selectedCall, followLatest, activeConversationVisual)}
                   />
                 ) : null}
               </div>
@@ -328,6 +310,14 @@ export function TaskDetailView() {
               {id ? <TraceStream taskId={id} /> : null}
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="learning">
+          {id ? <SkillLearningPanel key={id} taskId={id} /> : null}
+        </TabsContent>
+        <TabsContent value="jev">
+          <Card><CardContent className="p-4">
+            {id ? <JevChecksPanel taskId={id} running={running} /> : null}
+          </CardContent></Card>
         </TabsContent>
       </Tabs>
     </div>

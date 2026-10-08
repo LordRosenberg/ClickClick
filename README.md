@@ -4,9 +4,9 @@
 
 **Give your AI the ability to get things done on Android.**
 
-Cross-app tasks · Reliable device interaction · Reusable skills · Full execution visibility
+Cross-app tasks · PC assistant integration · Follow every step
 
-[中文](README.zh-CN.md) · [Benchmark results](https://lordrosenberg.github.io/ClickClick/) · [Demos](#see-it-in-action) · [Quick Start](#deployment) · [Architecture](docs/architecture.md) · [Docs](#documentation)
+[中文](README.zh-CN.md) · [Benchmark results](https://lordrosenberg.github.io/ClickClick/) · [Demos](#see-it-in-action) · [Quick Start](#connect-your-pc-ai-assistant-with-mcp) · [Source setup](#deployment) · [Docs](#documentation)
 
 [![MobileWorld GUI-only](https://img.shields.io/badge/MobileWorld%20GUI--only-95.73%25%20%28112%2F117%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 [![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
@@ -17,6 +17,8 @@ Cross-app tasks · Reliable device interaction · Reusable skills · Full execut
 </div>
 
 ClickClick is an open-source Android agent platform. Give it a goal in natural language: transfer information between apps, fill complex forms, manage collections or configure a schedule. It plans the work, operates the device and checks the result, with a web Console that lets you follow every step.
+
+Connect it to your PC AI assistant through **MCP** to delegate phone tasks, check progress, or pause and resume execution directly in chat.
 
 ## 95.73% on MobileWorld GUI-only · #1 in our comparison
 
@@ -76,12 +78,12 @@ The agent harness brings these capabilities together: **revisable plans + persis
 
 ## See and understand every run
 
-The Console puts the live device and the agent's execution history in one workspace.
+The Console puts saved observation screenshots and the agent's execution history in one workspace.
 
-- **Watch progress:** follow the live screen, current stage and streaming model responses.
+- **Watch progress:** follow newly recorded screenshots, the current stage and streaming model responses.
 - **Browse past runs:** page through task summaries, filter failures and open execution details on demand.
 - **Inspect decisions:** open a Timeline call to see the actual model input, returned decision, active skills, tool calls and associated screenshot.
-- **Diagnose failures:** trace an action to its target, receipt and resulting observation; revisit earlier screens without losing the current device view.
+- **Diagnose failures:** trace an action to its target, receipt and resulting observation; revisit screenshots from the selected call or model round without capturing the phone again.
 - **Understand resource use:** inspect task and model latency, call counts and reported input, output and cache usage.
 
 [Console and observability guide →](docs/observability.md)
@@ -96,9 +98,39 @@ The harness assembles the original task, current stage, fresh observation, struc
 
 [Architecture and module interfaces](docs/architecture.md) · [Design decisions](docs/design-decisions.md)
 
+## Connect your PC AI assistant with MCP
+
+Connect ClickClick to a PC AI assistant that supports MCP. Delegate phone tasks in chat, ask for progress, and pause, resume or cancel when needed.
+
+### Recommended: let your AI assistant install and connect
+
+If your assistant can run commands on this PC, send it this prompt to handle downloading, installation, phone connection and MCP setup:
+
+> Install and connect ClickClick on this PC (https://github.com/LordRosenberg/ClickClick). Follow the installation guide, detect Windows/macOS and CPU architecture, download the matching official Release installer and verify its published SHA-256. If unavailable, follow source deployment; do not treat a source ZIP as an installer. Check the installation exit status and backend identity. Open local settings so I can choose subscription login or an API; guide official authorization and let me enter API keys in the page, keeping them out of chat. Ask whether I want Wi-Fi, USB or an existing emulator, handle PC-side connection and guide phone debugging and permission prompts. Obtain the generated assistant connection prompt from Settings, read the local stdio configuration at its complete path, and register clickclick through your own official MCP command or configuration entry, preserving existing settings. If exporting with the installed ClickClick CLI, explicitly specify --client generic --transport stdio --output with a complete local file path, then read that file; do not use ClickClick register instead of your own registration mechanism. If this session can load MCP, call get_status to check model configuration and device initialization, and share the Console URL. If I must restart the client or open a new session, report "registered, verification pending", give exact steps, and provide this standalone instruction for the new session: "Call ClickClick get_status, check the connection, model configuration and phone initialization, and report readiness and unfinished steps." Registration and ADB connectivity alone are not successful verification. get_status makes no model requests or phone test tasks; run an actual phone test only when I explicitly request it.
+
+Choose Codex subscription login or an API in settings, complete model and phone authorization, and approve assistant actions. [Detailed installation guide](docs/local-mcp.md#let-a-local-assistant-install-it)
+
+### Manual installation
+
+1. **Install ClickClick.** Choose an installer for your Windows or macOS PC from [GitHub Releases](https://github.com/LordRosenberg/ClickClick/releases). If no matching installer is available, follow the [source deployment guide](docs/deployment.md).
+2. **Configure a model and connect your phone.** Open settings, choose Codex subscription login or configure an API, and connect Android over Wi-Fi or USB. An existing emulator also works. Follow the prompts to enable debugging and approve permissions on the phone.
+3. **Connect your assistant.** Copy the assistant connection prompt from Settings, or use the client-specific commands/configuration under Manual setup. If the client requires a new session, use the separate connection verification prompt shown on the page.
+
+### Try a task
+
+Once connected, describe what you want done in your assistant's chat:
+
+> Use ClickClick to copy the three recipes in this note into my recipe app. Preserve ingredients and directions, check the saved records, and tell me whether the task is complete.
+
+During a task, ask “How is it going?” or “Pause this task.” Ask for the Console link to see execution steps and saved screenshots. Keep the PC and phone online while tasks run.
+
+[MCP setup guide](docs/local-mcp.md) · [Desktop installation and phone connection (中文)](docs/desktop-setup.zh-CN.md)
+
+After installation, launch ClickClick from the desktop or Applications entry. Its tray/menu-bar icon opens the Console, starts or stops the backend, and controls login startup. Active tasks can be paused or cancelled before shutdown; closing the browser keeps the backend running.
+
 ## Deployment
 
-Use Python 3.12, Node.js/npm, Android SDK Platform-Tools and a model service supporting images and tool calls. Start with a locally connected device; see [deployment](docs/deployment.md) for remote hosts.
+These steps are for source installation; desktop installer users can skip them. Use Python 3.12, Node.js/npm, Android SDK Platform-Tools and a model service supporting images and tool calls. Start with a locally connected device; see [deployment](docs/deployment.md) for remote hosts.
 
 ### 1. Install and configure a model
 
@@ -154,7 +186,7 @@ Open [Console](http://127.0.0.1:8080). In the task creation form, choose a decis
 
 > Open Android Settings, enter Wi-Fi in its search field, inspect the wireless-network settings and report their current state. Do not change any switches.
 
-Click **submit** and follow the task in Console. Select a Timeline call to inspect the model input, tools and screenshot. Switch between **Live** for the current screen and **Frame** for the selected step.
+Click **submit** and follow the task in Console. Select a Timeline call to inspect the model input, tools and saved observation screenshot. Enable follow-latest to track new records, or select a model image to inspect that round's visual input.
 
 ## Describe a task in your own words
 
@@ -192,6 +224,8 @@ Explore per-task scores and execution traces on the [AndroidWorld results site](
 
 | Guide | What you will learn | 中文 |
 | --- | --- | --- |
+| [PC assistant MCP integration](docs/local-mcp.md) | Setup, eight task tools, progress and pause/resume. | [中文](docs/local-mcp.zh-CN.md) |
+| [Desktop setup quickstart](docs/local-mcp.md#desktop-setup) | Installers, subscription/API configuration, Wi-Fi/USB and registration. | [中文](docs/desktop-setup.zh-CN.md) |
 | [Technical overview](docs/reliability-design.md) | Design goals and the reasoning behind the core mechanisms. | [中文](docs/reliability-design.zh-CN.md) |
 | [Architecture](docs/architecture.md) | Modules, interfaces, execution flow and detailed subsystem designs. | [中文](docs/architecture.zh-CN.md) |
 | [Design decisions](docs/design-decisions.md) | Trade-offs in review, context, capture and input. | [中文](docs/design-decisions.zh-CN.md) |
@@ -200,7 +234,17 @@ Explore per-task scores and execution traces on the [AndroidWorld results site](
 | [Task examples](docs/task-examples.md) | Natural-language task examples and result verification. | [中文](docs/task-examples.zh-CN.md) |
 | [Evaluation](docs/evaluation.md) | Benchmark setup, scoring and reproduction. | [中文](docs/evaluation.zh-CN.md) |
 | [Skills](skills/README.md) | App knowledge, operating guidance and skill authoring. | [中文](skills/README.zh-CN.md) |
+| [Skill self-improvement](docs/skill-evolution.md) | Learning from real tasks, independent review, selective validation and capability boundaries. | [中文](docs/skill-evolution.zh-CN.md) |
 
 Licensed under [Apache 2.0](LICENSE).
 
 See [third-party notices](THIRD_PARTY_NOTICES.md) for bundled components.
+
+
+## Project trends
+
+[![Star History](https://api.star-history.com/svg?repos=LordRosenberg/ClickClick&type=Date)](https://www.star-history.com/#LordRosenberg/ClickClick&Date)
+
+[![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
+
+Installer downloads are sampled daily from the first observation. Only Windows/macOS installer assets are counted, including repeat downloads and upgrades; this is not a count of unique users.

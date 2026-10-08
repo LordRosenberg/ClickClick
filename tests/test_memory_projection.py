@@ -52,6 +52,10 @@ def test_note_projection_can_read_old_full_sources_image_and_update(memory):
     assert partial["items"][0]["truncated"]
     rest, _ = read(store, partial["items"][0]["continue_source"])
     assert rest["items"][0]["text"]
+    assert rest["items"][0]["offset"] == len(partial["items"][0]["text"])
+    tail, _ = read(store, note["source"] + "#" + str(len(old["items"][0]["text"]) - 10))
+    assert tail["items"][0]["offset"] == len(old["items"][0]["text"]) - 10
+    assert "continue_source" not in tail["items"][0]
     _, attachments = read(store, old["items"][0]["observation_ids"][0], view="image")
     assert attachments[0].content == image
     assert store.get("note", note["note_key"])["version"] == 2

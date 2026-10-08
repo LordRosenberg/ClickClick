@@ -1,0 +1,49 @@
+name: Update installer download trend
+
+on:
+  schedule:
+    - cron: "23 1 * * *"
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - scripts/project_stats.py
+      - .github/workflows/project-stats.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: project-download-stats
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == 'LordRosenberg/ClickClick'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/androidworld-gallery
+          path: site
+      - name: Sample published installer assets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/project_stats.py --output site/stats
+      - name: Commit daily sample to website branch
+        working-directory: site
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add stats/installer-downloads.json stats/installer-downloads.svg
+          if ! git diff --cached --quiet; then
+            git commit -m "stats: sample installer downloads"
+            git pull --rebase origin codex/androidworld-gallery
+            git push origin HEAD:codex/androidworld-gallery
+          fi
