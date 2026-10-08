@@ -97,7 +97,9 @@ def test_windows_stop_reaps_orphans_only_after_verifying_ownership(tmp_path, mon
         TimeoutExpired=Timeout, NoSuchProcess=Gone, AccessDenied=PermissionError))
     write_json(tmp_path / "data/service-state.json", {"pid": 9, "children": {"http-mcp": 7}})
     monkeypatch.setattr(service.sys, "platform", "win32")
+    monkeypatch.setattr(service.subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False)
     def native_stop(command, **kwargs):
+        assert kwargs["creationflags"] == 0x08000000
         events.append("native-stop")
         return SimpleNamespace(returncode=0)
     monkeypatch.setattr(service.subprocess, "run", native_stop)
@@ -114,7 +116,9 @@ def test_windows_stop_requests_coordinated_exit_before_native_end(tmp_path, monk
     monkeypatch.setitem(sys.modules, "psutil", SimpleNamespace(TimeoutExpired=TimeoutError))
     monkeypatch.setattr(service, "finish_service_exit", lambda _: events.append("verified-exit"))
     monkeypatch.setattr(service.sys, "platform", "win32")
+    monkeypatch.setattr(service.subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False)
     def native_stop(command, **kwargs):
+        assert kwargs["creationflags"] == 0x08000000
         assert read_json(tmp_path / "data/service-stop.request") == {"pid": 7}
         events.append("native-stop")
         return SimpleNamespace(returncode=0)
