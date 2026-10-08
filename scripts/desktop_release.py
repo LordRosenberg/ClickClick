@@ -11,6 +11,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from desktop.versions import Version, TARGETS, MAX_INSTALLER_BYTES, artifact_name, tag_version
 
+RELEASE_NOTES = Path(__file__).resolve().parents[1] / "docs/releases"
+
 
 def assemble(directory, version):
     Version(version)
@@ -38,6 +40,7 @@ def assemble(directory, version):
 def publish(directory, tag):
     version = tag_version(tag)
     assemble(directory, version)
+    notes = RELEASE_NOTES / ("desktop-" + version + ".md")
     repository = os.environ["GITHUB_REPOSITORY"]
     base = ["gh", "release"]
     viewed = subprocess.run([*base, "view", tag, "--repo", repository, "--json", "isDraft"], capture_output=True, text=True)
@@ -46,14 +49,18 @@ def publish(directory, tag):
             raise ValueError("Release already published; published desktop versions must be immutable")
     else:
         command = [*base, "create", tag, "--repo", repository, "--draft", "--title", "ClickClick " + version,
-                   "--generate-notes", "--verify-tag"]
+                   "--verify-tag"]
+        command += ["--notes-file", str(notes)] if notes.is_file() else ["--generate-notes"]
         if Version(version).pre:
             command.append("--prerelease")
         subprocess.run(command, check=True)
     files = [p for p in directory.rglob("*") if p.is_file() and
              (p.name == "desktop-update.json" or p.name.startswith("ClickClick-"))]
     subprocess.run([*base, "upload", tag, "--repo", repository, "--clobber", *map(str, files)], check=True)
-    subprocess.run([*base, "edit", tag, "--repo", repository, "--draft=false", "--latest=false"], check=True)
+    command = [*base, "edit", tag, "--repo", repository, "--draft=false", "--latest=false"]
+    if notes.is_file():
+        command += ["--notes-file", str(notes)]
+    subprocess.run(command, check=True)
 
 
 def main():

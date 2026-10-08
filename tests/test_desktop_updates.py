@@ -96,6 +96,34 @@ def test_complete_release_manifest_and_workflow(tmp_path):
     assert workflow["on"]["push"]["branches"] == ["develop", "main"]
     assert workflow["jobs"]["publish"]["if"] == "github.event_name == 'push' && startsWith(github.ref, 'refs/tags/desktop-v')"
     assert len(workflow["jobs"]["desktop"]["strategy"]["matrix"]["os"]) == 3
+    build_step = next(s for s in workflow["jobs"]["desktop"]["steps"]
+                      if s.get("name") == "Build offline private-runtime installer")
+    assert build_step["env"]["GH_TOKEN"] == "${{ github.token }}"
+    assert workflow["permissions"]["contents"] == "read"
+
+
+@pytest.mark.parametrize("existing_draft", [False, True])
+def test_publication_uses_reviewed_notes_for_new_and_retried_drafts(tmp_path, monkeypatch, existing_draft):
+    from scripts import desktop_release
+    release_files(tmp_path)
+    notes = tmp_path / "notes"
+    notes.mkdir()
+    expected = notes / "desktop-1.1.0.md"
+    expected.write_text("Reviewed platform limitations", encoding="utf-8")
+    monkeypatch.setattr(desktop_release, "RELEASE_NOTES", notes)
+    monkeypatch.setenv("GITHUB_REPOSITORY", "LordRosenberg/ClickClick")
+    calls = []
+    def invoke(args, **kwargs):
+        calls.append(args)
+        return SimpleNamespace(returncode=0 if args[2] != "view" or existing_draft else 1,
+                               stdout='{"isDraft":true}')
+    monkeypatch.setattr(desktop_release.subprocess, "run", invoke)
+    publish(tmp_path, "desktop-v1.1.0")
+    assert [c[2] for c in calls] == (["view", "upload", "edit"] if existing_draft else ["view", "create", "upload", "edit"])
+    for command in (c for c in calls if c[2] in {"create", "edit"}):
+        assert command[command.index("--notes-file") + 1] == str(expected)
+        assert "--generate-notes" not in command
+    assert "--draft=false" in calls[-1]
 
 
 def test_publication_keeps_draft_until_all_uploads_succeed(tmp_path, monkeypatch):

@@ -14,6 +14,8 @@
 
 GitHub 对 `GITHUB_TOKEN` 创建涉及工作流变更的新标签 Release 有额外限制，因此先合并工作流到默认分支再打标签。[GitHub Releases API](https://docs.github.com/en/rest/releases/releases)。
 
+0.2.0 经维护者明确批准例外发布：两种 macOS 包尚未 Developer ID 签名和 Apple 公证，必须在公开 Release 说明中注明 Gatekeeper 限制。此例外不表示后续正式版本已完成签名验收。发布脚本优先使用 `docs/releases/desktop-<版本>.md` 的已审核说明，文件不存在才生成提交说明；说明随上传完成后一起公开。
+
 ## 发布清单与本地验证
 
 汇总清单 schema 为 `1`，包含版本以及三个目标平台的安装器名称、字节大小、SHA-256。客户端从固定官方仓库 `LordRosenberg/ClickClick` 的已发布 Release 列表筛选最高稳定版本，下载对应 Release 的清单，按本机安装记录选择平台；不使用仓库 `/latest`，因为该仓库也发布 Collector。

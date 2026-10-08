@@ -105,6 +105,7 @@ jobs:
       - name: Build offline private-runtime installer
         env:
           CLICKCLICK_DESKTOP_BUILD_VERSION: ${{ needs.prepare.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: >-
           python scripts/build_desktop.py
