@@ -54,11 +54,13 @@ jobs:
         with:
           repository: senzhk/ADBKeyBoard
           ref: 65874bf129ffe44c813d60770b5f93825509eab9
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
       - run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
       - run: chmod +x gradlew
       - run: ./gradlew assembleDebug
