@@ -259,4 +259,4 @@ python -m evaluation.androidworld.reproduce --install
 
 [![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
 
-Star 趋势由 Star History 自动更新。安装器下载数每小时刷新，桌面正式版发布后也会刷新，按天展示累计下载数，图中标注最后更新时间。GitHub 图片缓存可能导致显示延迟。仅统计 Windows/macOS 安装包，包含重复下载与升级下载，不代表独立用户人数；趋势从首次采样开始积累。
+Star 趋势由 Star History 自动更新，图表服务设有 24 小时缓存。安装器下载数每小时刷新，桌面正式版发布后也会刷新，按天展示累计下载数，图中标注最后更新时间。GitHub 图片缓存可能带来额外的显示延迟。仅统计 Windows/macOS 安装包，包含重复下载与升级下载，不代表独立用户人数；趋势从首次采样开始积累。

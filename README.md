@@ -259,4 +259,4 @@ See [third-party notices](THIRD_PARTY_NOTICES.md) for bundled components.
 
 [![ClickClick installer downloads](https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg)](https://github.com/LordRosenberg/ClickClick/releases)
 
-Star History updates automatically. Installer downloads refresh hourly and after each desktop release, with one total per day and the last update time shown on the chart. GitHub's image cache may delay what you see. Only Windows/macOS installer assets are counted, including repeat downloads and upgrades; this is not a count of unique users. History starts at the first sample.
+Star History updates automatically, with a 24-hour cache at the chart provider. Installer downloads refresh hourly and after each desktop release, with one total per day and the last update time shown on the chart. GitHub's image cache may add a display delay. Only Windows/macOS installer assets are counted, including repeat downloads and upgrades; this is not a count of unique users. History starts at the first sample.
