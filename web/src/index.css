@@ -113,3 +113,48 @@
 *::-webkit-scrollbar-thumb:hover {
   background: var(--cyan);
 }
+
+/* Settings use quieter surfaces and stronger form/action hierarchy. */
+@layer components {
+  .settings-workspace .setup-card {
+    @apply rounded-2xl border border-border bg-bg-1 p-6 sm:p-8;
+    box-shadow: 0 16px 60px rgba(0, 0, 0, 0.12);
+  }
+  .settings-workspace .setup-input,
+  .settings-workspace select,
+  .settings-workspace textarea,
+  .settings-workspace input:not([type="checkbox"]):not([type="radio"]) {
+    @apply rounded-lg border border-border-hi bg-bg-base px-3 py-2.5 text-sm text-text outline-none transition-colors;
+  }
+  .settings-workspace select:focus-visible,
+  .settings-workspace textarea:focus-visible,
+  .settings-workspace input:focus-visible {
+    @apply border-neon/60 ring-2 ring-neon/10;
+  }
+  .settings-workspace input[type="checkbox"],
+  .settings-workspace input[type="radio"] { accent-color: var(--neon); }
+  .settings-workspace .setup-button {
+    @apply rounded-lg border border-border-hi bg-bg-2 px-4 py-2.5 text-sm font-medium text-text transition-colors hover:border-neon/40 hover:text-neon disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .settings-workspace .setup-button-primary {
+    @apply border-neon bg-neon text-bg-base hover:bg-neon/90 hover:text-bg-base;
+  }
+  .settings-workspace summary {
+    @apply cursor-pointer list-none leading-6;
+  }
+  .settings-workspace summary::-webkit-details-marker { display: none; }
+  .settings-workspace summary::before {
+    content: "›";
+    display: inline-block;
+    width: 1rem;
+    margin-right: 0.25rem;
+    color: var(--text-mute);
+    transition: transform 160ms ease;
+  }
+  .settings-workspace details[open] > summary::before { transform: rotate(90deg); }
+  .settings-workspace [hidden] { display: none !important; }
+  .settings-workspace .setup-nav:focus-visible,
+  .settings-workspace label:has(input[type="radio"]:focus-visible) {
+    @apply outline outline-2 outline-offset-2 outline-neon/50;
+  }
+}

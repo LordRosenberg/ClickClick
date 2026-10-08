@@ -201,8 +201,10 @@ def mount_setup_api(app, *, settings, submission_lock):
     async def recover_update(body: UpdateRecoveryBody):
         try:
             return await asyncio.to_thread(updates.recover, installed_home(), confirmed=body.confirmed)
+        except TimeoutError as exc:
+            raise HTTPException(409, "升级正在进行，无需清除状态。请等待升级完成。") from exc
         except (ValueError, RuntimeError, OSError) as exc:
-            raise HTTPException(409, "恢复未完成：请确认更新器/安装器已退出，再使用恢复入口。") from exc
+            raise HTTPException(409, "无法清除中断的升级状态，请检查后台日志后重试。") from exc
 
     if install_home:
         @app.on_event("startup")

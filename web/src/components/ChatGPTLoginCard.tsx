@@ -77,14 +77,14 @@ export function ChatGPTLoginCard({ request, beforeLogin, disabled }: { request: 
     }
   }
 
-  return <div className="space-y-3 rounded border border-cyan/30 p-4 text-sm">
-    <p>{t("订阅登录 ·")}{status.isLoading ? t("检查中…") : status.data?.authenticated ? t("已登录") : t("未登录")}</p>
+  return <div className="space-y-4 rounded-xl border border-border bg-bg-base/30 p-5 text-sm">
+    <p className="flex items-center gap-2 font-medium"><span className={`h-2 w-2 rounded-full ${status.data?.authenticated ? "bg-neon" : "bg-text-faint"}`} />{t("订阅登录 ·")}{status.isLoading ? t("检查中…") : status.data?.authenticated ? t("已登录") : t("未登录")}</p>
     <p className="text-text-mute">{t("点击后保存当前设置并打开 OpenAI 授权页。授权完成后，ClickClick 自动保存本机登录状态。")}</p>
-    <div className="rounded border border-neon/40 bg-neon/5 p-3">
+    {!status.data?.authenticated && <div className="rounded-lg bg-neon/5 p-4">
       <p className="font-semibold text-neon">{t("设备授权码会显示在这个 ClickClick 页面")}</p>
       <p className="mt-1 text-text-mute">{t("点击“登录并授权”后，在这里复制设备授权码，再粘贴到 OpenAI 授权页。若跳转后要求输入验证码，请返回此页获取。")}</p>
-    </div>
-    {!pending && <button type="button" className="rounded border border-neon/40 px-3 py-2 text-neon disabled:opacity-40" disabled={busy || disabled} onClick={login}>{busy ? t("准备登录…") : status.data?.authenticated ? t("重新登录并授权") : t("登录并授权")}</button>}
+    </div>}
+    {!pending && <button type="button" className={`setup-button ${status.data?.authenticated ? "" : "setup-button-primary"}`} disabled={busy || disabled} onClick={login}>{busy ? t("准备登录…") : status.data?.authenticated ? t("重新登录并授权") : t("登录并授权")}</button>}
     {pending && <div className="space-y-3">
       <div className="rounded border border-neon/40 bg-neon/5 p-4">
         <p>{t("设备授权码（填入 OpenAI 授权页）")}</p>

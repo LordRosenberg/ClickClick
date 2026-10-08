@@ -19,7 +19,7 @@ export function AssistantConnectionPanel({ request }: {
   const [client, setClient] = useState("codex");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
-  const buttonClass = "rounded border border-neon/40 px-3 py-2 text-sm text-neon disabled:opacity-40";
+  const buttonClass = "setup-button";
   useEffect(() => {
     let active = true;
     request<ConnectionInfo>("mcp-connection", { locale }).then(data => {
@@ -32,17 +32,17 @@ export function AssistantConnectionPanel({ request }: {
     catch { setNotice(t("无法自动复制，请选中下方文本手动复制。")); }
   }
   const manual = info?.manual.find(item => item.id === client);
-  return <section className="space-y-4 rounded border border-border bg-bg-2 p-5">
-    <h2 className="font-semibold">{t("在 AI 助手中添加 ClickClick")}</h2>
+  return <section className="setup-card space-y-5">
+    <h2 className="text-xl font-semibold">{t("在 AI 助手中添加 ClickClick")}</h2>
     <p className="text-sm text-text-mute">{t("让助手添加，或按它支持的方式手动添加。这里提供接入信息，注册由助手或你完成。")}</p>
     {error && <p role="alert" className="text-sm">{t(error)}</p>}
     {!info && !error && <p className="text-sm text-text-mute">{t("正在生成本机接入信息…")}</p>}
     {info && <>
-      <div className="space-y-3 rounded border border-neon/30 p-4">
+      <div className="space-y-4 rounded-xl border border-neon/25 bg-neon/[0.04] p-5">
         <h3 className="text-sm font-semibold">{t("让助手添加（推荐）")}</h3>
         <p className="text-xs text-text-mute">{t("把下面的提示词发给能执行本机命令、读取本机文件的助手。接入文件已生成，使用 stdio，无需填写监听地址或认证信息。")}</p>
         <p className="break-all text-xs text-text-mute">{t("本机接入文件：")}{info.config_path}</p>
-        <button className={buttonClass} onClick={() => void copy(info.assistant_prompt)}>{t("复制助手接入提示词")}</button>
+        <button className={`${buttonClass} setup-button-primary`} onClick={() => void copy(info.assistant_prompt)}>{t("复制助手接入提示词")}</button>
         <details><summary className="cursor-pointer text-sm">{t("查看提示词")}</summary>
           <textarea aria-label={t("助手接入提示词")} readOnly value={info.assistant_prompt} rows={9} className="mt-3 w-full rounded border border-border bg-bg-base p-3 text-xs" />
         </details>

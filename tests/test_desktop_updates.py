@@ -455,6 +455,27 @@ def test_explicit_recovery_refuses_live_worker_and_removes_delayed_job(home, mon
     assert result["operation"]["state"] == "failed"
 
 
+@pytest.mark.parametrize("lock", [".update-request.lock", ".update-run.lock", ".install.lock"])
+def test_recovery_is_not_offered_while_upgrade_processes_hold_locks(home, lock):
+    updates.operation(home, state="installing")
+    with updates.startup_lock(home / "data" / lock, timeout=0):
+        assert not updates.status(home)["recovery_available"]
+    assert updates.status(home)["recovery_available"]
+
+
+def test_recovery_distinguishes_scheduled_abandoned_and_completed_updates(home):
+    import time
+    updates.operation(home, state="queued")
+    assert not updates.status(home)["recovery_available"]
+    value = read_json(home / "data/update-operation.json")
+    write_json(home / "data/update-operation.json", {**value, "updated_at": time.time() - 60})
+    assert updates.status(home)["recovery_available"]
+    updates.operation(home, state="succeeded")
+    assert not updates.status(home)["recovery_available"]
+    write_json(home / "data/update-maintenance.json", {"job": "a" * 32})
+    assert updates.status(home)["recovery_available"]
+
+
 async def test_authenticated_update_api_and_source_unavailability(home, monkeypatch):
     monkeypatch.setenv("CLICKCLICK_DATA_DIR", str(home / "data"))
     monkeypatch.setenv("CLICKCLICK_MCP_HTTP_ENABLED", "true")

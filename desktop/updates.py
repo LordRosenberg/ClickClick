@@ -23,6 +23,22 @@ CHECK_INTERVAL = 12 * 60 * 60
 ACTIVE = {"queued", "downloading", "installing"}
 
 
+def recovery_available(home, operation, maintenance):
+    """Offer recovery only for abandoned state, never a live updater/installer."""
+    if operation.get("state") not in ACTIVE and not maintenance:
+        return False
+    # A newly scheduled worker has not necessarily acquired its lock yet.
+    if operation.get("state") == "queued" and time.time() - operation.get("updated_at", 0) < 30:
+        return False
+    try:
+        with startup_lock(paths(home) / ".update-request.lock", timeout=0):
+            with startup_lock(paths(home) / ".update-run.lock", timeout=0):
+                with startup_lock(paths(home) / ".install.lock", timeout=0):
+                    return True
+    except OSError:
+        return False
+
+
 def paths(home):
     return Path(home).resolve() / "data"
 
@@ -34,11 +50,13 @@ def status(home):
     available = feed.get("available")
     if available and Version(available["version"]) <= Version(current["version"]):
         feed["available"] = None
+    operation = read_json(paths(home) / "update-operation.json")
+    maintenance = (paths(home) / "update-maintenance.json").exists()
     return {"supported": True, "current_version": current["version"],
             "auto_check": config.get("auto_check_updates", True),
             "feed": feed,
-            "operation": read_json(paths(home) / "update-operation.json"),
-            "maintenance": (paths(home) / "update-maintenance.json").exists()}
+            "operation": operation, "maintenance": maintenance,
+            "recovery_available": recovery_available(home, operation, maintenance)}
 
 
 def notice(home):
@@ -374,5 +392,5 @@ def recover(home, *, confirmed=False):
                     from desktop import service
                     service.remove_update(home, value["job"])
                 clear_gate(home, value.get("job"))
-                operation(home, state="failed", error="已恢复任务接收；请检查当前版本和启动状态后重新检查更新。")
+                operation(home, state="failed", error="已清除中断的升级状态，可以重新检查更新并点击升级；本次操作不会继续下载或安装。")
     return status(home)

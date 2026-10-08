@@ -4,6 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import { CoreSettingsPanel } from "@/components/CoreSettingsPanel";
 import { AssistantConnectionPanel } from "@/components/AssistantConnectionPanel";
 import { DesktopUpdates } from "@/components/DesktopUpdates";
+import { Cpu, Smartphone, Plug, SlidersHorizontal, ArrowUpCircle, ArrowRight } from "lucide-react";
+
+const sections = [
+  { id: "models", label: "模型与账号", description: "登录订阅或配置 API", icon: Cpu },
+  { id: "devices", label: "手机连接", description: "Wi-Fi、USB 与模拟器", icon: Smartphone },
+  { id: "assistant", label: "助手接入", description: "把手机任务交给助手", icon: Plug },
+  { id: "execution", label: "运行与学习", description: "任务预算与 Skill 偏好", icon: SlidersHorizontal },
+  { id: "updates", label: "版本更新", description: "查看与安装新版", icon: ArrowUpCircle },
+] as const;
 
 type SetupStatus = {
   api_model: { saved: boolean; model?: string; base_url?: string };
@@ -23,6 +32,7 @@ export function SetupView() {
     return supplied ?? sessionStorage.getItem("clickclick-setup-token") ?? "";
   });
   const [status, setStatus] = useState<SetupStatus>();
+  const [section, setSection] = useState<string>("models");
   const [pairAddress, setPairAddress] = useState("");
   const [pairCode, setPairCode] = useState("");
   const [connectAddress, setConnectAddress] = useState("");
@@ -64,25 +74,44 @@ export function SetupView() {
     finally { setBusy(false); }
   }
 
-  const inputClass = "w-full rounded border border-border bg-bg-base px-3 py-2 text-sm";
-  const buttonClass = "rounded border border-neon/40 px-3 py-2 text-sm text-neon disabled:opacity-40";
-  const cardClass = "space-y-3 rounded border border-border bg-bg-2 p-5";
+  const inputClass = "setup-input mt-2 w-full";
+  const buttonClass = "setup-button";
+  const cardClass = "setup-card space-y-5";
 
   if (!token) return <div className={cardClass}>
     <h1 className="text-lg font-semibold">{t("设置")}</h1>
     <p>{notice || t("正在连接本机设置…")}</p>
   </div>;
 
-  return <div className="mx-auto max-w-3xl space-y-5">
-    <div><h1 className="text-xl font-semibold">{t("设置")}</h1>
-      <p className="mt-2 text-sm text-text-mute">{t("选择订阅登录或 API，设置任务预算，连接手机，在 AI 助手中添加 ClickClick。")}</p></div>
+  return <div className="settings-workspace mx-auto max-w-6xl pb-12">
+    <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div><p className="mb-2 text-xs font-medium tracking-[0.18em] text-neon">CLICKCLICK / {t("工作空间")}</p>
+        <h1 className="text-3xl font-semibold tracking-tight">{t("设置")}</h1>
+        <p className="mt-3 text-sm text-text-mute">{t("连接模型、手机和助手，准备好你的手机任务工作空间。")}</p></div>
+      <span className="inline-flex items-center gap-2 rounded-full border border-border bg-bg-1 px-3 py-1.5 text-xs text-text-mute"><span className="h-1.5 w-1.5 rounded-full bg-neon" />{t("本机设置")}</span>
+    </header>
     {notice && <div role="status" className="whitespace-pre-wrap rounded border border-cyan/40 p-4 text-sm">{t(notice)}</div>}
     {notice && <button className={buttonClass} onClick={() => {
       sessionStorage.removeItem("clickclick-setup-token"); setToken(""); setNotice("");
     }}>{t("重新连接本机设置")}</button>}
-    <CoreSettingsPanel request={request} />
-    <section className={cardClass}>
-      <h2 className="font-semibold">{t("连接 Android")}</h2>
+    <div className="grid items-start gap-7 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <aside className="lg:sticky lg:top-24">
+        <nav aria-label={t("设置分类")} className="grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1">
+          {sections.map(({ id, label, description, icon: Icon }) => <button key={id} type="button" aria-current={section === id ? "page" : undefined}
+            onClick={() => setSection(id)} className={`setup-nav flex shrink-0 items-center gap-3 rounded-xl p-3 text-left transition-colors ${section === id ? "bg-neon/10 text-neon" : "text-text-mute hover:bg-bg-2 hover:text-text"}`}>
+            <Icon size={18} strokeWidth={1.7} /><span><span className="block text-sm font-medium">{t(label)}</span><span className="mt-1 hidden text-xs text-text-mute lg:block">{t(description)}</span></span>
+          </button>)}
+        </nav>
+        <div className="mt-7 hidden rounded-xl border border-border p-4 lg:block">
+          <p className="text-xs font-medium">{t("第一次使用？")}</p>
+          <p className="mt-2 text-xs leading-6 text-text-mute">{t("先配置模型，再连接手机，最后在助手中添加 ClickClick。")}</p>
+          <button type="button" onClick={() => setSection("assistant")} className="mt-3 flex items-center gap-2 text-xs text-neon">{t("让助手协助接入")}<ArrowRight size={13} /></button>
+        </div>
+      </aside>
+      <div className="min-w-0">
+    <div hidden={section !== "models" && section !== "execution"}><CoreSettingsPanel request={request} section={section === "execution" ? "execution" : "models"} /></div>
+    <section hidden={section !== "devices"} className={cardClass}>
+      <div><h2 className="text-xl font-semibold">{t("连接 Android")}</h2><p className="mt-2 text-sm text-text-mute">{t("选择适合你的连接方式，手机授权只需在设备上确认。")}</p></div>
       <details open><summary>{t("Wi-Fi（Android 11 及以上，不需要数据线）")}</summary>
         <p className="my-3 text-sm text-text-mute">{t(status?.guides.wifi ?? "")}</p>
         <label className="block text-sm">{t("配对地址与端口")}<input className={inputClass} placeholder={t("手机配对码页面显示的 IP:端口")} value={pairAddress} onChange={e => setPairAddress(e.target.value)} /></label>
@@ -104,7 +133,9 @@ export function SetupView() {
       })}>{t("检查已连接设备")}</button>
       {inventory.map(d => <p key={d.serial} className="text-sm">{d.serial} · {d.state === "device" ? t("ADB 在线") : d.state}</p>)}
     </section>
-    <AssistantConnectionPanel request={request} />
-    <DesktopUpdates token={token} />
+    <div hidden={section !== "assistant"}><AssistantConnectionPanel request={request} /></div>
+    <div hidden={section !== "updates"}><DesktopUpdates token={token} /></div>
+      </div>
+    </div>
   </div>;
 }

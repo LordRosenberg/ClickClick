@@ -8,9 +8,10 @@ import { getLearningPreferences, updateLearningPreferences } from "@/api/client"
 import type { LearningPreferences } from "@/api/client";
 import { emptyModel, emptyProfile, renameModel, settingsPayload, modelPresets, roleModelOptions, resolvedRoleModel, selectRoleModel, ROLE_LABELS } from "@/lib/console-settings";
 import type { Mode, ModelSettings, Profile, Role, RuntimeSettings, SettingsSummary, SetupRequest, JevSettings } from "@/lib/console-settings";
+import { KeyRound, UserRound, Check, Save } from "lucide-react";
 
-const input = "mt-1 w-full rounded border border-border bg-bg-base px-3 py-2 text-sm";
-const button = "rounded border border-neon/40 px-3 py-2 text-sm text-neon disabled:opacity-40";
+const input = "setup-input mt-2 w-full";
+const button = "setup-button";
 const numbers: Array<{ key: Exclude<keyof RuntimeSettings, "agent_architecture">; label: string; min: number; max: number; optional?: boolean }> = [
   { key: "executor_context_tokens", label: "执行历史默认长度（tokens）", min: 1, max: 1000000 },
   { key: "chatgpt_history_tokens", label: "订阅执行历史长度（留空跟随默认）", min: 1, max: 1000000, optional: true },
@@ -22,7 +23,7 @@ const numbers: Array<{ key: Exclude<keyof RuntimeSettings, "agent_architecture">
   { key: "learning_default_seconds", label: "Skill 学习总时限（秒）", min: 30, max: 1800 },
 ];
 
-export function CoreSettingsPanel({ request }: { request: SetupRequest }) {
+export function CoreSettingsPanel({ request, section = "models" }: { request: SetupRequest; section?: "models" | "execution" }) {
   useLocale();
   const qc = useQueryClient();
   const [mode, setMode] = useState<Mode>("api");
@@ -92,35 +93,43 @@ export function CoreSettingsPanel({ request }: { request: SetupRequest }) {
     finally { setBusy(false); }
   }
 
-  return <section className="space-y-4 rounded border border-border bg-bg-2 p-5">
-    <h2 className="font-semibold">{t("模型与运行设置")}</h2>
-    <p className="text-sm text-text-mute">{t("选择 ClickClick 操作手机时使用的模型。所有角色使用 ClickClick 自己的 harness 和会话。")}</p>
+  function roleCard(role: Role, label: string) {
+    const id = resolvedRoleModel(profile, role);
+    const selectedModel = profile.models.find(model => model.id === id);
+    return <div key={role} className="rounded-xl border border-border bg-bg-base/30 p-4">
+      <label className="block text-sm">{t(label)}<select className={input} value={profile[role]} onChange={e => changeProfile(selectRoleModel(profile, role, e.target.value, mode))}>
+        <option value="">{role === "default_model" ? t("选择默认模型") : role === "skill_learner_model" ? t("跟随 Planner + Reviewer") : role === "skill_reviewer_model" ? t("跟随 Skill Learner") : t("跟随默认模型")}</option>
+        {roleOptions.map(model => <option key={model.id} value={model.id}>{model.label}</option>)}
+      </select></label>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-text-mute">{selectedModel ? t("{value0} · {value1}", { value0: modelName(id), value1: selectedModel.reasoning_supported ? t("思考强度：{value0}", { value0: selectedModel.reasoning_effort || t("服务默认") }) : t("未设置思考强度") }) : t("请先选择模型")}</p>
+        <button type="button" className="text-xs text-neon underline underline-offset-4 disabled:opacity-40" aria-label={t("{value0}：编辑所选模型参数", { value0: t(label) })} disabled={!selectedModel} onClick={() => editModelParameters(id)}>{t("编辑所选模型参数")}</button>
+      </div>
+    </div>;
+  }
+
+  return <section className="setup-card space-y-6">
+    <div><h2 className="text-xl font-semibold">{t(section === "models" ? "模型与账号" : "运行与学习")}</h2>
+    <p className="mt-2 text-sm leading-6 text-text-mute">{t(section === "models" ? "选择 ClickClick 操作手机时使用的模型。所有角色使用 ClickClick 自己的 harness 和会话。" : "设置每次任务和 Skill 学习的开销，按需开启额外检查。")}</p></div>
     {notice && <p role="status" className="whitespace-pre-wrap text-sm text-cyan">{t(notice)}</p>}
     <fieldset disabled={busy || !runtime} className="space-y-4 disabled:opacity-60">
-      <div className="flex gap-5">{(["api", "subscription"] as Mode[]).map(value => <label key={value}>
-        <input type="radio" name="model-mode" checked={mode === value} onChange={() => { setMode(value); setCustomModels(new Set()); setNotice(""); }} />
-        {value === "api" ? t(" 配置 API") : t(" Codex / ChatGPT 订阅登录")}
+      <div hidden={section !== "models"} className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-2">{(["subscription", "api"] as Mode[]).map(value => <label key={value} className={`relative flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${mode === value ? "border-neon/50 bg-neon/[0.06]" : "border-border bg-bg-base/40 hover:border-border-hi"}`}>
+        <input className="sr-only" type="radio" name="model-mode" checked={mode === value} onChange={() => { setMode(value); setCustomModels(new Set()); setNotice(""); }} />
+        {value === "api" ? <KeyRound size={19} className="mt-0.5 text-text-mute" /> : <UserRound size={19} className="mt-0.5 text-text-mute" />}
+        <span className="pr-4"><span className="block text-sm font-medium">{value === "api" ? t("配置 API") : t("Codex / ChatGPT 订阅")}</span><span className="mt-1.5 block text-xs text-text-mute">{t(value === "api" ? "使用自己的模型服务与 API Key" : "用现有账号登录并授权")}</span></span>
+        {mode === value && <Check size={15} className="absolute right-3 top-4 text-neon" />}
       </label>)}</div>
       <p className="text-sm text-text-mute">{t("切换后点击保存才会生效，两种方式的配置会分别保留。模型需支持图片与工具调用。")}</p>
     {mode === "subscription" && <ChatGPTLoginCard request={request} beforeLogin={save} disabled={busy || !runtime || !profile.default_model} />}
-      <p className="text-sm text-text-mute">{t("常用 GPT 模型可直接选择，实际可用性取决于账号或 API 服务。各角色也可直接选择预置模型，新增配置会沿用默认模型的参数")}{mode === "api" ? t("与同一 API 服务的凭据") : ""}{t("。")}</p>
-      <details open><summary className="cursor-pointer text-sm">{t("1. 选择模型")}</summary>
-        <p className="mt-3 text-sm text-text-mute">{t("角色使用所选模型的思考强度等参数。点击“编辑所选模型参数”可展开下方对应模型的配置。")}</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        {(Object.entries(ROLE_LABELS) as Array<[Role, string]>).map(([role, label]) => {
-          const id = resolvedRoleModel(profile, role);
-          const selectedModel = profile.models.find(model => model.id === id);
-          return <div key={role} className="rounded border border-border p-3">
-          <label className="block text-sm">{t(label)}<select className={input} value={profile[role]} onChange={e => changeProfile(selectRoleModel(profile, role, e.target.value, mode))}>
-          <option value="">{role === "default_model" ? t("选择默认模型") : role === "skill_learner_model" ? t("跟随 Planner + Reviewer") : role === "skill_reviewer_model" ? t("跟随 Skill Learner") : t("跟随默认模型")}</option>
-          {roleOptions.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
-          </select></label>
-          <p className="mt-2 text-xs text-text-mute">{selectedModel ? t("{value0} · {value1}", { value0: modelName(id), value1: selectedModel.reasoning_supported ? t("思考强度：{value0}", { value0: selectedModel.reasoning_effort || t("服务默认") }) : t("未设置思考强度") }) : t("请先选择模型")}</p>
-          <button type="button" className="mt-2 text-xs text-neon underline underline-offset-4 disabled:opacity-40"
-            aria-label={t("{value0}：编辑所选模型参数", { value0: t(label) })} disabled={!selectedModel} onClick={() => editModelParameters(id)}>{t("编辑所选模型参数")}</button>
-          </div>;
-        })}
-      </div></details>
+      <p className="text-xs leading-6 text-text-mute">{t("模型的可用性取决于你的账号或 API 服务。")}</p>
+      <details open><summary className="cursor-pointer text-sm font-semibold">{t("1. 选择模型")}</summary>
+        <div className="mt-3">{roleCard("default_model", ROLE_LABELS.default_model)}</div>
+        <details className="mt-4"><summary className="text-xs text-text-mute">{t("为不同角色选择模型（可选）")}</summary>
+          <p className="mt-3 text-xs leading-6 text-text-mute">{t("默认共用同一模型。需要时可为规划、执行和 Skill 学习分别选择，参数在下方按模型配置。")}</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">{(Object.entries(ROLE_LABELS) as Array<[Role, string]>).filter(([role]) => role !== "default_model").map(([role, label]) => roleCard(role, label))}</div>
+        </details>
+      </details>
       <div className="border-t border-border pt-4">
         <h3 className="text-sm font-semibold">{t("2. 配置模型参数")}</h3>
         <p className="mt-2 text-xs text-text-mute">{t("在上方选好模型后，在这里设置 API 连接、思考强度等参数。同一模型的配置由使用它的角色共用。")}</p>
@@ -130,7 +139,7 @@ export function CoreSettingsPanel({ request }: { request: SetupRequest }) {
         open={expandedModels[model.id] ?? index === 0}
         onToggle={e => { const open = e.currentTarget.open;
           setExpandedModels(previous => previous[model.id] === open ? previous : { ...previous, [model.id]: open }); }}
-        className="scroll-mt-20 rounded border border-neon/20 bg-bg-base/40 p-4">
+        className="scroll-mt-20 rounded-xl border border-border bg-bg-base/40 p-5">
         <summary className="cursor-pointer text-sm font-semibold">{modelName(model.id)} {t("· 模型配置")}{profile.default_model === model.id && <span className="ml-2 rounded bg-neon/10 px-2 py-0.5 text-xs font-normal text-neon">{t("默认")}</span>}
         </summary>
         <div className="mt-3 space-y-3">
@@ -193,16 +202,22 @@ export function CoreSettingsPanel({ request }: { request: SetupRequest }) {
         setExpandedModels(previous => ({ ...previous, "": true }));
         changeProfile({ ...profile, models: [...profile.models, emptyModel()] });
       }}>{t("添加自定义模型")}</button>
-      {runtime && <details><summary className="cursor-pointer text-sm">{t("任务与 Skill 学习默认预算")}</summary>
+      </div>
+      <div hidden={section !== "execution"} className="space-y-5">
+      {runtime && <details open className="rounded-xl border border-border p-5"><summary className="cursor-pointer text-sm font-semibold">{t("任务与 Skill 学习默认预算")}</summary>
         <p className="mt-3 text-sm text-text-mute">{t("Skill 学习（自进化）会探索 App 的操作方法，生成待评审的可复用技能。这些预算限制每次学习的开销；保存预算不会启动学习。")}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="text-sm">{t("任务流程")}<select className={input} value={runtime.agent_architecture} onChange={e => setRuntime({ ...runtime, agent_architecture: e.target.value as RuntimeSettings["agent_architecture"] })}><option value="plan_executor">{t("Planner + Executor（默认）")}</option><option value="plan_reviewer">Planner + Executor + Reviewer</option></select></label>
         {numbers.map(({ key, label, min, max, optional }) => <label key={key} className="text-sm">{t(label)}<input className={input} type="number" required={!optional} min={min} max={max} value={runtime[key] ?? ""} onChange={e => setRuntime({ ...runtime, [key]: e.target.value === "" ? null : Number(e.target.value) })} /></label>)}
       </div><p className="mt-3 text-sm text-text-mute">{t("时限从创建任务开始计算，暂停不会延长。Skill 学习仍需每次确认模型开销和设备操作；结果需评审与验证，不会自动发布。")}</p></details>}
       <JevSettingsPanel value={jev} onChange={setJev} />
-      <button className={button} type="button" disabled={!profile.default_model} onClick={() => perform(save)}>{busy ? t("保存中…") : t("保存模型与运行设置")}</button>
+      </div>
+      <div className="flex items-center justify-between gap-4 border-t border-border pt-5">
+        <span className="text-xs text-text-mute">{t("保存后用于新任务")}</span>
+        <button className="setup-button setup-button-primary inline-flex items-center gap-2" type="button" disabled={!profile.default_model} onClick={() => perform(save)}><Save size={15} />{busy ? t("保存中…") : t("保存设置")}</button>
+      </div>
     </fieldset>
-    {preferences && <details><summary className="cursor-pointer text-sm">{t("本地任务统计与报告导出")}</summary><div className="mt-3 space-y-3 text-sm">
+    {preferences && <details hidden={section !== "execution"} className="rounded-xl border border-border p-5"><summary className="cursor-pointer text-sm">{t("本地任务统计与报告导出")}</summary><div className="mt-3 space-y-3 text-sm">
       <label className="block"><input type="checkbox" checked={preferences.local_recording} disabled={busy} onChange={e => perform(async () => { const value = await updateLearningPreferences({ ...preferences, local_recording: e.target.checked }); setPreferences(value); qc.setQueryData(["learning-preferences"], value); })} /> {t("记录任务统计与 Skill 改进线索（仅保存在本机）")}</label>
       <p className="text-text-mute">{t("任务结束后记录成功/失败、重复动作等线索，供后续 Skill 学习参考。记录本身不会额外调用模型或操作手机。")}</p>
       <label className="block"><input type="checkbox" checked={preferences.contribution_enabled} disabled={busy} onChange={e => perform(async () => { const value = await updateLearningPreferences({ ...preferences, contribution_enabled: e.target.checked }); setPreferences(value); qc.setQueryData(["learning-preferences"], value); })} /> {t("允许在任务详情中手动导出统计报告（默认关闭）")}</label>
