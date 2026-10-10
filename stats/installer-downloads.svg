@@ -5,8 +5,8 @@
 <text x="730" y="36" font-size="22" text-anchor="end" font-weight="bold">7</text>
 <path d="M72 70V230H730" fill="none" stroke="#bbc4d3"/>
 <text x="60" y="86" text-anchor="end" font-size="12">7</text><text x="60" y="234" text-anchor="end" font-size="12">0</text>
-<polyline points="72.0,80.0 730.0,80.0" fill="none" stroke="#5b69e8" stroke-width="3"/><circle cx="72.0" cy="80.0" r="4" fill="#5b69e8"/><circle cx="730.0" cy="80.0" r="4" fill="#5b69e8"/>
-<text x="72" y="253" font-size="12">2026-10-08</text><text x="730" y="253" text-anchor="end" font-size="12">2026-10-09</text>
-<text x="32" y="283" font-size="12">Updated 2026-10-09 20:11:40 UTC · hourly refresh · daily totals</text>
+<polyline points="72.0,80.0 401.0,80.0 730.0,80.0" fill="none" stroke="#5b69e8" stroke-width="3"/><circle cx="72.0" cy="80.0" r="4" fill="#5b69e8"/><circle cx="401.0" cy="80.0" r="4" fill="#5b69e8"/><circle cx="730.0" cy="80.0" r="4" fill="#5b69e8"/>
+<text x="72" y="253" font-size="12">2026-10-08</text><text x="730" y="253" text-anchor="end" font-size="12">2026-10-10</text>
+<text x="32" y="283" font-size="12">Updated 2026-10-10 00:06:11 UTC · hourly refresh · daily totals</text>
 <text x="32" y="303" font-size="12">Includes repeat downloads and upgrades · not unique users · history starts 2026-10-08</text>
 </g></svg>
