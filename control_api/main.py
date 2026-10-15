@@ -49,6 +49,7 @@ class CreateTaskBody(BaseModel):
     )
     executor_model: str | None = None
     request_key: str | None = Field(default=None, min_length=1, max_length=160)
+    hitl_enabled: bool | None = None
 
 
 class SkillUpsertBody(BaseModel):
@@ -367,7 +368,7 @@ def create_app(
             return await initialize()
 
     async def _create_task(
-        body: CreateTaskBody, background_tasks: BackgroundTasks
+        body: CreateTaskBody, background_tasks: BackgroundTasks, *, origin="console", binding=None
     ) -> dict[str, Any]:
         # Deduplicate while preserving order. Entries are device keys
         # (``driver_id/serial`` for remote hubs) or bare serials when unique.
@@ -383,7 +384,7 @@ def create_app(
             raise HTTPException(400, "device_serials must be non-empty")
 
         fingerprint = hashlib.sha256(json.dumps({
-            **body.model_dump(exclude={"request_key", "device_serials"}),
+            **body.model_dump(exclude={"request_key", "device_serials"} | ({"hitl_enabled"} if body.hitl_enabled is None else set())),
             "device_serials": sorted(requested),
         }, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         if body.request_key and (submission := db.get_submission(body.request_key)):
@@ -443,6 +444,11 @@ def create_app(
                     ),
                     device_serial=serial,
                 )
+                from shared.hitl import HitlConfig, HumanInputBroker
+                HumanInputBroker(db).configure(record.id, HitlConfig(
+                    enabled=settings.hitl_enabled if body.hitl_enabled is None else body.hitl_enabled,
+                    max_queries=settings.hitl_max_queries, timeout_seconds=settings.hitl_timeout_seconds),
+                    origin=origin, binding=binding)
                 created.append(record.model_dump())
             if body.request_key:
                 db.save_submission(body.request_key, fingerprint, [t["id"] for t in created])
@@ -534,7 +540,7 @@ def create_app(
                 "cancel_requested": False,
                 "already_terminal": True,
             }
-        if t.status not in (TaskStatus.QUEUED, TaskStatus.RUNNING, TaskStatus.PAUSING, TaskStatus.PAUSED):
+        if t.status not in (TaskStatus.QUEUED, TaskStatus.RUNNING, TaskStatus.PAUSING, TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT):
             raise HTTPException(409, f"cannot cancel status={t.status.value}")
 
         handle = _running.get(task_id)
@@ -548,7 +554,7 @@ def create_app(
             message="operator_cancel_requested",
         )
 
-        if not live:
+        if not live or t.status == TaskStatus.WAITING_FOR_INPUT:
             return _force_cancel_orphan(task_id, t)
 
         asyncio.create_task(_hard_cancel_after(task_id))
@@ -567,7 +573,7 @@ def create_app(
         task = db.get_task(task_id)
         if task is None:
             raise HTTPException(404, "task not found")
-        if task.status in _TERMINAL or task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED):
+        if task.status in _TERMINAL or task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT):
             return {"task_id": task_id, "status": task.status.value,
                     "pause_requested": task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED)}
         handle = _running.get(task_id)
@@ -1076,6 +1082,8 @@ def create_app(
         await OBSERVATION_STREAMS.shutdown()
 
     from control_api.assistant import mount_assistant_api
+    from control_api.hitl import mount_human_input
+    mount_human_input(app, db=db, traces=traces, schedule_run=_schedule_run)
 
     mount_assistant_api(app, db=db, artifacts=artifacts, pool=pool, settings=settings,
                         create_task=_create_task, task_body=CreateTaskBody,

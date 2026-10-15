@@ -31,6 +31,7 @@ const statusVariant: Record<
   running: "neon",
   pausing: "warn",
   paused: "warn",
+  waiting_for_input: "warn",
   succeeded: "secondary",
   failed: "destructive",
   cancelled: "warn",
@@ -41,6 +42,7 @@ const statusLabel: Record<TaskStatus, string> = {
   running: "运行中",
   pausing: "正在暂停",
   paused: "已暂停",
+  waiting_for_input: "等待回答",
   succeeded: "运行时完成",
   failed: "运行时失败",
   cancelled: "已取消",
@@ -53,6 +55,7 @@ function statusAccent(status: TaskStatus): string {
     case "queued":
     case "pausing":
     case "paused":
+    case "waiting_for_input":
       return "border-amber/30 hover:border-amber/50";
     case "succeeded":
       return "border-emerald-500/30 hover:border-emerald-500/50";
@@ -70,6 +73,7 @@ function statusDot(status: TaskStatus): string {
     case "queued":
     case "pausing":
     case "paused":
+    case "waiting_for_input":
       return "bg-amber";
     case "succeeded":
       return "bg-emerald-500";

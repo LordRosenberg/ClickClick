@@ -22,6 +22,7 @@ class TaskStatus(str, Enum):
     RUNNING = "running"
     PAUSING = "pausing"
     PAUSED = "paused"
+    WAITING_FOR_INPUT = "waiting_for_input"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
     CANCELLED = "cancelled"

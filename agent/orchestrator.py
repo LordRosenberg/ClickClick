@@ -188,6 +188,8 @@ class Orchestrator:
         if task is None or task.state is None:
             raise KeyError(task_id)
         state = task.state
+        if task.status == TaskStatus.WAITING_FOR_INPUT:
+            return task.status
         if task.status in (TaskStatus.SUCCEEDED, TaskStatus.FAILED, TaskStatus.CANCELLED):
             return task.status
         if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
@@ -802,6 +804,8 @@ class Orchestrator:
             message=f"task_cancelled mode={mode}",
             payload={"mode": mode, "reason": reason},
         )
+        from shared.hitl import HumanInputBroker
+        HumanInputBroker(self.db).reconcile(task_id)
         self.cancel_registry.clear(task_id)
         self._schedule_skill_learner(task_id)
         return TaskStatus.CANCELLED

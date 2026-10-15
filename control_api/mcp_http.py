@@ -42,14 +42,14 @@ class LocalBoundary:
         if scope["type"] not in {"http", "websocket"}:
             return await self.app(scope, receive, send)
         path = scope.get("path", "")
-        if self.setup_only and not path.startswith("/api/setup"):
+        if self.setup_only and not path.startswith(("/api/setup", "/api/hitl")):
             return await self.app(scope, receive, send)
         headers = {k.decode("latin1").lower(): v.decode("latin1") for k, v in scope["headers"]}
         counts = {name: sum(k.lower() == name for k, _ in scope["headers"])
                   for name in (b"host", b"origin", b"authorization")}
         forbidden = (any(count > 1 for count in counts.values()) or headers.get("host", "").lower() not in self.hosts or
                      ("origin" in headers and headers["origin"] not in self.origins))
-        protected = path == "/mcp" or path.startswith("/mcp/") or path.startswith("/api/setup")
+        protected = path == "/mcp" or path.startswith("/mcp/") or path.startswith(("/api/setup", "/api/hitl"))
         authenticated = secrets.compare_digest(headers.get("authorization", "").encode("utf-8"),
                                                  ("Bearer " + self.token).encode("utf-8"))
         # Exact local Host/Origin checks above still apply. Fetch Metadata is

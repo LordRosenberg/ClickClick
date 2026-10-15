@@ -100,7 +100,7 @@ def prepare_fixture_context(target: MobileWorldTarget, apps: list[str], data_dir
 def fixture_prompt_context(report: dict, data_dir: Path):
     """Append verified fixture information only inside this evaluation process.
 
-Preserve private/frozen prompt overrides. Restore both prompt readers on error.
+Preserve private/frozen prompt overrides. Restore the shared assembler on error.
 The task instruction stays byte-for-byte unchanged in state and scoring records.
 """
     if not report.get("required"):
@@ -109,15 +109,13 @@ The task instruction stays byte-for-byte unchanged in state and scoring records.
     if report.get("ready") is not True:
         raise RuntimeError("Refusing model execution without verified fixture context")
     import agent.prompts as prompts
-    import agent.revisable.roles as roles
-    previous_prompts, previous_roles = prompts._PROMPTS_DIR, roles.PROMPTS
+    previous_prompts = prompts._PROMPTS_DIR
     output = Path(data_dir) / "environment-prompts"
     output.mkdir(parents=True, exist_ok=True)
     hashes = {}
-    for name in ("revisable_common.md", "revisable_planner.md", "revisable_reviewer.md", "revisable_executor.md"):
+    for path in sorted(previous_prompts.glob("revisable_*.md")):
+        name = path.name
         original = (previous_prompts / name).read_text(encoding="utf8")
-        if original != (previous_roles / name).read_text(encoding="utf8"):
-            raise RuntimeError("Prompt readers disagree before fixture context delivery")
         if HEADER in original:
             raise RuntimeError("Fixture context already present; refusing duplicate or conflicting injection")
         rendered = original + "\n\n" + CONTEXT if name == "revisable_common.md" else original
@@ -130,7 +128,6 @@ The task instruction stays byte-for-byte unchanged in state and scoring records.
     })
     try:
         prompts._PROMPTS_DIR = output
-        roles.PROMPTS = output
         yield
     finally:
-        prompts._PROMPTS_DIR, roles.PROMPTS = previous_prompts, previous_roles
+        prompts._PROMPTS_DIR = previous_prompts

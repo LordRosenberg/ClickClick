@@ -39,7 +39,7 @@ Include returned console_url in user-facing updates: Observation screenshots sho
 
 
 def create_server(base_url: str, *, client_factory=None, verify=True, expected_backend=None, **server_options):
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server.fastmcp import FastMCP, Context
     from mcp.types import CallToolResult, ImageContent, TextContent, ToolAnnotations
 
     base_url = local_url(base_url)
@@ -116,11 +116,23 @@ def create_server(base_url: str, *, client_factory=None, verify=True, expected_b
                                           idempotentHint=True, openWorldHint=True), structured_output=False)
     async def start_task(instruction: Annotated[str, Field(min_length=1, max_length=20000)],
                          request_key: Annotated[str, Field(min_length=1, max_length=160)],
-                         device_ids: Annotated[list[str] | None, Field(max_length=32)] = None) -> CallToolResult:
+                         device_ids: Annotated[list[str] | None, Field(max_length=32)] = None,
+                         ctx: Context = None) -> CallToolResult:
         """Delegate a complete app/UI goal on connected Android phones. ClickClick owns its model access and harness; no iOS/desktop control, per-step clicks or host subscription inference. Pass only relevant task facts/constraints, not system prompts, full chat history or API keys. Resolve target ambiguities and select available device IDs from get_status; omit only when exactly one available phone fits the user's intent. Multiple devices receive the SAME goal as independent tasks; any busy/offline member rejects submission. Retain request_key and unchanged parameters for retries after timeout/lost response; a conflict must not be bypassed with a new key. Returns task IDs immediately, NOT completion. Follow each ID with get_task and share console_url."""
         try:
+            # Only a client-owned, live subscription is an answer path. Standard
+            # elicitation capability alone cannot wake a returned background task.
+            try:
+                params = ctx.session.client_params if ctx is not None else None
+            except ValueError:
+                # Direct SDK calls have no initialized transport/session.
+                params = None
+            experimental = params.capabilities.experimental if params else None
+            bridge = (experimental or {}).get("clickclick/hitl-v1", {})
+            binding = bridge.get("reply_binding") if isinstance(bridge, dict) else None
             return result(await request("POST", "/api/assistant/tasks", json={
-                "instruction": instruction, "request_key": request_key, "device_ids": device_ids}))
+                "instruction": instruction, "request_key": request_key, "device_ids": device_ids,
+                **({"reply_binding": binding} if isinstance(binding, str) else {})}))
         except httpx.HTTPError as exc:
             return result({"error": error_payload(exc)}, error=True)
 

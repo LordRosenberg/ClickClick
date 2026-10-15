@@ -46,7 +46,13 @@ class DesktopController:
             raise RuntimeError("HTTP MCP service is unavailable; inspect data/mcp-http.log")
         with self.client() as client:
             tasks = self.active_tasks(client)
-        return {"state": "busy" if tasks else "running", "tasks": tasks}
+            response = client.get("/api/hitl/pending")
+            if response.status_code == 404:
+                pending = []  # Older installed backends do not provide human input.
+            else:
+                response.raise_for_status()
+                pending = [item for item in response.json()["interactions"] if item["can_answer"]]
+        return {"state": "busy" if tasks else "running", "tasks": tasks, "pending_input": pending}
 
     def start(self):
         with startup_lock(self.home / "data/.lifecycle.lock"):
@@ -55,9 +61,10 @@ class DesktopController:
                 service.native("start", self.home)
             service.wait_ready(self.home)
 
-    def open_console(self):
+    def open_console(self, task_id=None):
         self.start()
-        if not webbrowser.open(service.base_url(self.home)):
+        url = service.base_url(self.home) + ("/tasks/" + quote(task_id, safe="") if task_id else "")
+        if not webbrowser.open(url):
             raise RuntimeError("无法打开浏览器，请访问 " + service.base_url(self.home))
 
     def stop(self, choose, *, timeout=120):

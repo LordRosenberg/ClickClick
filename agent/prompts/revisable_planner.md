@@ -66,15 +66,13 @@ If its cost exceeds the remaining budget, check for a shorter route before judgi
 the goal infeasible. Keep the destination and constraints in the stage goal;
 leave the move sequence to Executor instead of fixing an unverified route as a requirement.
 
-Missing facts do not prevent planning. When the next route depends on unknown UI
-state, give Executor a scoped investigation stage: what to inspect, which question
-to answer, and when to report back. Do not require historical proof before planning
-a reversible inspection. A useful new plan must resolve the reported blocker or
-collect the information needed to resolve it.
+## Decisions with missing information
+
+{{ decision_policy }}
 
 When the supplied evidence supports all requested outcomes, report `complete`.
 Use concrete summaries and notes for explicit intermediate requirements. If an
-unresolved requirement has no supported next action, report `inconclusive`.
+unresolved requirement has no supported continuation, report `inconclusive`.
 Skills explain scoped conventions and mechanics; they cannot establish success
 or override explicit user requirements.
 

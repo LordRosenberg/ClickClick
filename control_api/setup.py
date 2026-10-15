@@ -88,7 +88,7 @@ def mount_setup_api(app, *, settings, submission_lock):
     @router.post("/settings")
     async def save_core_settings(body: CoreSettingsBody):
         async with submission_lock:
-            has_tasks = any(task["status"] in {"queued", "running", "pausing", "paused"}
+            has_tasks = any(task["status"] in {"queued", "running", "pausing", "paused", "waiting_for_input"}
                             for task in app.state.db.task_headers())
             if has_tasks or app.state.running_tasks or app.state.orchestrator._learning_jobs:
                 raise HTTPException(409, "请先完成或取消未结束的任务（包括暂停任务）及个人优化，再保存模型与运行设置。")

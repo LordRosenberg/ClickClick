@@ -130,3 +130,10 @@ Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，
 | Harness：模型路由 | [llm_gateway.py](../shared/llm_gateway.py)、[model_router.py](../shared/model_router.py) |
 | Session：记录与产物 | [store.py](../agent/revisable/store.py)、[db.py](../shared/db.py)、[artifacts.py](../shared/artifacts.py) |
 | Console 与运行时承载 | [control_api/](../control_api/)、[web/](../web/) |
+
+
+## 必要时提问与确认（HITL）
+
+HITL 默认关闭，各角色共用基础提示词，按任务固定启用或关闭的决策段落与工具策略。Planner 澄清重要意图，Executor 处理执行现场出现的必要疑问，Reviewer 不提供提问工具。`ask_user` 持久化后进入 `waiting_for_input`，匹配回答恢复原调用；预算、截止时间与调用身份继续保留，下一次手机动作前重新观测。回答入口按派发来源选择，失联后转到 Console，版本校验防止两个入口重复回答。模型决定提问时机，运行时负责身份、等待与恢复，未增加独立语义拦截。
+
+MobileWorld 交互原题 **34/44（77.27%）**，GPT‑5.6‑Sol（high），Jev 关闭；见[使用与接口](hitl.zh-CN.md)、[评测方法与边界](mobileworld-hitl-results-20261015.md)。

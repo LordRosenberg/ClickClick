@@ -43,6 +43,30 @@ def test_native_tray_definitions_and_login_preference(home):
     assert mac["Label"].endswith("-tray") and mac["KeepAlive"] is False
 
 
+def test_pending_question_reminders_deduplicate_without_disclosing_answers(home, monkeypatch):
+    notices = []
+    pending = [{"interaction_id": "i1", "owner_version": 1, "task_id": "task-one",
+                "presented": False, "questions": [{"question": "PRIVATE_QUESTION_CANARY"}]}]
+    controller = SimpleNamespace(status=lambda: {"state": "busy", "tasks": ["task-one"], "pending_input": pending})
+    manager = TrayManager(home, controller=controller)
+    manager.icon = SimpleNamespace(notify=lambda text, title: notices.append((text, title)),
+                                   update_menu=lambda: None, visible=True)
+    monkeypatch.setattr("desktop.tray.icon_image", lambda state: None)
+    manager.refresh()
+    manager.refresh()
+    assert len(notices) == 1 and "1 个任务待回答" in manager.status_text
+    assert "PRIVATE_QUESTION_CANARY" not in json.dumps(notices)
+    pending[0]["owner_version"] = 2
+    manager.refresh()
+    assert len(notices) == 2
+    pending[0]["presented"] = True
+    manager.refresh()
+    assert len(notices) == 2 and manager.pending_input
+    pending.clear()
+    manager.refresh()
+    assert "待回答" not in manager.status_text
+
+
 def test_autostart_reregisters_both_without_restarting(home, monkeypatch):
     calls = []
     monkeypatch.setattr(service, "native", lambda action, root, **kwargs: calls.append((action, kwargs)))
@@ -251,7 +275,7 @@ def test_status_refresh_queries_tasks_without_phone_inventory(controller):
     manager = TrayManager(control.home, control)
     manager.refresh()
     assert manager.state == "busy" and "1 个" in manager.status_text
-    assert all(path == "/api/assistant/tasks" for _, path in state["calls"])
+    assert all(path in {"/api/assistant/tasks", "/api/hitl/pending"} for _, path in state["calls"])
 
 
 def test_exit_back_does_not_close_tray(controller, monkeypatch):

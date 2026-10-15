@@ -57,6 +57,9 @@ def terminal_registry(session, schema, name, description, handler, *, timeout_ms
     registry = AgentToolRegistry()
     legacy = session._build_registry({})
     for spec in legacy.specs_for_role(session.role):
+        if spec.name == "ask_user":
+            registry.register(spec, lambda args, ctx: legacy.execute("ask_user", args, ctx))
+            continue
         if spec.name != "load_skill" or session.role != "planner":
             continue
 

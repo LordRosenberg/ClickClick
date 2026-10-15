@@ -36,6 +36,8 @@ class TrayManager:
         self.controller = controller or DesktopController(self.home)
         self.state = "stopped"
         self.tasks = []
+        self.pending_input = []
+        self._notified_inputs = set()
         self.error = None
         self.operation = None
         self.autostart = service.autostart_enabled(self.home)
@@ -45,18 +47,28 @@ class TrayManager:
 
     @property
     def status_text(self):
-        return self.operation or "状态：" + LABELS[self.state] + (f"（{len(self.tasks)} 个）" if self.state == "busy" else "")
+        return self.operation or "状态：" + LABELS[self.state] + (f"（{len(self.tasks)} 个）" if self.state == "busy" else "") + (f" · {len(self.pending_input)} 个任务待回答" if self.pending_input else "")
 
     def refresh(self):
         try:
             status = self.controller.status()
             self.state, self.tasks = status["state"], status["tasks"]
+            self.pending_input = status.get("pending_input", [])
             self.error = None
         except Exception:
             self.state = "error"
             self.error = "无法确认后台状态，请打开控制台或检查安装目录中的 data/service.log。"
             logging.exception("Tray status refresh failed")
         if self.icon:
+            all_pending = {(item["interaction_id"], item["owner_version"]) for item in self.pending_input}
+            self._notified_inputs.intersection_update(all_pending)
+            identities = {(item["interaction_id"], item["owner_version"]) for item in self.pending_input if not item["presented"]}
+            if identities - self._notified_inputs and callable(getattr(self.icon, "notify", None)):
+                try:
+                    self.icon.notify("任务需要你的回答。点击托盘的待回答任务，打开控制台继续。", "ClickClick")
+                except Exception:
+                    logging.info("Native input notification unavailable; pending task remains in Console")
+            self._notified_inputs.update(identities)
             self.icon.title = "ClickClick — " + self.status_text
             self.icon.icon = icon_image(self.state)
             self.icon.update_menu()
@@ -74,7 +86,12 @@ class TrayManager:
             from desktop.dialogs import choose_shutdown, show_error
             try:
                 if action == "open":
-                    self.controller.open_console()
+                    if self.pending_input:
+                        self.controller.open_console(self.pending_input[0]["task_id"])
+                    else:
+                        self.controller.open_console()
+                elif action == "answer":
+                    self.controller.open_console(self.pending_input[0]["task_id"] if self.pending_input else None)
                 elif action == "start":
                     self.controller.start()
                 elif action in {"stop", "exit"}:
@@ -103,6 +120,8 @@ class TrayManager:
         menu = pystray.Menu(
             pystray.MenuItem(lambda item: self.status_text, None, enabled=False),
             pystray.MenuItem("打开控制台", lambda icon, item: self.perform("open"), default=True),
+            pystray.MenuItem(lambda item: f"待回答任务（{len(self.pending_input)}）", lambda icon, item: self.perform("answer"),
+                             visible=lambda item: bool(self.pending_input)),
             pystray.MenuItem("启动后台", lambda icon, item: self.perform("start"),
                              enabled=lambda item: not self.operation and self.state in {"stopped", "error"}),
             pystray.MenuItem("停止后台", lambda icon, item: self.perform("stop"),

@@ -1144,6 +1144,26 @@ class AgentSession:
         """
         if not self._stable:
             raise RuntimeError("AgentSession.set_stable_system() required before run()")
+        human_bridge = getattr(self, "human_input", None)
+        from agent.interaction_policy import interaction_profile, session_interaction_profile
+        human_config = human_bridge[0].config(human_bridge[1]) if human_bridge else {}
+        human_profile = session_interaction_profile(self, human_config) if human_bridge else interaction_profile()
+        if not human_profile.enabled:
+            human_bridge = None
+        continuation = human_bridge[0].continuation(human_bridge[1], self.role) if human_bridge else None
+        saved = continuation["checkpoint"] if continuation else None
+        if saved:
+            if saved.get("version") != 1 or saved.get("model") != self.model:
+                raise GatewayError("Unsupported or changed HITL continuation model/version", category="malformed")
+            self.max_total_rounds = saved["max_total_rounds"]
+            current_knowledge = self._k_store
+            self._k_store = saved["k_store"]
+            for scope, messages_ in current_knowledge.items():
+                known = {m.get("_skill_id") for m in self._k_store.get(scope, [])}
+                self._k_store.setdefault(scope, []).extend(m for m in messages_ if m.get("_skill_id") not in known)
+            self._loaded_ids = set(saved.get("loaded_ids", []))
+            self._missing_skill_ids = set(saved.get("missing_skill_ids", []))
+            self._skill_activation_metadata = saved.get("skill_activation_metadata", {})
         if self._allow_dirs is None:
             # Ensure tool scope exists even if caller forgot to freeze.
             self.freeze_allow_dirs(["generic"])
@@ -1208,7 +1228,16 @@ class AgentSession:
             role=AgentRole(self.role), invocation_id=invocation_id,
             state=dict(context_state or {}),
         )
+        if human_bridge:
+            context.state["_ephemeral_sensitive_values"] = list(human_bridge[0].sensitive_values)
+            if continuation:
+                context.state["_resumed_human_interaction_id"] = continuation["interaction_id"]
         registry = tool_registry or self._build_registry(handlers or {})
+        if saved:
+            try:
+                registry = registry.restore_catalog(context.role, saved["catalog"])
+            except (ValueError, KeyError) as exc:
+                raise GatewayError(str(exc), category="malformed") from exc
         tools = registry.catalog_for_role(context.role)
         terminal_names = [
             spec.name
@@ -1221,6 +1250,10 @@ class AgentSession:
                 "Your previous response contained only text and no tool call. "
                 f"Call {terminal_names[0]} now without a preface."
             )
+        if human_bridge:
+            required_tool_nudge = human_profile.recovery_nudge
+            if saved:
+                required_tool_nudge = saved.get("human_recovery_nudge", required_tool_nudge)
         catalog_hash = registry.catalog_hash(context.role)
         stable_prefix_hash = stable_hash([
             *self._stable, *index_messages, *catalog_messages, *k_wire_messages,
@@ -1235,7 +1268,47 @@ class AgentSession:
         content_only_retries = 0
         submission_start = None
 
-        for round_index in range(1, self.max_total_rounds + 1):
+        start_round = 1
+        if saved:
+            if saved["catalog_hash"] != registry.catalog_hash(context.role):
+                raise GatewayError("HITL continuation tool catalog changed", category="malformed")
+            invocation_id = continuation["invocation_id"]
+            context.invocation_id = invocation_id
+            # Keep fresh observation objects, agent state and callbacks from the caller.
+            for key, value in saved["context"].items():
+                if key not in context.state:
+                    context.state[key] = value
+            prefix_messages = saved["prefix_messages"]
+            prefix_message_names = saved["prefix_message_names"]
+            stable_prefix_hash = saved["stable_prefix_hash"]
+            transcript_before_observation = saved["dialogue"]
+            transcript_before_observation_names = ["restored_tool_dialogue"] * len(transcript_before_observation)
+            outcome = continuation["outcome"]
+            human_result = AgentToolResult(
+                status=ToolStatus.TIMEOUT if outcome == "timeout" else ToolStatus.SUCCEEDED,
+                summary=f"Human input: {outcome}",
+                data={"purpose": continuation["purpose"], "outcome": outcome,
+                      "answers": continuation.get("answers", []),
+                      "provenance": continuation.get("provenance", "unknown")},
+            )
+            transcript_before_observation.append({"role": "tool", "tool_call_id": continuation["call_id"],
+                                                  "content": stable_json(human_result.model_metadata("ask_user"))})
+            transcript_before_observation_names.append("human_tool_result")
+            tool_records = [ToolCallRecord.model_validate(row) for row in saved["tool_records"]]
+            tool_records[-1].status = human_result.status
+            tool_records[-1].result_summary = human_result.summary
+            tool_records[-1].result = redact_value(human_result.data)
+            tool_records[-1].local_result = human_result.metadata()
+            tool_records[-1].model_result = human_result.model_metadata("ask_user")
+            await _emit(event_sink, "agent_tool_finished" if human_result.status == ToolStatus.SUCCEEDED else "agent_tool_failed", tool_records[-1].model_dump())
+            llm_rounds = [LLMRoundRecord.model_validate(row) for row in saved["llm_rounds"]]
+            request_rounds = saved["request_rounds"]
+            content_only_retries = saved["content_only_retries"]
+            content_safety_degraded = saved["content_safety_degraded"]
+            submission_start = saved["submission_start"]
+            start_round = saved["round_index"] + 1
+
+        for round_index in range(start_round, self.max_total_rounds + 1):
             submitting = (
                 reserve_terminal_round
                 and (context.state.get("evidence_saturated")
@@ -1247,8 +1320,15 @@ class AgentSession:
                 if round_index >= submission_start + 2:
                     raise GatewayError("Decision submission did not converge after evidence gathering", category="budget")
             context.state["terminal_submission_only"] = submitting
+            admitted_names = set(terminal_names)
+            if human_bridge:
+                context.state["provider_rounds_remaining"] = self.max_total_rounds - round_index
+                if round_index < self.max_total_rounds:
+                    admitted_names.add("ask_user")
+                context.state["submission_admitted_names"] = admitted_names
             if submitting:
-                tools = [tool for tool in tools if tool["function"]["name"] in terminal_names]
+                tools = [tool for tool in registry.catalog_for_role(context.role)
+                         if tool["function"]["name"] in admitted_names]
                 catalog_hash = stable_hash(tools)
             # Rebuild the dynamic suffix before every gateway call. Tool
             # transition text remains bounded by max_total_rounds, while the
@@ -1278,6 +1358,9 @@ class AgentSession:
                     ),
                 })
                 message_names.append("submission_boundary")
+                if human_bridge and "ask_user" in admitted_names:
+                    messages[-1]["content"] += (saved.get("human_submission_hint", human_profile.submission_hint)
+                                               if saved else human_profile.submission_hint)
             wire_messages = messages
             round_original_image_count = count_message_images(messages)
             round_removed_image_count = 0
@@ -1621,6 +1704,35 @@ class AgentSession:
             await _emit(event_sink, "agent_llm_round_finished", round_record.model_dump())
             if resp.tool_calls:
                 request_message_count = len(messages)
+                if human_bridge:
+                    # Only JSON-safe cognitive state is durable; fresh action grounding is rebuilt on resume.
+                    durable_context = {}
+                    for key, value in context.state.items():
+                        if key.startswith("_") or key in {"agent_state", "active_package", "terminal_submission_only", "submission_admitted_names"}:
+                            continue
+                        try:
+                            json.dumps(value)
+                        except (TypeError, ValueError):
+                            continue
+                        durable_context[key] = value
+                    context.state["_human_checkpoint"] = {
+                        "version": 1, "model": self.model, "max_total_rounds": self.max_total_rounds,
+                        "prefix_messages": prefix_messages, "prefix_message_names": prefix_message_names,
+                        "stable_prefix_hash": stable_prefix_hash,
+                        "dialogue": [*transcript_before_observation, *observation_bucket,
+                                     *transcript_after_observation, *final_bucket],
+                        "context": durable_context, "k_store": self._k_store,
+                        "loaded_ids": sorted(self._loaded_ids), "missing_skill_ids": sorted(self._missing_skill_ids),
+                        "skill_activation_metadata": self._skill_activation_metadata,
+                        "human_recovery_nudge": required_tool_nudge,
+                        "human_submission_hint": (saved.get("human_submission_hint", human_profile.submission_hint)
+                                                  if saved else human_profile.submission_hint),
+                        "catalog": registry.catalog_for_role(context.role),
+                        "catalog_hash": registry.catalog_hash(context.role), "round_index": round_index,
+                        "tool_records": [], "llm_rounds": [r.model_dump(mode="json") for r in llm_rounds],
+                        "request_rounds": request_rounds, "content_only_retries": content_only_retries,
+                        "content_safety_degraded": content_safety_degraded, "submission_start": submission_start,
+                    }
                 decision, done = await self._execute_tool_calls(
                     resp, messages, message_names, registry, context, tool_records,
                     event_sink, round_index,
@@ -1699,6 +1811,8 @@ class AgentSession:
                     transcript_after_observation.extend(appended)
                     transcript_after_observation_names.extend(appended_names)
                 if done and decision is not None:
+                    context.state.pop("_human_checkpoint", None)
+                    context.state.pop("_active_tool_call_id", None)
                     context.state.pop("_ephemeral_sensitive_values", None)
                     return SessionResult(
                         decision=decision, tool_calls=tool_records,
@@ -1757,6 +1871,8 @@ class AgentSession:
 
     def _build_registry(self, external_handlers: dict[str, ToolHandler]) -> AgentToolRegistry:
         registry = AgentToolRegistry()
+        from agent.hitl import register_human_tool
+        register_human_tool(registry, self)
 
         async def unavailable(args: dict[str, Any], ctx: ToolExecutionContext) -> AgentToolResult:
             del args, ctx
@@ -1909,6 +2025,7 @@ class AgentSession:
             except KeyError:
                 continue
         mixed_terminal_response = bool(terminal_call_ids) and len(resp.tool_calls) > 1
+        mixed_human_response = any(tc.name == "ask_user" for tc in resp.tool_calls) and len(resp.tool_calls) > 1
         write_before_submit = (
             context.role == AgentRole.EXECUTOR
             and context.state.get("allow_note_before_submit", False)
@@ -1998,7 +2115,15 @@ class AgentSession:
             records.append(record)
             await _emit(event_sink, "agent_tool_started", record.model_dump())
 
-            if tc.name == "inspect_image_regions" and inspection_scope_error:
+            if mixed_human_response:
+                result = AgentToolResult(status=ToolStatus.PRECONDITION_NOT_MET,
+                                         summary="Call ask_user alone; the entire batch was rejected before execution.",
+                                         error="human_call_must_be_alone")
+            elif "provider_rounds_remaining" in context.state and context.state["provider_rounds_remaining"] < 1 and tc.id not in terminal_call_ids:
+                result = AgentToolResult(status=ToolStatus.PRECONDITION_NOT_MET,
+                                         summary="No provider round remains to process this tool result; submit a supported decision.",
+                                         error="no_result_processing_round")
+            elif tc.name == "inspect_image_regions" and inspection_scope_error:
                 first_scope_feedback = not inspection_feedback_emitted
                 inspection_feedback_emitted = True
                 result = AgentToolResult(
@@ -2023,7 +2148,7 @@ class AgentSession:
                         else "image_region_scope_too_broad"
                     ),
                 )
-            elif context.state.get("terminal_submission_only") and tc.id not in terminal_call_ids:
+            elif context.state.get("terminal_submission_only") and tc.name not in context.state.get("submission_admitted_names", set()) and tc.id not in terminal_call_ids:
                 result = AgentToolResult(
                     status=ToolStatus.PRECONDITION_NOT_MET,
                     summary="Evidence gathering has ended. Submit the decision using available evidence.",
@@ -2062,6 +2187,11 @@ class AgentSession:
                         error="observe_screen_already_succeeded",
                     )
                 else:
+                    if tc.name == "ask_user" and "_human_checkpoint" in context.state:
+                        context.state["_active_tool_call_id"] = tc.id
+                        checkpoint = context.state["_human_checkpoint"]
+                        checkpoint["dialogue"].append(messages[-1])
+                        checkpoint["tool_records"] = [r.model_dump(mode="json") for r in records]
                     result = await registry.execute(tc.name, args, context)
             if tc.name == "write_note" and result.status != ToolStatus.SUCCEEDED:
                 write_failed = True

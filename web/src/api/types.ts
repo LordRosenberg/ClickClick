@@ -8,7 +8,7 @@
 // (executor > reviewer > planner), and optional focused-role members.
 // `step_seq` is the unique selection key for the Console — no `Array.find`
 // collision because only one Step object exists per `step_seq`.
-export type TaskStatus = "queued" | "running" | "pausing" | "paused" | "succeeded" | "failed" | "cancelled";
+export type TaskStatus = "queued" | "running" | "pausing" | "paused" | "waiting_for_input" | "succeeded" | "failed" | "cancelled";
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
 export type ObservationMode = "tree-only" | "tree+image" | "image-only";
 export type ActionType = "tap" | "tap_xy" | "type" | "replace_text" | "swipe" | "long_press" | "scroll" | "drag" | "key" | "launch" | "back" | "home" | "sleep";

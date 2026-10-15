@@ -36,6 +36,24 @@ class TaskStore:
     def records(self, kind: str) -> list[dict]:
         return self.db.list_agent_records(self.task_id, kind)
 
+    def role_prompt(self, role, config):
+        """Freeze all role texts together, including across later source updates."""
+        from agent.interaction_policy import POLICY_VERSION, interaction_profile
+        from agent.prompts import render_role_system
+        profile = interaction_profile(enabled=config["enabled"], mode=config["mode"])
+        row = self.db.get_agent_record(self.task_id, "prompt_policy", "roles")
+        if row is None:
+            payload = {
+                "version": POLICY_VERSION, "profile": profile.name, "wire": profile.snapshot(),
+                "roles": {name: render_role_system(name, hitl_enabled=profile.enabled,
+                                                  hitl_mode=config["mode"])
+                          for name in ("planner", "executor", "reviewer")},
+            }
+            row = self.put("prompt_policy", "roles", payload)
+        if row["payload"]["profile"] != profile.name:
+            raise ValueError("Task interaction profile changed after prompt freeze")
+        return row["payload"]["roles"][role]
+
     def resolve_observation(self, reference: str) -> dict:
         exact = self.db.get_agent_record(self.task_id, "observation", reference)
         if exact is not None:
@@ -170,6 +188,22 @@ class TaskStore:
         }
         if self.budget_snapshot is not None:
             context["remaining_budget"] = self.budget_snapshot()
+        from shared.hitl import HumanInputBroker
+        human = HumanInputBroker(self.db)
+        if human.config(self.task_id)["enabled"]:
+            if "remaining_budget" in context:
+                records = self.records("human_input")
+                context["remaining_budget"]["human_queries"] = max(0, human.config(self.task_id)["max_queries"] - len(records))
+                context["remaining_budget"]["human_query_counts"] = {
+                    purpose: sum(row["payload"]["purpose"] == purpose for row in records)
+                    for purpose in ("clarification", "confirmation")
+                }
+            from agent.revisable.recall import human_evidence_record
+            answers = [{"source": source_id("human_input", row),
+                        **human_evidence_record(row)["payload"]}
+                for row in self.records("human_input") if row["payload"]["status"] in {"resolved", "consumed"}]
+            if answers:
+                context["user_input"] = answers
         retained = self.retained_notes()
         supplied = {item["source"] for item in retained["items"]}
         # The retained body owns the read/update handles; avoid a second preview.

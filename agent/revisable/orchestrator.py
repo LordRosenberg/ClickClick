@@ -12,6 +12,7 @@ from driver.observation_deadline import ObservationStageError
 from perception.observation import ObservationPackage
 from shared.llm_gateway import GatewayError
 from shared.schemas import ExecutorDecisionKind, TaskStatus
+from shared.hitl import HumanInputBroker, HumanInputSuspended
 
 
 class PlanOrchestrator(Orchestrator):
@@ -82,6 +83,8 @@ class PlanOrchestrator(Orchestrator):
         store = TaskStore(self.db, self.artifacts, task_id)
         store.jev_status_context = self.settings.jev_status_context and self.settings.jev_mode == "enforce"
         store.budget_snapshot = partial(self._remaining_budget, state)
+        store.human_provider_budget = lambda: (None if self._model_call_limit(state) is None else
+                                               self._model_call_limit(state) - state.role_invocation_count)
         executor.store = store
         executor.pause_requested = lambda: self.is_pause_requested(task_id)
         executor.cancel_requested = lambda: (
@@ -129,6 +132,7 @@ class PlanOrchestrator(Orchestrator):
                         ),
                     )
                     # A reply may arrive after cancellation/deadline while the
+                    HumanInputBroker(self.db).complete(task_id)
                     # provider was in flight. Never commit its terminal verdict.
                     if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
                         return cancelled
@@ -215,6 +219,7 @@ class PlanOrchestrator(Orchestrator):
                     ),
                 )
                 refresh_before_executor = False
+                HumanInputBroker(self.db).complete(task_id)
                 package = refs.pop("active_package")
                 store.observe(package, state)
                 post = refs.pop("post_action_package", None)
@@ -298,6 +303,12 @@ class PlanOrchestrator(Orchestrator):
                     action_attempts += 1
             except asyncio.CancelledError:
                 raise
+            except HumanInputSuspended as exc:
+                self.db.update_task(task_id, status=TaskStatus.WAITING_FOR_INPUT, state=state)
+                self.traces.write(task_id, kind="system", message="Waiting for user input",
+                                  payload={"event": "human_input_pending", "interaction_id": exc.interaction_id,
+                                           "role": role})
+                return TaskStatus.WAITING_FOR_INPUT
             except GatewayError as exc:
                 signature = stable_hash((package.observation_id, runtime.execution_count))
                 if (

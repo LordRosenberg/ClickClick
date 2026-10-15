@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { DesktopUpdateNotice } from "@/components/DesktopUpdateNotice";
+import { HumanInputInbox } from "@/components/HumanInputInbox";
 import { t, type Locale } from "@/lib/locale";
 import { useLocale } from "@/lib/useLocale";
 
@@ -50,6 +51,7 @@ export function RootLayout() {
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6">
         <DesktopUpdateNotice />
+        <HumanInputInbox />
         <Outlet />
       </main>
     </div>

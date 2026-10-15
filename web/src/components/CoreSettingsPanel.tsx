@@ -12,7 +12,7 @@ import { KeyRound, UserRound, Check, Save } from "lucide-react";
 
 const input = "setup-input mt-2 w-full";
 const button = "setup-button";
-const numbers: Array<{ key: Exclude<keyof RuntimeSettings, "agent_architecture">; label: string; min: number; max: number; optional?: boolean }> = [
+const numbers: Array<{ key: Exclude<keyof RuntimeSettings, "agent_architecture" | "hitl_enabled">; label: string; min: number; max: number; optional?: boolean }> = [
   { key: "executor_context_tokens", label: "执行历史默认长度（tokens）", min: 1, max: 1000000 },
   { key: "chatgpt_history_tokens", label: "订阅执行历史长度（留空跟随默认）", min: 1, max: 1000000, optional: true },
   { key: "default_task_model_calls", label: "任务模型请求上限（留空使用 200 次保护上限）", min: 1, max: 200, optional: true },
@@ -238,6 +238,7 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
         <p className="mt-3 text-sm text-text-mute">{t("Skill 学习（自进化）会探索 App 的操作方法，生成待评审的可复用技能。这些预算限制每次学习的开销；保存预算不会启动学习。")}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="text-sm">{t("任务流程")}<select className={input} value={runtime.agent_architecture} onChange={e => setRuntime({ ...runtime, agent_architecture: e.target.value as RuntimeSettings["agent_architecture"] })}><option value="plan_executor">{t("Planner + Executor（默认）")}</option><option value="plan_reviewer">Planner + Executor + Reviewer</option></select></label>
+        <label className="text-sm"><input type="checkbox" checked={runtime.hitl_enabled ?? false} onChange={e => setRuntime({ ...runtime, hitl_enabled: e.target.checked })} /> {t("必要时向我提问或确认（HITL）")}<p className="mt-2 text-xs text-text-mute">{t("仅用于新任务。遇到必要疑问或未授权高危操作时先询问；关闭时沿用原执行行为。")}</p></label>
         {numbers.map(({ key, label, min, max, optional }) => <label key={key} className="text-sm">{t(label)}<input className={input} type="number" required={!optional} min={min} max={max} value={runtime[key] ?? ""} onChange={e => setRuntime({ ...runtime, [key]: e.target.value === "" ? null : Number(e.target.value) })} /></label>)}
       </div><p className="mt-3 text-sm text-text-mute">{t("时限从创建任务开始计算，暂停不会延长。Skill 学习仍需每次确认模型开销和设备操作；结果需评审与验证，不会自动发布。")}</p></details>}
       <JevSettingsPanel value={jev} onChange={setJev} />

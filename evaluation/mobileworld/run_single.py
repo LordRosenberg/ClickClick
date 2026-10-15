@@ -33,11 +33,13 @@ from evaluation.mobileworld.recording import EpisodeRecorder
 from evaluation.mobileworld.fixture_context import prepare_fixture_context, fixture_prompt_context
 from evaluation.mobileworld.photo_picker_health import prepare_photo_picker
 from evaluation.mobileworld.recovery import audited_episode, phase
+from evaluation.mobileworld.hitl import HumanSimulationError, MobileWorldHumanTransport, validate_category
 from shared.artifacts import ArtifactStore
 from shared.config import get_settings
 from shared.db import Database
 from shared.revisable import TaskLimits
 from shared.schemas import AgentState, TaskStatus
+from shared.hitl import HitlConfig, HumanInputBroker
 
 
 TERMINAL_STATUSES = {TaskStatus.SUCCEEDED, TaskStatus.FAILED, TaskStatus.CANCELLED}
@@ -147,6 +149,14 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
         deadline_at=started + limits["seconds"],
     )
     record = database.create_task(goal, state, device_serial=args.target)
+    human_transport = None
+    if getattr(args, "enable_user_interaction", False):
+        broker = HumanInputBroker(database, settings=settings)
+        broker.configure(record.id, HitlConfig(enabled=True, mode="delegated"), origin="integration")
+        human_transport = MobileWorldHumanTransport(broker, _request, args.backend, args.environment_device)
+    else:
+        # Freeze disabled even if the Console deployment default is enabled.
+        HumanInputBroker(database, settings=settings).configure(record.id, HitlConfig())
     action_steps = 0
     status = record.status
     rounds = 0
@@ -156,6 +166,16 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
         # attempted-ACT boundary still counts rejected zero-unit actions and
         # stops before an extra terminal prediction after exhausting the budget.
         status = await orchestrator.run_task(record.id)
+        while status == TaskStatus.WAITING_FOR_INPUT and human_transport is not None:
+            waiting = database.get_task(record.id)
+            if (waiting.state.revisable.prediction_round_count >= limits["rounds"]
+                    or waiting.state.revisable.limits.expired()):
+                status = TaskStatus.FAILED
+                database.update_task(record.id, status=status, failure_reason="mobileworld_round_or_deadline_exhausted")
+                human_transport.broker.reconcile(record.id)
+                break
+            await asyncio.to_thread(human_transport.dispatch, record.id)
+            status = await orchestrator.run_task(record.id)
         current = database.get_task(record.id)
         action_steps = int(current.state.revisable.execution_count) if current and current.state else 0
         if current and current.state:
@@ -188,7 +208,15 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
             ),
             "steps": database.list_steps(record.id),
             "answer_submission": answer_submission,
+            "human_interaction": human_transport.report(record.id) if human_transport else {"enabled": False},
         }
+    except HumanSimulationError as exc:
+        atomic_json(data_dir / "human-simulation-error.json", {
+            "category": str(exc), "clickclick_task_id": record.id,
+            "score": None, "automatic_replay": False,
+            "human_interaction": human_transport.report(record.id),
+        })
+        raise
     finally:
         database.close()
 
@@ -201,7 +229,7 @@ def main() -> None:
     parser.add_argument("--backend", default="http://127.0.0.1:6800")
     parser.add_argument("--environment-device", default="emulator-5554")
     parser.add_argument("--target", default="127.0.0.1:5556")
-    parser.add_argument("--expected-device-serial", default="EMULATOR36X2X12X0")
+    parser.add_argument("--expected-device-serial", default="", help="Expected guest ro.serialno; supply explicitly for device verification")
     parser.add_argument("--container", default="mobile_world_env_0")
     parser.add_argument("--model", default="chatgpt/gpt-5.6-sol")
     parser.add_argument("--max-round", "--max-steps", dest="max_steps", type=int, default=50)
@@ -214,6 +242,8 @@ def main() -> None:
     parser.add_argument("--output", default="")
     parser.add_argument("--keep-task", action="store_true")
     parser.add_argument("--no-recording", action="store_true", help="Keep screenshots and traces without screen recording")
+    parser.add_argument("--enable-user-interaction", action="store_true",
+                        help="Delegate single clarification questions to the official user simulator")
     args = parser.parse_args()
     try:
         limits = episode_budgets(args.max_steps, args.max_model_calls, args.max_seconds)
@@ -225,12 +255,13 @@ def main() -> None:
 
 def _execute_episode(args: argparse.Namespace, limits: dict) -> None:
     _verify_device(args.target, args.expected_device_serial)
-    _request("POST", f"{args.backend}/init", json={"device": args.environment_device})
     goal = _request(
         "GET", f"{args.backend}/task/goal", params={"task_name": args.task}
     )
     operation = {"task_name": args.task, "req_device": args.environment_device}
     metadata = _request("GET", f"{args.backend}/task/metadata", params={"task_name": args.task})
+    validate_category(metadata, getattr(args, "enable_user_interaction", False))
+    _request("POST", f"{args.backend}/init", json={"device": args.environment_device})
     target = MobileWorldTarget(
         backend=args.backend, adb_target=args.target,
         expected_serial=args.expected_device_serial,
@@ -300,7 +331,17 @@ def _execute_episode(args: argparse.Namespace, limits: dict) -> None:
             return
         with fixture_prompt_context(fixture_context, Path(args.data_dir)):
             phase(Path(args.data_dir), "executing", model_started=True)
-            result = asyncio.run(_run_clickclick(args, str(goal)))
+            try:
+                result = asyncio.run(_run_clickclick(args, str(goal)))
+            except HumanSimulationError:
+                _write_result(args, {
+                    "task": args.task, "goal": goal, "model": args.model,
+                    "limits": limits, "score": None,
+                    "environment_status": "invalid_user_simulator",
+                    "initialization_check": session_check,
+                    **json.loads((Path(args.data_dir) / "human-simulation-error.json").read_text("utf-8")),
+                })
+                return
         result["task"] = args.task
         result["goal"] = goal
         result["model"] = args.model

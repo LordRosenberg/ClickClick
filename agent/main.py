@@ -13,9 +13,14 @@ from shared.config import get_settings
 from shared.db import Database
 
 
-async def run_once(instruction: str) -> str:
+async def run_once(instruction: str, *, hitl: bool | None = None, answer_surface="terminal") -> str:
     """Run a single instruction through the closed loop; return task id."""
     settings = get_settings()
+    from desktop.configuration import console_values, apply_saved_settings
+    enabled = hitl if hitl is not None else console_values(settings.data_dir).get("hitl_enabled", settings.hitl_enabled)
+    if enabled:
+        from agent.hitl_cli import run_shared
+        return await run_shared(instruction, apply_saved_settings(settings), answer_surface=answer_surface)
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     db = Database(settings.db_path)
     artifacts = ArtifactStore(settings.artifacts_dir)
@@ -39,10 +44,12 @@ def main() -> None:
         description="ClickClick Agent (plan-driven execution loop)",
     )
     parser.add_argument("instruction", nargs="?", help="Natural language task")
+    parser.add_argument("--hitl", action="store_true", default=None, help="Enable human questions on the shared Console backend")
+    parser.add_argument("--answers", choices=("terminal", "console"), default="terminal", help="Where to answer HITL questions")
     args = parser.parse_args()
     if not args.instruction:
         parser.error("instruction required")
-    asyncio.run(run_once(args.instruction))
+    asyncio.run(run_once(args.instruction, hitl=args.hitl, answer_surface=args.answers))
 
 if __name__ == "__main__":
     main()

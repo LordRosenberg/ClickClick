@@ -56,6 +56,9 @@ class Settings(BaseSettings):
 
     agent_architecture: Literal["plan_reviewer", "plan_executor"] = "plan_executor"
     executor_context_tokens: int = Field(default=16000, ge=1)
+    hitl_enabled: bool = False
+    hitl_max_queries: int = Field(default=8, ge=1, le=50)
+    hitl_timeout_seconds: int = Field(default=1800, ge=1, le=86400)
     # Opt-in text-fidelity harness; credentials are never part of model input.
     jev_mode: Literal["off", "shadow", "enforce"] = "off"
     # Experimental model-facing metadata; admission and checking are unchanged.

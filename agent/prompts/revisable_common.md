@@ -1,9 +1,5 @@
 ## Operation, evidence and budget
 
-AskUser and interactive user replies are unavailable. Complete the supplied task
-autonomously using available tools; if a required prerequisite cannot be obtained,
-report the blocker through the existing unsuccessful outcome instead of asking or waiting for the user.
-
 Preserve the requested date field, range direction and stated boundaries; do not
 add an unstated cutoff. Resolve time relative to the referenced event or claim;
 use `current_device_date` for expressions relative to now, never the host or

@@ -12,8 +12,18 @@ def source_id(kind, row):
     return f"{kind}:{quote(row['key'], safe='')}@{row['version']}"
 
 
+def human_evidence_record(row):
+    if row["payload"].get("status") not in {"resolved", "consumed"}:
+        raise ValueError("Human evidence requires a resolved or consumed result")
+    # A checkpoint contains private cognition/bindings. Never expose the raw record.
+    keys = ("interaction_id", "status", "purpose", "questions", "outcome", "answers", "provenance")
+    return {**row, "payload": {key: row["payload"].get(key) for key in keys}}
+
+
 def record_text(kind, row, store=None):
     payload = row["payload"]
+    if kind == "human_input":
+        payload = human_evidence_record(row)["payload"]
     if kind == "dialogue":
         if store is None:
             raise ValueError("Dialogue recall requires task storage")
@@ -29,10 +39,11 @@ def record_text(kind, row, store=None):
 
 def resolve_source(store, source):
     # A model-written note key must never shadow a program-assigned source ID.
-    canonical = re.fullmatch(r"(note|event|observation|stage|measurement|dialogue|compaction):([^@#]+)@([1-9][0-9]*)(?:#([0-9]+))?", source)
+    canonical = re.fullmatch(r"(note|event|observation|stage|measurement|dialogue|compaction|human_input):([^@#]+)@([1-9][0-9]*)(?:#([0-9]+))?", source)
     if canonical:
         kind, key, version, offset = canonical.groups()
-        return kind, store.get(kind, unquote(key), int(version)), int(offset or 0)
+        row = store.get(kind, unquote(key), int(version))
+        return kind, human_evidence_record(row) if kind == "human_input" else row, int(offset or 0)
     observation = store.db.get_agent_record(store.task_id, "observation", source)
     if observation is not None:
         return "observation", observation, 0
@@ -49,13 +60,14 @@ def resolve_source(store, source):
             raise ValueError("Invalid continuation source")
     if ":" in source:
         kind, key = source.split(":", 1)
-        if kind not in {"note", "event", "observation", "stage", "measurement", "dialogue", "compaction"}:
+        if kind not in {"note", "event", "observation", "stage", "measurement", "dialogue", "compaction", "human_input"}:
             raise ValueError("Unknown history source; copy a returned source, note_key or observation_id, or query keywords")
         version = None
         if "@" in key:
             key, version = key.rsplit("@", 1)
             version = int(version)
-        return kind, store.get(kind, unquote(key), version), offset
+        row = store.get(kind, unquote(key), version)
+        return kind, human_evidence_record(row) if kind == "human_input" else row, offset
     note = store.db.get_agent_record(store.task_id, "note", source)
     if note is not None:
         return "note", note, offset
@@ -79,6 +91,14 @@ def read_history(store, args, ctx, initial_records):
                 score = sum(term in text or term in row["key"].casefold() for term in terms)
                 if score:
                     matches.append((score, row["payload"].get("step", row["payload"].get("written_step", -1)), kind, row))
+        for raw in store.records("human_input"):
+            if raw["payload"].get("status") not in {"resolved", "consumed"}:
+                continue
+            row = human_evidence_record(raw)
+            text = json.dumps(row["payload"], ensure_ascii=False).casefold()
+            score = sum(term in text or term in row["key"].casefold() for term in terms)
+            if score:
+                matches.append((score, -1, "human_input", raw))
         # Match count first; deterministic recency ties. Distinct events remain distinct.
         matches.sort(key=lambda match: (match[0], match[1]), reverse=True)
         total = len(matches)

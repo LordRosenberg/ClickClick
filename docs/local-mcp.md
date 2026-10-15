@@ -93,3 +93,8 @@ See [desktop setup and upgrade details (中文)](desktop-setup.zh-CN.md#版本�
 Console Settings includes role models, optional HTTP User-Agent, reasoning effort/summary, streaming, context/output limits and provider-specific thinking JSON. Blank existing keys or advanced bodies retain saved values; `{}` clears the body. Subscription login opens official authorization and provides a copyable device code; browser account login and code confirmation remain required. ClickClick automatically waits for approval and saves credentials locally.
 
 The same page contains task and Skill learning budgets, local task statistics and report export settings. Saved settings apply to new Console and MCP tasks and survive restart. Workflow optimization requires separate confirmation of model costs and device operations. You can configure everything in the page without editing files.
+
+
+## Questions and confirmations (HITL)
+
+Enable optional HITL in Console settings for new tasks. Necessary questions pause the task and matched replies resume the original call. Standard MCP clients answer in Console; assistant hosts with a session-specific reply bridge can receive proactive questions in their own conversation, with Console fallback after disconnection. Generic elicitation support alone does not establish background delivery. See [HITL usage and integration](hitl.md).

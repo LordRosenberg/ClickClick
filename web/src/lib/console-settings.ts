@@ -29,6 +29,7 @@ export type ModelSettings = {
 };
 export type Profile = Record<Role, string> & { models: ModelSettings[] };
 export type RuntimeSettings = {
+  hitl_enabled?: boolean;
   agent_architecture: "plan_executor" | "plan_reviewer";
   executor_context_tokens: number; chatgpt_history_tokens: number | null;
   default_task_model_calls: number | null; default_task_device_actions: number | null; default_task_seconds: number | null;
@@ -39,7 +40,7 @@ export type JevSettings = {
   api_key?: string; api_key_configured?: boolean; timeout_s: number; failure_policy: "bypass" | "rollback";
 };
 export type SettingsSummary = RuntimeSettings & { mode: Mode; profiles: Partial<Record<Mode, Profile>>; jev?: JevSettings };
-const RUNTIME_KEYS: Array<keyof RuntimeSettings> = ["agent_architecture", "executor_context_tokens", "chatgpt_history_tokens",
+const RUNTIME_KEYS: Array<keyof RuntimeSettings> = ["agent_architecture", "hitl_enabled", "executor_context_tokens", "chatgpt_history_tokens",
   "default_task_model_calls", "default_task_device_actions", "default_task_seconds",
   "learning_default_calls", "learning_default_actions", "learning_default_seconds"];
 

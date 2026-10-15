@@ -15,6 +15,7 @@ from typing import Any
 import requests
 
 from evaluation.mobileworld.budgets import episode_budgets
+from evaluation.mobileworld.hitl import validate_category
 from evaluation.mobileworld.recovery import BatchPaused, check_pause, detect_emulator_incident, read_json, run_with_recovery
 from evaluation.mobileworld.recording import finalize_interrupted_recording
 from evaluation.mobileworld.environment_fixes import (
@@ -170,7 +171,7 @@ def main() -> None:
     parser.add_argument("--output-root", default="data/mobileworld/runs/full-5")
     parser.add_argument("--backend", default="http://127.0.0.1:6800")
     parser.add_argument("--target", default="127.0.0.1:5556")
-    parser.add_argument("--expected-device-serial", default="EMULATOR36X2X12X0")
+    parser.add_argument("--expected-device-serial", default="", help="Expected guest ro.serialno; supply explicitly for device verification")
     parser.add_argument("--environment-device", default="emulator-5554")
     parser.add_argument("--container", default="mobile_world_env_0")
     parser.add_argument("--model", default="chatgpt/gpt-5.6-sol")
@@ -178,6 +179,8 @@ def main() -> None:
     parser.add_argument("--ime-apk", default="data/mobileworld/device-apks/ADBKeyboard.apk")
     parser.add_argument("--no-auto-restart", action="store_true")
     parser.add_argument("--no-recording", action="store_true", help="Keep screenshots and traces without screen recording")
+    parser.add_argument("--enable-user-interaction", action="store_true",
+                        help="Require an explicit manifest of non-MCP interaction tasks")
     args = parser.parse_args()
 
     root = Path(args.output_root).resolve()
@@ -192,6 +195,8 @@ def main() -> None:
     collector_apk, ime_apk = Path(args.collector_apk).resolve(), Path(args.ime_apk).resolve()
     if args.cases and args.preflight_manifest:
         parser.error("--cases and --preflight-manifest are mutually exclusive")
+    if args.enable_user_interaction and (not args.cases or args.preflight_manifest):
+        parser.error("interaction batches require --cases, not the GUI-only preflight")
     cases = (cases_from_preflight(args.preflight_manifest, args.max_steps, args.max_seconds)
              if args.preflight_manifest else load_cases(args.cases))
     for row in cases:
@@ -205,8 +210,7 @@ def main() -> None:
         if row["task"] not in official:
             raise RuntimeError(f"unknown MobileWorld task: {row['task']}")
         metadata = task_metadata(target, row["task"])
-        if "agent-mcp" in metadata.get("tags", []) or "agent-user-interaction" in metadata.get("tags", []):
-            raise RuntimeError(f"task is not GUI-only: {row['task']}")
+        validate_category(metadata, args.enable_user_interaction)
         row["metadata"] = metadata
         row["goal"] = request("GET", f"{target.backend}/task/goal", params={"task_name": row["task"]})
 
@@ -219,10 +223,12 @@ def main() -> None:
     manifest = {
         "created_at": time.time(), "model": args.model, "target": target.__dict__, "cases": cases,
         "recording_enabled": not args.no_recording,
+        "user_interaction_enabled": args.enable_user_interaction,
+        "execution_profile": "native-gui-delegated-hitl-v1" if args.enable_user_interaction else "native-gui",
         "difficulty_note": "实验分层；MobileWorld 当前任务 API 未提供 complexity 字段",
         "source_hashes": {
             name: sha256(Path(__file__).with_name(name))
-            for name in ("run_full.py", "run_single.py", "budgets.py", "clock_health.py", "recording.py", "long_run_health.py", "app_session.py", "taodian_fixture.py", "prepare_device.py", "adb_proxy.py", "environment_fixes.py", "fixture_context.py", "patch_mattermost_readiness.py", "recovery.py")
+            for name in ("run_full.py", "run_single.py", "hitl.py", "budgets.py", "clock_health.py", "recording.py", "long_run_health.py", "app_session.py", "taodian_fixture.py", "prepare_device.py", "adb_proxy.py", "environment_fixes.py", "fixture_context.py", "patch_mattermost_readiness.py", "recovery.py")
         },
         "preflight_manifest": str(Path(args.preflight_manifest).resolve()) if args.preflight_manifest else None,
         "preflight_sha256": sha256(Path(args.preflight_manifest)) if args.preflight_manifest else None,
@@ -301,6 +307,8 @@ def main() -> None:
             command.extend(["--max-model-calls", str(case["max_model_calls"])])
         if args.no_recording:
             command.append("--no-recording")
+        if args.enable_user_interaction:
+            command.append("--enable-user-interaction")
         started = time.time()
         recovered_existing = result_path.exists()
         if recovered_existing:
@@ -365,7 +373,7 @@ def main() -> None:
             raise RuntimeError(f"MobileWorld case failed to execute: {task}")
 
         result = json.loads(result_path.read_text(encoding="utf-8"))
-        environment_invalid = result.get("environment_status") == "invalid_initialization"
+        environment_invalid = str(result.get("environment_status", "")).startswith("invalid_")
         recording_path = case_dir / "video" / "recording-manifest.json"
         recording = ({"enabled": False} if args.no_recording else
                      json.loads(recording_path.read_text(encoding="utf-8")) if recording_path.exists() else {})
@@ -387,7 +395,7 @@ def main() -> None:
         if environment_invalid:
             state["current"].update(phase="environment_blocked", updated_at=time.time())
             atomic_json(state_path, state)
-            print(json.dumps({"task": task, "environment_status": "invalid_initialization",
+            print(json.dumps({"task": task, "environment_status": result.get("environment_status"),
                               "batch_stopped": True, "score": None}), flush=True)
             break
         baseline = reset_task_baseline(target, task)

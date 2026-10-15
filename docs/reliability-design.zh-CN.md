@@ -45,3 +45,10 @@ Console 将模型输入、决策、动作和观察串起来，便于理解结果
 | 如何从失败和绕路学到可复用知识 | [Skills 自进化](skill-evolution.zh-CN.md) |
 | 关键方案为何这样选择 | [设计取舍](design-decisions.zh-CN.md) |
 | 如何查看一次真实执行 | [Console 指南](observability.zh-CN.md) |
+
+
+## 必要时提问与确认（HITL）
+
+HITL 默认关闭，各角色共用基础提示词，按任务固定启用或关闭的决策段落与工具策略。Planner 澄清重要意图，Executor 处理执行现场出现的必要疑问，Reviewer 不提供提问工具。`ask_user` 持久化后进入 `waiting_for_input`，匹配回答恢复原调用；预算、截止时间与调用身份继续保留，下一次手机动作前重新观测。回答入口按派发来源选择，失联后转到 Console，版本校验防止两个入口重复回答。模型决定提问时机，运行时负责身份、等待与恢复，未增加独立语义拦截。
+
+MobileWorld 交互原题 **34/44（77.27%）**，GPT‑5.6‑Sol（high），Jev 关闭；见[使用与接口](hitl.zh-CN.md)、[评测方法与边界](mobileworld-hitl-results-20261015.md)。

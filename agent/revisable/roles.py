@@ -2,7 +2,8 @@
 
 import asyncio
 import json
-from pathlib import Path
+from agent.prompts import render_role_system
+from shared.hitl import HumanInputBroker
 
 from agent.decision_role import DecisionRoleRunner, build_observation_messages
 from agent.executor import Executor, _compound_history_messages, _model_submission_pipeline
@@ -14,14 +15,8 @@ from agent.session import AgentSession
 from agent.tool_registry import AgentToolResult
 from shared.revisable import PlannerDecision, Review
 
-PROMPTS = Path(__file__).resolve().parents[1] / "prompts"
-
-
-def prompt(role):
-    return "\n\n".join(
-        (PROMPTS / name).read_text(encoding="utf-8")
-        for name in (f"revisable_{role}.md", "revisable_common.md")
-    )
+def prompt(role, *, hitl_enabled=False, hitl_mode="managed"):
+    return render_role_system(role, hitl_enabled=hitl_enabled, hitl_mode=hitl_mode)
 
 
 class PlanDecisionRole(DecisionRoleRunner):
@@ -33,6 +28,14 @@ class PlanDecisionRole(DecisionRoleRunner):
             settings=self.settings,
             max_total_rounds=5 if self.role == "reviewer" else 8,
         )
+        broker = HumanInputBroker(store.db, settings=self.settings)
+        config = broker.config(task_id)
+        enabled = config["enabled"]
+        self.session.store = store
+        frozen_prompt = store.role_prompt(self.role, config)
+        if enabled and self.role == "planner":
+            self.session.human_input = (broker, task_id)
+            self.session.human_provider_budget = getattr(store, "human_provider_budget", lambda: None)
         await self.session.bind_device_skills(self.driver)
         self.prepare_lifecycle(state, package, task_id=task_id)
         if state.revisable.stage is not None:
@@ -87,7 +90,7 @@ class PlanDecisionRole(DecisionRoleRunner):
             submit,
         )
         register_memory_tools(registry, self.role, store, state)
-        self.session.set_stable_system(prompt(self.role))
+        self.session.set_stable_system(frozen_prompt)
 
         def event_sink(kind, payload):
             if self.traces:
@@ -179,10 +182,15 @@ class PlanExecutor(Executor):
         context = kwargs["context_state"]
         state = context["agent_state"]
         self._session.store, self._session.state = self.store, state
+        broker = HumanInputBroker(self.store.db, settings=self.settings)
+        config = broker.config(self.store.task_id)
+        enabled = config["enabled"]
+        self._session.human_input = (broker, self.store.task_id) if enabled else None
+        self._session.human_provider_budget = getattr(self.store, "human_provider_budget", lambda: None)
         stage = state.revisable.stage
         self._session.set_stage_skills(state.active_target_app, stage.skill_ids if stage else [])
         self._session.set_stable_system(
-            prompt("executor") + "\n\nOriginal instruction:\n" + state.instruction + self.system_suffix
+            self.store.role_prompt("executor", config) + "\n\nOriginal instruction:\n" + state.instruction + self.system_suffix
         )
         old_render = context["render_observation_bucket"]
 

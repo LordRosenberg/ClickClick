@@ -33,6 +33,9 @@ class AssistantTaskBody(BaseModel):
     instruction: str = Field(min_length=1, max_length=20000)
     request_key: str = Field(min_length=1, max_length=160)
     device_ids: list[str] | None = Field(default=None, min_length=1, max_length=32)
+    reply_binding: str | None = Field(default=None, min_length=32, max_length=128)
+    submission_origin: str = Field(default="assistant", pattern="^(assistant|cli)$")
+    hitl_enabled: bool | None = None
 
 
 def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task_body,
@@ -54,7 +57,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
         result = runtime.completion_reason if runtime else ""
         last = db.latest_agent_record(task.id, "event")
         progress = (last["payload"].get("executor_report", "") if last else "")
-        return {
+        payload = {
             "task_id": task.id, "status": task.status.value,
             "instruction": task.instruction[:2000], "device_id": task.device_serial,
             "created_at": task.created_at, "updated_at": task.updated_at,
@@ -70,6 +73,11 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             "failure_reason": (task.failure_reason or "")[:2000] or None,
             **links(task.id),
         }
+        from shared.hitl import HumanInputBroker
+        broker = HumanInputBroker(db)
+        if broker.config(task.id)["enabled"]:
+            payload["human_input"] = broker.public(task.id)
+        return payload
 
     def model_readiness():
         catalog = build_model_catalog(settings)
@@ -122,7 +130,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             "deployment": "deployment.zh-CN.md",
             "collector": "accessibility-collector-setup.zh-CN.md",
         }.items() if (docs_dir / filename).is_file()}
-        return {"backend": await identity(), "devices": devices,
+        return {"backend": await identity(), "devices": devices, "hitl_enabled": settings.hitl_enabled,
                 "devices_truncated": len(inventory) > 64,
                 "models_configured": not missing, "roles": roles,
                 "missing_model_roles": missing, "model_authentication": authentication,
@@ -150,8 +158,9 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
                 raise HTTPException(409, "select device_ids explicitly using get_status")
             devices = available
         result = await create_task(task_body(instruction=body.instruction,
-                                            device_serials=devices, request_key=body.request_key),
-                                   background_tasks)
+                                            device_serials=devices, request_key=body.request_key,
+                                            hitl_enabled=body.hitl_enabled),
+                                   background_tasks, origin=body.submission_origin, binding=body.reply_binding)
         return {"tasks": [compact(db.get_task(t["id"])) for t in result["tasks"]],
                 "replayed": result.get("replayed", False)}
 
@@ -192,7 +201,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             raise HTTPException(404, "task not found")
         initial = task.updated_at
         deadline = asyncio.get_running_loop().time() + wait_seconds
-        while task.status not in TERMINAL | {TaskStatus.PAUSED} and task.updated_at == initial:
+        while task.status not in TERMINAL | {TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT} and task.updated_at == initial:
             remaining = deadline - asyncio.get_running_loop().time()
             if remaining <= 0:
                 break

@@ -57,19 +57,29 @@ def _render(template: str, vars_: dict[str, Any]) -> str:
     return _VAR_RE.sub(repl, template)
 
 
-def render_planner_system() -> str:
-    """Render the task-independent rolling Planner policy."""
-    return _render(_read("revisable_planner.md") + "\n\n" + _read("revisable_common.md"), {})
+def render_role_system(role: str, *, hitl_enabled: bool = False, hitl_mode: str = "managed") -> str:
+    if role not in {"planner", "reviewer", "executor"}:
+        raise ValueError("unknown role")
+    from agent.interaction_policy import interaction_profile
+    profile = interaction_profile(enabled=hitl_enabled, mode=hitl_mode)
+    mode = "enabled" if profile.enabled else "disabled"
+    block = _read(f"revisable_{role}_{mode}.md").rstrip("\n")
+    if profile.enabled and role != "reviewer":
+        block = _render(block, {"tool_form": profile.tool_form})
+    role_text = _render(_read(f"revisable_{role}.md"), {"decision_policy": block})
+    return role_text + "\n\n" + _render(_read("revisable_common.md"), {})
 
 
-def render_reviewer_system() -> str:
-    """Render the evidence-bound Reviewer boundary policy."""
-    return _render(_read("revisable_reviewer.md") + "\n\n" + _read("revisable_common.md"), {})
+def render_planner_system(*, hitl_enabled: bool = False, hitl_mode: str = "managed") -> str:
+    return render_role_system("planner", hitl_enabled=hitl_enabled, hitl_mode=hitl_mode)
 
 
-def render_executor_system() -> str:
-    """Render the Executor system prompt (bucket S): static rules only."""
-    return _render(_read("revisable_executor.md") + "\n\n" + _read("revisable_common.md"), {})
+def render_reviewer_system(*, hitl_enabled: bool = False, hitl_mode: str = "managed") -> str:
+    return render_role_system("reviewer", hitl_enabled=hitl_enabled, hitl_mode=hitl_mode)
+
+
+def render_executor_system(*, hitl_enabled: bool = False, hitl_mode: str = "managed") -> str:
+    return render_role_system("executor", hitl_enabled=hitl_enabled, hitl_mode=hitl_mode)
 
 
 def render_skill_index(skill_index: str) -> str:

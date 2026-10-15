@@ -9,6 +9,7 @@
 [English](README.md) · [评测成绩](https://lordrosenberg.github.io/ClickClick/) · [效果演示](#效果演示) · [快速开始](#通过-mcp-接入-pc-端-ai-助手) · [源码部署](#部署) · [文档](#文档导航)
 
 [![MobileWorld GUI-only](https://img.shields.io/badge/MobileWorld%20GUI--only-95.73%25%20%28112%2F117%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/)
+[![MobileWorld User-Int.](https://img.shields.io/badge/MobileWorld%20HITL-77.27%25%20%2834%2F44%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)
 [![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
@@ -27,6 +28,14 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 澄清对照采用 6 道措辞澄清及 1 道官方账号信息补充，其余任务采用原题结果。两项成绩均高于 2026-10-07 核对的公开 50 回合纯 GUI 榜单各项。
 
 [逐题成绩、截图与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [澄清明细与评测方法](docs/mobileworld-results-20261007.md)
+
+## MobileWorld 交互类：77.27%，成绩对比第 1
+
+**44 道交互原题通过 34 道**，使用 GPT-5.6-Sol（high）、官方用户模拟器，Jev 关闭。全部 44 题均有官方评分和连续录屏，56 次问答在公开轨迹中作为独立步骤展示。成绩高于 2026-10-16 核对的公开 50 步 User-Int. 榜单各项，尚未获官方榜单收录。
+
+**[查看全部 44 题及问答轨迹 →](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)** · [评测方法与能力边界](docs/mobileworld-hitl-results-20261015.md)。
+
+HITL 可选、默认关闭。Planner 澄清未确定的任务意图，Executor 在执行中遇到重要选择时补充提问。问题持久化后暂停任务，匹配回答恢复同一次调用；Console、CLI 与支持回复桥接的助手共享单一回答入口，入口断开时转到 Console。[使用与接入 →](docs/hitl.zh-CN.md)
 
 ## AndroidWorld：99.14%，按成功率档位并列第 2
 
@@ -240,6 +249,7 @@ python -m evaluation.androidworld.reproduce --install
 | [任务实例](docs/task-examples.zh-CN.md) | 自然语言任务示例和结果验证。 | [English](docs/task-examples.md) |
 | [评测指南](docs/evaluation.zh-CN.md) | 基准配置、评分与复现。 | [English](docs/evaluation.md) |
 | [Skills 指南](skills/README.zh-CN.md) | 应用知识、操作经验和技能编写。 | [English](skills/README.md) |
+| [HITL 提问与确认](docs/hitl.zh-CN.md) | 必要时提问、回答入口与原调用恢复。 | [English](docs/hitl.md) |
 | [Skills 自进化](docs/skill-evolution.zh-CN.md) | 从真实任务提炼经验、独立审查、选择性验证与能力边界。 | [English](docs/skill-evolution.md) |
 
 许可证：[Apache 2.0](LICENSE)。

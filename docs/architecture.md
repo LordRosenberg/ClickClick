@@ -130,3 +130,10 @@ Cancellation and task limits stop further work at runtime boundaries. A receipt 
 | Session: records and artifacts | [store.py](../agent/revisable/store.py), [db.py](../shared/db.py), [artifacts.py](../shared/artifacts.py) |
 | Console and runtime hosting | [control_api/](../control_api/), [web/](../web/) |
 | Evaluation integration | [AndroidWorld adapter](../agent/integrations/android_world.py), [evaluation guide](evaluation.md) |
+
+
+## Questions and confirmations when needed (HITL)
+
+HITL is off by default. Roles share a base prompt and select a task-frozen decision section and tool policy. Planner clarifies material intent; Executor asks about necessary choices discovered during execution; Reviewer has no human tool. `ask_user` persists the continuation and enters `waiting_for_input`. A matched reply resumes the same call with its existing budget/deadline and a fresh observation before GUI actions. Origin-based routing and versioned ownership prevent duplicate answers, with Console fallback after disconnection. The model chooses when to ask; the runtime manages identity, waiting and resumption, without a separate semantic interception layer.
+
+MobileWorld User-Int.: **34/44 (77.27%)**, GPT-5.6-Sol (high), Jev off. See [usage and integration](hitl.md) and [evaluation methodology and limits](mobileworld-hitl-results-20261015.md).

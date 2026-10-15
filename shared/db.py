@@ -247,10 +247,10 @@ class Database:
             """
             SELECT id, device_serial FROM tasks
             WHERE device_serial IS NOT NULL AND device_serial != ''
-              AND status IN (?, ?, ?, ?)
+              AND status IN (?, ?, ?, ?, ?)
             """,
             (TaskStatus.QUEUED.value, TaskStatus.RUNNING.value,
-             TaskStatus.PAUSING.value, TaskStatus.PAUSED.value),
+             TaskStatus.PAUSING.value, TaskStatus.PAUSED.value, TaskStatus.WAITING_FOR_INPUT.value),
         ).fetchall()
         return {r["device_serial"]: r["id"] for r in rows}
 
@@ -474,6 +474,11 @@ class Database:
             "SELECT payload_json FROM local_preferences WHERE key=?", (key,)
         ).fetchone()
         return json.loads(row[0]) if row else None
+
+    def local_preference_keys(self, prefix: str) -> list[str]:
+        return [row[0] for row in self._conn.execute(
+            "SELECT key FROM local_preferences WHERE substr(key, 1, ?) = ?", (len(prefix), prefix)
+        ).fetchall()]
 
     def set_local_preference(self, key: str, value: dict) -> None:
         self._conn.execute(

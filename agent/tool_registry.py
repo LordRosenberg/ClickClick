@@ -286,7 +286,7 @@ class AgentToolResult(BaseModel):
             payload["error"] = self.error
 
         raw = payload
-        safe = redact_value(raw)
+        safe = redact_value(raw, max_string=None if tool_name == "ask_user" else 1000)
         if tool_name == "load_skill" and self.status == ToolStatus.SUCCEEDED:
             # A loaded authored body is evidence for this very next decision,
             # before the following invocation adds it to the knowledge prefix.
@@ -412,6 +412,17 @@ class AgentToolRegistry:
 
     def catalog_hash(self, role: AgentRole | str) -> str:
         return stable_hash(self.catalog_for_role(role))
+
+    def restore_catalog(self, role: AgentRole | str, catalog: list[dict]) -> AgentToolRegistry:
+        """Freeze the resumed invocation's admitted names while binding fresh handlers."""
+        restored = AgentToolRegistry()
+        for tool in catalog:
+            name = tool["function"]["name"]
+            spec = self.spec(name, role)
+            if spec.chat_completion_schema() != tool:
+                raise ValueError(f"continuation tool definition changed: {name}")
+            restored.register(spec, self._registrations[name].handler)
+        return restored
 
     def spec(self, name: str, role: AgentRole | str) -> AgentToolSpec:
         reg = self._registrations.get(name)

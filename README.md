@@ -9,6 +9,7 @@ Cross-app tasks · PC assistant integration · Follow every step
 [中文](README.zh-CN.md) · [Benchmark results](https://lordrosenberg.github.io/ClickClick/) · [Demos](#see-it-in-action) · [Quick Start](#connect-your-pc-ai-assistant-with-mcp) · [Source setup](#deployment) · [Docs](#documentation)
 
 [![MobileWorld GUI-only](https://img.shields.io/badge/MobileWorld%20GUI--only-95.73%25%20%28112%2F117%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/)
+[![MobileWorld User-Int.](https://img.shields.io/badge/MobileWorld%20HITL-77.27%25%20%2834%2F44%29-14866d)](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)
 [![AndroidWorld](https://img.shields.io/badge/AndroidWorld-99.14%25%20%28115%2F116%29-14866d)](https://lordrosenberg.github.io/ClickClick/androidworld/)
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
@@ -27,6 +28,14 @@ The latest evaluation scores **106/117 (90.60%) on original tasks** and **112/11
 The comparison incorporates six wording clarifications and one official-account context supplement; other tasks retain their original result. Both scores exceed the published 50-round GUI-only rows checked on October 7, 2026.
 
 **[Per-task scores, screenshots and execution traces →](https://lordrosenberg.github.io/ClickClick/mobileworld/)** · [Clarifications and methodology](docs/mobileworld-results-20261007.md).
+
+## 77.27% on MobileWorld User-Int. · #1 in our comparison
+
+**34 of 44 original interaction tasks passed**, with GPT-5.6-Sol (high), Jev off, and the official user simulator. All 44 tasks have official predicate scores and continuous recordings; 56 question/answer exchanges appear as separate steps in the public trajectories. The result exceeds published 50-step User-Int. rows checked on October 16, 2026; official leaderboard acceptance is pending.
+
+**[Explore all 44 tasks and conversations →](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)** · [Methodology and limits](docs/mobileworld-hitl-results-20261015.md).
+
+HITL is optional and disabled by default. Planner clarifies unresolved intent; Executor asks when execution reveals a material choice. Questions pause the task durably, and matched replies resume the same call. Console, CLI and compatible assistant hosts share one answer owner, with Console fallback. [Usage and integration →](docs/hitl.md)
 
 ## 99.14% on AndroidWorld · tied #2 by success-rate tier
 
@@ -240,6 +249,7 @@ Explore per-task scores and execution traces on the [AndroidWorld results site](
 | [Task examples](docs/task-examples.md) | Natural-language task examples and result verification. | [中文](docs/task-examples.zh-CN.md) |
 | [Evaluation](docs/evaluation.md) | Benchmark setup, scoring and reproduction. | [中文](docs/evaluation.zh-CN.md) |
 | [Skills](skills/README.md) | App knowledge, operating guidance and skill authoring. | [中文](skills/README.zh-CN.md) |
+| [Human-in-the-loop](docs/hitl.md) | Questions, confirmations and reply routing. | [中文](docs/hitl.zh-CN.md) |
 | [Skill self-improvement](docs/skill-evolution.md) | Learning from real tasks, independent review, selective validation and capability boundaries. | [中文](docs/skill-evolution.zh-CN.md) |
 
 Licensed under [Apache 2.0](LICENSE).
