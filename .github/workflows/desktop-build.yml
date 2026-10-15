@@ -68,6 +68,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: keyboard
+          retention-days: 1
           path: |
             keyboardservice/build/outputs/apk/debug/keyboardservice-debug.apk
             ADBKeyboard-source.zip
@@ -115,6 +116,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: clickclick-${{ matrix.os }}
+          # Keep push builds briefly; allow longer downloads for releases/manual builds.
+          retention-days: ${{ github.event_name == 'push' && github.ref_type == 'branch' && 1 || 7 }}
           path: |
             dist/desktop/*.exe
             dist/desktop/*.zip
