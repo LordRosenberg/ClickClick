@@ -22,9 +22,80 @@ from agent.skills.research_tools import OFFICIAL_TOOL, register_research_tools
 from agent.skills.learning import LearningStopped, REVIEW_SYSTEM, PROBE_REVIEW_SYSTEM, action_cost_directory, bounded_notes, digest, source, probe_projection
 from agent.tool_registry import AgentRole, AgentToolRegistry, ToolExecutionContext, stable_hash
 from perception.observation import ObservationBuilder
-from shared.llm_gateway import complete
+from shared.llm_gateway import complete, GatewayError
 from shared.revisable import Plan, Stage, TaskLimits
 from shared.schemas import AgentState, ExecutorDecisionKind, TaskStatus
+
+
+def history_read_arguments(raw, registries):
+    """Normalize a declared history read without guessing a conflicting scope."""
+    args = json.loads(raw)
+    if not isinstance(args, dict):
+        raise ValueError("history read arguments must be an object")
+    requested = args.pop("namespace", None)
+    namespace = requested or "source"
+    reference = args.get("source")
+    if isinstance(reference, str) and "/" in reference:
+        prefix, native = reference.split("/", 1)
+        if ":" not in prefix:
+            if requested is not None and requested != prefix:
+                raise ValueError("conflicting history namespaces")
+            namespace, args["source"] = prefix, native
+    if namespace not in registries:
+        raise ValueError("unknown history namespace")
+    if args.get("view") == "image" and not args.get("source"):
+        raise ValueError("Historical images require an exact source; locate observations with a text query first")
+    return namespace, args
+
+
+def learner_execution_settings(settings, model):
+    """An explicit Learner history policy belongs to its exploration, too."""
+    policy = settings.context_policy(model, "skill_learner")
+    if "history_tokens" not in policy:
+        return settings  # Preserve legacy behavior; never infer a model window.
+    providers = copy.deepcopy(settings.model_providers())
+    provider = copy.deepcopy(settings.provider_for(model))
+    context = dict(provider.get("context") or {})
+    context["executor"] = {**context.get("executor", {}), **policy}
+    provider["context"] = context
+    providers[model] = provider
+    return settings.model_copy(update={"models_json": json.dumps(providers, ensure_ascii=False)})
+
+
+class LearningHistoryCapacity(RuntimeError):
+    """Pre-dispatch request fitting; never retry a partially executed tool loop."""
+    def __init__(self, history_tokens):
+        self.history_tokens = history_tokens
+        super().__init__("learning_history_requires_compaction")
+
+
+def bounded_learning_history_settings(settings, model, history_tokens):
+    providers = copy.deepcopy(settings.model_providers())
+    provider = copy.deepcopy(settings.provider_for(model))
+    context = dict(provider.get("context") or {})
+    context["executor"] = {**settings.context_policy(model, "executor"),
+        "history_tokens": history_tokens}
+    provider["context"] = context
+    providers[model] = provider
+    return settings.model_copy(update={"models_json": json.dumps(providers, ensure_ascii=False)})
+
+
+def learning_exchange_reserve(history, observation_messages):
+    """Room for a current frame or the largest already observed tool exchange."""
+    from agent.context_projection import estimate_context
+    largest = estimate_context(observation_messages)
+    batch = []
+    for message in [*history, {"role":"user"}]:
+        if message.get("role") == "assistant" and message.get("tool_calls"):
+            if batch:
+                largest = max(largest, estimate_context(batch))
+            batch = [message]
+        elif message.get("role") == "tool" and batch:
+            batch.append(message)
+        elif batch:
+            largest = max(largest, estimate_context(batch))
+            batch = []
+    return largest
 
 
 class LearningSession(ExecutionSession):
@@ -32,6 +103,11 @@ class LearningSession(ExecutionSession):
 
     source_store = None
     source_state = None
+
+    def __init__(self, role, model, *, settings=None, **kwargs):
+        if settings is not None:
+            settings = learner_execution_settings(settings, model)
+        super().__init__(role, model, settings=settings, **kwargs)
 
     async def run(self, observation_messages, **kwargs):
         # Fixed experiment contracts are supplied once per request, outside the
@@ -66,6 +142,26 @@ class LearningSession(ExecutionSession):
                 [f"history_messages[{i}]" for i in range(len(history))])
             kwargs["history_messages"] = [prefix, *history]
             kwargs["history_message_names"] = ["research_context_sources", *names]
+        # The history threshold alone omits system, live pixels, tool schemas
+        # and pinned research contracts. Fit the complete initial request using
+        # the same estimator as AgentSession, before any tool/model dispatch.
+        from agent.context_projection import estimate_context
+        limit = self.settings.context_policy(self.model, "executor").get("max_input_tokens")
+        if limit is not None:
+            registry = kwargs.get("tool_registry") or self._build_registry(kwargs.get("handlers") or {})
+            kwargs["tool_registry"] = registry
+            tools = registry.catalog_for_role(self.role)
+            messages = [*self._stable, *self._k_wire(),
+                *kwargs.get("history_messages", []), *observation_messages,
+                *kwargs.get("final_messages", [])]
+            total = estimate_context(messages) + estimate_context([
+                {"role":"system", "content":json.dumps(tools, ensure_ascii=False)}])
+            reserve = learning_exchange_reserve(history, observation_messages)
+            if total + reserve > limit:
+                available = estimate_context(history) - (total + reserve - limit) - 1
+                if not history or available <= 0:
+                    raise LearningStopped("learning_pinned_context_capacity")
+                raise LearningHistoryCapacity(available)
         return await super().run(observation_messages, **kwargs)
 
     def _build_registry(self, external_handlers):
@@ -112,6 +208,33 @@ class LearningSession(ExecutionSession):
 
 
 class LearningExecutor(PlanExecutor):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.settings = learner_execution_settings(self.settings, self.model)
+        self._session = LearningSession("executor", self.model, settings=self.settings)
+
+    async def act_once(self, *args, **kwargs):
+        try:
+            return await super().act_once(*args, **kwargs)
+        except LearningHistoryCapacity as exc:
+            # No provider/tool dispatch occurred in that invocation. Reuse the
+            # existing source-preserving compactor, then reacquire grounding.
+            original = self.settings
+            policy = original.context_policy(self.model, "executor")
+            self.settings = bounded_learning_history_settings(original, self.model,
+                min(policy["history_tokens"], exc.history_tokens))
+            if kwargs.get("observe_after_handoff") is None:
+                transaction = ActionObservationTransaction(self.driver, ObservationBuilder())
+                async def observe():
+                    return await transaction.observe_current(attach_image=True)
+                kwargs["observe_after_handoff"] = observe
+            try:
+                return await super().act_once(*args, **kwargs)
+            except LearningHistoryCapacity as remaining:
+                raise LearningStopped("learning_recent_context_capacity") from remaining
+            finally:
+                self.settings = original
+
     async def _terminal_preflight(self, step, context):
         if step.decision == ExecutorDecisionKind.ACT:
             if self.question_attempts >= self.question_limit:
@@ -146,7 +269,7 @@ class LearningExecutor(PlanExecutor):
             messages = [*messages, {"role":"user", "content":json.dumps({
                 "research_context_reference":context_ref,
                 "environment": self.environment.receipt() if getattr(self,"environment",None) else None,
-                "budget": self.budget.snapshot(),
+                "budget": learning_budget_context(self.budget.snapshot()),
                 "budget_scope": "Cumulative learning job; seconds is not elapsed probe time.",
                 "probe_cost": self.budget.probe_snapshot()}, ensure_ascii=False)}]
             return messages, [*names, "research_runtime"]
@@ -161,6 +284,22 @@ def diagnostic_text_size(messages):
     projected = [{**m, "content": [p for p in m["content"] if p.get("type") != "image_url"]}
                  if isinstance(m.get("content"), list) else m for m in messages]
     return len(json.dumps(projected, ensure_ascii=False))
+
+
+def diagnostic_context_window(settings, model, tools=(), *, role="skill_learner"):
+    """Use explicit Learner request capacity; retain the legacy fallback.
+
+    This uses the existing conservative text estimate, not a claim of exact
+    provider tokenization. Reserve the actual tool schema and the two retained
+    diagnostic images before allocating the text window.
+    """
+    policy = settings.context_policy(model, role)
+    limit = policy.get("max_input_tokens")
+    if limit is None:
+        return 50000
+    limit = min(limit, policy.get("history_tokens", limit))
+    schema_size = len(json.dumps({"tools": tools}, ensure_ascii=False)) if tools else 0
+    return max(0, 3 * (limit - 2 * 1200) - schema_size)
 
 
 def _columnar_directory(rows):
@@ -209,6 +348,8 @@ def checkpoint_phase_context(messages):
     if isinstance(feedback, list):
         feedback = feedback[-1] if feedback else {}
     return {"verification_goal":payload.get("verification_goal"),
+        **({"task_success_goal": True, "task_goal_feedback": payload.get("task_goal_feedback")}
+            if payload.get("task_success_goal") else {}),
         "original_instruction":(payload.get("source") or {}).get("instruction"),
         "candidate":payload.get("candidate"),
         "validation_targets":[{key:trial[key] for key in ("kind", "goal",
@@ -263,10 +404,16 @@ def diagnostic_payload_projection(payload, *, character_budget=30000, compact=Fa
                 "policy":"Read the native execution outline for detailed action transitions and parameters; source counts retain totals. Omitted details are unknown, not waste labels."}
         ledger = payload.get("acquisition_ledger")
         if isinstance(ledger, dict):
-            payload["acquisition_ledger"] = {**ledger,
-                "recent_probes":[{key:item[key] for key in
+            recent = []
+            for item in ledger.get("recent_probes", []):
+                record = {key:item[key] for key in
                     ("learning_task_id", "outcome", "actions_attempted", "probe_cost") if key in item}
-                    for item in ledger.get("recent_probes", [])],
+                if item.get("strategy_comparison"):
+                    record["strategy_comparison"] = {k:item["strategy_comparison"][k]
+                        for k in ("selected", "reason", "next_test") if k in item["strategy_comparison"]}
+                recent.append(record)
+            payload["acquisition_ledger"] = {**ledger,
+                "recent_probes":recent,
                 "probe_reviews":[{"question":str(item.get("question") or "")[:160],
                     "question_truncated":len(str(item.get("question") or ""))>160,
                     "verdict":item.get("verdict"), "omitted_reasons":len(item.get("reasons") or [])}
@@ -293,8 +440,9 @@ def diagnostic_payload_projection(payload, *, character_budget=30000, compact=Fa
                             **{key:value for key,value in activation.items() if key != "examples"},
                             "omitted_examples":len(activation["examples"]),
                             "examples_policy":"Exact request references remain in the paired measurement; activation is not mechanism adoption."}
-                    execution["history_omissions"] = {"last_report":removed_report is not None,
-                        "text_inputs":len(removed_inputs or [])}
+                    if "last_report" in trial[side] or "text_inputs" in trial[side]:
+                        execution["history_omissions"] = {"last_report":removed_report is not None,
+                            "text_inputs":len(removed_inputs or [])}
                     trial[side] = execution
                 trials.append(trial)
             payload["validation"] = {**validation, "trials":trials,
@@ -524,7 +672,7 @@ establish absence. The host validates references and rejects any other field cha
 """
 
 
-def analysis_repair_context(messages, analysis, parsed, instruction):
+def analysis_repair_context(messages, analysis, parsed, instruction, *, context_limit=50000):
     """Fit a format-only repair without discarding its decision or checkpoint."""
     checkpoint = ([{"role":"user", "learner_checkpoint":True,
         "content":json.dumps({"trajectory_analysis":analysis,
@@ -535,7 +683,7 @@ def analysis_repair_context(messages, analysis, parsed, instruction):
         {"role":"user", "content":"Older raw exchanges and original output are archived. This is a format-only repair; omissions do not establish missing facts or authorize new decisions."},
         {"role":"assistant", "content":json.dumps(parsed, ensure_ascii=False, separators=(",", ":"))},
         instruction]
-    if diagnostic_text_size(repair) > 50000:
+    if diagnostic_text_size(repair) > context_limit:
         # No tools or new action plan are permitted in this repair. Keep the
         # source, full decision/candidate, known guidance, limits and reference
         # directories; the execution action schema adds no repair information.
@@ -544,7 +692,7 @@ def analysis_repair_context(messages, analysis, parsed, instruction):
             phase.pop("executor_action_directory")
             phase["format_repair_policy"] = "Action directory is archived; repair trajectory_analysis references only. Keep every other decision field unchanged. No tools or device actions."
             base[1]["content"] = json.dumps(phase, ensure_ascii=False, separators=(",", ":"))
-    if diagnostic_text_size(repair) > 50000:
+    if diagnostic_text_size(repair) > context_limit:
         phase = json.loads(base[1]["content"])
         guidance = phase.get("existing_active_guidance")
         if isinstance(guidance, dict) and any("content" in item for item in guidance.get("items", [])):
@@ -555,13 +703,13 @@ def analysis_repair_context(messages, analysis, parsed, instruction):
                 "items":[{k:v for k,v in item.items() if k != "content"} for item in guidance["items"]],
                 "format_repair_policy":"Exact rule bodies are in the archived phase. Reference format only; all rule identities, hashes and qualifications are unchanged. No new findings or decision changes."}
             base[1]["content"] = json.dumps(phase, ensure_ascii=False, separators=(",", ":"))
-    if diagnostic_text_size(repair) > 50000:
+    if diagnostic_text_size(repair) > context_limit:
         # This call cannot explore, reassess utility or change a candidate. The
         # full acquisition policy is archived; use its narrower repair contract
         # rather than duplicating it alongside both analyses and the full output.
         # All phase facts and the immutable non-analysis fields remain present.
         base[0]["content"] = ANALYSIS_REPAIR_SYSTEM
-    if diagnostic_text_size(repair) > 50000:
+    if diagnostic_text_size(repair) > context_limit:
         raise LearningStopped("analysis_output_repair_context_budget")
     return repair
 
@@ -682,6 +830,33 @@ def live_experiment_context(context, *, character_budget=45000):
     return diagnostic_payload_projection(context, character_budget=character_budget)
 
 
+def probe_interaction_observation(store, starting_event_count):
+    """One literal interaction view; cleanup must not erase the newly seen mode."""
+    rows = store.records("event")[starting_event_count:]
+    observations = {row["key"]: row for row in store.records("observation")}
+    for index, row in enumerate(rows):
+        payload = row["payload"]
+        action = payload.get("submitted_action") or {}
+        receipt = (payload.get("action_result") or {}).get("receipt") or {}
+        if (action.get("type") in {None, "launch", "back", "home", "wait", "scroll", "swipe"}
+                or receipt.get("dispatch_succeeded") is not True):
+            continue
+        observation_id = (rows[index + 1]["payload"].get("observation_id")
+            if index + 1 < len(rows) else None)
+        observation_id = observation_id or receipt.get("effect_observation_id") or receipt.get("observation_id")
+        observed = observations.get(observation_id)
+        if observed is None:
+            continue
+        text = str(observed["payload"].get("text") or "")
+        return {"source": "exploration/" + source(observed, "observation"),
+            "action_source": "exploration/" + source(row, "event"),
+            "preview": text if len(text) <= 1400 else text[:700],
+            "tail_preview": text[-700:] if len(text) > 1400 else "",
+            "truncated": len(text) > 1400,
+            "policy": "Literal view at the next recorded step, or action receipt view. Temporal context, not proven causality or complete screen coverage; read the original observation/image for gaps."}
+    return None
+
+
 class ExplorationBackend:
     claim_admission = True
 
@@ -728,7 +903,7 @@ class ExplorationBackend:
         return {"research_session": {
             "mode": "continuous_owned_fixture",
             "environment": self.environment.receipt() if self.environment else None,
-            "policy": "Completed probes retain live state and unresolved effects in this owned fixture. Re-ground observations; no reset is implied. Omit a replacement environment plan to continue under the current one; a changed plan requires verified cleanup and preparation. Cleanup remains reserved and mandatory before candidate adjudication, ordinary validation and exit. New completed evidence permits one planning repair, at most two total, without extra calls/actions/time. New hypotheses still need audit; findings are not accepted skills."}}
+            "policy": "Normal probe completion retains this owned fixture; finish in probe stage. Re-ground current observations. A new question alone does not require a new environment plan: omit it when the current scope and permissions suffice. Changing the plan requires verified cleanup and preparation. Request cleanup now only when reset is needed for the next test. A supported candidate may be proposed with registered cleanup pending: the host resets and verifies before staging/review; failure blocks adjudication. Do not open another probe solely to request that host reset. Cleanup stays reserved and mandatory before candidate adjudication, validation and exit. Each new hypothesis still needs audit; findings are not accepted skills. New completed evidence permits one planning repair, at most two total, within the same budget."}}
 
     def freeze_library(self):
         if self.snapshot is None:
@@ -767,6 +942,9 @@ class ExplorationBackend:
     def add_history(self, namespace, store, state):
         if not namespace or "/" in namespace or namespace in {"source", "exploration"}:
             raise ValueError("invalid additional history namespace")
+        previous = self.additional_histories.get(namespace)
+        if previous is not None and previous.task_id != store.task_id:
+            raise ValueError("history namespace is already bound to another task")
         self.additional_histories[namespace] = store
         self.history_states[namespace] = state
 
@@ -833,6 +1011,10 @@ class ExplorationBackend:
             "learning_task_id": store.task_id, "actions_attempted": evidence.get("actions_attempted"),
             "outcome": evidence.get("outcome"), "notes": notes, "frontier": frontier_directory,
             "observation_failures":evidence.get("observation_failures", [])[:1],
+            "interaction_observation": ({**evidence["interaction_observation"],
+                "source": namespace + "/" + evidence["interaction_observation"]["source"].split("/", 1)[-1],
+                "action_source": namespace + "/" + evidence["interaction_observation"]["action_source"].split("/", 1)[-1]}
+                if evidence.get("interaction_observation") else None),
             "probe_cost": evidence.get("probe_cost") or {"status": "unknown", "policy": "No incremental receipt; cumulative job elapsed is not probe duration."},
             "policy": "Literal saved probe-time notes, not verified knowledge; read native records for missing facts."})
 
@@ -904,7 +1086,20 @@ class ExplorationBackend:
                 "exploration_calls_after_audit": max(0, budget.snapshot()["remaining_exploration_calls"] - 1),
                 "policy": "This audit consumes one request before device dispatch; memory, observation and reporting requests also count. Request latency still consumes remaining time."},
             "prior_probe_snapshots": self.probe_directory()["items"]}
-        payload = diagnostic_payload_projection(payload, character_budget=45000)
+        # An accumulating audit can contain a necessary complete experiment and
+        # action contract above the old payload cap. Honor the Reviewer's actual
+        # configured request window, including its system text; never borrow the
+        # Learner's larger capacity or truncate required permissions/cleanup.
+        limit = 45000
+        if self.settings.context_policy(model, "skill_reviewer").get("max_input_tokens") is not None:
+            limit = max(0, diagnostic_context_window(self.settings, model, role="skill_reviewer")
+                - len(PROBE_REVIEW_SYSTEM) - 2000)
+        try:
+            payload = diagnostic_payload_projection(payload, character_budget=min(45000, limit))
+        except LearningStopped:
+            if limit <= 45000:
+                raise
+            payload = diagnostic_payload_projection(payload, character_budget=limit)
         messages = [{"role": "system", "content": PROBE_REVIEW_SYSTEM},
                     {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}]
         self._record_research("reviewer", "probe_audit", {"messages": messages}, budget, status="started", model=model)
@@ -939,19 +1134,7 @@ class ExplorationBackend:
             return data, []
         if call.name not in {"read_history", "read_execution_outline"}:
             raise ValueError("diagnosis permits only historical read tools")
-        requested_namespace = args.pop("namespace", None)
-        namespace = requested_namespace or "source"
-        reference = args.get("source")
-        if isinstance(reference, str) and "/" in reference:
-            prefix, native = reference.split("/", 1)
-            if ":" not in prefix:
-                if requested_namespace is not None and requested_namespace != prefix:
-                    raise ValueError("conflicting history namespaces")
-                namespace, args["source"] = prefix, native
-        if namespace not in registries:
-            raise ValueError("unknown history namespace")
-        if args.get("view") == "image" and not args.get("source"):
-            raise ValueError("Historical images require an exact source; locate observations with a text query first")
+        namespace, args = history_read_arguments(call.arguments, registries)
         if call.name == "read_execution_outline":
             if set(args) - {"start_step"}:
                 raise ValueError("invalid outline arguments")
@@ -970,7 +1153,7 @@ class ExplorationBackend:
         data = scoped_history_data(result.data, namespace)
         return result.model_copy(update={"data": data}).model_metadata(call.name), result.attachments
 
-    async def _compact_diagnosis(self, model, messages, session, budget, reserve_after):
+    async def _compact_diagnosis(self, model, messages, session, budget, reserve_after, *, context_limit=50000):
         from agent.skills.analysis_session import COMPACTION_SYSTEM, TrajectoryAnalysis, validate_analysis
         from agent.skills.learner import _extract_json
         # The same native read response can checkpoint the preceding evidence.
@@ -995,7 +1178,7 @@ class ExplorationBackend:
             if not requested <= answered:
                 continue
             compacted = [*checkpoint_phase_input(messages), *copy.deepcopy(messages[index:])]
-            if diagnostic_text_size(compacted) >= diagnostic_text_size(messages) or diagnostic_text_size(compacted) > 50000:
+            if diagnostic_text_size(compacted) >= diagnostic_text_size(messages) or diagnostic_text_size(compacted) > context_limit:
                 continue
             session.save(messages)  # Archive the complete old exchanges first.
             session.analysis = analysis
@@ -1016,10 +1199,10 @@ class ExplorationBackend:
             base = checkpoint_phase_input(messages)
             session.save(base, analysis=analysis, compacted=True)
             compacted = [*base, *session.checkpoint_message()]
-            if diagnostic_text_size(compacted) > 50000:
+            if diagnostic_text_size(compacted) > context_limit:
                 raise LearningStopped("diagnostic_context_budget")
             return compacted
-        if budget.max_calls - budget.calls <= reserve_after + 1:
+        if budget.remaining_calls() <= reserve_after + 1:
             raise LearningStopped("analysis_checkpoint_budget")
         history = [m for m in messages[2:] if not m.get("research_capacity")
                    and not m.get("diagnostic_final_instruction")]
@@ -1033,14 +1216,14 @@ class ExplorationBackend:
                 "trajectory_analysis_schema": TrajectoryAnalysis.model_json_schema()}, ensure_ascii=False)},
             *[{k:v for k,v in m.items() if k not in {"learner_checkpoint", "diagnostic_final_instruction", "learner_phase_marker"}}
               for m in history]]
-        if diagnostic_text_size(checkpoint_input) > 50000:
+        if diagnostic_text_size(checkpoint_input) > context_limit:
             raise LearningStopped("analysis_checkpoint_input_budget")
         for attempt in range(2):
-            if budget.max_calls - budget.calls <= reserve_after + 1:
+            if budget.remaining_calls() <= reserve_after + 1:
                 raise LearningStopped("analysis_checkpoint_budget")
             budget.check()
             response = await asyncio.wait_for(complete(model, checkpoint_input, settings=self.settings,
-                attempt_meter=budget.meter, max_retries=0), max(.1, budget.remaining_seconds()))
+                attempt_meter=budget.meter, max_retries=int(budget.remaining_calls(exploration=True) > 1)), max(.1, budget.remaining_seconds()))
             budget.record_usage(getattr(response, "usage", None))
             try:
                 analysis = validate_analysis(_extract_json(response.content), self.resolve_analysis_evidence)
@@ -1055,20 +1238,20 @@ class ExplorationBackend:
                 repair = [*checkpoint_input, {"role": "assistant", "content": response.content},
                     {"role": "user", "content": "Repair this checkpoint once: " + str(exc)[:1000]
                      + ". Pinned task constraints need not be repeated. Keep observed claims tied to native sources; preserve uncertainty without inventing citations."}]
-                if diagnostic_text_size(repair) > 50000:
+                if diagnostic_text_size(repair) > context_limit:
                     raise
                 checkpoint_input = repair
         # Fail closed on invalid references/schema. Never silently discard history.
         base = checkpoint_phase_input(messages)
         session.save(base, analysis=analysis, compacted=True)
         compacted = [*base, *session.checkpoint_message()]
-        if diagnostic_text_size(compacted) > 50000:
+        if diagnostic_text_size(compacted) > context_limit:
             raise LearningStopped("diagnostic_context_budget")
         return compacted
 
     async def diagnose(self, model, system, payload, budget):
         from agent.skills.learner import _extract_json
-        from agent.skills.analysis_session import LearnerConversation, TRAJECTORY_FORMAT, validate_analysis
+        from agent.skills.analysis_session import LearnerConversation, TRAJECTORY_FORMAT, validate_decision_analysis
         if self._conversation_budget is not budget:
             self._conversation_budget = budget
             self.learner_conversation = LearnerConversation(self.artifacts, {
@@ -1135,9 +1318,10 @@ class ExplorationBackend:
         # no room even for the first bounded history result.
         # Post-review directories have no repeated source UI previews. Reserve
         # a bounded exchange allowance; native pages also adapt to the actual
-        # serialized space. The 50k cap and checkpoint-before-eviction remain.
+        # serialized space. Explicit model capacity governs checkpoint-before-eviction.
+        context_limit = diagnostic_context_window(self.settings, model)
         exchange_reserve = 16000 if payload.get("review_feedback") else 20000
-        input_budget = min(30000, 50000 - len(system) - exchange_reserve)
+        input_budget = min(30000, context_limit - len(system) - exchange_reserve)
         if input_budget <= 0:
             raise LearningStopped("diagnostic_context_budget")
         diagnostic_directories = session.directories
@@ -1152,12 +1336,14 @@ class ExplorationBackend:
             "exploration_calls_after_response_and_audit":max(0,capacity["remaining_exploration_calls"]-2),
             "policy":"Latest budget supersedes earlier balances; omitted native records remain readable."},ensure_ascii=False)})
         # Prefer room for one ordinary 4000-character page plus its escaped
-        # wire/metadata. Required input may still use the original46k ceiling.
-        preferred_wire = 50000 - 2 * 4000 - 2000
+        # wire/metadata. Required input may use the fallback up to the same 2k
+        # metadata reserve used by adaptive native pages below; the complete
+        # serialized exchange remains checked against context_limit.
+        preferred_wire = context_limit - 2 * 4000 - 2000
         def project_phase(value, character_budget):
             return diagnostic_projection_with_reads(value, character_budget=character_budget,
                 directories=diagnostic_directories, pinned_messages=pinned, wire_budget=preferred_wire,
-                fallback_wire_budget=46000 if preferred_wire < 46000 else None)
+                fallback_wire_budget=(context_limit - 2000) if preferred_wire < (context_limit - 2000) else None)
         try:
             payload = project_phase(payload, input_budget)
         except LearningStopped:
@@ -1168,12 +1354,14 @@ class ExplorationBackend:
                 # to native-readable reference directories only when necessary.
                 payload = project_phase({**payload, "_source_history_directory":True}, input_budget)
             else:
-                if input_budget >= 30000:
+                fallback_budget = max(30000, context_limit - diagnostic_text_size(pinned) - exchange_reserve)
+                if input_budget >= fallback_budget:
                     raise
-                # A conservative exchange estimate must not reject required writing
-                # conditions that fit the measured wire window. Keep the original
-                # 30k payload/46k wire ceilings; native pages adapt to remaining room.
-                payload = project_phase(payload, 30000)
+                # Prefer the compact 30k projection, but do not make that legacy
+                # payload cap smaller than an explicitly configured model window.
+                # Required fields remain complete; the same measured wire limit
+                # still reserves tools/images and the next evidence exchange.
+                payload = project_phase(payload, fallback_budget)
         registries = {}
         for namespace, store in self._stores().items():
             registry = AgentToolRegistry()
@@ -1200,6 +1388,9 @@ class ExplorationBackend:
                 "offset":{"type":"integer", "minimum":0, "default":0},
                 "length":{"type":"integer", "minimum":1, "maximum":4000, "default":4000}},
                 "required":["ref"], "additionalProperties":False}}} if diagnostic_directories else None
+        diagnostic_tools = ([tool, outline_tool] + ([official_tool] if official_tool else [])
+            + ([directory_tool] if directory_tool else [])) if tool else []
+        context_limit = diagnostic_context_window(self.settings, model, diagnostic_tools)
         messages = session.messages(system, payload)
         omitted_rounds = session.compactions
         requested_rounds = payload.get("diagnostic_read_rounds")
@@ -1207,17 +1398,24 @@ class ExplorationBackend:
             raise ValueError("invalid diagnostic read round limit")
         # Explicit smaller limits remain supported for repairs/final-only calls.
         # Normal analysis follows the shared budget, not a fixed four-read cutoff.
-        reserve_after = min(budget.reserve_calls, max(0, budget.max_calls - budget.calls - 1)) if requested_rounds is None else 0
-        read_rounds = min(requested_rounds if requested_rounds is not None else budget.max_calls,
-            max(0, budget.max_calls - budget.calls - reserve_after - 1))
+        reserve_after = min(budget.reserve_calls, max(0, budget.remaining_calls() - 1)) if requested_rounds is None else 0
+        read_rounds = min(requested_rounds if requested_rounds is not None else budget.remaining_calls(),
+            max(0, budget.remaining_calls() - reserve_after - 1))
         if requested_rounds is not None:
-            reserve_after = max(0, budget.max_calls - budget.calls - read_rounds - 1)
-        if diagnostic_text_size(messages) > 50000 and len(messages) > 2:
-            messages = await self._compact_diagnosis(model, messages, session, budget, reserve_after)
+            reserve_after = max(0, budget.remaining_calls() - read_rounds - 1)
+        if diagnostic_text_size(messages) > context_limit and len(messages) > 2:
+            messages = await self._compact_diagnosis(model, messages, session, budget, reserve_after, context_limit=context_limit)
         session.save(messages)
         self._record_research("learner", "diagnosis", {"conversation_ref": session.ref,
             "messages": messages, "analysis": session.analysis, "stage": session.stages,
-            "compactions": session.compactions}, budget, status="started", model=model)
+            "compactions": session.compactions, "context_window": {
+                "text_character_limit": context_limit,
+                "configured_capacity": {
+                    "maximum_input_units": self.settings.context_policy(model, "skill_learner").get("max_input_tokens"),
+                    "history_units": self.settings.context_policy(model, "skill_learner").get("history_tokens"),
+                    "unit": "tokens"},
+                "measurement": "Existing conservative text estimate with schema/image reservation; not exact provider tokenization."}},
+            budget, status="started", model=model)
         pending_reads = []  # Phase-local only; never leak across jobs or feedback.
         unseen_images = 0  # Fresh attachments must reach a model before eviction.
         def queue_read(call):
@@ -1227,7 +1425,7 @@ class ExplorationBackend:
                 pending_reads.append(call)
         for read_round in range(read_rounds + 1):
             allow_reads = (read_round < read_rounds and (session.stalled_rounds < 2 or pending_reads)
-                and budget.max_calls - budget.calls > reserve_after + 1)
+                and budget.remaining_calls() > reserve_after + 1)
             # History reads and the decision itself consume the same allowance.
             # Advertise dispatch capacity after this response and its next audit,
             # rather than leaving the initial diagnostic snapshot stale.
@@ -1240,7 +1438,7 @@ class ExplorationBackend:
                 "exploration_calls_after_response_and_audit":max(0,snapshot["remaining_exploration_calls"]-2),
                 "policy":"Latest budget supersedes earlier balances; omitted native records remain readable."}, ensure_ascii=False)})
             final_instruction = ({"role":"user", "diagnostic_final_instruction":True,
-                "content":"History reads have ended because of the shared budget, explicit phase limit or repeated reads without new results. Return a decision and trajectory_analysis from supplied evidence, preserving unresolved dependencies; do not invent facts."}
+                "content":"History reads have ended because of the shared budget, explicit phase limit or repeated reads without new results. Return a decision and any necessary analysis update from supplied evidence, preserving unresolved dependencies; do not invent facts."}
                 )
             if not allow_reads:
                 messages.append(final_instruction)
@@ -1253,12 +1451,12 @@ class ExplorationBackend:
             # A repair's compacted base can still exceed the preferred reserve.
             # Permit a small exact follow-up page while the existing hard window
             # and per-result metadata reserve fit; don't checkpoint it prematurely.
-            read_threshold = 50000 - 2000 if payload.get("review_feedback") else 46000
-            queued_needs_space = allow_reads and pending_reads and size() > 50000 - 3000 - 2*4000
-            if size() > (read_threshold if allow_reads else 50000) or queued_needs_space:
-                messages = await self._compact_diagnosis(model, messages, session, budget, reserve_after)
+            read_threshold = context_limit - 2000 if payload.get("review_feedback") else (context_limit - 4000)
+            queued_needs_space = allow_reads and pending_reads and size() > context_limit - 3000 - 2*4000
+            if size() > (read_threshold if allow_reads else context_limit) or queued_needs_space:
+                messages = await self._compact_diagnosis(model, messages, session, budget, reserve_after, context_limit=context_limit)
                 omitted_rounds = session.compactions
-                allow_reads = allow_reads and budget.max_calls - budget.calls > reserve_after + 1
+                allow_reads = allow_reads and budget.remaining_calls() > reserve_after + 1
             if allow_reads and pending_reads:
                 # Prior tool calls already have paired deferred results. A host
                 # delivery references that request without fabricating model calls.
@@ -1266,7 +1464,7 @@ class ExplorationBackend:
                 for call in list(pending_reads):
                     if json.loads(call.arguments).get("view") == "image" and unseen_images >= 2:
                         continue
-                    capacity = min(4000, max(0, (50000 - size() - 3000) // 2),
+                    capacity = min(4000, max(0, (context_limit - size() - 3000) // 2),
                         max(0, (16000 - delivered_chars - 1500) // 2))
                     if capacity < 256:
                         break
@@ -1283,7 +1481,7 @@ class ExplorationBackend:
                         "policy": "Host completion of this phase's previously requested deferred read; literal evidence only. No new model request, device action or verified conclusion."}
                     message = {"role": "user", "content": json.dumps({"deferred_read_delivery": delivery},
                         ensure_ascii=False, separators=(",", ":"))}
-                    if size([*messages, message]) > 50000 - 1500:
+                    if size([*messages, message]) > context_limit - 1500:
                         break
                     messages.append(message)
                     for attachment in attachments:
@@ -1303,7 +1501,7 @@ class ExplorationBackend:
                 notice = {"role": "user", "content": json.dumps({"queued_reads": [
                     {"tool": call.name, "original_tool_call_id": call.id} for call in pending_reads],
                     "policy": "These requested reads remain queued for available context space in this phase. Do not request them again; undelivered results remain unknown."})}
-                if size([*messages, notice]) <= 50000 - 1500:
+                if size([*messages, notice]) <= context_limit - 1500:
                     messages.append(notice)
             image_messages = [i for i, m in enumerate(messages) if isinstance(m.get("content"), list)
                 and any(part.get("type") == "image_url" for part in m["content"])]
@@ -1312,14 +1510,14 @@ class ExplorationBackend:
             if not allow_reads:
                 if not any(m.get("diagnostic_final_instruction") for m in messages):
                     messages.append(final_instruction)
-                if size() > 50000:
+                if size() > context_limit:
                     raise LearningStopped("diagnostic_context_budget")
-            if size() > 50000:
+            if size() > context_limit:
                 raise LearningStopped("diagnostic_context_budget")
             budget.check()
             response = await asyncio.wait_for(complete(model, [{k:v for k,v in m.items() if k not in {"research_capacity", "learner_checkpoint", "diagnostic_final_instruction", "learner_phase_marker"}} for m in messages],
-                tools=([tool, outline_tool] + ([official_tool] if official_tool else []) + ([directory_tool] if directory_tool else [])) if tool and allow_reads else None,
-                settings=self.settings, attempt_meter=budget.meter, max_retries=0),
+                tools=diagnostic_tools if allow_reads else None,
+                settings=self.settings, attempt_meter=budget.meter, max_retries=int(budget.remaining_calls(exploration=True) > 1)),
                 max(.1, budget.remaining_seconds()))
             budget.record_usage(getattr(response, "usage", None))
             unseen_images = 0  # All attachments in this request have now been delivered.
@@ -1333,23 +1531,23 @@ class ExplorationBackend:
                     "messages": messages, "decision": parsed, "stage": session.stages,
                     "compactions": session.compactions}, budget, status="output_received", model=model)
                 try:
-                    analysis = validate_analysis(parsed["trajectory_analysis"], self.resolve_analysis_evidence) if "trajectory_analysis" in parsed else None
+                    analysis = validate_decision_analysis(parsed, session.analysis, self.resolve_analysis_evidence)
                 except ValueError as exc:
                     repair_messages = [*messages, {"role": "user", "content":
-                        "Repair this decision's trajectory_analysis once: " + str(exc)[:1800]
-                        + ". Use returned native or official_skill references only. Pinned task, budget and external evaluation fields are context, not discovered app findings. Preserve unresolved hypotheses and dependencies; do not invent evidence or upgrade uncertainty. Change trajectory_analysis only; keep every other decision field unchanged. Return complete decision JSON; no tools."}]
-                    if diagnostic_text_size(repair_messages) > 50000:
+                        "Repair this decision's analysis once: " + str(exc)[:1800]
+                        + ". Use returned native or official_skill references only. Pinned task, budget and external evaluation fields are context, not discovered app findings. Preserve unresolved hypotheses and dependencies; do not invent evidence or upgrade uncertainty. Change trajectory_analysis/trajectory_analysis_update only; keep every other decision field unchanged. Return complete decision JSON with one analysis field; no tools."}]
+                    if diagnostic_text_size(repair_messages) > context_limit:
                         # Full exchanges and the invalid output were archived
                         # above. A format-only repair needs the pinned phase,
                         # prior validated checkpoint and this output, rather
                         # than every older raw exchange. Never truncate these
                         # required parts or add an unvalidated new summary.
                         repair_messages = analysis_repair_context(messages, session.analysis,
-                            parsed, repair_messages[-1])
+                            parsed, repair_messages[-1], context_limit=context_limit)
                     budget.check()
                     repaired = await asyncio.wait_for(complete(model,
                         [{k: v for k, v in m.items() if k not in {"research_capacity", "learner_checkpoint", "diagnostic_final_instruction", "learner_phase_marker"}} for m in repair_messages],
-                        tools=None, settings=self.settings, attempt_meter=budget.meter, max_retries=0),
+                        tools=None, settings=self.settings, attempt_meter=budget.meter, max_retries=int(budget.remaining_calls(exploration=True) > 1)),
                         max(.1, budget.remaining_seconds()))
                     budget.record_usage(getattr(repaired, "usage", None))
                     messages = [*repair_messages, {"role": "assistant", "content": repaired.content}]
@@ -1357,15 +1555,18 @@ class ExplorationBackend:
                     self._record_research("learner", "analysis_output_repair", {"conversation_ref": session.ref,
                         "invalid_reason": str(exc)[:1800], "messages": messages}, budget, model=model)
                     corrected = _extract_json(repaired.content)
-                    if repaired.tool_calls or not isinstance(corrected, dict) or "trajectory_analysis" not in corrected:
+                    analysis_fields = {"trajectory_analysis", "trajectory_analysis_update"}
+                    if repaired.tool_calls or not isinstance(corrected, dict) or not analysis_fields.intersection(corrected):
                         raise ValueError("invalid repaired learner analysis output")
-                    if ({k:v for k,v in corrected.items() if k != "trajectory_analysis"}
-                            != {k:v for k,v in parsed.items() if k != "trajectory_analysis"}):
+                    if ({k:v for k,v in corrected.items() if k not in analysis_fields}
+                            != {k:v for k,v in parsed.items() if k not in analysis_fields}):
                         raise ValueError("analysis format repair changed the decision")
                     parsed = corrected
-                    analysis = validate_analysis(parsed["trajectory_analysis"], self.resolve_analysis_evidence)
+                    analysis = validate_decision_analysis(parsed, session.analysis, self.resolve_analysis_evidence)
                 if analysis is not None:
                     session.save(messages, analysis=analysis)
+                    parsed = {k:v for k,v in parsed.items() if k != "trajectory_analysis_update"}
+                    parsed["trajectory_analysis"] = analysis
                 self._record_research("learner", "diagnosis", {"conversation_ref": session.ref,
                     "messages": messages, "decision": parsed, "analysis": session.analysis,
                     "stage": session.stages, "compactions": session.compactions}, budget, status="completed", model=model)
@@ -1385,7 +1586,7 @@ class ExplorationBackend:
                     pending_result_reserve = 1500 + 600 * (len(response.tool_calls) - call_index - 1)
                     if call.name == "read_diagnostic_context":
                         args = json.loads(call.arguments)
-                        capacity = min(4000, max(0, (50000 - size() - pending_result_reserve) // 2),
+                        capacity = min(4000, max(0, (context_limit - size() - pending_result_reserve) // 2),
                             max(0, (16000 - round_result_chars - 800) // 2))
                         # Validate even deferred requests; only this call's frozen refs exist.
                         data = read_diagnostic_context(diagnostic_directories, **args)
@@ -1407,7 +1608,7 @@ class ExplorationBackend:
                             raise ValueError("invalid official read arguments")
                         data = self.official_skill_page(args["path"], args.get("offset",0), args.get("length",4000))
                         wire = json.dumps(data, ensure_ascii=False)
-                        if round_result_chars + len(wire) > 16000 or size() + len(wire) + pending_result_reserve > 50000:
+                        if round_result_chars + len(wire) > 16000 or size() + len(wire) + pending_result_reserve > context_limit:
                             wire = json.dumps({"status":"deferred","reason":"official page exceeds shared result budget"})
                             queue_read(call)
                         round_result_chars += len(wire)
@@ -1415,21 +1616,15 @@ class ExplorationBackend:
                         continue
                     if call.name not in {"read_history", "read_execution_outline"}:
                         raise ValueError("diagnosis permits only historical read tools")
-                    args = json.loads(call.arguments)
-                    requested_namespace = args.pop("namespace", None)
-                    namespace = requested_namespace or "source"
-                    reference = args.get("source")
-                    if isinstance(reference, str) and "/" in reference:
-                        prefix, native = reference.split("/", 1)
-                        if ":" not in prefix:
-                            if requested_namespace is not None and requested_namespace != prefix:
-                                raise ValueError("conflicting history namespaces")
-                            namespace, args["source"] = prefix, native
-                    if namespace not in registries:
-                        raise ValueError("unknown history namespace")
+                    try:
+                        namespace, args = history_read_arguments(call.arguments, registries)
+                    except (ValueError, TypeError) as exc:
+                        wire = json.dumps({"status": "failed", "reason": str(exc)[:700],
+                            "policy": "No evidence supplied. Use a returned namespaced reference, or a declared namespace with an unprefixed native reference. Correct within this phase's existing read/request budget; missing facts remain unknown."})
+                        round_result_chars += len(wire)
+                        messages.append({"role": "tool", "tool_call_id": call.id, "content": wire})
+                        continue
                     if args.get("view") == "image":
-                        if not args.get("source"):
-                            raise ValueError("Historical images require an exact source; locate observations with a text query first")
                         if unseen_images >= 2:
                             queue_read(call)
                             messages.append({"role": "tool", "tool_call_id": call.id,
@@ -1444,7 +1639,7 @@ class ExplorationBackend:
                     # deferred-result metadata. Native reads page at the supplied
                     # limit, preserving exact continuation offsets.
                     text_capacity = max(0, min(4000,
-                        (50000 - size() - max(2000, pending_result_reserve)) // 2,
+                        (context_limit - size() - max(2000, pending_result_reserve)) // 2,
                         (16000 - round_result_chars - 2000) // 2))
                     # Page to the actual remaining batch space; a maximum-size estimate
                     # must not defer a short second record that would fit.
@@ -1486,7 +1681,7 @@ class ExplorationBackend:
                         data, attachments = scoped_history_data(result.data, namespace), result.attachments
                         wire = json.dumps(result.model_copy(update={"data":data}).model_metadata(call.name), ensure_ascii=False)
                     projected = [*messages, {"role":"tool", "tool_call_id":call.id,"content":wire}]
-                    if round_result_chars + len(wire) > 16000 or size(projected) + pending_result_reserve > 50000:
+                    if round_result_chars + len(wire) > 16000 or size(projected) + pending_result_reserve > context_limit:
                         queue_read(call)
                         messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps({
                             "status": "deferred", "reason": "native metadata exceeds remaining diagnostic response budget",
@@ -1557,7 +1752,6 @@ class ExplorationBackend:
             self.store = TaskStore(self.db, self.artifacts, self.record.id)
             self.executor = LearningExecutor(self.driver, self.artifacts,
                 model=resolve_learner_model(self.settings), settings=self.settings)
-            self.executor._session = LearningSession("executor", self.executor.model, settings=self.settings)
             self.executor._session.library = self.library
             self.executor._session.source_store = self.source_store
             self.executor._session.source_state = self.task.state
@@ -1573,6 +1767,7 @@ class ExplorationBackend:
             self.executor._session.research_backend = self
             self.executor._session.research_budget = budget
         plan = ((context or {}).get("experiment") or {}).get("environment_plan")
+        restored = None
         if plan and (self.environment.plan is None or self.environment.plan.model_dump() != plan):
             if self.retain_probe_state and self.environment.receipt()["unresolved_effects"]:
                 restored = await self.complete_probe(budget)
@@ -1585,7 +1780,16 @@ class ExplorationBackend:
             budget.set_phase("prepare")
             await self.environment.capture_checkpoint()
             if self.fixture_reset_adapter:
-                await self.prepare_disposable_fixture(budget)
+                if restored and restored["verified_clean"]:
+                    # This invocation just rebuilt and verified the same owned
+                    # fixture for the plan change. No GUI action occurred since.
+                    # Its fresh checkpoint is sufficient; a second rebuild adds
+                    # cost and supplies no additional isolation evidence.
+                    self.store.put("measurement", "fixture_preparation_reused", {
+                        "restoration_receipt": restored,
+                        "policy": "Verified reset immediately before this plan change; current observation still required."})
+                else:
+                    await self.prepare_disposable_fixture(budget)
             else:
                 await self.environment.prepare(self.environment_initializer)
         if self.environment.stage != "cleanup":
@@ -1623,10 +1827,17 @@ observation. Native observations, actions and environment receipts are already
 journaled; notes should capture new mechanism findings, contradictions and unresolved
 gaps, not repeat every action or stage receipt. Cite actual source IDs and separate
 observations from hypotheses. When a note and a grounded decision are ready together,
-you may batch write_note before one submit_executor_step in the same response;
+you may batch save_summary and research_environment record_claim before one
+submit_executor_step in the same response;
 never batch multiple device actions or use old grounding. Avoid redundant observe
 calls when the current observation already answers the question; refresh when it is
 missing, stale or insufficient. Finish with the result and unresolved gaps.
+Once observations meet the stated decision boundary, report and finish this probe;
+do not survey further examples of the same result. A valid counterexample may
+refute a universal shortcut without full-table inspection. A complete count or
+coverage claim still needs its coverage evidence. Failed grounding, a partial
+tap or an offscreen result leaves access unresolved: re-ground if affordable,
+otherwise report the limitation rather than declaring the mechanism absent.
 Do not invent knowledge, alter unrelated data, or publish canonical skills.
 Preparation, probing and cleanup share this task memory. Use research_environment
 for stage/claims/verification. UI navigation requires the reviewed environment plan. Content writes require
@@ -1645,6 +1856,14 @@ with unverified effects on a user device. In the declared disposable lab, pendin
 reset is an unresolved cleanup report until the harness independently verifies it.
 Cleanup consumes the reserved part of the same action budget.
 """
+        if self.retain_probe_state:
+            self.executor.system_suffix += """
+Active mode is continuous_owned_fixture. Finish a normal probe in probe stage;
+do not request cleanup merely to report its result. Retain the current UI for
+audited follow-up. Request reset only for a necessary fresh-state comparison or
+scope change. Host cleanup before candidate review, validation and exit remains
+mandatory. Retained screens still require a fresh current observation.
+"""
         self.executor.research_context = experiment_context
         self.state.revisable.limits.deadline_at = time.time() + max(0, budget.remaining_seconds(exploration=budget.phase != "cleanup"))
         self.executor.question_limit, self.executor.question_attempts = max_actions, 0
@@ -1654,6 +1873,7 @@ Cleanup consumes the reserved part of the same action budget.
         transaction = ActionObservationTransaction(self.driver, ObservationBuilder())
         outcome = "question_budget"
         starting_actions = budget.actions
+        starting_event_count = len(self.store.records("event"))
         starter = getattr(self.driver, "begin_task_session", None)
         if callable(starter):
             await starter(self.record.id)
@@ -1697,6 +1917,16 @@ Cleanup consumes the reserved part of the same action budget.
                 # already acquired, even when the stop occurs inside a tool loop.
                 outcome = str(exc)
                 break
+            except GatewayError as exc:
+                if exc.category != "context_capacity":
+                    raise
+                # A tool batch may grow after initial fitting. Preserve its
+                # evidence/effects without replaying already executed tools.
+                self.store.put("measurement", "probe_context_capacity_" + str(self.state.step_number),
+                    {"phase":"executor_request", "step":self.state.step_number,
+                     "reason":str(exc), "policy":"No automatic tool-loop replay or verified cleanup."})
+                outcome = "context_capacity"
+                break
             except TimeoutError:
                 outcome = "time_budget_reserved"
                 break
@@ -1736,6 +1966,7 @@ Cleanup consumes the reserved part of the same action budget.
             "policy":"Literal latest Executor report; inspect native observations to verify claims."} if latest else None)
         evidence = {"question": question, "outcome": outcome, "learning_task_id": self.record.id,
                 "frontier":frontier,
+                "interaction_observation": probe_interaction_observation(self.store, starting_event_count),
                 "actions_attempted": budget.actions - starting_actions,
                 "events": summary, "notes": bounded_notes(self.store, namespace="exploration/"),
                 "observation_failures":observation_failures,
@@ -1851,6 +2082,27 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
     async def review(self, model, system, payload, budget):
         """Independent review reads native evidence and frozen guidance on demand."""
         from agent.skills.learner import _extract_json
+        def parse_output(content):
+            result = _extract_json(content)
+            if result is None:
+                raise ValueError("invalid skill review JSON")
+            candidate = payload.get("candidate")
+            if isinstance(candidate, dict):
+                if "patches" in candidate:
+                    from agent.skills.candidate_group import CandidateGroup, check_group_review
+                    check_group_review(result, CandidateGroup.model_validate(candidate), self.resolve_evidence)
+                elif "target" in candidate:
+                    from agent.skills.admission import check_review_contract
+                    from agent.skills.learning import preflight_blocks
+                    preflight_blocks(result)
+                    check_review_contract(result)
+                    from agent.skills.diagnosis import check_diagnosis
+                    check_diagnosis(result.get("diagnosis"), self.resolve_evidence)
+            return result
+        # A trial chosen during preflight still needs its independent final
+        # adjudication. Optional reads must not spend that last request.
+        reserve_after = int(payload.get("phase") == "draft_preflight"
+            and bool(payload.get("verification_checks")))
         if self.learner_conversation and self.learner_conversation.analysis is not None:
             payload = {**payload, "learner_analysis": {
                 "analysis": self.learner_conversation.analysis,
@@ -1914,14 +2166,14 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
                 delivered_chars += len(wire)
                 log_read(item, call_id)
                 pending_reads.remove((call_id, args))
-            allow_reads = read_round < 3 and budget.max_calls - budget.calls > 1
+            allow_reads = read_round < 3 and budget.remaining_calls() > reserve_after + 1
             if not allow_reads:
                 messages.append({"role":"user", "content":"Historical reads have ended within the shared call budget. Return the six-criterion verdict from supplied evidence; missing facts remain insufficient. Do not request tools or infer missing evidence as fact."})
                 if text_size() > 250000:
                     raise LearningStopped("review_context_budget")
             response = await asyncio.wait_for(complete(model, messages,
                 tools=tools if allow_reads else None, settings=self.settings,
-                attempt_meter=budget.meter, max_retries=0),
+                attempt_meter=budget.meter, max_retries=int(budget.remaining_calls() > reserve_after + 1)),
                 max(.1, budget.remaining_seconds()))
             budget.check(new_request=False)
             budget.record_usage(getattr(response,"usage",None))
@@ -1929,9 +2181,49 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
                 messages.append({"role": "assistant", "content": response.content})
                 self._record_research("reviewer", "candidate_review", {"messages": messages,
                     "evidence_reads": read_log}, budget, status="output_received", model=model)
-                result = _extract_json(response.content)
-                if result is None:
-                    raise ValueError("invalid skill review JSON")
+                try:
+                    result = parse_output(response.content)
+                except (ValueError, TypeError, AttributeError) as exc:
+                    # Correct only the returned contract, in this same read-only
+                    # conversation. Never replay evidence reads or lower admission
+                    # gates; the raw invalid output remains in the research log.
+                    self._record_research("reviewer", "candidate_review", {"messages": messages,
+                        "contract_error": str(exc)[:2000], "evidence_reads": read_log},
+                        budget, status="invalid_contract", model=model)
+                    if str(exc) == "unknown evidence namespace":
+                        raise
+                    budget.check(new_request=False)
+                    if budget.remaining_calls() <= reserve_after:
+                        raise LearningStopped("review_format_repair_budget") from exc
+                    messages.append({"role":"user", "content":
+                        "Review output rejected: " + str(exc)[:2000] +
+                        ". One contract correction allowed. Return corrected review JSON for the same "
+                        "candidate and supplied evidence. Preserve genuine blockers and uncertainty; "
+                        "choose revise/insufficient/reject when required. Do not erase blockers to obtain "
+                        "pass, invent facts, change the candidate, or request tools."})
+                    if text_size() > 250000:
+                        raise LearningStopped("review_context_budget") from exc
+                    response = await asyncio.wait_for(complete(model, messages, tools=None,
+                        settings=self.settings, attempt_meter=budget.meter, max_retries=int(budget.remaining_calls() > reserve_after + 1)),
+                        max(.1, budget.remaining_seconds()))
+                    budget.check(new_request=False)
+                    budget.record_usage(getattr(response,"usage",None))
+                    messages.append({"role":"assistant", "content":response.content,
+                        **({"tool_calls":[{"id":c.id,"type":"function", "function":{
+                            "name":c.name,"arguments":c.arguments}} for c in response.tool_calls]}
+                           if response.tool_calls else {})})
+                    self._record_research("reviewer", "candidate_review", {"messages":messages,
+                        "evidence_reads":read_log, "contract_repair":True},
+                        budget, status="output_received", model=model)
+                    try:
+                        if response.tool_calls:
+                            raise ValueError("skill review correction permits no tools")
+                        result = parse_output(response.content)
+                    except (ValueError, TypeError, AttributeError) as repair_error:
+                        self._record_research("reviewer", "candidate_review", {"messages":messages,
+                            "contract_error":str(repair_error)[:2000], "evidence_reads":read_log,
+                            "contract_repair":True}, budget, status="invalid_contract", model=model)
+                        raise
                 # Literal read provenance, separate from six-criterion judgments.
                 result["evidence_reads"] = read_log
                 self._record_research("reviewer", "candidate_review", {"messages": messages,
@@ -2018,10 +2310,31 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
 
     def review_evidence(self, candidate, *, character_budget=24000):
         result, seen, linked = [], set(), []
+        event_indexes = {}
         for ref in candidate.evidence:
             kind, row, _ = self.resolve_evidence(ref)
             namespace = ref.split("/", 1)[0] if "/" in ref else "source"
             payload = row["payload"]
+            if kind == "observation":
+                # A cited view is often the fresh pre-action capture of the
+                # next step, rather than the prior action's receipt image.
+                # Include the recorded neighbor and its literal before/after
+                # views; adjacency alone never establishes a causal effect.
+                store = self._stores()[namespace]
+                if namespace not in event_indexes:
+                    event_indexes[namespace] = {r["payload"].get("step"): r for r in store.records("event")}
+                events = event_indexes[namespace]
+                visits = payload.get("visits") or [{"step":payload.get("step"), "stage_id":payload.get("stage_id")}]
+                for visit in visits[-3:]:
+                    step = visit.get("step")
+                    previous = events.get(step - 1) if type(step) is int and step > 0 else None
+                    if not visit.get("stage_id") or not previous or previous["payload"].get("stage_id") != visit.get("stage_id"):
+                        continue
+                    linked.append(namespace + "/" + source(previous, "event"))
+                    prior = previous["payload"]
+                    receipt = (prior.get("action_result") or {}).get("receipt") or {}
+                    for key in filter(None, [prior.get("observation_id"), receipt.get("observation_id"), receipt.get("effect_observation_id")]):
+                        linked.append(namespace + "/" + source(store.get("observation", key), "observation"))
             ids = list(payload.get("observation_ids") or [])
             if payload.get("observation_id"):
                 ids.append(payload["observation_id"])
@@ -2046,7 +2359,7 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
                 "truncated": offset > 0 or offset + 3000 < len(text),
                 **({"continue_source": base_source + "#" + str(offset + 3000)}
                     if offset + 3000 < len(text) else {}),
-                "policy": "Literal observation or working record; model reports are not independent truth."}
+                "policy": "Literal record; linked before/after views and recorded step neighbors are temporal context, not causal proof. Model reports are not independent truth."}
             if len(json.dumps([*result, entry], ensure_ascii=False)) <= character_budget - 100:
                 result.append(entry)
             else:

@@ -7,6 +7,7 @@ from uuid import uuid4
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from agent.skills.strategy import StrategyChoice, option_id
 
 
 class Finding(BaseModel):
@@ -29,6 +30,19 @@ class Omission(BaseModel):
     evidence: list[str] = Field(min_length=1, description="Copy returned versioned history or official_skill references.")
 
 
+class RecoveryOption(BaseModel):
+    """A source-bound research direction, never an admission or utility verdict."""
+    model_config = ConfigDict(extra="forbid")
+    id: str = Field(default="", max_length=64, pattern=r"^[A-Za-z0-9_-]*$")
+    mechanism: str = Field(default="", max_length=400)
+    bottleneck: str = Field(min_length=1, max_length=500)
+    route: str = Field(min_length=1, max_length=700)
+    cost: str = Field(min_length=1, max_length=500, description="Known current cost and predicted complete alternative cost, including setup, coverage and verification; unknowns explicit.")
+    next_test: str = Field(min_length=1, max_length=600, description="Earliest unknown transition and distinguishing outcomes; blocked access is not falsification.")
+    status: Literal["observed", "hypothesis", "unknown", "contradicted"]
+    evidence: list[str] = Field(min_length=1, description="Returned references grounding the bottleneck; they need not prove the proposed route.")
+
+
 class TrajectoryAnalysis(BaseModel):
     model_config = ConfigDict(extra="forbid")
     working_path: list[Finding] = Field(default_factory=list, max_length=12)
@@ -37,6 +51,8 @@ class TrajectoryAnalysis(BaseModel):
     unresolved: list[Finding] = Field(default_factory=list, max_length=12)
     next_reads: list[str] = Field(default_factory=list, max_length=8)
     candidate_value: str = Field(default="", max_length=1200)
+    recovery_options: list[RecoveryOption] = Field(default_factory=list, max_length=3)
+    strategy_choice: StrategyChoice | None = None
 
 
 def validate_analysis(value, resolve):
@@ -56,6 +72,16 @@ def validate_analysis(value, resolve):
             raise ValueError("observed analysis claims require native evidence")
         for ref in item.evidence:
             check_reference(ref)
+    for item in analysis.recovery_options:
+        for ref in item.evidence:
+            check_reference(ref)
+    options = [item.model_dump() for item in analysis.recovery_options]
+    ids = [option_id(o) for o in options]
+    if len(set(ids)) != len(ids):
+        raise ValueError("duplicate recovery strategy IDs/routes")
+    if analysis.strategy_choice and analysis.strategy_choice.selected not in {
+            option_id(o) for o in options if o["status"] != "contradicted"}:
+        raise ValueError("strategy_choice must select a viable recovery option")
     for item in analysis.omission_candidates:
         for ref in item.steps:
             check_reference(ref, event=True)
@@ -67,6 +93,18 @@ def validate_analysis(value, resolve):
     return analysis.model_dump()
 
 
+def validate_decision_analysis(decision, previous, resolve):
+    """Materialize same-source updates before checking the complete analysis."""
+    if "trajectory_analysis_update" in decision:
+        if "trajectory_analysis" in decision:
+            raise ValueError("supply trajectory_analysis or trajectory_analysis_update, not both")
+        update = decision["trajectory_analysis_update"]
+        if previous is None or not isinstance(update, dict):
+            raise ValueError("trajectory_analysis_update requires a validated source-bound analysis and an object")
+        return validate_analysis({**previous, **update}, resolve)
+    return validate_analysis(decision["trajectory_analysis"], resolve) if "trajectory_analysis" in decision else None
+
+
 TRAJECTORY_FORMAT = {
     "working_path": "list of findings",
     "prerequisites": "list of findings",
@@ -74,20 +112,64 @@ TRAJECTORY_FORMAT = {
     "finding": {"statement": "text", "status": "observed|hypothesis|unknown|contradicted", "evidence": ["returned history or official_skill reference"]},
     "omission_candidates": [{"steps": ["native event reference"], "purpose": "specific user intent", "condition": "detectable precondition",
         "cost": "observed excess actions; extra setup/recovery; net saving estimated or unknown",
-        "priority": "high for substantial avoidable cost/harm; low for harmless minor work; unknown otherwise",
+        "priority": "high|low|unknown",
         "dependency_check": "state/information effects and later consumers; unknowns explicit",
         "changed_decision": "specific avoided work", "status": "supported|unknown|rejected", "evidence": ["native reference"]}],
     "next_reads": ["specific unresolved question or native locator"],
     "candidate_value": "changed decision, avoided cost and overlap with existing guidance",
-    "format_policy": "Return the six analysis fields only; finding is an item definition, not an output key. Keep the checkpoint <=8000 characters. Examples are not evidence."}
+    "recovery_options": [{"id": "stable short ID", "mechanism": "distinct strategy, not wording",
+        "bottleneck": "goal-specific expensive or unreliable operation",
+        "route": "alternative policy; observed capabilities versus unknown transitions",
+        "cost": "current known / alternative predicted complete cost, or unknown",
+        "next_test": "earliest unknown; outcomes that support or refute it, or leave it blocked",
+        "status": "observed|hypothesis|unknown|contradicted", "evidence": ["returned reference grounding the bottleneck"]}],
+    "strategy_choice": {"selected": "option ID", "reason": "complete-cost and uncertainty comparison; optional unless exploring among alternatives"},
+    "update_policy": "First analysis uses trajectory_analysis. Later decisions may use trajectory_analysis_update with changed top-level fields; omitted fields retain the validated same-source state. Lists replace fully; [] clears a resolved list. Retain strategy IDs; replacing options also needs a valid strategy_choice or null. Do not reword unchanged fields. Use one field or omit both when unchanged. Tool-call checkpoints require complete trajectory_analysis, never an update.",
+    "format_policy": "Analysis fields only; finding defines an item, not a key. priority: high for substantial avoidable cost/harm, low for harmless minor work, unknown otherwise. Options are optional (max three). Give distinct mechanisms and stable IDs; compare the existing route. Before exploring multiple viable options select one in strategy_choice and test its earliest gap; retain others. Native outcomes alone update statuses. Checkpoint <=8000 characters; examples are not evidence."}
+
+
+RECOVERY_POLICY = """For important failed-task or cost bottlenecks, retain promising alternatives in
+recovery_options, not just extra correctness checks. Compare complete routes under
+the same goal, scope, preservation and source limits; a cheaper isolated action
+does not imply a feasible workflow. Look for ways to replace costly per-object work
+or setup using observable capabilities; unknown affordances are testable hypotheses,
+never facts. Keep the earliest unknown and distinguishing outcomes, update its
+status after evidence, and merge duplicate options. Empty options are valid; do
+not enumerate harmless detours or force a feature search. Correct local knowledge
+may be admitted without recovery, but it does not prove any route's net benefit.
+If the needed operation is not displayed, consider a different supported
+interaction with a currently observed resource; an affordance grounds a test,
+not an assumed resulting mode. Prefer a bottleneck-relevant transition over
+unrelated menu surveys. A bounded navigation entry tied to a newly observed mode
+may reveal its operations; opening it need not assume those operations exist or
+authorize executing them. Distinguish wrong scope, missing information and display
+precision: arithmetic cannot recover precision absent from a rounded value.
+Separate output formatting from required input accuracy. Requested units or
+integer rounding alone do not establish an extra acquisition prerequisite.
+Check task wording and observed dependencies before teaching an abstention gate;
+retain precision limitations without declaring displayed values inherently exact.
+"""
 
 
 ANALYSIS_POLICY = """Continue this job's analysis across phases; the latest input and budget govern.
-Include JSON trajectory_analysis on decisions. When older reads need checkpointing,
+Use trajectory_analysis for the first analysis. Later decisions may return only
+changed top-level fields in trajectory_analysis_update, or omit analysis when
+unchanged. The host retains omitted fields from this source's validated state;
+supplied lists replace fully, and [] explicitly clears a resolved list. Preserve
+needed facts, failed hypotheses, dependencies and citations; do not clear them
+merely to save tokens. Retain existing option IDs; when replacing recovery_options,
+also supply a valid strategy_choice or null. Do not rewrite unchanged lists or
+reword retained facts. State each finding once; options may refer to its evidence
+without repeating it. Keep reason focused on new evidence and the selected option;
+refer to retained analysis instead of repeating it. Test describes necessary actions,
+distinguishing outcomes and stops. Refer to an active plan for routine grounding,
+journaling and reset; retain new scope, preservation, coverage and cost constraints.
+Full replacements remain valid. When older reads need checkpointing,
 include a concise trajectory_analysis alongside the next read tool calls, so the
 host can reuse it without a separate summary request. Use supplied format and
 already delivered evidence; newly requested reads stay unknown. Preserve named
 gaps and dependencies; aim below 4000 characters without dropping necessary facts.
+Tool-call checkpoints must contain the complete analysis, not an update.
 Read to resolve a named gap. For needed visual state absent from text, read the
 known observation with read_history view=image; text omission is not screen absence.
 Resume checkpointed progress with its original statuses and native citations.
@@ -99,21 +181,16 @@ Namespace names are locators, not evidence references; cite pair_evidence_ref
 measurements for host-recorded trial outcomes, and native records for app effects.
 read_diagnostic_context locators are not evidence citations; cite the returned
 native or official_skill references for claims from those directories.
-"""
+""" + RECOVERY_POLICY
 
-FEW_SHOTS = """FICTIONAL examples of reasoning only; no real app route or evidence:
-A. An imaginary sorter: A/B discover an observed control used by C without changing
-its required state. A rule can retain that fact and use C directly, keeping C's
-prerequisites and verification. If D independently shows a wrong setting decision,
-one same-goal candidate may combine the supported entry shortcut and setting fix.
-Keep identity/context checks; if setup is uncertain, require its effect before C.
-Prefer C conditionally without proving globally shortest routes or absent alternatives.
-Another app owns its internal rule; only the handoff belongs to the starting app.
-An unknown reason for D's failure supports no setting fix and neither refutes the
-local omission nor proves task recovery.
-B. An imaginary test rig: P reports failure but enables calibration needed by Q.
-Keep P's required effect; a cheaper setup is only a hypothesis. Conflicting reports
-and observations stay unresolved. Never copy these examples into actual app claims.
+FEW_SHOTS = """FICTIONAL examples; never copy features/routes into app claims or skills:
+A. A parcel rig's slow panel gives safety data. A control supports another interaction,
+but its resulting mode is unknown: test one owned control, inspect output and scope.
+Weight-only output refutes safety replacement; stop rather than survey every weight.
+No mode observed leaves that entry unsupported, not all alternatives disproved.
+B. A sorter uses A/B to reach C. Omit A/B only if C consumes none of their effects.
+If B calibrates C, preserve calibration or test a cheaper substitute. Offscreen or
+ungrounded access stays unknown, not refuted. Local proof is not whole-task success.
 """
 
 
@@ -132,6 +209,8 @@ previous findings with their statuses and native citations unless cited new evid
 changes them. Merge overlapping findings and resolved read questions instead of
 repeating them; retain their conclusions, statuses, citations and needed dependencies.
 Prioritize facts that change the current decision, not repeated passed-review prose.
+Retain recovery_options with complete-cost unknowns, next tests and original
+statuses; a route hypothesis is neither an observed affordance nor verified utility.
 Keep unresolved questions until evidence resolves them. Never upgrade a hypothesis or report to an observation. Failed actions may
 establish prerequisites. Use only registered native references found in the supplied
 conversation. Few-shot examples are fictional, never evidence. This checkpoint
@@ -166,6 +245,8 @@ def retained_admission_context(payload, directories):
     result["review_feedback"] = {"verdict": review["verdict"], "acceptance": review.get("acceptance"),
         "criteria": {k: {"status": v["status"], "reason": "Passed for the exact retained rule; details remain readable."}
             for k, v in review["criteria"].items()}, "changes": [], "tests": [], "details": archive(review)}
+    if review.get("diagnosis") is not None:
+        result["review_feedback"]["diagnosis"] = review["diagnosis"]
     candidate = result.get("candidate")
     if isinstance(candidate, dict) and isinstance(candidate.get("new_text"), str):
         result["candidate"] = {k: candidate[k] for k in ("target", "new_text", "scope") if k in candidate}
@@ -327,6 +408,23 @@ class LearnerConversation:
             *copy.deepcopy(self.history), message])
 
     def save(self, messages, *, analysis=None, compacted=False):
+        # The first two messages are the pinned phase, never raw history.
+        # Reject a malformed restored request before slicing off real calls.
+        if (len(messages) < 2 or messages[0].get("role") != "system"
+                or messages[1].get("role") != "user"):
+            raise ValueError("learner save requires system and phase input before history")
+        pending_calls = set()
+        for message in messages[2:]:
+            if message.get("tool_calls"):
+                batch = [call["id"] for call in message["tool_calls"]]
+                if pending_calls or len(set(batch)) != len(batch):
+                    raise ValueError("learner history contains unpaired tool call")
+                pending_calls = set(batch)
+            if message.get("role") == "tool":
+                identity = message.get("tool_call_id")
+                if identity not in pending_calls:
+                    raise ValueError("learner history contains unpaired tool output")
+                pending_calls.remove(identity)
         if analysis is not None:
             self.analysis = copy.deepcopy(analysis)
         history = copy.deepcopy([m for m in messages[2:]

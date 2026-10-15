@@ -123,6 +123,7 @@ class LibrarySnapshot:
             raise ValueError("frozen library file changed")
         text = path.read_text(encoding="utf-8")
         end = min(len(text), offset + length)
-        return {"path": relative, "hash": self.manifest["files"][relative], "text": text[offset:end],
+        return {"path": relative, "hash": self.manifest["files"][relative],
+                "text_hash": hashlib.sha256(text.encode()).hexdigest(), "text": text[offset:end],
                 "truncated": end < len(text), "next_offset": end if end < len(text) else None,
                 "policy": "Existing official knowledge, not evidence of current app state."}

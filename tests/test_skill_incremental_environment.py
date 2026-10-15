@@ -21,6 +21,84 @@ class Store:
     def records(self, kind): return [r for r in self.rows if r["kind"] == kind]
 
 
+def test_probe_interaction_view_survives_navigation_cleanup_and_projection():
+    from agent.skills.exploration import probe_interaction_observation
+    from agent.skills.learning import probe_projection
+    store=Store()
+    for key,text in [('old','Old mode'),('mode','List content '*200+'New contextual controls'),('clean','Normal list')]:
+        store.rows.append({'kind':'observation','key':key,'version':1,'payload':{'text':text}})
+    for key,action,view in [('0','tap','old'),('1','launch','clean'),('2','long_press','clean'),('3','tap','mode'),('4','finish','clean')]:
+        store.rows.append({'kind':'event','key':key,'version':1,'payload':{'observation_id':view,
+            'submitted_action':{'type':action},'action_result':{'receipt':{'dispatch_succeeded':True}}}})
+    original=copy.deepcopy(store.rows)
+    view=probe_interaction_observation(store,1)
+    assert view['source']=='exploration/observation:mode@1'
+    assert view['action_source']=='exploration/event:2@1' and view['truncated']
+    assert view['tail_preview'].endswith('New contextual controls')
+    assert len(view['preview'])+len(view['tail_preview'])==1400
+    assert probe_projection({'interaction_observation':view})['interaction_observation']==view
+    assert store.rows==original  # Original evidence and previous probe remain intact.
+
+
+def test_probe_interaction_view_never_fabricates_missing_or_undispatched_evidence():
+    from agent.skills.exploration import probe_interaction_observation
+    store=Store()
+    store.rows.append({'kind':'event','key':'0','version':1,'payload':{
+        'submitted_action':{'type':'tap'},'action_result':{'receipt':{'dispatch_succeeded':False}}}})
+    assert probe_interaction_observation(store,0) is None
+    store.rows[0]['payload']['action_result']['receipt']={'dispatch_succeeded':True,'observation_id':'missing'}
+    assert probe_interaction_observation(store,0) is None
+
+
+@pytest.mark.asyncio
+async def test_fixture_tool_handoff_keeps_effects_unverified_until_host_reset():
+    from agent.skills.environment import TrustedFixtureReset
+    from agent.skills.research_tools import register_research_tools
+    from agent.tool_registry import AgentToolRegistry, AgentRole, ToolExecutionContext
+    calls=[]
+    expected={'case':'demo','initial_state_hash':'initial'}
+    def reset():
+        calls.append('host reset')
+        return {**expected,'complete':True,'initialized':True,'teardown_success':True}
+    env=ResearchEnvironment(Store(),reset_adapter=TrustedFixtureReset('Official demo fixture',expected,reset))
+    env.configure(plan())
+    intent=env.intent({'type':'tap'},'screen');env.effect(intent,{'success':True})
+    registry=AgentToolRegistry()
+    register_research_tools(registry,SimpleNamespace(environment=env),LearningBudget())
+    ctx=ToolExecutionContext(role=AgentRole.EXECUTOR,invocation_id='cleanup')
+    result=await registry.execute('research_environment',{'operation':'receipt'},ctx)
+    assert 'cleanup_handoff' not in result.data  # Ordinary effects do not end a live probe.
+    env.set_stage('cleanup')
+    for operation in ('verify','close','receipt'):
+        result=await registry.execute('research_environment',{'operation':operation},ctx)
+        assert result.data['cleanup_handoff']['status']=='pending_host_fixture_reset'
+        assert result.data['unresolved_effects']==1 and result.data['verified_clean'] is False
+        assert env.status=='open' and calls==[]
+        assert result.status.value==('precondition_not_met' if operation=='close' else 'succeeded')
+    assert (await env.reset_fixture())['verified_clean'] and calls==['host reset']
+    result=await registry.execute('research_environment',{'operation':'close'},ctx)
+    assert result.data['verified_clean'] and result.data['status']=='closed'
+    assert 'cleanup_handoff' not in result.data
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('owned_resource',[False,True])
+async def test_fixture_handoff_never_bypasses_user_or_resource_cleanup(owned_resource):
+    from agent.skills.environment import TrustedFixtureReset
+    from agent.skills.research_tools import register_research_tools
+    from agent.tool_registry import AgentToolRegistry, AgentRole, ToolExecutionContext
+    def forbidden():pytest.fail('Executor must never execute host reset')
+    adapter=TrustedFixtureReset('fixture',{},forbidden) if owned_resource else None
+    env=ResearchEnvironment(Store(),reset_adapter=adapter);env.configure(plan())
+    intent=env.intent({'type':'tap'},'screen');env.effect(intent,{'success':True})
+    if owned_resource:env.resource_states['owned']={'verified':False}
+    registry=AgentToolRegistry();register_research_tools(registry,SimpleNamespace(environment=env),LearningBudget())
+    result=await registry.execute('research_environment',{'operation':'close'},
+        ToolExecutionContext(role=AgentRole.EXECUTOR,invocation_id='close'))
+    assert result.status.value=='precondition_not_met' and not result.data['verified_clean']
+    assert 'cleanup_handoff' not in result.data and env.status=='open'
+
+
 def library(tmp_path):
     root = tmp_path / "official"
     target = root / "apps/com.demo/core/SKILL.md"

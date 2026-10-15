@@ -15,6 +15,36 @@ def backend(context):
     return ExplorationBackend(task, db=db, artifacts=store.artifacts, driver=SimpleNamespace(), settings=settings, library=library)
 
 
+def test_restored_history_cannot_be_saved_as_a_phase_or_drop_a_call(context):
+    from agent.skills.analysis_session import LearnerConversation
+    session = LearnerConversation(context[3].artifacts, {"task_id":context[2].id})
+    history = [{"role":"user","content":"Earlier evidence"},
+        {"role":"assistant","content":None,"tool_calls":[{"id":"read-1",
+            "type":"function","function":{"name":"read_history","arguments":"{}"}}]},
+        {"role":"tool","tool_call_id":"read-1","content":"Literal evidence"}]
+    session.history = copy.deepcopy(history)
+    with pytest.raises(ValueError, match="system and phase input"):
+        session.save(session.history)
+    assert session.history == history and session.ref is None
+    ref = session.save(session.messages("Resume analysis", {"phase":"feedback"}))
+    saved = json.loads(context[3].artifacts.read_text(ref))
+    assert saved["history"][:len(history)] == history
+
+
+@pytest.mark.parametrize("duplicate", [False,True])
+def test_unpaired_restored_tool_results_fail_before_archiving(context, duplicate):
+    from agent.skills.analysis_session import LearnerConversation
+    session = LearnerConversation(context[3].artifacts, {"task_id":context[2].id})
+    messages = [{"role":"system","content":"Analysis"},{"role":"user","content":"Phase"}]
+    output = {"role":"tool","tool_call_id":"read-1","content":"Evidence"}
+    if duplicate:
+        messages += [{"role":"assistant","content":None,"tool_calls":[{"id":"read-1"}]},output]
+    messages.append(output)
+    with pytest.raises(ValueError, match="unpaired tool output"):
+        session.save(messages)
+    assert session.ref is None and session.history == []
+
+
 @pytest.mark.asyncio
 async def test_phase_handoff_keeps_reads_decisions_and_analysis_but_new_job_isolated(context, monkeypatch):
     b = backend(context); store = context[3]
@@ -63,6 +93,54 @@ def test_analysis_rejects_fictional_evidence_and_requires_support(context):
         validate_analysis({"prerequisites": [{"statement": "guessed", "status": "observed"}]}, b.resolve_evidence)
     result = validate_analysis({"unresolved": [{"statement": "Could an unknown prerequisite matter?", "status": "unknown"}]}, b.resolve_evidence)
     assert result["unresolved"][0]["status"] == "unknown"
+
+
+def recovery_option(reference):
+    return {"id": "", "mechanism": "", "bottleneck": "Repeated inspection exceeds the source limit",
+        "route": "Test whether the observed summary preserves the needed scope",
+        "cost": "Current per-object work observed; full alternative setup and coverage cost unknown",
+        "next_test": "A scope counterexample refutes inheritance; missing access leaves it unknown",
+        "status": "hypothesis", "evidence": [reference]}
+
+
+def test_recovery_options_bind_bottlenecks_without_promoting_route_hypotheses(context):
+    b = backend(context)
+    context[3].put("note", "cost", {"title": "cost", "content": "Repeated inspection exceeded the limit"})
+    option = recovery_option("source/note:cost@1")
+    result = validate_analysis({"recovery_options": [option]}, b.resolve_analysis_evidence)
+    assert result["recovery_options"] == [option]
+    assert validate_analysis({}, b.resolve_analysis_evidence)["recovery_options"] == []
+    with pytest.raises(ValueError, match="Invalid analysis evidence"):
+        validate_analysis({"recovery_options": [recovery_option("source/note:fiction@1")]}, b.resolve_analysis_evidence)
+    with pytest.raises(ValueError):
+        validate_analysis({"recovery_options": [{**option, "evidence": []}]}, b.resolve_analysis_evidence)
+    with pytest.raises(ValueError):
+        validate_analysis({"recovery_options": [option] * 4}, b.resolve_analysis_evidence)
+
+
+@pytest.mark.asyncio
+async def test_recovery_option_survives_checkpoint_and_independent_review_without_extra_summary(context, monkeypatch):
+    b = backend(context); budget = LearningBudget(max_calls=6, reserve_calls=2)
+    context[3].put("note", "cost", {"title": "cost", "content": "Repeated inspection exceeded the limit"})
+    option = recovery_option("source/note:cost@1")
+    calls = []
+    async def complete(model, messages, **kwargs):
+        calls.append(copy.deepcopy(messages)); kwargs["attempt_meter"]("model_call_started", {})
+        if len(calls) == 1:
+            return GatewayResponse(model=model, content=json.dumps({"decision": "explore",
+                "question": "Test the scope boundary", "trajectory_analysis": {"recovery_options": [option]}}))
+        payload = json.loads(messages[1]["content"])
+        assert payload["learner_analysis"]["analysis"]["recovery_options"] == [option]
+        assert len(messages) == 2  # No Learner dialogue inherited by independent review.
+        return GatewayResponse(model=model, content='{"verdict":"insufficient"}')
+    monkeypatch.setattr("agent.skills.exploration.complete", complete)
+    await b.diagnose("test", "initial", {"diagnostic_read_rounds": 0}, budget)
+    session = b.learner_conversation
+    compacted = await b._compact_diagnosis("test", session.messages("next", {}), session, budget, 2)
+    assert budget.calls == 1 and session.reused_checkpoints == 1
+    assert option["cost"] in compacted[2]["content"] and '"status": "hypothesis"' in compacted[2]["content"]
+    await b.review("test", "independent review", {}, budget)
+    assert budget.calls == 2 and budget.actions == 0
 
 
 @pytest.mark.asyncio

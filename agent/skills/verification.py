@@ -15,8 +15,10 @@ stable benefit. No default matrix or repeated unchanged checks. After actual res
 Learner may retain the scoped rule, revise, explore a concrete gap or stop; independent
 review still controls revisions. Utility and local knowledge are separate conclusions.
 For an explicit verification_goal, adjudicate that objective separately from local
-admission: select a useful available check or explain in criterion reasons why no
-check can change the requested conclusion. Local admission alone does not answer it.
+admission: select a useful available check or explain in verification.reason why no
+check can change it. Goal-only checks belong here, not in acceptance-blocking tests.
+A local pass with tests:[] may select verification while task success stays unresolved;
+this does not satisfy a candidate's own measured-utility claim.
 checks:[] with a reason explicitly declines execution; it proves no utility.
 """
 

@@ -7,6 +7,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from agent.skills.learning import Candidate, digest
+from agent.skills.skill_edits import LocalizedCandidate, materialize_candidate
 from shared.llm_gateway import GatewayError
 
 
@@ -16,8 +17,32 @@ class CandidateGroup(BaseModel):
     dependencies: dict[str, list[str]] = Field(default_factory=dict)
 
 
+class CandidateGroupDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    patches: list[Candidate | LocalizedCandidate] = Field(min_length=1)
+    dependencies: dict[str, list[str]] = Field(default_factory=dict)
+
+
 def candidate_schema():
-    return TypeAdapter(Candidate | CandidateGroup).json_schema()
+    schema = TypeAdapter(Candidate | LocalizedCandidate | CandidateGroupDraft).json_schema()
+    def strip_titles(node):
+        if isinstance(node, dict):
+            node.pop("title", None)
+            for value in node.values():
+                strip_titles(value)
+        elif isinstance(node, list):
+            for value in node:
+                strip_titles(value)
+    strip_titles(schema)  # Display labels only; retain every semantic constraint.
+    return schema
+
+
+def materialize_proposal(value, library, *, drafts=()):
+    if isinstance(value, dict) and "patches" in value:
+        proposal = CandidateGroupDraft.model_validate(value)
+        return CandidateGroup(patches=[materialize_candidate(p.model_dump(), library, drafts=drafts)
+            for p in proposal.patches], dependencies=proposal.dependencies)
+    return materialize_candidate(value, library, drafts=drafts)
 
 
 def candidate_files(candidate):
@@ -117,6 +142,8 @@ def check_group_review(review, group, resolve):
     verification_plan(review.get("verification"))
     for target, item in items.items():
         check_review_contract(item)
+        from agent.skills.diagnosis import check_diagnosis
+        check_diagnosis(item.get("diagnosis"), resolve)
         criteria = item.get("criteria", {})
         if (item.get("verdict") not in {"pass", "revise", "reject", "insufficient"}
                 or set(criteria) != set(CRITERIA)
@@ -231,7 +258,7 @@ async def run_candidate_group(group, *, task, settings, library, publication_roo
                     selected = verification_plan(final.get("verification"), available=host_checks)
                     continue
                 break
-            if budget.max_calls - budget.calls < 1 or budget.remaining_seconds() <= 0:
+            if budget.remaining_calls() < 1 or budget.remaining_seconds() <= 0:
                 completed.append({"selected": selected, "unrun": requested, "reason": "verification_capacity_exhausted"})
                 break
             import time
@@ -297,19 +324,22 @@ async def run_candidate_group(group, *, task, settings, library, publication_roo
         for item in final["patch_reviews"].values())
     analysis = getattr(getattr(backend, "learner_conversation", None), "analysis", None) or {}
     worthwhile = [i for i in analysis.get("omission_candidates", []) if i.get("priority") == "high" and i.get("status") in {"supported", "unknown"}]
-    if revision < 2 and (repair or worthwhile) and budget.max_calls-budget.calls >= 3 and budget.remaining_seconds() > 0:
+    if (not phase_context.get("task_success_goal") and revision < 2
+            and (repair or worthwhile) and budget.remaining_calls() >= 3 and budget.remaining_seconds() > 0):
         # Read-only repair keeps the isolated trial/cleanup boundary closed. New
         # affordances still need research evidence; an unproved rule stays pending.
         try:
             decision = await backend.diagnose(resolve_learner_model(settings), READONLY_SYSTEM,
                 {"source": packet, **phase_context, "candidate_json_schema": candidate_schema(),
+                 "edit_bases": [{"target": p.target, "base_hash": digest(p.new_text)} for p in group.patches],
                  "review_feedback": final, "candidate": group.model_dump(),
                  "validation": validation_for_learning(validation), "remaining_opportunities": worthwhile,
                  "retained_targets": sorted(accepted), "budget": budget.snapshot(),
                  "live_exploration_disabled": True}, budget)
             if decision.get("decision") == "propose":
                 value = decision.get("candidate") or {}
-                revised = CandidateGroup.model_validate(value) if "patches" in value else CandidateGroup(patches=[Candidate.model_validate(value)])
+                materialized = materialize_proposal(value, library, drafts=[p.model_dump() for p in group.patches])
+                revised = materialized if isinstance(materialized, CandidateGroup) else CandidateGroup(patches=[materialized])
                 revised_old = validate_group(revised, library, backend.observed_apps(), backend.resolve_evidence)
                 next_context = {**phase_context, "proposed_verification": verification_plan(decision.get("verification"))}
                 next_key = digest({"candidate": revised.model_dump(), "old": revised_old,

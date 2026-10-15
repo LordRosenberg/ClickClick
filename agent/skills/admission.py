@@ -7,6 +7,9 @@ specific useful decision change and nonredundancy. For omitted/replaced steps,
 verify later state/information dependencies and preserved goal constraints. All six
 criteria must pass. Do not require fresh task pairs or measured speedup for a
 supported local fact/pitfall; do not approve mere observations or broad bans.
+Host task_success_goal/verification_goal are research objectives, not candidate
+claims. Do not lower local criteria merely because that objective is unresolved;
+judge the candidate's own supported decision change and declared scope/benefit.
 measured_utility: the candidate actually claims improved overall success/cost and
 needs ordinary comparative evidence. Prefer narrowing unsupported claims when the
 remaining rule still changes a useful decision. Never relabel a measured claim to
@@ -34,6 +37,10 @@ def check_review_contract(review):
             raise ValueError("blocking test fields must be nonempty text")
     from agent.skills.verification import verification_plan
     verification_plan(review.get("verification"))
+    from agent.skills.diagnosis import check_diagnosis
+    diagnosis = check_diagnosis(review.get("diagnosis"))
+    if review.get("verdict") == "pass" and diagnosis and diagnosis["kind"] == "ineffective_rule":
+        raise ValueError("passing review cannot diagnose its scoped rule as ineffective")
     if review.get("verdict") == "pass" and (review["tests"] or review["changes"]):
         raise ValueError("passing review cannot retain acceptance blockers")
 

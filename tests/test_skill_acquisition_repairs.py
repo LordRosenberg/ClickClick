@@ -185,6 +185,55 @@ def test_cancelled_official_initializer_never_launches_a_worker():
 
 
 @pytest.mark.asyncio
+async def test_disposable_new_plan_prepares_once_and_requires_verified_reset(context):
+    from evaluation.skill_learning import Experiment
+    from agent.skills.exploration import ExplorationBackend
+    from driver.fixture import FixtureDriver
+    settings, db, task, store, library = context
+    backend = ExplorationBackend(task, db=db, artifacts=store.artifacts,
+        driver=FixtureDriver(), settings=settings, library=library)
+    initialized = []
+    expected = {"case":"Case", "initial_state_hash":"actual-hash"}
+    def restore():
+        initialized.append('trusted-reset')
+        return {"complete":True,"teardown_success":True,"initialized":True,**expected}
+    backend.fixture_reset_adapter = TrustedFixtureReset('owned fixture', expected, restore)
+    experiment = Experiment.__new__(Experiment)
+    experiment.args = SimpleNamespace(no_research_reset=False)
+    experiment.ensure_source_fixture = lambda: initialized.append('temporary-lease')
+    plan = {"mode":"isolated","scope":"owned fixture","expected_condition":"inspect route",
+        "cleanup":"official reset","cleanup_actions":1}
+    transition = await experiment.prepare_research_environment(backend,
+        context={"experiment":{"environment_plan":plan}})
+    assert not initialized and transition['fixture_reset'] is False
+    backend.environment = ResearchEnvironment(store, reset_adapter=backend.fixture_reset_adapter)
+    backend.environment.configure(plan)
+    receipt = await backend.prepare_disposable_fixture(LearningBudget(max_actions=3))
+    assert receipt['verified_clean'] and initialized == ['trusted-reset']
+    assert backend.environment_transition['fixture_reset'] is True
+
+
+@pytest.mark.asyncio
+async def test_existing_plan_and_non_disposable_research_keep_fixture_lease():
+    from evaluation.skill_learning import Experiment
+    experiment = Experiment.__new__(Experiment)
+    experiment.args = SimpleNamespace(no_research_reset=False)
+    called = []
+    experiment.ensure_source_fixture = lambda: called.append('lease') or {'fixture_reset':True}
+    plan = {'mode':'observe','scope':'app','expected_condition':'inspect'}
+    existing = SimpleNamespace(plan=SimpleNamespace(model_dump=lambda:plan))
+    for backend in (SimpleNamespace(fixture_reset_adapter=object(), environment=existing),
+                    SimpleNamespace(fixture_reset_adapter=None, environment=None)):
+        transition = await experiment.prepare_research_environment(backend,
+            context={'experiment':{'environment_plan':plan}})
+        assert transition['fixture_reset'] is True
+    assert called == ['lease','lease']
+    experiment.args.no_research_reset = True
+    with pytest.raises(RuntimeError, match='live terminal source lease'):
+        await experiment.prepare_research_environment(SimpleNamespace(), context={})
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("bad", [None, {"initial_state_hash":"mismatched"}])
 async def test_lab_prepare_establishes_isolation_or_blocks_before_probe(context,bad):
     from agent.skills.exploration import ExplorationBackend
@@ -1158,6 +1207,35 @@ def test_archived_probe_directory_exposes_literal_final_negative_with_scoped_ref
     assert frontier["source"] == "prior/event:7@1"
     assert backend.resolve_evidence(frontier["source"])[1]["payload"]["executor_report"] == frontier["report"]
     assert not frontier["truncated"] and "not independent" in frontier["policy"]
+
+
+def test_history_alias_cannot_redirect_existing_evidence_to_another_task(context):
+    from agent.skills.exploration import ExplorationBackend
+    from agent.revisable.store import TaskStore
+    settings, db, task, store, library = context
+    backend = ExplorationBackend(task, db=db, artifacts=store.artifacts, driver=SimpleNamespace(),
+        settings=settings, library=library)
+    store.put("event", "0", {"executor_report": "Rename dialog observed"})
+    backend.add_history("candidate", store, task.state)
+    other = db.create_task("Different trial", task.state.model_copy(deep=True))
+    unrelated = TaskStore(db, store.artifacts, other.id)
+    unrelated.put("event", "0", {"executor_report": "Unrelated control observed"})
+    with pytest.raises(ValueError, match="already bound to another task"):
+        backend.add_history("candidate", unrelated, other.state)
+    assert backend.resolve_evidence("candidate/event:0@1")[1]["payload"]["executor_report"] == "Rename dialog observed"
+
+
+def test_history_alias_allows_same_task_store_refresh_without_losing_refs(context):
+    from agent.skills.exploration import ExplorationBackend
+    from agent.revisable.store import TaskStore
+    settings, db, task, store, library = context
+    backend = ExplorationBackend(task, db=db, artifacts=store.artifacts, driver=SimpleNamespace(),
+        settings=settings, library=library)
+    store.put("event", "0", {"executor_report": "Exact original observation"})
+    backend.add_history("candidate", store, task.state)
+    refreshed = TaskStore(db, store.artifacts, task.id)
+    backend.add_history("candidate", refreshed, task.state)
+    assert backend.resolve_evidence("candidate/event:0@1")[1]["payload"]["executor_report"] == "Exact original observation"
 
 
 @pytest.mark.parametrize("schema", [False, True])

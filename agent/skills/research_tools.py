@@ -21,6 +21,17 @@ def register_research_tools(registry, backend, budget):
         env = backend.environment
         if env is None:
             raise ValueError("research environment has not started")
+        def receipt():
+            data = env.receipt()
+            if (env.reset_adapter is not None and data["status"] == "open"
+                    and data["unresolved_effects"] and not data["owned_resource_count"]
+                    and (env.stage == "cleanup" or operation in {"verify", "close"})):
+                data["cleanup_handoff"] = {
+                    "status": "pending_host_fixture_reset",
+                    "scope": env.reset_adapter.scope,
+                    "next_step": "Set stage=cleanup and finish this probe with its findings and reset pending. The host runs the declared adapter after the probe returns; verify/close cannot run it.",
+                    "policy": "Unresolved effects remain unverified. A successful independent reset receipt is required before admission, validation or exit; this handoff does not prove cleanup."}
+            return data
         operation = args["operation"]
         if operation == "stage":
             env.set_stage(args["stage"])
@@ -41,11 +52,11 @@ def register_research_tools(registry, backend, budget):
                 from agent.tool_registry import ToolStatus
                 return AgentToolResult(status=ToolStatus.PRECONDITION_NOT_MET,
                     summary="Unresolved effects: continue cleanup or preserve an unresolved final receipt",
-                    data=env.receipt())
+                    data=receipt())
             env.close()
-        return AgentToolResult(summary="Research lifecycle receipt; claims are not restoration proof", data=env.receipt())
+        return AgentToolResult(summary="Research lifecycle receipt; claims are not restoration proof", data=receipt())
     registry.register(AgentToolSpec(name="research_environment", category=ToolCategory.KNOWLEDGE,
-        description="Manage prepare/probe/cleanup in the same research memory. Unprefixed evidence IDs refer to this exploration; prefix original records with source/. Verification uses trusted adapters; absence remains unknown. Stage changes grant no new budget. Record changes with native evidence before cleanup, verify before finish. Does not reset apps or authorize new mutations.",
+        description="Manage prepare/probe/cleanup in the same research memory. Unprefixed evidence IDs refer to this exploration; prefix original records with source/. Verification uses trusted adapters; absence remains unknown. Stage changes grant no new budget. Record changes with native evidence before cleanup. For a declared disposable fixture, finish with reset pending so the host can run its adapter; verify/close do not run that reset. Other sessions require independent cleanup verification. Does not reset apps or authorize new mutations.",
         roles=(AgentRole.EXECUTOR,), parameters={"type":"object", "properties": {
             "operation":{"type":"string","enum":["stage","record_claim","verify","close","receipt"]},
             "stage":{"type":"string","enum":["prepare","probe","cleanup"]},

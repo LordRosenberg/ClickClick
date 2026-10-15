@@ -1523,11 +1523,13 @@ async def test_qualified_history_read_and_namespace_conflict_are_checked(context
     await backend.diagnose("test",TARGET_SYSTEM,{"source":build_packet(task,store)},LearningBudget())
     async def conflict(model,messages,**kwargs):
         kwargs["attempt_meter"]("model_call_started",{})
+        if any(m.get("role") == "tool" and "conflicting history namespaces" in m.get("content", "") for m in messages):
+            return GatewayResponse(content='{"decision":"skip","reason":"Namespace conflict is not evidence"}',model=model)
         return GatewayResponse(content="",model=model,tool_calls=[ToolCall(id="r",name="read_history",
             arguments=json.dumps({"source":"probe/note:literal@1","namespace":"source","full":True}))])
     monkeypatch.setattr("agent.skills.exploration.complete",conflict)
-    with pytest.raises(ValueError,match="conflicting history namespaces"):
-        await backend.diagnose("test",TARGET_SYSTEM,{"source":build_packet(task,store)},LearningBudget())
+    repaired = await backend.diagnose("test",TARGET_SYSTEM,{"source":build_packet(task,store)},LearningBudget())
+    assert repaired["decision"] == "skip" and "not evidence" in repaired["reason"]
 
 
 def test_post_review_handoff_keeps_quality_and_results_while_source_previews_become_directory():
