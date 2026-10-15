@@ -1,0 +1,204 @@
+{
+  "task": "GoogleMapsAlibabaSouthNeighborAskUserTask",
+  "variant": "hitl",
+  "screenCount": 18,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 19
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Google Maps, resolve the user's company from available saved/account context and identify the company directly south of it; retain the exact English company name for the required answer.",
+      "action": "execute",
+      "reason": "Google Maps can be checked for the user's saved or otherwise identified company location, then the map can be used to identify the business directly south of it.",
+      "screenshot": "screens/27c74b9412e4f5bb0c859418cd766cb9354edfcf26631c87a5709bf1a9b3376e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps to inspect saved/account context for the user's company.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/27c74b9412e4f5bb0c859418cd766cb9354edfcf26631c87a5709bf1a9b3376e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use Google Maps sign-in flow to access any existing account context that may identify the user's company.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/74750f15e0f14413526acec3fcae320072d5474f0b89d82a7758867e62bcfcd8.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Cancel account addition because no existing account is available, then continue with the signed-out map for a scoped context check.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d795b5451cf7ab9efda6801b75cfe55c7f92823e5622a5c93f83b42a70ff4f06.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What is your company’s name or address in Google Maps?",
+      "question": "What is your company’s name or address in Google Maps?",
+      "answer": "Alibaba Hangzhou Headquarters, Binjiang District, Hangzhou",
+      "round": 4,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/5aef02b0e10f47f07e4cbe4ef35f1da35a63d06f06cae2f52824d6dc9459acef.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip sign-in now that the user supplied the exact company reference, so the map can be searched.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/eae5e55ab28567a7cd3cf7f40cf44022313ff88f20d11b521b11c32bf3c9f589.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Google Maps for the user's supplied company location.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/1f1b667ca9a875bf896f3d5045ee0a67c6dbfc79d8f78b03f3fa68be5d0b84bc.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Google Maps search field before entering the supplied company location.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/1f1b667ca9a875bf896f3d5045ee0a67c6dbfc79d8f78b03f3fa68be5d0b84bc.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the supplied company reference into the focused Google Maps search field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/5150406a76fe796d598114a5cd1de5b92f99d15338aa3f620fba2e2ca018e657.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact Alibaba Hangzhou Headquarters result at Wangshang Road.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/51ad45a77a1650d8a7cf8fafc3d8a2cc294bcb3303584c2423bd533f7f03fee3.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Collapse the place details sheet to expose more of the surrounding map south of Alibaba Hangzhou Headquarters.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/fae30e2158c0a549e78c53275e0c591d784c7b46236911ecd060031b7d227446.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the company marker directly south of Alibaba Hangzhou Headquarters to resolve its exact English name.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/1a671ba67a2f5dcfe2695e3354e164a36de274cfc2e29725e61549f089f8e616.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Clear the search field so the southern company's Chinese name and address can be resolved to its exact English listing.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/0fc8da4ea90d811cdd5beb0a027b6f9162e50cb62402074c29d1374607943d05.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Google Maps search to look up the southern company's Chinese listing and obtain its exact English name.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d915b462bc1ae478d960b0a2bea2a6a2a96fc1c3bc1adb46e1844715cc4d09e6.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the exact Chinese company name shown on the marker to resolve its English Google Maps listing.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/cee6caf5c8cf707065815af34f1477fb7bae5cf367e3fdc797cc39716d62df36.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Query the likely English rendering to verify the exact Google Maps company name and matching Wangshang Road location.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/47facfadbd13e524e601f3d2dfa4a4bafd591c4e9bd24de9c743ff1592762337.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Narrow the Maps lookup using the company brand and exact street address from the verified southern listing.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/1971c63995ab9e02183eca7eec3b6ab8e61f6f5832c9b97fd09b8c16c79b31c9.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use a concise English brand-and-city query to surface the corresponding Google Maps place name.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/83a284cbd11678e118f57cee8be81577703afbf891ca2f88e7d7aa2a40fc05d1.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Run the concise NetEase Hangzhou Places search to inspect the resulting English listing.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/91a3ff7934d52c0305621c785bc98cd9aede4bfdae86f9dd1dc0d85f0bb04267.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google Maps established the company directly south of Alibaba Hangzhou Headquarters as 网易（杭州）网络有限公司 at 599 Wangshang Road. Its English company name is NetEase (Hangzhou) Network Co., Ltd.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/5eb448817b01dc47ad0f7a172aed97215ddfc2bcd44c82a20518cd1a8f9e3589.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "NetEase (Hangzhou) Network Co., Ltd.",
+      "action": "complete",
+      "reason": "NetEase (Hangzhou) Network Co., Ltd.",
+      "screenshot": "screens/5eb448817b01dc47ad0f7a172aed97215ddfc2bcd44c82a20518cd1a8f9e3589.webp",
+      "screenNumber": 17
+    }
+  ]
+}

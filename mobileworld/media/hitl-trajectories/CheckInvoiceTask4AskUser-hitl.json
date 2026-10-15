@@ -1,0 +1,186 @@
+{
+  "task": "CheckInvoiceTask4AskUser",
+  "variant": "hitl",
+  "screenCount": 16,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 16
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open the invoice PDF in the download directory and extract the displayed currency, current total, and the 3rd party API quantity and unit price needed to calculate the new total after a 25% unit-price increase, preserving all other invoice values.",
+      "action": "execute",
+      "reason": "The invoice values must be read before the revised total can be calculated and sent.",
+      "screenshot": "screens/b88f12afb4efa3f51d27379250cb4c7ad7d68ab15fcfc10131052cab8d698e33.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to navigate to the invoice PDF in Downloads.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/b88f12afb4efa3f51d27379250cb4c7ad7d68ab15fcfc10131052cab8d698e33.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open invoice.pdf to read its invoice values.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/2cdc9a3ead34df876c10a59bf2f0240cdf31cba78aaa601e473b3dc93a7fe90a.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened Downloads/invoice.pdf and extracted the required invoice values: currency USD ($); current subtotal $85,100.00; VAT 20% = $17,020.00; current total amount due $102,120.00; Third-party API integrations quantity 40 Hours, unit price $125.00, line amount $5,000.00. These values support recalculating only that unit price while preserving other invoice values.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/6fcf9b0eebc9ae970bc2d0d9fb2ca7c184f62386ff43bb3ab6541fd91a348763.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Messages, resolve the contact Kevin and send an SMS notifying him that the new invoice total is $103,620.00 after the 3rd party API unit price increases by 25%.",
+      "action": "execute",
+      "reason": "The revised API line is 40 × $156.25 = $6,250.00, increasing the subtotal by $1,250.00; with VAT recalculated at 20%, the new total is $103,620.00. The remaining task is to notify Kevin by SMS.",
+      "screenshot": "screens/9673f7fc14e9388d85b4f1a5d53fb2a2fe0cb466ba0c2afb9cc6f227d477851a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to resolve Kevin and send the revised invoice total by SMS.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/9673f7fc14e9388d85b4f1a5d53fb2a2fe0cb466ba0c2afb9cc6f227d477851a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new SMS conversation to look up the contact Kevin.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/b6a6df8c1e28ec4a1f0f3388aa88aa9142e66c640ed12620be74bec45ec0d68b.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the Messages contact picker for Kevin.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/98756ff8575ae1e7716b3e7cec7db05f2c11956896263c1fcc0bcb7ade5c6da9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Hide the keyboard so the contact list can be navigated to Kevin.",
+      "action": "key(key=back)",
+      "reason": "",
+      "screenshot": "screens/00986275ccbf910ba0ecad90c41cb40f7376f35d081b9c63d5b2a775576a85aa.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the contact list down toward Kevin.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/f38791209c0e61b337d43ae4f383bac8f0071f48b258044a6d6c968067720944.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scrolling the contact list from H toward Kevin.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/70d1c35ef11d8ed7fd66b3d108a51444f0107b8aca024e9a4063bb9acc2b21c1.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "I can’t find a contact named Kevin in Messages—the contact list goes from J to L. What phone number should I use for Kevin?",
+      "question": "I can’t find a contact named Kevin in Messages—the contact list goes from J to L. What phone number should I use for Kevin?",
+      "answer": "Use Kevin Zhang’s phone number: 15671234567.",
+      "round": 9,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/710ea58e7d5a0ae6ab92a30f259160289105e25936087442c6db848afc9b09b5.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the unresolved recipient name with Kevin Zhang’s supplied phone number.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/4a5006f60e1d439430627d5c0b7828bc4dc9a41aa5b2f75871e3c976f6d3d359.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the custom SMS recipient matching Kevin Zhang’s supplied phone number.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/7df66e9d371b0f1f5368fe5e79ce988aa9e21b49537a0fa880e83cec64c859e1.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the SMS message field for Kevin’s supplied number.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/b14bd15b14c3cb6e2e6b81270541b981b83bc2da231b4956d74191a03cf13312.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the requested invoice update in the focused SMS field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/d2a480dcdfad1f8d706da882d7894cff59fab91cb7d0c34f47ba7fc2c934b066.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the prepared SMS to Kevin Zhang’s supplied phone number.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/cce985f8d350f956e8496bf119e5dc6cc9f5c5a58287198d5589b222596178b4.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Read the downloaded invoice, recalculated the 3rd party API unit price from $125.00 to $156.25 (+25%), and recalculated the invoice total to $103,620.00 including 20% VAT. Sent Kevin Zhang an SMS at 15671234567 stating the new total and reason; the sent message is visible in the conversation as an SMS.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/cb0d3e7bbdcd395911de92a6d15d7f68d3a5a396ca1ec92e806a2bb4e82bc78d.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Read `Downloads/invoice.pdf`, increased the 3rd party API unit price by 25% from $125.00 to $156.25, and recalculated the total to $103,620.00 including 20% VAT. Sent Kevin Zhang an SMS at 15671234567 notifying him of the new total and the reason.",
+      "action": "complete",
+      "reason": "Read `Downloads/invoice.pdf`, increased the 3rd party API unit price by 25% from $125.00 to $156.25, and recalculated the total to $103,620.00 including 20% VAT. Sent Kevin Zhang an SMS at 15671234567 notifying him of the new total and the reason.",
+      "screenshot": "screens/cb0d3e7bbdcd395911de92a6d15d7f68d3a5a396ca1ec92e806a2bb4e82bc78d.webp",
+      "screenNumber": 15
+    }
+  ]
+}

@@ -1,0 +1,325 @@
+{
+  "task": "CheckCandidateAskUserTask2",
+  "variant": "hitl",
+  "screenCount": 29,
+  "roleCounts": {
+    "Planner": 6,
+    "Executor": 28
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What GPA requirement should Kevin's resume be checked against?",
+      "question": "What GPA requirement should Kevin's resume be checked against?",
+      "answer": "Kevin’s GPA must be higher than 3.6.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/7d225d3497959958dd4a37d711045c20e679091882382e381c199637adae95d4.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find Kevin's resume, read the GPA stated in it, and determine whether it is strictly higher than 3.6; retain the resume-to-Kevin connection and exact GPA for the conditional messaging stage.",
+      "action": "execute",
+      "reason": "Obtain Kevin's GPA from his resume before selecting the exact conditional text message; the supplied requirement is strictly higher than 3.6.",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to locate Kevin's resume and read the GPA.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Kevin_CV.pdf to verify the resume belongs to Kevin and read the stated GPA.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/4ac3361745fd9e5e5c4679e315fedec276e143e8323f1491885615e61de1638b.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened Kevin_CV.pdf. The resume identifies Kevin Zhang and states: \"2015 – 2019 B.S. in Computer Science, University of California, Berkeley (GPA: 3.7/4.0)\". GPA 3.7 is strictly higher than the required 3.6, so the pass-message branch applies.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/22eb9882f279137c912dacb2e061ebd573e56db774ea237ac10b5d21a43d7830.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In the messaging app, resolve the HR conversation/contact and send exactly: 'please pass the application for Kevin.' Preserve the exact wording and do not message any other recipient.",
+      "action": "execute",
+      "reason": "Kevin Zhang’s resume shows a GPA of 3.7/4.0, which is strictly higher than the user-supplied requirement of 3.6, so the pass branch applies.",
+      "screenshot": "screens/e3cc15efbee081c642b9419f28c3c8096350a1a1b60b47528d4fd3594b0a9169.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to resolve the HR conversation and send the exact pass message.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/e3cc15efbee081c642b9419f28c3c8096350a1a1b60b47528d4fd3594b0a9169.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the conversation search field to find the HR contact without selecting an unrelated recipient.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/33bed2bb1c4b097f0c34121d7de6c28210d630e777c896a71e2b09cc60baefb4.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Messages for the exact HR conversation/contact.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/84888e495aee34c6b321704ab2ed8098f62639fdd2075a2154e0e4b66e742e9e.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Run the scoped search for HR to identify the exact conversation/contact.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/6d24fdb89e9e7a5959b2606baa66d73a24e5adfce65535acca71b33001bbbb37.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The message-content search returned no results for HR; return to the conversation list to use contact/recipient resolution instead.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/1799463d808b03176cec4d1b31e44ab4bf16d1df9358fa36059da60c8755e335.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit the no-results message search and return to the conversation list so HR can be resolved via a new recipient/contact search.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/5df2944aca198a26922aef40d45f8ab2eaf9db0b0f6effde0afc4251f7f5fcb2.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new chat so the HR contact can be resolved by recipient name rather than message-content search.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/ddf2881df7c45a538a823c24708c71f4ce2b48d55f0f1516e275558f43896ead.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipient contacts for the exact HR contact.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/262ea14839f6c8e742a53244c5dd6fd2e62a9004b552109e15cea59585998d01.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the HR recipient query so the contact picker resolves matching contacts.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/7e40adf3c8fa73beb4867714e459a277e0a99bfd765f3f661a5abe2f3fbb8450.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the keyboard so the contact list can be browsed to the H section for an exact HR contact.",
+      "action": "key(key=back)",
+      "reason": "",
+      "screenshot": "screens/4c62fccc73261538dbffae6d396866412739ddcb7db4ae5b04ac712cadcbb307.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Browse the contact list downward toward the H section to locate the exact HR contact.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/25b62f1533009d5227c5a6247c706c76d4a56ccec58d62a654bca7a6b6878060.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What phone number, email address, or exact contact name should I use for HR?",
+      "question": "What phone number, email address, or exact contact name should I use for HR?",
+      "answer": "Use the exact contact name `Mia Scott`. Her phone number must be retrieved from the Contacts app; no email address is provided.",
+      "round": 15,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/b7208ef03017593d34034717c0a04097b9bdf933119e7a079fa9d3f4aafb303a.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "The user resolved HR as the exact contact `Mia Scott` and explicitly requires her phone number to be retrieved from the Contacts app. The current stage is scoped to Messages, while the necessary next step is to open Contacts, retrieve Mia Scott's actual number, then return to Messages and send the exact pass text. Replan to add that lookup without selecting any other recipient.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/483f34962e314b67fb26ee2e271deb1aa4e9b6eacd837b15d03ceadd961d9174.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open Contacts and retrieve the actual phone number belonging to the exact contact Mia Scott; retain the name-to-number association for the messaging stage without modifying any contact.",
+      "action": "execute",
+      "reason": "HR has been resolved as Mia Scott, but her actual phone number must first be retrieved from Contacts before the exact pass message can be addressed safely.",
+      "screenshot": "screens/36e8cecafa90d6a77e4eefed721d5b18a63f2785aa17a430e2f7d5f8571b5c1e.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Contacts to retrieve the actual phone number for the exact contact Mia Scott without modifying any contact.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/36e8cecafa90d6a77e4eefed721d5b18a63f2785aa17a430e2f7d5f8571b5c1e.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google sign-in so local device contacts can be searched without changing account state.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/92b15b9383614a6298d139ee64f92f83b858bb202b60f328ff762b0e20396879.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Contacts search to find the exact contact Mia Scott.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/59a085560b02aa1d086f42eb5de2368947e12f25b6d23585093278e6d8270a08.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Contacts for the exact name Mia Scott.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/7c09d5c015d748a84425493b7a7122d09a217b47e29d2b5470b3dc05fccb9690.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact Mia Scott contact result to retrieve its actual phone number.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/49f4ad9d74acb31a7c1df83883d2463e7997394d0d8c88d6aba8bbb3480b198f.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened the exact contact Mia Scott and retrieved her mobile number as +1-405-829-8746. No contact data was modified. Retained the exact name-to-number association for the messaging stage.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/c0d353d5ac11a52edc26a4f066c6419fd345f6d364c1ec2f9b148c93f53fe8fd.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send exactly `please pass the application for Kevin.` by text to Mia Scott at +1-405-829-8746 as the sole recipient; do not alter the wording or message anyone else.",
+      "action": "execute",
+      "reason": "Mia Scott's exact mobile number is now established, and Kevin's 3.7 GPA is strictly higher than the user's 3.6 requirement, so the authorized pass message is ready to send.",
+      "screenshot": "screens/5c1ca7910888d28bb4e04c392b1dd3a33c8671a5cc19d1e9a29c016e87f2bf3f.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to send the exact authorized pass message to Mia Scott's verified mobile number as the sole recipient.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/5c1ca7910888d28bb4e04c392b1dd3a33c8671a5cc19d1e9a29c016e87f2bf3f.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Mia Scott's verified mobile number in the sole recipient field.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/21f94167d19851fd1e7f58e5347c67fbe04d1c5e6c83f89125218d1853c1fcaf.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact Mia Scott contact entry matching the verified mobile number, rather than the generic number option.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/2ec178a061e4e11ffc8cdb62fc0c5e4de9388af915ce74b95e0d15d17ad06e03.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact authorized message in the compose field without altering the wording.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/be9e057fd70fbdbd0b582a686af0e4853b36ea41737715be698399753eeb6fa8.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact composed SMS to Mia Scott as the sole recipient.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/5b427025576d4c50a90688fe0cb8560758ab61dbf10d8137872a959f5d411d15.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Kevin's resume GPA is 3.7/4.0, which is higher than the required 3.6. The exact SMS `please pass the application for Kevin.` is visibly recorded as sent to Mia Scott, the established HR contact and sole recipient.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d623bbe29c4e819a187c50dd00244e8b978896c6f924e404736f736eecd5b828.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Kevin's resume lists a 3.7/4.0 GPA, which is higher than the required 3.6. The exact text `please pass the application for Kevin.` was sent to Mia Scott, the established HR contact and sole recipient.",
+      "action": "complete",
+      "reason": "Kevin's resume lists a 3.7/4.0 GPA, which is higher than the required 3.6. The exact text `please pass the application for Kevin.` was sent to Mia Scott, the established HR contact and sole recipient.",
+      "screenshot": "screens/d623bbe29c4e819a187c50dd00244e8b978896c6f924e404736f736eecd5b828.webp",
+      "screenNumber": 28
+    }
+  ]
+}

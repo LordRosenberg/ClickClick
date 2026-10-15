@@ -1,0 +1,105 @@
+{
+  "task": "DeleteAllMessagesAskUserTask",
+  "variant": "hitl",
+  "screenCount": 8,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 7
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Which company should I treat as “my company” in Messages (for example, the sender name or phone number shown in the app)?",
+      "question": "Which company should I treat as “my company” in Messages (for example, the sender name or phone number shown in the app)?",
+      "answer": "Treat “my company” as TechCorp, phone number 234567812. The relevant messages concern sprint retrospectives and deployment issues.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/7d225d3497959958dd4a37d711045c20e679091882382e381c199637adae95d4.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Messages, delete every SMS sent by TechCorp at 234567812, including the identified sprint retrospective and deployment issue messages, while preserving messages not sent by that company and any user-sent messages.",
+      "action": "execute",
+      "reason": "The company identity is now resolved, so the requested deletions can proceed while preserving unrelated and user-sent messages.",
+      "screenshot": "screens/1247d73b77ae5c66b20fe906b61c68239dc796c9abf09b069f3db875544ca295.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to locate and delete all TechCorp SMS from 234567812 while preserving unrelated and user-sent messages.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/1247d73b77ae5c66b20fe906b61c68239dc796c9abf09b069f3db875544ca295.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the 234567812 conversation to identify and delete only incoming TechCorp messages.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/77711e8b2bd09e660ddb0cdd228462b43e9b3d18ad7a7256b429e7ab001381c0.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the first incoming TechCorp message for deletion.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/dcf4af231e04ef09b5c7841c76d133c0777d873d615e7377a7d374fffe9d034d.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the second incoming TechCorp message to the deletion selection so both identified company SMS are selected.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/4727076c62245e937c8d4124058509b9aecb4898bd3655d310bdaa4dd0504e77.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the two selected incoming TechCorp messages.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/a9456f87495709c61bf79cf10f0e1704acddcb2a2d68d13ccca9534552b36f7c.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm permanent deletion of the two selected TechCorp messages, as explicitly requested.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/b9534241ad6f1e7287e1f2e9ea62dd4e7442d0c126112b98ed81e5656e4b1ae1.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Deleted both SMS messages in the 234567812 TechCorp conversation. Google Messages confirmed “2 messages deleted,” and the 234567812 thread is no longer present in the conversation list; unrelated threads were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/08942decf0b6cc255ec039b0de3bec2aa6b9e164e8b7fca68b029ea2e4c990ed.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Deleted both SMS messages from TechCorp at 234567812. Google Messages confirmed “2 messages deleted,” the TechCorp thread is no longer present, and unrelated conversations were preserved.",
+      "action": "complete",
+      "reason": "Deleted both SMS messages from TechCorp at 234567812. Google Messages confirmed “2 messages deleted,” the TechCorp thread is no longer present, and unrelated conversations were preserved.",
+      "screenshot": "screens/08942decf0b6cc255ec039b0de3bec2aa6b9e164e8b7fca68b029ea2e4c990ed.webp",
+      "screenNumber": 7
+    }
+  ]
+}

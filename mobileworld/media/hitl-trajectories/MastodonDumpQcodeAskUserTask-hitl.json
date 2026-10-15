@@ -1,0 +1,240 @@
+{
+  "task": "MastodonDumpQcodeAskUserTask",
+  "variant": "hitl",
+  "screenCount": 23,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 22
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Which folder should I save Frank's Mastodon QR code in?",
+      "question": "Which folder should I save Frank's Mastodon QR code in?",
+      "answer": "Save it in `/sdcard/mastodon_save`.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/bae65fabdb34dc73111a29f96a39d62a2adc0e0060f982806c1ff3a6bbed86af.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, identify the account named Frank from supported in-app context, obtain that account's QR code, and save the QR image as a file in `/sdcard/mastodon_save` without modifying unrelated files.",
+      "action": "execute",
+      "reason": "The destination is resolved as `/sdcard/mastodon_save`; the remaining work is to locate Frank's Mastodon account QR code and save it there.",
+      "screenshot": "screens/9e326b64980d20a962da40da577e00785c4fdc2685e5ec648f89bf053badbcf6.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to locate Frank's account and QR code.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/9e326b64980d20a962da40da577e00785c4fdc2685e5ec648f89bf053badbcf6.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon's Explore search to find the account named Frank.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/32378ff733be5029b801981c836b03247d449cbe8b0addd80ce25196ec98a6bf.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Activate the Search Mastodon field before entering Frank's name.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/aff7820215972465b6c9da0631f9472c6f0e21084f37d0348961ec524467d40e.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Mastodon for Frank.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/fffe8b4b9fef4a94ae6899d1d448fe2a93d0ab5d973bffa2c91c499ecf702ef0.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the in-app search result for frank (@frank), the supported matching account.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/df10fc5b9efb0807bb9784f8434fc52d1599a52c11627a324a5e37c50ad87811.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the QR code for the confirmed frank (@frank) profile.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/73abf03de1ab464fe3b1bae188542365f1d7f8a0fa0d47f4d9030de7609a86a0.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start saving Frank's displayed Mastodon QR code so the destination can be set to /sdcard/mastodon_save.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/29aecc27bdedd4d4f9564b09e98fa6b07b373aae03a2b4bdcfe33094f55b6c71.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the saved image from Mastodon's confirmation to locate it and move it into /sdcard/mastodon_save.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/7df0edb9c25667286dc50d36364de7fe0f963e2462189573730695994d97bdce.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the system file manager to locate the newly saved QR image and place it in /sdcard/mastodon_save.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/85fcc11e438857e4268fbb0e27f2ea84e72afd295f260d5481c77f5e8312f1ef.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the newly saved frank_10.0.2.2.png file for moving to /sdcard/mastodon_save.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/a23f11428d5b83193171df3b72b88cd1958842b503f23d9659c36d2dcaf9cd44.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open file actions for the selected QR image to choose Move to.",
+      "action": "tap(index=21)",
+      "reason": "",
+      "screenshot": "screens/b34780c84e23c4c06bbff9260092493b043124e496c40f95081a10bada3005ae.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Move to for Frank's selected QR image.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/0a966dedbddd70dbf621f9e04556fa8e8694ac5cc3bfdd5268c26ef96a53aa77.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open storage roots so the move destination can be set to /sdcard/mastodon_save.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/599fb8c0ff8af9dd55394a88bd22f5c5544fae1a184f371f8615cefbac30aceb.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open internal shared storage to locate or create the requested mastodon_save folder.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/8b72892eecadfe8d802f864b8626ce7a18af2cd9322b09aa9fd827b146edc1b6.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the requested mastodon_save directory at the shared-storage root.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/4d0703a68c2a12720366cd1752383a7566c80e694fd1cc5ee60423e41befb24f.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact destination folder name mastodon_save.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/3485cb5bf71f0654bd9103b9ac91d0bb8511a9eba07e5ef3a73808845ea40568.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm creation of the exact mastodon_save folder.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/6a193a9ff53318e184155179af76e37acf18f83638c15125e46b187c14314fe8.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move Frank's saved QR PNG into /sdcard/mastodon_save.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/ad4f02e23fd3bcf911de54ad51c0b2cc3913062d66a5022006ca3873c5b98b49.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open storage roots to verify the QR image reached /sdcard/mastodon_save.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/40a5241d7a8d7782cd42bac135eeb466a06588a06fbbe2ce289270e883552134.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open internal shared storage to verify the moved QR image in mastodon_save.",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/8af3e15f4a108a9a0f3d79149171fccc1d99350a509e4fb0ef2813274e5a405a.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open /sdcard/mastodon_save to verify Frank's QR image file is present.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/2913ab697f18fe335f26c90cb06d565e319910ef7883dbff4ed608626f349ef0.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Frank's Mastodon QR code is saved as `/sdcard/mastodon_save/frank_10.0.2.2.png`. Files directly shows the 91.85 kB PNG and QR thumbnail in the requested directory; unrelated files were left unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/0c48ab27129409ddf4f66e1631e9de8ab78b94bd4d5c9f590a0d8519273fe88e.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Frank's Mastodon QR code has been saved to `/sdcard/mastodon_save/frank_10.0.2.2.png`. The Files view shows the 91.85 kB PNG and QR thumbnail in the requested directory.",
+      "action": "complete",
+      "reason": "Frank's Mastodon QR code has been saved to `/sdcard/mastodon_save/frank_10.0.2.2.png`. The Files view shows the 91.85 kB PNG and QR thumbnail in the requested directory.",
+      "screenshot": "screens/0c48ab27129409ddf4f66e1631e9de8ab78b94bd4d5c9f590a0d8519273fe88e.webp",
+      "screenNumber": 22
+    }
+  ]
+}

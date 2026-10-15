@@ -1,0 +1,285 @@
+{
+  "task": "BidFileRenameAskUserTask",
+  "variant": "hitl",
+  "screenCount": 28,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 27
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "这些 `bid_` 文件应按什么顺序编号？序号默认从 1 开始。\nOptions: 按原文件名升序; 按修改时间从旧到新; 按修改时间从新到旧",
+      "question": "这些 `bid_` 文件应按什么顺序编号？序号默认从 1 开始。\nOptions: 按原文件名升序; 按修改时间从旧到新; 按修改时间从新到旧",
+      "answer": "按修改时间从旧到新，序号从 1 开始。",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/7d225d3497959958dd4a37d711045c20e679091882382e381c199637adae95d4.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Download 文件夹中处理全部文件名以 `bid_` 开头的文件，依据 Files 显示的 Modified 时间从旧到新排序并从 1 开始编号，分别重命名为 `bid_{序号}.{原扩展名}`；保留各自原扩展名、不改动其他文件，并安全处理目标名称冲突。",
+      "action": "execute",
+      "reason": "用户已指定按修改时间从旧到新排序并从 1 开始；Files 提供的 Modified 字段可直接用于该顺序。",
+      "screenshot": "screens/0a7cb7c90f1bbe90a2066a5e64ff456d2c76d9e13ddc4441bbb34579fb316150.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files 以进入 Download 并按修改时间处理匹配文件。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/0a7cb7c90f1bbe90a2066a5e64ff456d2c76d9e13ddc4441bbb34579fb316150.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开排序菜单，准备将 Downloads 按 Modified 从旧到新排列。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/54b5dcb194c0540613c49a3c4a5c9da30fb174634252e8eca8183a9899bbdbbc.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Sort by 菜单以选择 Modified 排序及方向。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/c26679ae51623d0ab60301b5b995d062c36a879150b08b0ae3a7af308c20eba7.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Modified（oldest first），使最早修改的匹配文件从序号 1 开始。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d44d80c54db5a9e73bbdc3d6ea964b1eb5e805963491c354f0d3cfe2453e2e9d.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "使用 Downloads 内搜索筛选 `bid_` 前缀文件，同时保留当前 Modified oldest first 排序以便完整编号。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/1a06bdc563c284d7b36e68daf24d029facc0f34b5ac69861110ce8bd5b8adbd5.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在 Downloads 搜索框中输入精确前缀 `bid_` 以缩小待处理集合。",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/77dc18975bdef2f421f33b8059af133ed8c04375abe44d2e70a550f31af7c408.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已确认 `bid_` 搜索结果共 4 个且按 Modified 从旧到新排列；选择最早的 `bid_restaurant_proposal.txt`，准备重命名为 `bid_1.txt`。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/265f4755161a15ee331f707f89dd40a7b0c330d59c7bb73c3821d5632a9752c1.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开所选文件的更多操作菜单，以执行第 1 个文件的重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/3eb525f2af022aa72593b81a5782536df4db556443f8d1779d245e4ee209b886.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，开始将最早的匹配文件重命名为 `bid_1.txt`。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/7d7d1933ce359ee109bf8696089d618e9ac72db36d3c821beb115c3c72e870fc.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将重命名字段完整替换为 `bid_1.txt`，保留原 `.txt` 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/5da01c0e5278deb6100d077747d684f50ae67e8ff0de9ba8aadf8d068291a064.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将最早的目标文件重命名为 `bid_1.txt`。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/7243cb8e49c1b06ff95538a26913f7a720840013d6a670eaffd2db3d1fe09e90.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择第二个按修改时间排序的目标文件 `bid_catering_menu_2024.doc`，准备重命名为 `bid_2.doc`。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/d532f9cf1fb0f1d1f63232b4531efdb68a5b9c6b1b0c8c1a75a5bc7a69cb4572.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开第二个目标文件的更多操作菜单，以选择重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/35ceb8ab761bc0c23b35a2149839bb6cb2bb8277b5f45ec3eb43a9bfc25dbc2c.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，继续把第二个文件重命名为 `bid_2.doc`。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/a67a8381c287a6faf33ee21f976e19976dd5fc3f3783da4b410303537486b5e0.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第二个文件的完整名称替换为 `bid_2.doc`，保留原 `.doc` 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/22639a3671c3e0938eed08a8e99fb100aa6578b36ce5a0fb09b54aa89de3ef1c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将第二个文件重命名为 `bid_2.doc`。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/49f85abf1f1b8045758b83fcce2b10a14c0de8a52b744010f7853eb45ff8b7b7.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择第三个目标文件 `bid_menu_design_contract.pdf`，准备按顺序重命名为 `bid_3.pdf`。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/300ac4a824633ddc758d6543c9b2165db13030ae04b71d53f16697d09045f3e6.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开第三个目标文件的更多操作菜单，以选择重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/1e5e4ac5b134df59cf4e94fdc21bdf48bdb1e3a3ca07f13604436ebfd8380e3d.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，开始将第三个文件重命名为 `bid_3.pdf`。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/e28ed9528796a912b767756bbb6afd9ae701a1164a615e4ae31be8aad14a2b80.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第三个文件的新名称精确填写为 `bid_3.pdf`，保留 PDF 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/0ebb7c2190954b959184e80140e1d095e569e2e88cf525e6eb363a77d0b16eab.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将第三个文件重命名为 `bid_3.pdf`。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/2033bbd377aa56ed86cf16e62a0f724f8d211e2646a55056e14f3cb3305c363c.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "第三个文件已确认显示为 `bid_3.pdf`；选择第四个目标文件，准备重命名为 `bid_4.txt`。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/74cad2d9b8f4db02131cb01b45584f888cc83f677bf0f83722564bc32ec650b8.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开第四个已选中文件的更多操作菜单以执行重命名。",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/a637849e09845e366dfdbbb69caa36c5d6621e10e4c030857a9ee4f93f7877f0.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Rename，打开第四个文件的重命名对话框。",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/6ad5eb131d1f31388c0bbace0d63dcc6ecbdc22752ffd824ce1571f459692ad3.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将第四个文件的新名称完整替换为 `bid_4.txt`，保留原 `.txt` 扩展名。",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/7dbfc24dbe12a82254528f42b37f987de6078f392d2da8c6baecee908304b16e.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将第四个文件重命名为 `bid_4.txt`。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/c1e74f6eb722bc4f2ca3f891eb20e94cc40ed537500f0c7cbe94cfd3935a888d.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已完成：Downloads 中全部 4 个 `bid_` 文件已按 Files 显示的 Modified 时间从旧到新、从 1 开始依次重命名为 `bid_1.txt`、`bid_2.doc`、`bid_3.pdf`、`bid_4.txt`；各文件原扩展名均已保留。当前搜索结果显示四个名称及对应日期（Sep 20、Sep 27、Oct 5、Oct 12, 2026），确认顺序和最终状态。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1c9baad378540d840abcef6403391c76eeca877f9e60943a048781c25432d06f.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：Download 中全部 4 个 `bid_` 文件已按修改时间从旧到新、从 1 开始重命名为 `bid_1.txt`、`bid_2.doc`、`bid_3.pdf`、`bid_4.txt`，并保留了各自原扩展名。",
+      "action": "complete",
+      "reason": "已完成：Download 中全部 4 个 `bid_` 文件已按修改时间从旧到新、从 1 开始重命名为 `bid_1.txt`、`bid_2.doc`、`bid_3.pdf`、`bid_4.txt`，并保留了各自原扩展名。",
+      "screenshot": "screens/1c9baad378540d840abcef6403391c76eeca877f9e60943a048781c25432d06f.webp",
+      "screenNumber": 27
+    }
+  ]
+}

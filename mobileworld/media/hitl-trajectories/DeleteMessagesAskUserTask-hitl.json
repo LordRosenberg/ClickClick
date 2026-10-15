@@ -1,0 +1,96 @@
+{
+  "task": "DeleteMessagesAskUserTask",
+  "variant": "hitl",
+  "screenCount": 7,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 7
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Messages, identify the SMS sent from the user's company that is about deployment issues, then delete that specific message while preserving the rest of the conversation and unrelated messages.",
+      "action": "execute",
+      "reason": "The requested deletion is authorized, but the matching conversation and exact message must be identified in Messages using the sender relationship and message topic.",
+      "screenshot": "screens/4e402e8e47960739bf6d486283da9956f86712ef86dd69d39fb352a1789c68cb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to locate the specific company SMS about deployment issues.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/4e402e8e47960739bf6d486283da9956f86712ef86dd69d39fb352a1789c68cb.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the conversation whose preview explicitly mentions deployment issues so the exact message and sender context can be verified.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/82b52e3cd38f5e30172e5ff16bdd9c447c5bb7d7631e77ef6284ef425cba7cf4.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "Which sender or phone number represents your company in Messages?",
+      "question": "Which sender or phone number represents your company in Messages?",
+      "answer": "TechCorp, phone number 234567812.",
+      "round": 3,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/be2741e0d9127b7cf685c09b407da208a9ea08cd5733657706bf2b9c25f31552.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the confirmed TechCorp message about deployment issues for deletion.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/d9a975eef02a842178da8fc3a2ef741ec0c834d82eae875f16afb6ca9ee1299c.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the one selected TechCorp SMS about deployment issues while leaving the other message intact.",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/66990d0a63d72486d8fe1a12fc65025709f813b50fac89536a0f6e63ef892920.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm deletion of the selected TechCorp deployment-issues message.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/71f2ba37ed95efdcbd91eb65bbe91ffa5c0e2a96574817b4558602f244d0c5f9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Deleted the specific TechCorp SMS from 234567812 about deployment issues. Messages confirms “1 message deleted,” and the unrelated sprint retrospective message remains in the conversation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/6becbcc9647b301293aa70fa3d19f6c23778a11ad29c147a6712baf2cb149b02.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Deleted the TechCorp SMS from 234567812 about deployment issues. Messages confirms “1 message deleted,” while the unrelated sprint retrospective message remains.",
+      "action": "complete",
+      "reason": "Deleted the TechCorp SMS from 234567812 about deployment issues. Messages confirms “1 message deleted,” while the unrelated sprint retrospective message remains.",
+      "screenshot": "screens/6becbcc9647b301293aa70fa3d19f6c23778a11ad29c147a6712baf2cb149b02.webp",
+      "screenNumber": 6
+    }
+  ]
+}

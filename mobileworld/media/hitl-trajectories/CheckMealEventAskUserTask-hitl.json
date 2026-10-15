@@ -1,0 +1,294 @@
+{
+  "task": "CheckMealEventAskUserTask",
+  "variant": "hitl",
+  "screenCount": 26,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 26
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Check next week's schedule (October 20-26, 2025) in Calendar and record every meal involving another person, including the event date/time, title, person, and any available attendee email/contact details needed for the cancellation request.",
+      "action": "execute",
+      "reason": "Identify all meals with another person in next week's schedule before using each event's supported attendee details for the requested emails.",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to inspect next week's schedule.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/20c51ed21c317c0c10e670dc678f59e2f9fffe3dd970282ac462be295c53d3a8.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the view selector to switch to a chronological event list for complete coverage of October 20-26.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/fa524170c32862f9a51ce6a77cab8c491283569847523adf0dfacc3b15e944cd.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch to Simple event list to inspect all events in the requested week chronologically.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/41cf6be855c6dacb65460104923c860e647168f89d25c4da8820479dbf3424d9.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the qualifying Lunch with Sarah event to inspect its full details and any attendee contact information.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/c43f46a1d55fc55859f75352e1b8446a1149e41ed7ee0dcd98c5bd5cb42b0590.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the chronological list after confirming Lunch with Sarah is October 22, 12:30-1:30 PM at Italian Bistro; no attendee email/contact field is available in the event details.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/10c6a64ba60f959bb6d46b944cb8204193ca8cf5a4fc968c59aedf211ee7a520.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue down the event list to inspect October 24-26 and ensure every qualifying meal in the week is found.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/8f1ec46947ce80a20bb281a60ebc2be6f1ee33995569576e950fac129b00e574.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll slightly farther to confirm the list has passed Sunday, October 26 and complete coverage of the requested week.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/31bbdc76a55097bb0b6f3d080b10211f7df4992027fa60f61abf40aee9c4381a.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the full October 20-26, 2025 calendar check; the list reaches October 27, confirming range coverage. Exactly one meal involving another person was found: Lunch with Sarah, Wednesday October 22, 12:30-1:30 PM, at Italian Bistro, description \"Catch up over lunch.\" The event details contained no attendee/email/contact field, so Sarah's email destination remains unresolved for the cancellation request.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/a0eb19eb9a7c50f7da2bbe44723108006b94eebe6d9e6ddcd78ffa170ff7b5ac.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What is Sarah's email address? I found “Lunch with Sarah” on Wednesday, October 22, 2025 from 12:30–1:30 PM, but the calendar event has no contact details.",
+      "question": "What is Sarah's email address? I found “Lunch with Sarah” on Wednesday, October 22, 2025 from 12:30–1:30 PM, but the calendar event has no contact details.",
+      "answer": "Sarah Martinez’s email address is available in the Contacts app. Please look up her contact there; I don’t have the address itself.",
+      "round": 8,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/a0eb19eb9a7c50f7da2bbe44723108006b94eebe6d9e6ddcd78ffa170ff7b5ac.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Look up Sarah Martinez in the Contacts app and obtain the email address on her matching contact record for the cancellation request; retain the established meal context: Lunch with Sarah on Wednesday, October 22, 2025, 12:30-1:30 PM.",
+      "action": "execute",
+      "reason": "The user identified Contacts as the supported source for Sarah Martinez's email, so resolve that destination before composing the requested message.",
+      "screenshot": "screens/39c074e4908de4940072e494272bef9b848528255433966b693da9ee512219ac.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Contacts to look up Sarah Martinez's email address for the established October 22 lunch cancellation request.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/39c074e4908de4940072e494272bef9b848528255433966b693da9ee512219ac.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google account sign-in and continue to local contacts to look up Sarah Martinez.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/0e776db0e1964d0aa07145a36672770d5b32b3b74496822464547a7f4add4d50.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the Contacts onboarding tooltip so the search field can be used.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d6cd605c5e211e06b2c3ea1d92409b9ee59dbaec0ddc61383818297e026d7eef.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the persistent Contacts tooltip with Back so the contact search can be used.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/ca29dfbdbfce2fc1d698abb4a542a03377d88f0e81c8d11fb3a140a3b627b23a.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Contacts after Back exited the app, then continue the Sarah Martinez lookup.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/9874a9022486e2af873932f8d2c445bf08344125c316ad982e19e2535a85aaa0.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Deny the optional Contacts notification permission, which is unrelated to looking up Sarah's email.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/09f19369a0f48c567ec3a3faa2198301738c5e65ccf57b233524ae5d4c1d1a83.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Contacts for the exact matching contact name Sarah Martinez.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/4c669613754d309b0009fd75b163f1e7496f16e772a57bb4df5e2c0d3793a50c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Contacts search field before entering Sarah Martinez.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/4c669613754d309b0009fd75b163f1e7496f16e772a57bb4df5e2c0d3793a50c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Sarah Martinez in the now-focused Contacts search field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/2500a6196f24486459a4a5e063baedb3304bb789dad8fff70df7426f4fe50dea.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the matching Sarah Martinez contact record to read its email address.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/df0358f241700e393ccb04a0570e1739c4924258411b2d8427675cf5514815a4.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Opened the matching Sarah Martinez contact and obtained her email address: sarah.martinez@greenfield.com. The destination is now resolved for the cancellation request concerning Lunch with Sarah on Wednesday, October 22, 2025, 12:30-1:30 PM.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d47e710e508e20bc277180a72a4f38fffa2919a1457724749e7368eeb0a08d43.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Email sarah.martinez@greenfield.com to ask whether Lunch with Sarah at Italian Bistro on Wednesday, October 22, 2025, 12:30-1:30 PM can be canceled, then send the message.",
+      "action": "execute",
+      "reason": "The schedule check and recipient lookup are complete; the remaining requested action is to send Sarah the cancellation inquiry.",
+      "screenshot": "screens/840c8c93ae2876798a656b03f5fb15b0c019e80d0a7564b158cbc1b0ac139450.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the email app to compose the cancellation inquiry to Sarah.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/840c8c93ae2876798a656b03f5fb15b0c019e80d0a7564b158cbc1b0ac139450.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new email to Sarah.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/f150aac217dc20c74b5156aaa7d34a519f99f127c56a4c67fa69d39bc3339ac6.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the message to Sarah Martinez.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/8bc23ae15d8bd809225f08c10a728c5eaebaa734518ac2d0b1a5ace75f499f35.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add a clear subject for the lunch cancellation inquiry.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/2dc8ce354977faa89a5cf2b29a8189813812c9ee1be61b5e324c4349a5090d29.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Write the cancellation inquiry with the meal's date, time, and location.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/fb04dfe6d44aa7da1df676a84d3def2fb10f00f2354f9e285742a3d29570198a.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed cancellation inquiry to Sarah Martinez.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/6cb43f52a3a74e9d10ba5687938b62737a42d7822cda5735d0200359d4bc06d3.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Checked next week's schedule and found one qualifying meal: Lunch with Sarah at Italian Bistro on Wednesday, October 22, 2025, 12:30-1:30 PM. Sent Sarah Martinez at sarah.martinez@greenfield.com an email asking whether it can be canceled; Gmail confirmed “Email Sent.”",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/636183987517e8e2e05a4d31d6e9d9d26365d6653d0d4e985362226264c88958.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Checked next week's schedule (October 20-26, 2025) and found one meal with someone: Lunch with Sarah at Italian Bistro on Wednesday, October 22, 2025, from 12:30-1:30 PM. Sent Sarah Martinez at sarah.martinez@greenfield.com an email asking whether it can be canceled; Gmail confirmed “Email Sent.”",
+      "action": "complete",
+      "reason": "Checked next week's schedule (October 20-26, 2025) and found one meal with someone: Lunch with Sarah at Italian Bistro on Wednesday, October 22, 2025, from 12:30-1:30 PM. Sent Sarah Martinez at sarah.martinez@greenfield.com an email asking whether it can be canceled; Gmail confirmed “Email Sent.”",
+      "screenshot": "screens/636183987517e8e2e05a4d31d6e9d9d26365d6653d0d4e985362226264c88958.webp",
+      "screenNumber": 25
+    }
+  ]
+}

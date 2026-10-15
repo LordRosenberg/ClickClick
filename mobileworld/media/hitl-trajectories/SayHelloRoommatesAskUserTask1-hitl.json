@@ -1,0 +1,330 @@
+{
+  "task": "SayHelloRoommatesAskUserTask1",
+  "variant": "hitl",
+  "screenCount": 32,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 31
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Which contacts are your new roommates? Please provide their contact names exactly as saved.",
+      "question": "Which contacts are your new roommates? Please provide their contact names exactly as saved.",
+      "answer": "Ella King, Grace Hall, and Sophia White.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/cd1bc6811f297f517d168caf24dee4544a5dfed7027051ffa13c56a402ad21e6.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In the Phone app, add the existing contacts Ella King, Grace Hall, and Sophia White to favorites, preserving all other contacts and favorites.",
+      "action": "execute",
+      "reason": "The user identified the three intended contacts, so the contact updates can proceed before messaging them.",
+      "screenshot": "screens/f7dae4366d10bdc08f2a7fc0762acf2c98e50a49e62bb9152f30d1d761cc8d58.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visible Phone app from the launcher after direct app-name resolution was inconclusive.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/f7dae4366d10bdc08f2a7fc0762acf2c98e50a49e62bb9152f30d1d761cc8d58.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Phone app search field to locate Ella King.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/3f15326dd2a88ec5775a00487d27afceff73c90ccb6f83ccfdb005fbb3bd68ce.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for the exact contact Ella King.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/4422d287e4f7118a1ee2e14d47c9827a8c463e8eff898d68fb312ec321b98aec.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Ella King's exact contact result to add her to favorites.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/8adda8562edc2d55a1e350173362af06f9902fef1d67fa708033578a7bb2656a.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Ella King's full contact details from her quick-contact badge to access the favorite control.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/07dd3e5ecbdf57c31b39d40c8aa2c3d51dd023992cf17113e61ae4b533282abf.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Ella King to favorites using the explicit Add to favorites control.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/25a0ae3ffe4f9156391ad5698717e8d86a1ad6d6a14c96bc0145495cddc9a9c1.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from Ella King's now-favorited contact details to continue with Grace Hall.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/2feaf3761e2a81af7dfba6fd06e9ed1a423ca3dd7d5d168af14011c433863962.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the Phone search query with Grace Hall to locate the next exact contact.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/bda79ea7861b72ed8095b22c875a332f18527fbffeb3a685b26a998b0e91cf0a.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Grace Hall's exact contact details to add her to favorites.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/be1ea5e9f610110d0366fee9247ab7e3e5863eae1610ffb3394135c199f3d235.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Grace Hall to favorites.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/4df8a62e3d249c552c7d830419bafba6a97e72b1572de5e4ab3988ac33ce471e.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Grace Hall is visibly favorited; return to Phone search to locate Sophia White.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/87349f8b3e0c88e797b58c62a440885a2225660aeb7d3c43b737aacb08b8d97e.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Phone contacts for Sophia White.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/34c2c97d0ab96cade2bfe6e093ac85fe32410154582188c6f25f1e11d1d475ce.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Sophia White's contact details to add her to favorites.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/df99a57654c38e083f75877f3222097e11b3de7a222fec18a7000dd3513f1ba9.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add Sophia White to favorites.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/ed69803e8bb50587efeaeff94f1d7fbdd2c3917b0a14ff2201dc3612e858e591.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Ella King, Grace Hall, and Sophia White are all verified as favorites. Sophia's contact now shows `Remove from favorites`; Ella and Grace had previously been verified the same way. Preserved all other contacts and favorites. Their mobile numbers for the messaging stage are Ella +1-467-674-1503, Grace +1-774-693-7409, and Sophia +1-685-426-9375.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d752134ad0d511864c61c582e7c7ce26a365a410d82a08d2a465aafea43057fd.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send the exact text \"hello\" as a separate message to each verified roommate: Ella King at +1-467-674-1503, Grace Hall at +1-774-693-7409, and Sophia White at +1-685-426-9375. Do not message any other recipient.",
+      "action": "execute",
+      "reason": "All three roommate contacts are verified favorites and their mobile destinations are known; the remaining work is to message each one.",
+      "screenshot": "screens/d48da73f1de455aa88fd2709eec952bb84abff04c68f7a350bf6a0081498d2bb.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to send the three requested individual texts.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/d48da73f1de455aa88fd2709eec952bb84abff04c68f7a350bf6a0081498d2bb.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new individual conversation for the first verified roommate.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/7ae1af04315996a46cb4ef636c050248b40148a1f19ba74dbce14589ef130f07.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Ella King as the first verified recipient.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/72ee34dcb7760684dd514640e1c965ed6e182e13468536e086583e00e3e7eee0.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested text for Ella King.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/ad90a2bf0869d5993eac74e8076dcd484da429a7feaa40ae572805e45af6fca7.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact message \"hello\" to Ella King.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/1a286ba753cd9dcdb3b1ebbd0bf60e1a1971ef12157d490a407178b8f31dbc78.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Ella's hello is visibly sent; return to the conversation list to message Grace next.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/1221108ef92dc8f44255770bd101b821df8f4bdd73fcfa0144bccdd3d40431ca.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new conversation to message Grace Hall separately.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/eec47a3efa6cd9d926457e932a3e774301f4436628dbe238bf0897863ea1c345.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the verified recipient Grace Hall for a separate conversation.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/78a842e4d448b475a304f52ba01e972ddac08d0d62fb48797d7712fb33d33450.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact message text \"hello\" for Grace Hall.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/4c5c9cb86c4257dc48618510fea51d70b64c93c1147c829de10cc5847a5fce08.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact text \"hello\" to Grace Hall.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/dea0e02335151f268ce32080416613a51da9a09aa7a6eecfc31766ed34f99001.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Grace Hall's outgoing SMS \"hello\" is visibly confirmed; return to the conversation list to message Sophia White.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/209471de47c1fd13504be246792891dff505e53d2647b9fab399560b92fdacd2.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new conversation to message the remaining verified roommate, Sophia White.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/8dd2f6aeaddf1f73ab929fecd42e95f1ee3f172555beee65885ea690d67b507e.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the verified remaining roommate Sophia White as the sole recipient.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/cdc38838e1beaea85d39008a63f1e1c275d9ee53abaf0b0ce32bf7cc34fd63ba.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact message text \"hello\" for Sophia White.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/de0fe726586a0ff3a512f60fbd1bb791939c50cf92c5b471235ca435953381bc.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact drafted SMS \"hello\" to the selected recipient Sophia White.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/06a6c3e59d03607b89385f28c2a8e3b795af713ecb93263413830ae86b912224.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the full request. Ella King, Grace Hall, and Sophia White are verified favorites, and each received a separate SMS with the exact text \"hello\". The current conversation visibly confirms Sophia's outgoing \"hello\" at 12:06 PM via SMS; earlier evidence confirms the corresponding sends to Ella and Grace. No other recipient was messaged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/3e8e1c83f6c970212178d261bbae58497e13a45b8509072b5cc12a8d924bd3b3.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Added Ella King, Grace Hall, and Sophia White to favorites and sent each of them a separate SMS with the exact text \"hello\". No other recipient was messaged.",
+      "action": "complete",
+      "reason": "Added Ella King, Grace Hall, and Sophia White to favorites and sent each of them a separate SMS with the exact text \"hello\". No other recipient was messaged.",
+      "screenshot": "screens/3e8e1c83f6c970212178d261bbae58497e13a45b8509072b5cc12a8d924bd3b3.webp",
+      "screenNumber": 31
+    }
+  ]
+}

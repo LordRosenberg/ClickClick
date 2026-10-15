@@ -1,0 +1,325 @@
+{
+  "task": "CheckCandidateAskUserTask1",
+  "variant": "hitl",
+  "screenCount": 30,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 30
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What database skills or requirements should Kevin's resume be matched against?",
+      "question": "What database skills or requirements should Kevin's resume be matched against?",
+      "answer": "Match Kevin’s resume against the requirement that he be good at either MongoDB or Redis.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/6a80650f188b58d9e112eaf4f0569ef21669ca0d49a4f547d2bf0e8ff48ee6ff.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find Kevin's resume, read the relevant database skills or experience, and determine whether it supports that he is good at either MongoDB or Redis. Preserve the evidence and the yes/no result for the later conditional text message.",
+      "action": "execute",
+      "reason": "Locate and assess Kevin's resume against the clarified MongoDB-or-Redis requirement before selecting the requested HR message.",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Files to locate Kevin's resume.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Kevin_CV.pdf to inspect database skills.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/4ac3361745fd9e5e5c4679e315fedec276e143e8323f1491885615e61de1638b.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Kevin's resume supports the requirement. It lists `Databases PostgreSQL, MongoDB, Redis` and describes TaskFlow as built with React, Express, and MongoDB, providing both explicit skills and project experience. Result: YES; later message should use the kickoff branch.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/085aaca73a732ed6adb35aea58a8b7119509c148e4c97cfc2643750af352d89b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In the text messaging app, resolve the contact named HR to its actual conversation/destination and send exactly: `please kickoff the interview for Kevin.` Do not send the rejection message.",
+      "action": "execute",
+      "reason": "Kevin meets the clarified database requirement, so proceed with the kickoff-message branch and resolve the HR recipient in the messaging app.",
+      "screenshot": "screens/2876ca5144967ba5bfb6bec680e229800498a0cd8e1de1d2a954229c640c6e94.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to resolve the HR contact and send the required kickoff text.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/2876ca5144967ba5bfb6bec680e229800498a0cd8e1de1d2a954229c640c6e94.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new chat to resolve the contact named HR.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/ae76dabb5d416ed4814910df77b5eba00c4709985986dc190c30ae67d593d3fa.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipient picker for the contact named HR.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/8beb1317ea0b44dcd949e5563fc104f90651ed0bcee1ee8d0a5acd07e5e18fa1.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Refresh the recipient search by editing the query so Messages updates the filtered contacts.",
+      "action": "key(key=delete)",
+      "reason": "",
+      "screenshot": "screens/7eec466c070abfa439ebb4ba39aca2393c8ad07dc63cbeaf7066bd5fcd4e731b.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Complete the HR search query so Messages can show the matching contact destination.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/49c03cb89b5bfe8d30023438e2ad43ac45656575477b6195f5c9901923d47074.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Clear the ineffective recipient query and inspect the alphabetized contacts directly for an exact HR entry.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/d1d8b987ab06be57d352bed767138b349f7c1e7e43783f82738ea532f82fa6e9.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the conversation list to use Messages search for an existing HR conversation or contact, since the contact picker has no exact HR result.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/3fd746de1783568cda635677646fdc4f67fbeed872ae33a14a55a86bba7913ed.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use the New conversation navigation control to return to the conversation list and search for an existing HR thread.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/acbef32549ffb7b36b69371a74a3f9dce882f704bf7cddd0b77450cac43ee803.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the existing Messages conversation list for HR to resolve the actual destination.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/9643a0869b6c33345479913e4f235cdd0d5bb32ae49316c318df1c510fad7ed7.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Messages search field before entering HR.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/9643a0869b6c33345479913e4f235cdd0d5bb32ae49316c318df1c510fad7ed7.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search existing messages for HR now that the search field is focused.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/da1d197a0fc94e3c37ddbf8a031e10d6487e00a4b7279c80549703b00f40e9d4.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Run the scoped Messages search for HR to resolve any existing conversation or destination.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/3572470ac0e32926ca0ef5310242bcc4e8201272931c7c7b80bab6cbb4453c86.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What phone number should I use for the contact named HR?",
+      "question": "What phone number should I use for the contact named HR?",
+      "answer": "Use Mia Scott’s phone number, which you’ll need to look up in the Contacts app.",
+      "round": 16,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/1e1d6faff92fa041b71a5bcadf55182411aa26fb0b98f8abe620e11eb80b1df5.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Contacts to look up Mia Scott's phone number, as specified for the HR destination.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/4568e67bf6ae9294480eefc3b6a967dd145c4accad60ce34a57044e0a77ebca9.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google sign-in to access the local Contacts list and find Mia Scott.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/dcb5788935579239f7746cd9a659f860b7faabd42f5cacdf23f04c92d8115a3a.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Contacts search to look up Mia Scott's phone number for the user-specified HR destination.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e08d29bd9b2fd15d7c0f684e273083ff417e8c0ddbcd71af5b2d77a5589c2595.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Contacts for the exact user-specified contact Mia Scott.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/0453bc586e6076e110c5b28997f218625020cb1dc0fb21f59ee0ac06bb402d77.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact Mia Scott contact result to obtain the phone number for the HR destination.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/ab241434a8718d7c4301e34f5fefa9b78178d51715589b02911470b32dc48ef9.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the resolved installed Google Messages package to address the exact kickoff message to Mia Scott's mobile number.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/1be2083c58666eaf2fd8087580bd129297a3f2050d03283ec6b084d196d53361.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit the stale HR conversation search so a new message can be addressed to Mia Scott's verified mobile number.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/96141667a027fa3e5db5a11c65f5c12bae5e2252d9d30a73f1c8d99167cff6d0.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return from Messages search to the conversation list, where a new message can be started.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/b1688c9c984e8a90bdf2c64bcfb40f2a82dba798bda2f17cb06875a8dc5d9ede.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new chat to address the message to Mia Scott at the verified HR destination number.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/fd750217492298e271551cbd34ef7661de0609a03689dcd60cd86c8322933d62.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Mia Scott's verified mobile number as the HR recipient.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/daa19c9496d96aef20e8a4574b5bf08d24a30ea89fe616e971f3be24da2118c2.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact Mia Scott contact result matching the verified HR mobile number.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/958d902a139b275e58fe1f66b5ee99a18497e909c4dd347ac3e13d5f0b99743e.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Compose the exact kickoff message in the Mia Scott conversation.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/7d521aeea9861b6ec703d4f48391ad4471b63700f422c9558e1aee1454a7ffb4.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact kickoff message to Mia Scott, the user-designated HR destination.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/344192bc74efc9064e419ef76a57bd405c30d9bf8937172552fe730765322510.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Kevin's resume matches the clarified database requirement because it lists MongoDB and Redis. Sent exactly `please kickoff the interview for Kevin.` by SMS to Mia Scott, the user-designated HR destination; the message is visibly present in the conversation.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/3b5e18e2f443c385949dbb08ccd60b3eae7fe094cbfb577c605b69d9228d1471.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Kevin's resume meets the stated database requirement: it lists both MongoDB and Redis. The exact kickoff message, `please kickoff the interview for Kevin.`, was sent by SMS to Mia Scott, the user-designated HR destination, and is visibly present in the conversation.",
+      "action": "complete",
+      "reason": "Kevin's resume meets the stated database requirement: it lists both MongoDB and Redis. The exact kickoff message, `please kickoff the interview for Kevin.`, was sent by SMS to Mia Scott, the user-designated HR destination, and is visibly present in the conversation.",
+      "screenshot": "screens/3b5e18e2f443c385949dbb08ccd60b3eae7fe094cbfb577c605b69d9228d1471.webp",
+      "screenNumber": 29
+    }
+  ]
+}

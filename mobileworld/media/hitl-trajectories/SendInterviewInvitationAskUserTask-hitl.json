@@ -1,0 +1,213 @@
+{
+  "task": "SendInterviewInvitationAskUserTask",
+  "variant": "hitl",
+  "screenCount": 19,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 20
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Send a message now to Kevin with the exact text: \"Your interview is scheduled for tomorrow morning at 10:30 AM\". Preserve the wording \"tomorrow\" in the message; relative to the current device date, it refers to October 17, 2025.",
+      "action": "execute",
+      "reason": "Send the requested text message to the intended contact in Messages.",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to start a conversation with Kevin.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/4f14a729f264b8ef0c8dcd70d413047d7fb9cb73e2ccadca56b2a98f9c7a8efd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Start chat to select Kevin as the recipient.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/995155cdee579213edc901949001d821c4493f21aa079f22df71d0e16733e4b0.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the recipient list for Kevin.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/8ac96d9c147d580591db9a6a14ac01d714a61db804b9115de8ac97685e11d199.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the Kevin recipient search so matching contacts are shown.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/8814573e2a7b5e8420df041e5569a7c31867ca39025c780c0fc07c6df9513b4b.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the keyboard after the invalid free-text recipient attempt so the contact list can be browsed to Kevin.",
+      "action": "key(key=back)",
+      "reason": "",
+      "screenshot": "screens/20818fbd75f430ccc92469cd6cd951dbba91b0be7182520d15397493fd198a76.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down the alphabetical contact list toward Kevin.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/0b826fc73ab5cbf93ddf8527702d1c3181ac554fed0a6403947b4c4481fde7bc.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scrolling the contact list from J toward Kevin.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/bac1ce2efc0e5470ac0488d21829a0cf13049ee2bce0651490ffc8c5c74013e0.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Kevin is absent between J and L in the contact list; return to the conversation list to check for an existing Kevin thread with a resolved destination.",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/a9226f7e3ba0c229fdd05ccc199b545771251de0404d62ffe2c3598d484055f5.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search existing Messages conversations for Kevin to identify the intended recipient thread.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/c3f6b65d026f8639eef524dae1859b8799da085499d43a8f670072070f5ade8f.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Messages search field before entering Kevin.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/c3f6b65d026f8639eef524dae1859b8799da085499d43a8f670072070f5ade8f.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Kevin in the focused Messages search field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/384635a9a8412422efb842a5217511e3705517f6fbd72977657f9405ad7a9190.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Run the Messages search for Kevin to locate the intended conversation.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/ceef304cbe80506ba584cfc8a4da4308df329d3b502017e553588c18b94350d6.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What phone number should I use for Kevin?",
+      "question": "What phone number should I use for Kevin?",
+      "answer": "Use 15551234567.",
+      "round": 13,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/99b21f87b312307318b2632ec2e49391271fb191425ea036f1e12c29b77abd6e.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Leave message-content search so a new chat can be addressed to Kevin's supplied number 15551234567.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/89526cff672a5ceb06bc3da956f66cc6d312133ff5b497426c2514aa510baba8.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new chat to address the message to Kevin's supplied phone number.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/37dd121053c3d189b6993087a7d9150276e19e7a3f9aaaab66d276e4ef15b44c.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Kevin's supplied phone number as the recipient.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/e9ecc4bde4367f5abfb0f3294b7e5bb67623561d15afaceba38d152d2bc35529.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact custom recipient shown as (555) 123-4567, corresponding to the user-supplied 15551234567.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/08264f27d7096d6534947f07a2d4dfdd5edb7031b222a52ddcf23ecdcec79b36.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested message in the composer for Kevin's supplied number.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/c034ede2c3543935e240bb4b0bf7b2f98532e9be305d2286bb68b9883721faaf.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact composed SMS to Kevin's supplied number.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/dab31863b5d6c9a360c4b4077c6ed47622a55fa2234320cfcc979a8c8620f6ea.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent Kevin at the supplied number (555) 123-4567 the exact SMS: \"Your interview is scheduled for tomorrow morning at 10:30 AM\". The conversation now displays the outgoing message with SMS metadata at 12:03 PM.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2c50ed0810d5aca691fc8d1771229e757a4192d9b94d09a154a8d861643a17a4.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Sent the exact SMS to Kevin at the user-supplied number (555) 123-4567: \"Your interview is scheduled for tomorrow morning at 10:30 AM\".",
+      "action": "complete",
+      "reason": "Sent the exact SMS to Kevin at the user-supplied number (555) 123-4567: \"Your interview is scheduled for tomorrow morning at 10:30 AM\".",
+      "screenshot": "screens/2c50ed0810d5aca691fc8d1771229e757a4192d9b94d09a154a8d861643a17a4.webp",
+      "screenNumber": 18
+    }
+  ]
+}

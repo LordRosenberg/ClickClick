@@ -1,0 +1,258 @@
+{
+  "task": "MastodonSharePhotosAskUserTask",
+  "variant": "hitl",
+  "screenCount": 25,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 24
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What caption would you like added to the Mastodon post with the flower photos?",
+      "question": "What caption would you like added to the Mastodon post with the flower photos?",
+      "answer": "Here are some beautiful flowers.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/12daf6d5d32d1569cdb5dc2a99647ed669daa4e9564a7e78d7589636e22ec4d5.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Gallery, inspect the Pictures album sufficiently to select all and only photos depicting flowers, then share that complete selection via Mastodon with the exact caption \"Here are some beautiful flowers.\" and complete the post. Preserve unrelated photos and confirm the Mastodon composer contains the intended attachments and caption before posting.",
+      "action": "execute",
+      "reason": "The caption is now specified, and the remaining work is to identify every flower photo in the Pictures album and share the complete selection through Mastodon in one post.",
+      "screenshot": "screens/285fb89303c704eadb1c4ae4b49f35b7eb3f795e2ece028bae96067b8fa92f10.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Gallery to inspect the Pictures album and identify all flower photos.",
+      "action": "launch(app=gallery.photomanager.picturegalleryapp.imagegallery)",
+      "reason": "",
+      "screenshot": "screens/285fb89303c704eadb1c4ae4b49f35b7eb3f795e2ece028bae96067b8fa92f10.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Pictures album containing 8 items.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/732a6f3502f79da97a7e0dd934b53a189c941963c40db9f8ff917edd1068f64b.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Begin multi-selection with the first flower photo; the complete album is visible and flower photos are the four images in the top row.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/05814b0243b523ada3ab21d0a0190211fc57cef5e74cad93e2be95587048ca71.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the red rose photo to the flower selection.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/8339a6912a57a424a65ee60c0b4b6bf850e8cdbac610fdfc92c91a925854c927.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the yellow flower photo to the flower selection.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/349c5fbbfab278c9d14a27ab33e87c0d7b7a3c9e3f2bcc63981221869ab353b3.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the purple flower photo, completing selection of all four flower images and excluding the tiger, cake, anniversary, and candle photos.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/00b218e8000a1d31f635d6a68ed570411a7a62e60cc124c766b771fc7b53dd19.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Android sharing for the verified selection of four flower photos.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/22ff97b3c961080b75dc97ef4f43f6e88b50c167c0d00cb35522ccbfe2aece27.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Mastodon as the destination for the four selected flower images.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/e041e3438646e22d5cac7cc270d6f68f80097b6bfcfc3799ed36864625be2758.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the account chooser because the active Mastodon identity is unknown; inspect Mastodon’s Profile before choosing an account.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/f5c2713f7b0449558504d1ae6c8d5549ba076fe641f449a21b387c43dcdc0b35.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon directly to identify the active profile account before re-sharing the photos.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/72ea14ad01a9a2ba50259db929189efbdd5e07d12bfa0061d621d2d05327d4d5.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Profile tab to confirm the active Mastodon account identity before re-sharing.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/5c5fb7e5f524cda5d76ef7cd5205520c9d6e90eebfb235e7aa2b80c38da26798.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "The active Mastodon identity is confirmed as @test@10.0.2.2; return to Gallery to reselect and share the four flower photos.",
+      "action": "launch(app=gallery.photomanager.picturegalleryapp.imagegallery)",
+      "reason": "",
+      "screenshot": "screens/ce9706db547e262026aff15102ed7cd990e76a4e1533e2cd4b8a62589f9f7962.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Begin a fresh multi-selection with the first flower photo (sunflower).",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/9590558ce0496806518993f00db9637ac91ff3f85675b642bab717ea8a732de6.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the second flower photo (red rose) to the selection.",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/fe10d305c85112d4a563637e46f1ea3fb48760846fd0a40378c22ed8863eda33.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the third flower photo (yellow flowers) to the confirmed selection.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/c8193005a07bed9b109fdd7cbc97457705a935f5524c9fb4f3d22b23ef1631b0.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the fourth and final flower photo (purple flower) to the selection.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/230fa0ebf8d8aa76e13cb71407dad91d45adfe1080ed220891f0603976971fa8.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Share the confirmed selection of all four flower photos.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/27921fd43cc34addec465264d47656cb424791102003296e58d41c51a15e2e8c.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon for the chooser-confirmed set of four images.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/1751d9319f335787d9299662fab227f5006009804cfc293fbf66ab85f4108aa3.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose the previously confirmed active Mastodon account, @test@10.0.2.2, for this share.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/f91ecfb91342aaa4d8fe5fe35a5231254180acc390f0891713cd274b70644287.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested caption in the focused Mastodon composer.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/0936b7d83920a58f8d3a04a7453e6a77ff5f52cdfe11c0607a5ef305bbe73852.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the attachment strip to inspect the remaining selected flower photos before publishing.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/38264855f06fb7888dec40fa83f9a68d496e2febf98aa225e796119b94b64551.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Publish the verified post from @test@10.0.2.2 with the exact caption and all four confirmed flower attachments.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/18f994fc6f17f6e63d9bf5dd7639c76e966754bb766b06ac1ddcbd1a7ad2f403.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mastodon to verify the post-publication receipt after the composer closed back to Gallery.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/63c097ac11c813b914581bcfa36b982f1792ddd1eff3a235cbc35f2ace11425a.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Published one Mastodon post from @test@10.0.2.2 with the exact caption \"Here are some beautiful flowers.\" and all four flower photos from the Pictures album (sunflower, red rose, yellow flowers, and purple flower). The profile timeline now shows the new post with the exact caption and attached media.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8bbbc7b608bb5c292af231dfe9a9f12c33b73dfe4b3dec52f4c7842de648cb94.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Shared all four flower photos from the Pictures album in one Mastodon post from @test@10.0.2.2 with the caption “Here are some beautiful flowers.” The new post is visible on the profile timeline with attached media.",
+      "action": "complete",
+      "reason": "Shared all four flower photos from the Pictures album in one Mastodon post from @test@10.0.2.2 with the caption “Here are some beautiful flowers.” The new post is visible on the profile timeline with attached media.",
+      "screenshot": "screens/8bbbc7b608bb5c292af231dfe9a9f12c33b73dfe4b3dec52f4c7842de648cb94.webp",
+      "screenNumber": 24
+    }
+  ]
+}

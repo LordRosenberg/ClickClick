@@ -1,0 +1,249 @@
+{
+  "task": "MastodonDumpImgAskUserTask",
+  "variant": "hitl",
+  "screenCount": 24,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 23
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What exact folder/path should I save the images to?",
+      "question": "What exact folder/path should I save the images to?",
+      "answer": "/sdcard/mastodon_img",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/12daf6d5d32d1569cdb5dc2a99647ed669daa4e9564a7e78d7589636e22ec4d5.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Mastodon, locate the account identified as pupper, determine its earliest post by traversing the account's post history, and save all images attached to that earliest post into `/sdcard/mastodon_img`, preserving each distinct image.",
+      "action": "execute",
+      "reason": "The destination path is resolved; the remaining work is to identify pupper's earliest Mastodon post and save every image attached to that post.",
+      "screenshot": "screens/7214cd35d1992e6f3b025c659967316091c7f436b19b5eef510df50f47419ca9.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch Mastodon to locate pupper and traverse the account history.",
+      "action": "launch(app=org.joinmastodon.android.mastodon)",
+      "reason": "",
+      "screenshot": "screens/7214cd35d1992e6f3b025c659967316091c7f436b19b5eef510df50f47419ca9.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open pupper's profile from the visible timeline post.",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/e9d72f9bcc39b11fa539d1e70f22a56fb3a5a03ecb057374cab150a627ec8d14.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll down pupper's four-post timeline toward the earliest post, retaining overlap for order.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/6fd61dc30829d6f43f03b884ca177b3ad144525dd0b0e4a086ee77997e3fc294.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue downward through pupper's timeline past the second post toward the oldest boundary.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/266e8d23285e1e11e209fa340668245f9a964046a7762a7a0f6171435defd2fc.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the third visible post to reach the fourth and earliest post.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/f00efb8132186a388f8c256deebcf5044a9c6cb69ead9834f56aef45f13fa9a8.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reveal the media attachments on pupper's fourth and therefore earliest post.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/abffcc7f2fb1ee1c4b56a929fa8075929cb0a1ffe37f811d0191944ab7b1609e.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the image attached to pupper's fourth and earliest post so it can be saved.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/e51a31bedc0d9542d0aa83d55d49c828f1bb22583d3d7cbb68ff7b7098e4e601.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Download the earliest post's displayed image and inspect the resulting save flow or confirmation.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/9e2aab42187c56a530b31c5db8f4104fcd4aaca671265ac7233e245f90adf78a.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the saved image from the confirmation so its actual storage location can be inspected and moved to `/sdcard/mastodon_img` if needed.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/95918fa981347123be4a11dee3ba17b98397ee6fa2fe037ad60f62daf7a2632f.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the file manager to locate the downloaded Mastodon image and place it in `/sdcard/mastodon_img`.",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/6d9b87db884d83b6290ccbc49ff6a81c2d7ef7f793cd04cca9b302897c8a6e98.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the newly downloaded Mastodon image so it can be moved into `/sdcard/mastodon_img`.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/aac3136bfc4bc605ffd0822b80d515475e747d57b40f24dc87537edfcc0a200a.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the selected file's options to choose a move operation.",
+      "action": "tap(index=21)",
+      "reason": "",
+      "screenshot": "screens/fc8c6ab0182510296a50abb6f2a233f01f82e75fa1dbbc5521c344a1116534cf.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose `Move to…` for the selected downloaded image.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d781f7656759ff6ea873d802e15d3efd4816042ae15e42623996e06e87e265f1.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open storage roots to navigate to `/sdcard/mastodon_img`.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/edeb10c261e623d37e10b96fe2d69e869b71520b90f559ec216ad3011341ba86.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open internal shared storage, corresponding to `/sdcard`.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/979331980bfad9fb776639b9c98984915c1a2ce0c5f6447a003381fb346486de.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the missing `mastodon_img` folder at the internal storage root.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/decbde0a514f7480b9a58ef85219f1fdcb2e537f0df5654754f712c5186dd146.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the requested destination folder name exactly.",
+      "action": "replace_text(index=0)",
+      "reason": "",
+      "screenshot": "screens/7633f618ff8315f7d0ae0f2e5ed4279d5fa5a23b6b6d55785da0aef0f75c9932.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Create the `mastodon_img` destination folder.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/74e9d4c9a364217272eff73450c0a9dbcdee6b4e5272cfdf066e49d25f0315b2.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Move the downloaded earliest-post image into `/sdcard/mastodon_img`.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/a6353ab30196a7f2820ba5d5a0d3436adde83763d07e448f76d8fbe5507592a5.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open storage roots to verify the moved image in `/sdcard/mastodon_img`.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/be16e0246a7d2d21742e96844323995b854b3c7b3aa198e4c85e9fe997d471ef.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open internal shared storage to verify `/sdcard/mastodon_img` contains the moved image.",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/f1a61861d272eb6905616dfc16ae32e429b6ee9ce00e21ff10e76d203ad7fdd8.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open `/sdcard/mastodon_img` to verify the saved image is present.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/e17828d47bde74974ff3237f8f47a801a698033095e639ef8ccb69a4652f52e6.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the task. Traversal established pupper's earliest post as the Labrador Retriever post with one image attachment. The distinct image was downloaded and is visibly present at `/sdcard/mastodon_img/df745e86810aa31d.jpg` (43.58 kB); the Files thumbnail shows the dog image.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/1254394fe258868bb4f175ecd0a81ebf74c1424946033687242bbf3c42706b7a.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Saved the single image from pupper's earliest Mastodon post to `/sdcard/mastodon_img/df745e86810aa31d.jpg`. The destination folder visibly contains the 43.58 kB dog image.",
+      "action": "complete",
+      "reason": "Saved the single image from pupper's earliest Mastodon post to `/sdcard/mastodon_img/df745e86810aa31d.jpg`. The destination folder visibly contains the 43.58 kB dog image.",
+      "screenshot": "screens/1254394fe258868bb4f175ecd0a81ebf74c1424946033687242bbf3c42706b7a.webp",
+      "screenNumber": 23
+    }
+  ]
+}

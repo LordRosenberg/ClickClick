@@ -1,0 +1,141 @@
+{
+  "task": "SetAlarmTaskAskUser1",
+  "variant": "hitl",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What time should the wake-up alarm go off on Friday, October 17?",
+      "question": "What time should the wake-up alarm go off on Friday, October 17?",
+      "answer": "1:20 PM.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/73940e49ce97da710eb04af80c4d32444a94c134ee9ca86d53daae6c3e965408.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and enable a one-time wake-up alarm for Friday, October 17, 2025 at 1:20 PM, preserving all existing alarms.",
+      "action": "execute",
+      "reason": "The Clock guidance adds no requirement that changes the requested alarm outcome.",
+      "screenshot": "screens/0a7cb7c90f1bbe90a2066a5e64ff456d2c76d9e13ddc4441bbb34579fb316150.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Clock app to create the requested Friday 1:20 PM alarm.",
+      "action": "launch(app=com.google.android.deskclock)",
+      "reason": "",
+      "screenshot": "screens/0a7cb7c90f1bbe90a2066a5e64ff456d2c76d9e13ddc4441bbb34579fb316150.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap Add alarm to create a distinct alarm while preserving the existing alarms.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/dfc6ca946a4be09964d088f0cf85ed2a5eed0286349897cf7e148bb2bf39a61e.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch to text input mode to enter the exact 1:20 PM time.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/6eae51bb95aa22923bbc447c7b989a012d16f39afd4bc71b2c9c94c6b196e706.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm hour to 1.",
+      "action": "replace_text(index=2)",
+      "reason": "",
+      "screenshot": "screens/123acf9a7926dcfff2b39a28215c5e4f63c9c4914d3edcdaf1ed3eae2c44539f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the minute field so the exact 20-minute value can be entered.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/123acf9a7926dcfff2b39a28215c5e4f63c9c4914d3edcdaf1ed3eae2c44539f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused minute value with 20.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/8566fa7e6f7d0b397b0c10b146cf81eedef409113023d7ced3a8908387b103c7.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the exact 1:20 PM alarm time.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/b7a41c4dba0a5208e086fb8ecc08d2e802ffb0ef11edfed704e55a92be3ed750.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Schedule alarm to set this alarm for the specific one-time date Friday, October 17, 2025.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/1f6427fe7c660335e019a61212c676f8cef59dd04e4bb27aad935469cf53ba28.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Friday, October 17, 2025 in the one-time alarm date picker.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/a19d1c5a5ec8bf3d321e69cd89abccfe7929f05cce400ccc25cf6ce6746abc84.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected one-time date of Friday, October 17, 2025.",
+      "action": "tap(index=36)",
+      "reason": "",
+      "screenshot": "screens/7a373c5e2ee013f2afefcd2c5f3c469d0090d11337f48a51e7ea99203265c927.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and enabled a one-time alarm for Friday, October 17, 2025 at 1:20 PM. The alarm shows October 17, “Scheduled for tomorrow,” is switched on, and no repeat weekdays are selected; existing alarms were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/780f35db4e43a5262a9631eaea56007949f7c3b0e495aff419444b54bf10d7d9.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created and enabled a one-time wake-up alarm for Friday, October 17, 2025 at 1:20 PM. It is scheduled for tomorrow, has no repeat weekdays selected, and the existing alarms remain preserved.",
+      "action": "complete",
+      "reason": "Created and enabled a one-time wake-up alarm for Friday, October 17, 2025 at 1:20 PM. It is scheduled for tomorrow, has no repeat weekdays selected, and the existing alarms remain preserved.",
+      "screenshot": "screens/780f35db4e43a5262a9631eaea56007949f7c3b0e495aff419444b54bf10d7d9.webp",
+      "screenNumber": 10
+    }
+  ]
+}

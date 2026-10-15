@@ -1,0 +1,173 @@
+{
+  "task": "BuySugarFreeColaWorkAddressAskUserTask",
+  "variant": "hitl",
+  "screenCount": 15,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 16
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In 淘店, buy exactly one case of sugar-free cola and have it delivered to the saved work address for this occasion, not the home address; resolve and verify the actual selected destination before submitting the order, preserve ordinary product defaults where unspecified, and do not add unrelated items.",
+      "action": "execute",
+      "reason": "The request authorizes purchasing one case of sugar-free cola, but the saved delivery destination must be resolved as the user's work address and explicitly distinguished from home before placing the order.",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch 淘店 to begin selecting one case of sugar-free cola and verify the work delivery address before order submission.",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close the unrelated cash-reward popup to access product search.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/7f8c36dcabe89c6b36ce8820928ab7c46a9ed162c139e595f5ef58a06c10398c.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the product search field to search for sugar-free cola.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/8f0384c89d27bf34c62871f9c135b82f3017b8cda678c975360ab199b09e92cb.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a precise search for a full case of sugar-free cola.",
+      "action": "replace_text(index=22)",
+      "reason": "",
+      "screenshot": "screens/e17a8cdf0e5831eeed1396cb90cbf57548163c237729fb6d8bbd5c9cb4946c37.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the intended search field before replacing its text, as required by the input mechanism.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/e17a8cdf0e5831eeed1396cb90cbf57548163c237729fb6d8bbd5c9cb4946c37.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the now-focused search field with the exact query for a full case of sugar-free cola.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/505f71382fdfc66ddfc5ed6089195122d9b4ddb827a02b67c8fb5dba50082fa3.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the exact search query for a full case of sugar-free cola.",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/0c74ad1bf95461d5b1923afe3cb1c36fe1657d12345c9a2876533708b86b78f6.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the sugar-free canned cola result, whose visible product image shows a 30-can multipack suitable as one case.",
+      "action": "tap(index=25)",
+      "reason": "",
+      "screenshot": "screens/b40a06062f3f87ebca5d931ef98cbba341c44b413fab70779d0fd4413b3dc94b.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the product selection sheet to confirm the case specification and keep quantity at exactly one.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/1cdf8b97387743c939391471aa37da961bef8333aa580aa43e21416f07e916bf.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the visible “1整箱” specification instead of the currently selected single-can option, keeping quantity at 1.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/7803728be9cb40b33fc93194ff31ed7f0bced26901559f4f1e080e462a830495.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Proceed with the selected 1-case specification at quantity 1 using the product sheet's rightmost purchase action.",
+      "action": "tap(index=21)",
+      "reason": "",
+      "screenshot": "screens/2ba2672ca4099425ccc0b04b12182d79fc86fc06922126c2defbbf875f80543e.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap the visible right-hand red purchase button on the option sheet; the matching sheet control is absent from the tree.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/8956d76191bf931fc7543e5d4e8a150acd937e9abb1cd24ca70841155662596e.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the delivery-address selector to verify that the selected destination is explicitly the saved work address rather than home before submitting.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/df9e5090d781330259914ba740c500a22b85abdf6e9302ffd27dbaf39bc29cf6.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the sole saved address, which is explicitly at 西溪国际商务中心2号楼8楼 and therefore supports the requested work destination rather than a home address.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/7d0edca40a1e239e5c5589183e1352d81678f56f4cde90f87621fe9a9936c81c.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the order for exactly one 24-can case of sugar-free cola at ￥68.00 to the verified saved business address at 西溪国际商务中心2号楼8楼.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/900f7f0be12b813b2fe112599363c2adb636e5f65d3f9ae280b714f8afe6a53a.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Checkout reached Alipay payment for ￥68.00 and now requires the user's payment password, a secret credential I cannot request or enter. The order details were verified before submission: one case (24 cans) of sugar-free cola, x1, delivered to the saved work/business address at 浙江省杭州市西湖区文三路555号西溪国际商务中心2号楼8楼. The user must complete the secure payment step.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/72246b0edf1577755e23ecd405e4a694f353b78a402a2a2c1fe5e27fed5eeeed.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "订单已提交至支付宝付款环节，但购买尚未完成：当前需要用户本人输入支付密码，不能请求或代为输入该秘密凭据。已确认订单为无糖可乐罐装 1整箱（24罐）×1、￥68.00，收货地址是工作地址“浙江省杭州市西湖区文三路555号西溪国际商务中心2号楼8楼”，不是家庭地址。请用户在当前支付宝弹窗中自行完成付款。",
+      "action": "inconclusive",
+      "reason": "订单已提交至支付宝付款环节，但购买尚未完成：当前需要用户本人输入支付密码，不能请求或代为输入该秘密凭据。已确认订单为无糖可乐罐装 1整箱（24罐）×1、￥68.00，收货地址是工作地址“浙江省杭州市西湖区文三路555号西溪国际商务中心2号楼8楼”，不是家庭地址。请用户在当前支付宝弹窗中自行完成付款。",
+      "screenshot": "screens/72246b0edf1577755e23ecd405e4a694f353b78a402a2a2c1fe5e27fed5eeeed.webp",
+      "screenNumber": 14
+    }
+  ]
+}

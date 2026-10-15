@@ -1,0 +1,150 @@
+{
+  "task": "CVEmailAskUserTask",
+  "variant": "hitl",
+  "screenCount": 12,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "请提供要发送给哪位 HR 同事（姓名或邮箱地址）。",
+      "question": "请提供要发送给哪位 HR 同事（姓名或邮箱地址）。",
+      "answer": "请发送给 HR 同事：HR_chen@gmail.com",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/0c324b076c2433474050986cb93f048dc498b64eb36f6d2fa5b1287637a179ed.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Download 文件夹中，依据 Files 可用的显示日期找出最近一个月（2025-09-16 至 2025-10-16）内的全部简历文件，保留其文件名和选择结果供后续发送；不要纳入日期范围外或不能确认为简历的文件。",
+      "action": "execute",
+      "reason": "收件人已明确为 HR_chen@gmail.com。Files 仅提供显示日期而非独立下载时间字段，因此先按该可用日期筛选 Download 中 2025-09-16 至 2025-10-16 的全部简历文件，再发送。",
+      "screenshot": "screens/ec4c5f36d19581f27b24a715505335b820bfe17e6c83e464db02b2b22fe8e805.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files，准备在 Download 中按显示日期筛选最近一个月内的简历文件。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/ec4c5f36d19581f27b24a715505335b820bfe17e6c83e464db02b2b22fe8e805.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "日期列表已从 10 月降序跨过 2025-09-16 截止线；先选择范围内的简历 Amanda_Wilson_CV.pdf。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/023557c3823e24c0e656f041a42ec464564f8152703fd4227da1695e8e42fb05.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续多选范围内可确认为简历的 Emily_Allen_CV.pdf。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/e79a13c880909ebcb161f3bcbfbda4259fb428ef6f5abf297796afd7fa64c45e.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "继续多选范围内可确认为简历的 Angela_Davis_CV.pdf；其日期为 9 月 21 日。",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/aebeaaec6b4c89fb116a0965bc04e95390b17e7f73713892dec0fbe387d5e6a3.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已在 Download 的日期降序列表中覆盖到截止边界：选中最近一个月（2025-09-16 至 2025-10-16）内全部 3 个可明确识别的简历文件：Amanda_Wilson_CV.pdf（Oct 11）、Emily_Allen_CV.pdf（Oct 1）、Angela_Davis_CV.pdf（Sep 21）。列表下一项相关边界已到 Sep 11，早于范围；配方、报告和截图压缩包均未纳入。当前界面显示“3 selected”，保留多选状态供后续分享。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/95f0e82139b891f3072d0d2bd3bb3aa42edca0952144c328dbe72e526f6de0cd.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "将当前已选中的 Amanda_Wilson_CV.pdf、Emily_Allen_CV.pdf、Angela_Davis_CV.pdf 作为附件，通过可用邮件应用发送给 HR_chen@gmail.com；邮件标题严格设为 candiaditaes_cv，并完成发送。",
+      "action": "execute",
+      "reason": "最近一个月内的 3 份简历已在 Files 中选中，下一阶段应完成用户明确授权的邮件发送。",
+      "screenshot": "screens/cb307222c11b0ccb7a5c33b7f40df818c7b866ecddea62fccbd0ffe33c929357.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "点击 Share，为已选中的 3 份简历打开分享目标选择界面。",
+      "action": "tap(index=19)",
+      "reason": "",
+      "screenshot": "screens/cb307222c11b0ccb7a5c33b7f40df818c7b866ecddea62fccbd0ffe33c929357.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Mail，将当前 3 个附件交给邮件应用撰写。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/cb33dfc6868d6d67031d8b88dc3a1b67d96f2d1ee3441b67074ef634c936450b.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "填写收件人 HR_chen@gmail.com；3 个指定附件均已在撰写界面中。",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/6b60d12d77b9a391407d9404799f1651e61505aaafe1ddb6b36edc5524758f48.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将邮件标题严格填写为 candiaditaes_cv。",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/00718f37d565b21e9447eea30c6eddc19498e15951427d077e19761f4a958eb4.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收件人、标题及 3 个附件均已核对无误，点击发送。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/cdbfcc329346d8ec288cf586a9b12bdd660628ed13d52c4244606c29f6b400c5.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "邮件已成功发送给 HR_chen@gmail.com，标题为 candiaditaes_cv，附件为 Amanda_Wilson_CV.pdf、Emily_Allen_CV.pdf、Angela_Davis_CV.pdf；当前界面明确显示“Email Sent”。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f4db6301e1797c925b782a467558446a0244a9bc179985536d2c74117c76bdc1.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：最近一个月内确认的 3 份简历 Amanda_Wilson_CV.pdf、Emily_Allen_CV.pdf、Angela_Davis_CV.pdf 已作为附件发送至 HR_chen@gmail.com，邮件标题为 candiaditaes_cv；界面明确显示“Email Sent”。",
+      "action": "complete",
+      "reason": "已完成：最近一个月内确认的 3 份简历 Amanda_Wilson_CV.pdf、Emily_Allen_CV.pdf、Angela_Davis_CV.pdf 已作为附件发送至 HR_chen@gmail.com，邮件标题为 candiaditaes_cv；界面明确显示“Email Sent”。",
+      "screenshot": "screens/f4db6301e1797c925b782a467558446a0244a9bc179985536d2c74117c76bdc1.webp",
+      "screenNumber": 11
+    }
+  ]
+}

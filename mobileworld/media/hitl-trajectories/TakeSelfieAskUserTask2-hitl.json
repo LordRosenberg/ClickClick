@@ -1,0 +1,370 @@
+{
+  "task": "TakeSelfieAskUserTask2",
+  "variant": "hitl",
+  "screenCount": 34,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 34
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Take one new photo with the device camera and retain it for sharing; do not substitute an existing gallery image.",
+      "action": "execute",
+      "reason": "First create the new photo requested; the recipient can then be resolved in Mail when composing the email.",
+      "screenshot": "screens/f914a08b5c21998e1571a39f41fef83c24c5dad99d2d79dc1bde5249204f2aec.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Camera app to take the requested new photo.",
+      "action": "launch(app=com.android.camera2)",
+      "reason": "",
+      "screenshot": "screens/f914a08b5c21998e1571a39f41fef83c24c5dad99d2d79dc1bde5249204f2aec.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Disable optional location tagging before continuing camera setup.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/18e2c6aab0bc2d34aaa658caf2b1c34f73d1163974136cafc97abbb61f882bcd.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue camera setup with location tagging disabled.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/5b789641b06be9c271a4d56b4b1a7a23661b650687799a0d6b9105f8fa7f2517.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Press the camera shutter to take one new photo.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/c94a4f570b2559bc2de5b86cf1e9435ac34c6dfd9747c9e9e2d3041ecd327838.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Captured one new photo in Camera; the new thumbnail is visible, confirming the image was retained for sharing.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/54a9e5cc1ea220f5d4ff3e0f3099c6330bc52ecf31ae1dddf8a82bf835bd84ef.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Compose and send a new email to Henry using the email app's supported recipient resolution, attaching the newly captured photo (not an existing image); preserve any automatically resolved recipient address and use ordinary defaults for unspecified subject/body.",
+      "action": "execute",
+      "reason": "The new photo has been captured and retained. The remaining work is to email that specific photo to Henry.",
+      "screenshot": "screens/37d2904e1deb2a8cba4ece4ce72383e7af89d7709b957fe5fd8205ed06319efa.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Mail to compose the email to Henry and attach the newly captured photo.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/37d2904e1deb2a8cba4ece4ce72383e7af89d7709b957fe5fd8205ed06319efa.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Start a new email composition.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/78e8a7d8ba695219c588a9cbbd14b9fbe3b3ac39a3a1bf26a0a7e3b8f326eab6.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the recipient field so the email app can resolve Henry.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/1a30cbe2367607aae80f4ac1486fd5b09248eff415add7924791744ea194d0db.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Henry in the recipient field to use the app's recipient resolution.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/2da0efdc3d43c832d2f33e2e331e1a100d8dc19e62935944856bed39368c6d98.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm Henry so the email app can resolve the recipient to its stored address.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/df471929151ba3a6979d7ebf7c2e0f4843c184a4aa01606fa1e022c0761c6ec1.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open attachment options to attach the newly captured photo while preserving the entered recipient text.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/8cf247d7af62bae7bf95974b0e8957d6cee3ca0b03721612409276a35d2c9c3f.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Photos so the newly captured camera image can be selected for this email.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/dd9d2926040ff670f7d59408ed472b2baf27d1dea8d61ce90b349b7399716e1f.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the photo timestamped Oct 16, 2025 at 12:01:09 PM, matching the newly captured image from this task.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/a701af72edfa9f6b5749db111141663138105b6a0d745c576b034a094df7a4fa.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the one selected newly captured photo to the email.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/929228f37fce5138f9b64b2acdc1d6131931511bbb983cb39a01a02665e623e5.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Re-focus the recipient field to use the email app's contact-resolution suggestions and establish Henry's actual destination before sending.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/51a4afe4a57a6b94c1a37a14622c9b6da0d7582562c9b7887765d12153f7fac0.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What is Henry’s email address?",
+      "question": "What is Henry’s email address?",
+      "answer": "I don’t have the email address itself. Please look up **Hery Wright** in the Contacts app to find it.",
+      "round": 15,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/75f8f375340f85e72158c6b9e025fb73e63d16e8183482b864b0039a667fa6d3.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Recipient resolution now requires a Contacts lookup for the exact user-supplied contact name “Hery Wright,” then returning to the existing draft and preserving its attached photo. The current stage is scoped to com.gmailclone, so Planner must add the Contacts lookup before the email can be sent.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/083583d13b22f4968ec3a310413fad941630c0ccab582e29cd928ea6aca83efc.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Look up the exact contact name “Hery Wright” in Contacts and obtain the contact’s actual email address for the pending draft; do not modify the contact.",
+      "action": "execute",
+      "reason": "The user supplied an exact Contacts lookup target, “Hery Wright.” The email address must be obtained before sending, while the existing Mail draft and attached photo remain pending.",
+      "screenshot": "screens/e17689daa81b37ff28c31ed1de32c768e066e2d68814afa45dedc4a2af38c320.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Contacts to look up the exact contact name “Hery Wright” and obtain the email address without modifying the contact.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/e17689daa81b37ff28c31ed1de32c768e066e2d68814afa45dedc4a2af38c320.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google account setup to access the device's existing contacts without signing in or changing account state.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/0f43901e87327d87b9ca2e9b9473bc30a02d09571c973ec6f469d46fd5af5cf6.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Contacts for the exact supplied name “Hery Wright” rather than substituting the visible, differently spelled “Henry Wright” contact.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/4bfbb2b7151de7e43e397a4f20cc5da06d17de0fbb11533b0f9c85944417d765.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact contact name “Hery Wright” in the focused Contacts search field.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/5e3bfb51dbd491d8fffde510c8eeacc38227e50cb20d8b8a8300f81e5587b978.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "Contacts has no result for the exact name “Hery Wright,” but it does contain “Henry Wright.” Should I use Henry Wright’s email address?\nOptions: Use Henry Wright; Do not use Henry Wright",
+      "question": "Contacts has no result for the exact name “Hery Wright,” but it does contain “Henry Wright.” Should I use Henry Wright’s email address?\nOptions: Use Henry Wright; Do not use Henry Wright",
+      "answer": "Use Henry Wright.",
+      "round": 20,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/e94ea85ef5e8c85ae7f6dd7ed1aa01f97613cac7d7ae4620739e0a21fb32f108.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use the user-approved corrected contact name “Henry Wright” in Contacts to obtain his actual email address.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/21e2d92e1975ad9cf50a32e60178462b2fc900c5dfa887f0e9ccec4d20d89da6.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the user-approved Henry Wright contact to read its actual email address without modifying the contact.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/3088d21ad4a4f323d368b79ed0ed2287e0847e6881542186d9ef049b63906013.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Contacts showed the user-approved Henry Wright record. Its actual email address is henry.wright@harbortech.com; the contact was not modified.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/9ad54112146b4e0855b5fa08219bc115421dd5ba819197296fa0c5313f2800e7.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Return to the existing Mail draft, replace the unresolved recipient text with henry.wright@harbortech.com, ensure the attached image is the newly captured photo from this task rather than an existing image, and send the email; preserve the existing draft and use ordinary defaults for unspecified subject/body.",
+      "action": "execute",
+      "reason": "Henry Wright’s user-approved email address is now established. The remaining work is to complete the pending email with the correct recipient and the newly captured photo, then send it.",
+      "screenshot": "screens/69d7769f2de6b5117830b8a9afae918f2ea89449d6409638f0dc0eba95caa323.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return directly to the Mail app to continue the existing draft.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/69d7769f2de6b5117830b8a9afae918f2ea89449d6409638f0dc0eba95caa323.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the unresolved recipient text with Henry Wright’s verified email address.",
+      "action": "replace_text(index=6)",
+      "reason": "",
+      "screenshot": "screens/d98f5761b9bf5fa81b32a34f01a43d59eb7719bcbe5c034c0bf190541b5101ba.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Remove the unverified existing attachment so it can be replaced with the specifically captured photo while preserving the draft and verified recipient.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/6af59686842d6a3610173037f5ffdc53c720e3c996eb668ddaf035a06149be57.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open attachment options to select the photo captured during this task.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/4a5958e9413eb9c9fdc2c7b4dec3088eec0774c6b34ea8482eea417aba6da193.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Photos to choose the newly captured image.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/3d4f4c883e007f4508cb278c4a8d78a977a536363eaad4776ea2c8097c194ade.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the Oct 16, 2025 12:01:09 PM photo; its timestamp and matching thumbnail identify it as the image just captured during this task.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/a029565c2e5c7bfc11ee2da1847d87e1e349ffb0152af5a615000564463ccc90.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add the selected newly captured Oct 16 photo to the existing draft.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/6e5ae3f5392b6ef24581fe76729b3613d39d81e9a8d23af9ebc5ad5fdae2b1c6.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the existing draft to henry.wright@harbortech.com with the selected newly captured photo attached.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/73fa646b86c6f03e4fdc221648727757e00690788507e4107afb882d3293ef29.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Captured a new photo and emailed it to Henry Wright at henry.wright@harbortech.com. The Mail app confirms “Email Sent.”",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/de365b650db5970e38245d0c305a903ce82ac6752027d740031f9fdfcb2f7903.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "A new photo was captured and sent by email to the user-approved Henry Wright address, henry.wright@harbortech.com. The Mail app confirms “Email Sent.”",
+      "action": "complete",
+      "reason": "A new photo was captured and sent by email to the user-approved Henry Wright address, henry.wright@harbortech.com. The Mail app confirms “Email Sent.”",
+      "screenshot": "screens/de365b650db5970e38245d0c305a903ce82ac6752027d740031f9fdfcb2f7903.webp",
+      "screenNumber": 33
+    }
+  ]
+}

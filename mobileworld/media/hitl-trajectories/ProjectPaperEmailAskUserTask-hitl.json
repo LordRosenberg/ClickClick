@@ -1,0 +1,361 @@
+{
+  "task": "ProjectPaperEmailAskUserTask",
+  "variant": "hitl",
+  "screenCount": 35,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 34
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "请告诉我这些以 project 开头的 PDF 要移动到哪个文件夹（请提供文件夹名称或路径）？",
+      "question": "请告诉我这些以 project 开头的 PDF 要移动到哪个文件夹（请提供文件夹名称或路径）？",
+      "answer": "请移动到 `Documents/archive` 文件夹。",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/383b4c93bce3d54d86e87d2f861e9b2c93c893babd27a43a6f0e748012ab9043.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "在 Files 中查找手机 `Documents` 文件夹内所有文件名以 `project` 开头且扩展名为 PDF 的文件，并将每个匹配文件移动到 `Documents/archive`；保留其他文件不变。",
+      "action": "execute",
+      "reason": "先完成文件整理，再根据整理后的文件夹内容发送邮件附件。",
+      "screenshot": "screens/7214cd35d1992e6f3b025c659967316091c7f436b19b5eef510df50f47419ca9.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Files，开始在 Documents 中查找并移动匹配的 PDF。",
+      "action": "launch(app=com.google.android.documentsui)",
+      "reason": "",
+      "screenshot": "screens/7214cd35d1992e6f3b025c659967316091c7f436b19b5eef510df50f47419ca9.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开存储位置侧栏，以进入设备上的 Documents 文件夹。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/3fa844fb7faf667e6528d907a51b51f360de08e57865962076f30f846a385162.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入设备存储根目录，以按实际路径打开 Documents 文件夹。",
+      "action": "tap(index=24)",
+      "reason": "",
+      "screenshot": "screens/bf901adc2689ef7c6ef062c74045e9cc27528b8736994c9160e8e1794bdf0f23.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开设备存储中的 Documents 文件夹。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/3280c1d530599731bf9bfba6776da48bcf2e6e8f1c68ab0016d7d226ead6342b.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "向下浏览 Documents 列表，查找所有以 project 开头的 PDF，同时保持可见内容重叠以避免遗漏。",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/b5f2db397089247892865eb779b9b2d8ad3fb0e2a2865048aeefa45d82a33af9.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "直接在 Documents 范围内搜索 project，以确认是否存在列表中未显示或位于子文件夹内的匹配 PDF。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/208677a7b2a24e44c6960fc5561c21f76ce5b174511e5c74b64864dead24cf38.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在 Documents 搜索框输入 project，筛选名称匹配项。",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/f27afb67885371589eeebefc31a7388bbf355a68fda517fa06f5fe28ddff535c.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收起键盘以查看并核对搜索结果底部的其余匹配文件。",
+      "action": "key(key=back)",
+      "reason": "",
+      "screenshot": "screens/2414451b4c739f30653b1426cbeef99c2a1739e863132b5a6581e31e592ba1fe.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "开始多选三个符合条件的 PDF，先选中 project_final.pdf。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/b5cad8145895c1df1ecb3ec64f9fe71598c112720d20b93e86e9322a942f879b.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将 project_v1.pdf 加入当前多选。",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/565ef4402908cf632e23aad9f6a82ab1ebcc11e62d241a45399f9cbeddc78942.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将 project_v2.pdf 加入当前多选，完成三个目标 PDF 的选择。",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/9b8f7edafee2f4dc4637f6f1694eaf1737abb25e7964285b562606f18c7a5c65.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开三个已选 PDF 的更多操作菜单，以选择移动操作。",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/1d53701667ae9ce9e866d14c6272b70dca8c92fc04166663cab66b8fbe3131a4.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择“Move to…”以进入目标文件夹选择界面。",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/7bd7382463a9679f3450eb6512072aeda80d678de68b61fc1f6671f9de475887.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开存储位置侧栏，以从 Downloads 切换到设备存储并进入 Documents/archive。",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/60f144547f8d5bbaf722144328cc0a44d499b0a64412b168f3f89b8aa7a23b8e.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择设备存储根目录，以继续进入 Documents/archive。",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/314c7d2f61ccb5294702ced5a9166ba0360e6a6cb4354ebdc1fc2d4bbb0d8575.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入设备存储中的 Documents 文件夹。",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/8d403001e7ca8258cf07ec91deef71df6d4f255f011818ff11b645c26a15741f.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "进入 Documents/archive 目标文件夹。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/3b8f53207dcae00cf3892b3b782751d7159f99a658b5273d2fe328c29b90a59f.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "确认将已选中的 3 个 project*.pdf 移动到 Documents/archive。",
+      "action": "tap(index=7)",
+      "reason": "",
+      "screenshot": "screens/a0b949587c7b61db19bca9153a7f1fb0ab8fe66162dec53a4db0d35f284dd6c8.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "退出搜索结果，准备到 Documents/archive 核实移动结果。",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/b66c45e5559ea87676f86df3532652a92f0b39251034406b898b59c1f7c6b75b.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开 Documents/archive，核实 3 个 PDF 已移动且记录文件夹内全部文件。",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/3a3bd8c43ede75f0faf36080acc59a2286372029e98d6a04d0dbb3a64576139d.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "已确认 3 个匹配的 PDF 均成功移动到 Documents/archive，且其他搜索结果未移动。目标文件夹当前共有 4 个文件，可供下一阶段全部发送。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f387cf77a8ad582d91d9204625ce7eb7464eaf027b42e8ce32189d94ecb6f80c.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "从当前 `Documents/archive` 中选择并发送全部 4 个文件（`archive_657.txt`、`project_final.pdf`、`project_v1.pdf`、`project_v2.pdf`）给 Catherine，使用支持收件人与标题/主题字段的发送应用，并将标题/主题设为 `project`；不得遗漏任何文件。",
+      "action": "execute",
+      "reason": "文件移动已完成并确认，继续完成向 Catherine 发送目标文件夹全部内容的剩余要求。",
+      "screenshot": "screens/0459447fbf0127e0f9498ea70621bf809b1d48f2eb8f9404c5787bd88cbe15c7.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "长按第一个文件进入多选模式，以便选择 archive 中全部 4 个文件。",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/0459447fbf0127e0f9498ea70621bf809b1d48f2eb8f9404c5787bd88cbe15c7.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "打开选择模式的更多选项，准备使用“全选”选择 archive 中全部 4 个文件。",
+      "action": "tap(index=15)",
+      "reason": "",
+      "screenshot": "screens/4d33b8d7b576bf4e7593a9312d171b542f46cf434ff013a5382af49e325b8400.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择“Select all”，选中 archive 中全部 4 个文件。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/16b528029f3075f0ee0d741e7bd5cc2070a2309102c3170e67ff8d3e7b8d61ae.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "已确认 4 个文件全部选中；点击 Share 打开发送应用选择器。",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/622ba9ebceb3afa0ff4fe931056cd4017e2bd91dd7651929b5dc8c953a58d5f5.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "选择 Mail，以便填写 Catherine 收件人与主题 project，并保留全部 4 个附件。",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/bf120bda3ad1556f971d121c07b966c495a0a9da94f8fe93d16ebe76fed7851e.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "聚焦收件人字段，准备输入 Catherine 并使用 Mail 的联系人解析结果。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/da9be41071e52360efc1906e46f6efb2f2a0e5de90c7639992e4d6996413c994.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "在已聚焦的收件人字段输入 Catherine，以获取并选择对应联系人。",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/9cde961d7bcd8e015215a4fa9f921acd60ffcdf9a45825c23f2c68ec43433ced.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "提交收件人名称，让 Mail 将 Catherine 解析为已知联系人；随后将核对解析后的实际收件人。",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/e2289a44eeac0ed564f50bc653df69412ca6776dc2c4d28eed39248ac202ff5f.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "请提供 Catherine 的电子邮件地址。",
+      "question": "请提供 Catherine 的电子邮件地址。",
+      "answer": "Catherine 的电子邮件地址是 `catherine@techshare.com`。",
+      "round": 30,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/3e888c6ce989766925f577bfb5a87f971613aa8ae55ead6bdd6feb1fbdde9f60.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将未解析的收件人姓名替换为用户提供的 Catherine 实际邮箱地址。",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/c889beaed7165dfaaaba61744eeef73423990f600b3d58db89c0105901f894da.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "将邮件主题准确设置为 project；4 个附件仍全部保留。",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/d7afc978d21a231894ba22079038e38bc3268c18aa313d8742a306e6a670c285.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "收件人已设为 catherine@techshare.com，主题为 project，且 4 个文件均在附件列表中；点击发送。",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/68bcca3b30fec2065ef2aa24f573ad9e4fe431e4c60c60077b2cbb134f955451.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "任务已完成：Documents 中 3 个以 project 开头的 PDF 已移动到 Documents/archive；该文件夹内全部 4 个文件（archive_657.txt、project_final.pdf、project_v1.pdf、project_v2.pdf）已作为附件发送至 catherine@techshare.com，主题为 project。当前界面明确显示“Email Sent”。",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/3a0d5f11f2460dcfde0ca599f89986ea3efb78aec1b0cf7952c7aed392941a7e.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "已完成：Documents 文件夹内 3 个以 project 开头的 PDF（project_final.pdf、project_v1.pdf、project_v2.pdf）已移动到 Documents/archive；该目标文件夹中的全部 4 个文件已发送至 catherine@techshare.com，邮件主题为 project，界面已明确显示“Email Sent”。",
+      "action": "complete",
+      "reason": "已完成：Documents 文件夹内 3 个以 project 开头的 PDF（project_final.pdf、project_v1.pdf、project_v2.pdf）已移动到 Documents/archive；该目标文件夹中的全部 4 个文件已发送至 catherine@techshare.com，邮件主题为 project，界面已明确显示“Email Sent”。",
+      "screenshot": "screens/3a0d5f11f2460dcfde0ca599f89986ea3efb78aec1b0cf7952c7aed392941a7e.webp",
+      "screenNumber": 34
+    }
+  ]
+}

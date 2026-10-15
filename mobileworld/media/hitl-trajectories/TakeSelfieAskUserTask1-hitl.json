@@ -1,0 +1,231 @@
+{
+  "task": "TakeSelfieAskUserTask1",
+  "variant": "hitl",
+  "screenCount": 20,
+  "roleCounts": {
+    "Planner": 5,
+    "Executor": 19
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Take and save a new selfie using the front-facing camera, retaining the resulting photo for sharing.",
+      "action": "execute",
+      "reason": "First obtain the requested selfie; the resulting photo is required before composing the email.",
+      "screenshot": "screens/f914a08b5c21998e1571a39f41fef83c24c5dad99d2d79dc1bde5249204f2aec.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the Camera app to take the requested selfie.",
+      "action": "launch(app=com.android.camera2)",
+      "reason": "",
+      "screenshot": "screens/f914a08b5c21998e1571a39f41fef83c24c5dad99d2d79dc1bde5249204f2aec.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Disable optional photo location tagging before continuing camera setup.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/9e487f444264115bfbcae9c4f124cc94801da4a3252481267dad3accd6df4e9b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue camera setup with location tagging disabled.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/5b789641b06be9c271a4d56b4b1a7a23661b650687799a0d6b9105f8fa7f2517.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open camera options to switch to the front-facing camera.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/0d0c596a7538f3509d027daa1b6081ca1d4e4d1146f6fc8e4cc42a001b1c9c25.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close the options panel to restore the full camera controls and locate the camera-facing switch.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/82be2eafe55944e489892e60c92f58ae62516386205a27bc5402d371fb5aba8e.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the camera's mode/settings drawer to look for the front-camera control, since no facing switch is visible on the main controls.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/544305e04eebb3e2662aad3b5b76bbebde5dae037b154e19b411b90882e69d0c.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to Camera after the edge gesture navigated Home.",
+      "action": "launch(app=com.android.camera2)",
+      "reason": "",
+      "screenshot": "screens/cd9ebcabd4de27ce0fe5aa6a4822636a7542ddefc8f75bb2c1393b7470b3f270.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Tap the visible top-right camera-facing toggle to switch from the rear camera to the front camera.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/db64ba11e40f2309245d2328defed90b7dafad839142a4bae25b1d29a97c03f5.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use the camera preview's standard double-tap gesture to switch camera facing, since no front/rear toggle is exposed in the current controls.",
+      "action": "double_tap",
+      "reason": "",
+      "screenshot": "screens/6d1df74c5027aba68217590e02f70e0bba5fa63e47d7f99b31ad43b72392317b.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Capture the centered selfie now shown in the camera preview.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/c37e0d904fae599240dbb0c870413bee8dad3ab7d105fd1c8f83df8123ecf864.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Captured a new photo in Camera; the newly populated thumbnail confirms the resulting image was saved and retained for sharing.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/81471c97001b755072922dbd5fed3fc82f57ee187332b47200fdccc577c17b69.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Share the newly saved selfie as an email attachment to Jimmy and send it. Resolve Jimmy only through a unique supported email recipient suggestion/contact; if no unique destination is resolved, stop before sending and report the ambiguity.",
+      "action": "execute",
+      "reason": "The selfie is saved; the remaining work is to email that photo to Jimmy.",
+      "screenshot": "screens/a2e8b10ac0b70766e8cdc7fedfbfb625a686a57aa80a51b090f944f3c859bc9e.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the newly saved selfie from Camera so it can be shared as an email attachment.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/a2e8b10ac0b70766e8cdc7fedfbfb625a686a57aa80a51b090f944f3c859bc9e.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Android's share chooser for the displayed newly saved selfie.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/aa95fa54e38ede608c210e6a8a213a382493c50f0f2de9dd1602e72a6241330e.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Mail from the share chooser to compose an email with the selfie attached.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/33c3c5ad65a922d2293b102c725f638d579c826a636f65d3567508172ff731c8.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Jimmy in the recipient field to resolve a unique supported email contact suggestion before sending.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/f6574c0344369f1c1b819cf9c86beea0a81f0c4e89697b0ca9ebd6e838e63a4f.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Stopped before sending. Entering “Jimmy” in the To field produced no supported recipient/contact suggestion, so Jimmy’s actual email destination remains unresolved; the visible text is only the typed name, not a confirmed address. The selfie remains attached as IMG_20251016_120231.jpg. A specific email address or uniquely resolvable contact is required to continue.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/75c151f3666a300ccdba0a8b7e0684fd1ecee479a910e6d585f77fd871f4fa8a.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What email address should I use for Jimmy?",
+      "question": "What email address should I use for Jimmy?",
+      "answer": "jimmy.wang@example.com",
+      "round": 15,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/e3738bb134b634249a554883bc0e98a39499b664d9a838e6b172cdbaaf752c72.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Replace the unresolved recipient text with jimmy.wang@example.com, keep IMG_20251016_120231.jpg attached, and send the email to Jimmy.",
+      "action": "execute",
+      "reason": "Jimmy’s email address is now supplied, so the attached selfie can be sent to the resolved destination.",
+      "screenshot": "screens/a969152f5e5162b2059c1bbf7fef14abbba582cd5550c960d41e24e0d0994f99.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the unresolved recipient name with Jimmy's supplied email address while preserving the attached selfie.",
+      "action": "replace_text(index=6)",
+      "reason": "",
+      "screenshot": "screens/a969152f5e5162b2059c1bbf7fef14abbba582cd5550c960d41e24e0d0994f99.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the email to jimmy.wang@example.com with IMG_20251016_120231.jpg attached.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/1774844bdf59b0352d861019d297496cf089ec2ee44d6dd10d3d8c61f6dd6526.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to jimmy.wang@example.com with IMG_20251016_120231.jpg attached, as confirmed by the app’s “Email Sent” result.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/a972a19a3bd11e28bb4719be8f2f4d21539b263804856f0f60fa3fb14c523e65.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Took and saved a new selfie, then emailed it to Jimmy at jimmy.wang@example.com with IMG_20251016_120231.jpg attached. The Mail app confirmed “Email Sent.”",
+      "action": "complete",
+      "reason": "Took and saved a new selfie, then emailed it to Jimmy at jimmy.wang@example.com with IMG_20251016_120231.jpg attached. The Mail app confirmed “Email Sent.”",
+      "screenshot": "screens/a972a19a3bd11e28bb4719be8f2f4d21539b263804856f0f60fa3fb14c523e65.webp",
+      "screenNumber": 19
+    }
+  ]
+}

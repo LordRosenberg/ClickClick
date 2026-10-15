@@ -1,0 +1,424 @@
+{
+  "task": "ScheduleOneOneViaSmsAskUserTask",
+  "variant": "hitl",
+  "screenCount": 43,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 43
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Calendar, find the one-on-one meeting invitation from the user's boss, record its date/time and invitation context, then compare its interval against calendar events for an actual overlap (touching endpoints do not conflict). If an overlap exists, retain the conflicting event and the person who must be notified; do not send any reply yet.",
+      "action": "execute",
+      "reason": "The invitation and its interval must be identified before determining which conditional message, recipient, and channel apply.",
+      "screenshot": "screens/d79c6bd5b4a1cb43d782bfbe14f7a5a3177ab88e03cd7c2903090afea30407b1.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Calendar app to locate the one-on-one invitation and check for overlapping events.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/d79c6bd5b4a1cb43d782bfbe14f7a5a3177ab88e03cd7c2903090afea30407b1.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the calendar for the distinctive one-on-one invitation title.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/be64d363cb32f5c57a63f2ba28e4878df1f65eae10bbee0baf8506a2a316fd1c.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Broaden the search to likely meeting wording after the exact one-on-one phrase returned no results.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/ec6da2f28aab826b981956f8335543a5f46248251d736311c2cb5893908e8c67.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the matching “Meet with Sam” event to verify whether it is the boss's invitation and inspect full details.",
+      "action": "tap(index=57)",
+      "reason": "",
+      "screenshot": "screens/f1b7f2900ab2e5d486b68febcfdacd039e2e5d0096fd790f57a2fc1d0333d199.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to search because “Meet with Sam” has no invitation or boss context and cannot yet be identified as the requested one-on-one.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/67a8381611e16e29e5c2653a9ee38379f5d32f2caddec28f08115122fd300d9b.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close the scoped search so the chronological event list can be used to inspect upcoming events under other possible one-on-one titles.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/3d0c8fe032e343edddd35b549cb1d463211311705765eb59d47abcb54a35332d.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Change view to switch to the chronological event list and inspect complete event titles and times around the upcoming invitation.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e9cf6f2ee86521a304709f126409151d3b2e5566393f00c9c30a6870b2fc2d4e.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch to Simple event list for chronological inspection of complete upcoming event titles and times.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/6f2d152d74289d91ba2cac9c2fd3651712721c5eec04ab49276169ddbf859e1c.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search calendar fields for \"boss\" to identify the invitation by organizer or invitation context rather than title alone.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/305b480e927895c83e28f5952c33bdaa16f5198436f5fa008957529a5aac9c2c.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search calendar event fields for \"invitation\" to locate the requested invite by its stored context.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/03ff6cb7d920a061f04617a5d4b62e7bc59d709061c4f96ec96f37691387ea01.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for the common one-on-one title variant \"1:1\" to locate the boss invitation.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/2ee5e57be0f4019e843fd46975be3c11c13c7479a13c9eaebaba1c89e023da46.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the common unhyphenated title variant \"one on one\" to identify the invitation.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/430bf9e6dbd5d09ee184aa2e695da06fdb7062c7020443ccc8b69ea82f0f3a80.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search calendar fields for \"manager\" as another likely invitation-context marker before determining whether the boss meeting can be identified.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/d5b06cc4eb7ade4428d8e6aed9440482b5d4fe920f48a4a1bbb89317be053407.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What is your boss's name, or what title does the one-on-one invitation use?",
+      "question": "What is your boss's name, or what title does the one-on-one invitation use?",
+      "answer": "My boss's name is Marry.",
+      "round": 14,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/007ac565253d345cc27b86a0a580800b6d27fdd77c9772a982baa3739594c99f.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Calendar for the user-supplied boss name, \"Marry,\" to identify the one-on-one invitation.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/8f732c2e7a8ac1071299a93d4950aa173b5affb16066511023b16427bc5351dd.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "What date/time is Marry's invitation scheduled for, or what exact event title appears on it?",
+      "question": "What date/time is Marry's invitation scheduled for, or what exact event title appears on it?",
+      "answer": "I don’t have that information. Please check Marry’s invitation in the calendar.",
+      "round": 16,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/f996f4f4457b42f66c74a9fdd2d4e01fd872bbf353c262b134bd1f9c37ca29f2.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search another common one-on-one title variant, \"1-on-1,\" because the user has no date/title and the boss-name search returned no match.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/fd9d65a6f40ff74a78a7f09284257db1f40c8feee0531aec5f7702332889921a.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the broader title keyword \"meet\" to inspect all meeting candidates because common one-on-one variants and the boss's name are absent.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/63a08280a647de2aed56419c2903dc9dfd22431e5e2ace522e5c778ff3b8b322.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for \"sync,\" another common one-on-one title/description term, because the broad meeting search only found unrelated candidates and \"Meet with Sam\" does not match boss Marry.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/0edc1ae25be90d37416d378f5c876e78f9bb31465231aa8155aeca170e4623a2.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the common one-on-one wording \"catch\" to locate a differently titled invitation; the only \"sync\" match is the unrelated Team Standup.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/83364fd00816886ae1b4e92a4461d4c4151ac7081f2f14f35358f3bcbd7a392b.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for events containing \"with\" to find person-specific meetings that may omit Marry's name and one-on-one wording.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/487a12429813d637daa6feed347d0fb95c86b450e36b13003f270f8a6d97b676.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for performance-review wording, another plausible one-on-one title, since person-specific matches only show Sam and Sarah rather than boss Marry.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/ffb2d284047202ae7a3b836a84160e116df698f1dccb20c3b88ed92f529640d0.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the likely single-r spelling variant \"Mary\" because the calendar has no match for the user-provided spelling \"Marry\".",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/39b1514d35d75efdb3b85420bbb0633baa269a6119a5876e48b4b03d2d7d9118.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search for common one-on-one wording \"check-in\" after both spellings of Marry/Mary produced no calendar match.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/274ab4ceb2872ec18b21565a1cab64e6d922da235676ddc0004ad8a3ce67cfd8.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit the unsuccessful keyword search and inspect the chronological event list directly for invitation-like entries.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/b7224bf59629ade0ff81797f95178894d807c7e402e6b5f24773593e5f68f870.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the chronological event list beyond October 24 for an invitation-like entry that may use unexpected wording.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/d342cf89b40e829c16482bb83007e9473c80ca6b574c835b0a20e4bf514a940e.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue the chronological scan past October 25; no invitation context is visible yet.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/455c4bbef3a4a064b86f7b806ae57b4838edbd0a6ee3b93fffd131168c3444a3.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the chronological list beyond October 26 for Marry's invitation under an unexpected title.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/3116937b16e99a38832a1c146ac36025122329ae9bf47f4bb66b61225e0a5d6a.webp",
+      "screenNumber": 27
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning the remaining October events for a one-on-one invitation from Marry under an unexpected title.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/01a43b1284116acd9d9ea1a4686869147d68e20d000b40ea95a2d1958eb634c2.webp",
+      "screenNumber": 28
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning past October 29 to cover the remaining chronological events for an invitation from Marry.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/ad6547503b523e9b8753b68ba4e5d8f9dbe8b5874d8211eaba50ae73732654ca.webp",
+      "screenNumber": 29
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning through the end of October and upcoming events for Marry's invitation.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/50e28f51c7a4fab8e0fc5dfa347674828ed6292f8adbd38fd123efb90872010d.webp",
+      "screenNumber": 30
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue to the bottom of the event list to determine whether any later event identifies Marry's invitation.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/e5294808c43be186cc7c5562439d3d412086a7c01ccfcda796947fb9d4b2407a.webp",
+      "screenNumber": 31
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning November events because no October entry identifies Marry or a one-on-one invitation.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/64ebde1f70028b062d08062b3a28a40951098af12f0501b25fa55bd13c675c41.webp",
+      "screenNumber": 32
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Advance farther through November to look for any non-recurring event that could identify Marry's invitation.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/c539604ab29bb1107605129355d230b8076ebbd64676cc50a87653af38f93d47.webp",
+      "screenNumber": 33
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the chronological list; November 7-15 contains only the recurring Morning run and no identifiable invitation.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/7c6126f6704561f0ec2da499bfcab9a01b820854a144f6cc665614f313a4d900.webp",
+      "screenNumber": 34
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return the chronological list to today so the unchecked October 16-19 interval can be inspected for Marry's invitation.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/288a6a8db612660453b5d6e1e8783a4bb7b41c60492c63f840dc9df9b9294a8e.webp",
+      "screenNumber": 35
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect the days immediately before October 20, starting from the current date, for the still-unidentified invitation.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/8153d849a19ff9eb443a6a8555c2ce73c48bba8741bd93cd8f23fc1ce2ec6a7a.webp",
+      "screenNumber": 36
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue upward to expose the current-date interval; a multi-day Conference in Paris ending October 15 appeared, but no Marry invitation is yet visible.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/6e5fc3620b1e03b5bbd76d33892f19099c0cfa9aa8240fa4565a32aac3bad4cb.webp",
+      "screenNumber": 37
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scanning earlier dates because October 4-19 contains only multi-day conferences and no event identifying Marry or a one-on-one.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/81738f094e32badd2494921d177d733ef993696096bb4f5005dbec634adeb390.webp",
+      "screenNumber": 38
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Calendar options to check whether the invitation may be on a currently hidden calendar, since the current-date list and targeted searches do not show Marry's invitation.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/7a6c743c3fea4701c93a290f18302b84e882952acf63e881e677b22bcd721819.webp",
+      "screenNumber": 39
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect Calendar settings for visible-calendar or event-source controls that could explain why Marry's invitation is absent from the list and searches.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/c202030e1aedee6ba733771a4d6560ff03211c40d3fe5adee623a9139fae426a.webp",
+      "screenNumber": 40
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Manage event types to determine whether any event category or source containing the invitation is hidden.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/97ac61f169bcc784a002c0d84818dc7bcf6489fdd603451bd08eb15c3f19418e.webp",
+      "screenNumber": 41
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Blocked: Calendar contains only the visible “Regular event” type, and targeted searches for Marry plus common one-on-one/invitation wording returned no items. The chronological list around the current date (2025-10-16) also contains no event identifying Marry; “Meet with Sam” has no invitation/boss context. The invitation’s date/time and reply target therefore cannot be established, so neither conflict determination nor either conditional message is safe.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/609b7622d3b95f8728121ba806743ec79b004db66370003f99a8a32bb1e093d5.webp",
+      "screenNumber": 42
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Calendar does not expose an identifiable invitation from Marry: targeted searches for Marry and common one-on-one/invitation wording found no items, the chronological inspection found no event tied to Marry, and “Meet with Sam” contains no boss or invitation context. Because the invitation’s date/time and reply channel cannot be established, a scheduling conflict cannot be determined and neither “OK” nor the conditional SMS can be sent safely.",
+      "action": "inconclusive",
+      "reason": "Calendar does not expose an identifiable invitation from Marry: targeted searches for Marry and common one-on-one/invitation wording found no items, the chronological inspection found no event tied to Marry, and “Meet with Sam” contains no boss or invitation context. Because the invitation’s date/time and reply channel cannot be established, a scheduling conflict cannot be determined and neither “OK” nor the conditional SMS can be sent safely.",
+      "screenshot": "screens/609b7622d3b95f8728121ba806743ec79b004db66370003f99a8a32bb1e093d5.webp",
+      "screenNumber": 42
+    }
+  ]
+}

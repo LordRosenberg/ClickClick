@@ -1,0 +1,227 @@
+{
+  "task": "ScheduleLunchViaSmsAskUserTask",
+  "variant": "hitl",
+  "screenCount": 21,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 21
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Messages, locate the text conversation containing the received lunch invitation and send the exact reply \"OK\" in that same conversation.",
+      "action": "execute",
+      "reason": "First handle the requested text reply; the invitation thread can be identified from the message content in Messages.",
+      "screenshot": "screens/c5efe3fed7a434cd7861ffd379dcca65dc88f91f14929bb171a4f9e1ebb14051.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Messages to locate the conversation containing the received lunch invitation.",
+      "action": "launch(app=com.google.android.apps.messaging)",
+      "reason": "",
+      "screenshot": "screens/c5efe3fed7a434cd7861ffd379dcca65dc88f91f14929bb171a4f9e1ebb14051.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the conversation whose message explicitly invites the user to lunch.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/ae6ff371f0df37288ddb188474707eb771e63fb38fd639ecb81293d97a780ac8.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested reply in the lunch invitation conversation.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/2198e18f81077c8ada2ff13252076ad3626e9f4ed9a6dbbef26f9a3628389c47.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the exact reply \"OK\" in the identified lunch invitation conversation.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/a6756e68af5fd71c9f025926ffdc3861d18dbc337a6bb2500164151675b5a172.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent the exact reply \"OK\" in the conversation with (505) 123-4567 containing the received lunch invitation. The sent message is visibly present as \"You said OK\".",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/16beed82475b757fe9361f062cb7467044c822b37aae856a6b7200536904e018.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and save a distinct calendar event titled \"Lunch\" starting Oct 16, 2025 at 11:00 a.m. and ending at 12:00 a.m. (midnight at the start of Oct 17), preserving the user's exact stated endpoints.",
+      "action": "execute",
+      "reason": "The exact reply \"OK\" is visibly sent in the lunch invitation conversation. The calendar event remains to be created with the explicitly requested 11 a.m. to 12 a.m. range.",
+      "screenshot": "screens/29538f1c3a2acfb1df842917fac7e829c97136b21a907c29fd92242383e80349.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to create the requested Lunch event.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/29538f1c3a2acfb1df842917fac7e829c97136b21a907c29fd92242383e80349.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-event editor for the requested Lunch event.",
+      "action": "tap(index=51)",
+      "reason": "",
+      "screenshot": "screens/479040e032c77cc2ce070174ee85a73ee1cbdb9f40b4c865ee9891788731c6dd.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Event from the expanded New Event menu.",
+      "action": "tap(index=54)",
+      "reason": "",
+      "screenshot": "screens/30dd3b36bd47bb49591c38f57604b3dd88124a65673f7b0ee426d45f68ada5be.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the event title exactly as Lunch.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/cefa6d3b4134d0a54c31a6554425e8fff8629959c92f9ba1235e028999681696.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the start-time picker to set 11:00 a.m.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/1b64049299ea5c6e8b65a872021968d2b2424b9acb9f2dfc02be94ef9fbfe1a5.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the start hour to 11 in the time picker.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/d620bc96f45266897ff753e53e23d11ce01187996651fb7eb41a677e7ce2c09d.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch the selected start time from 11:00 PM to 11:00 AM.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/8c5b06beaca58fa8fd046796a7ba6f43f8a9f39347d5bfdd4eebeafe8e220f41.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the start time as 11:00 AM.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/07061567fdb51b8f634a65c031dfac2415f193ae029cbbe504d67092a05fc3fa.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the end-date picker to set the event's midnight endpoint to October 17.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/6735af54a85159d350883b4b663fc5797f86053f4d4ea0dd19125505234ec218.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select October 17, 2025 as the event end date.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/9711d35b5b38e1cab537fa0a83971328eca800bcf00050f98e0c92db518eef9d.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm October 17, 2025 as the end date.",
+      "action": "tap(index=36)",
+      "reason": "",
+      "screenshot": "screens/8e37d421bb7416f0bb36bc94aff6f7ad32fa4a9aa9662f37838ebc451d05751a.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the end-time picker to set the event endpoint to 12:00 AM.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/1de75a3d198964628a39fe473fb09019217085ec5fa2ce82246605e96309ca7c.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the end hour to 12 while retaining AM and 00 minutes.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/43b336ae0346ef4f1a6fd06e0783a73655ccc7868eb5077f700a35be4421aa4e.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the end time as 12:00 AM.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/a5ae2503b3548f72be1ec4016d39f966efabbf80042a211edff49de4b8edb5f9.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the distinct Lunch event with the confirmed Oct 16 11:00 AM to Oct 17 12:00 AM schedule.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/cec6fad3719e8a7bf281cfbe878356c0a34e02aee88f4faf2bad739598c4b927.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed both requested actions: replied \"OK\" to the lunch invitation, and saved a distinct calendar event titled \"Lunch\" for Oct 16, 2025 from 11:00 AM through 12:00 AM at the start of Oct 17. The saved event is visible on Oct 16 in the calendar.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/77f0740a41b2a5ff42e2e2f053092cfd2817310c410f03c28c5eeaff1490c516.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Replied \"OK\" in the lunch invitation conversation and created the distinct \"Lunch\" calendar event for Oct 16, 2025 from 11:00 AM to 12:00 AM (midnight at the start of Oct 17).",
+      "action": "complete",
+      "reason": "Replied \"OK\" in the lunch invitation conversation and created the distinct \"Lunch\" calendar event for Oct 16, 2025 from 11:00 AM to 12:00 AM (midnight at the start of Oct 17).",
+      "screenshot": "screens/77f0740a41b2a5ff42e2e2f053092cfd2817310c410f03c28c5eeaff1490c516.webp",
+      "screenNumber": 20
+    }
+  ]
+}

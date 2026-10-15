@@ -1,0 +1,141 @@
+{
+  "task": "CheckDistanceAskUserTask1",
+  "variant": "hitl",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What is the name of your hometown?",
+      "question": "What is the name of your hometown?",
+      "answer": "Hangzhou, Zhejiang, China.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/0dc401bbaaac09b5f7b79201de9d941a241034ad5651766c84a022f308c10dfd.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find the displayed driving-route distance in kilometers from Beijing to Hangzhou, Zhejiang, China, and retain that distance for the required response.",
+      "action": "execute",
+      "reason": "The user identified their hometown as Hangzhou, Zhejiang, China. The remaining task is to retrieve the driving distance from Beijing; no departure-time adjustment is relevant to a distance-only request.",
+      "screenshot": "screens/9596242158c4e964ec421085b2caa04474ea842af67e1dcc6cb25e29667bc15d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps to retrieve the driving distance from Beijing to Hangzhou.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/9596242158c4e964ec421085b2caa04474ea842af67e1dcc6cb25e29667bc15d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional sign-in to access Maps.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/14b3a615b694576c86da32a52be85e5713a410aa61e51093d65ef84972870ee5.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open route planning to enter Beijing and Hangzhou.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/2d27b05cdf8aacaa4d97911af1a760956845ecb1e92a81c79398ad1153398fa4.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Beijing as the driving route start point.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/5cc3afb994fad0c677e70a9b4769dcdcf50334a314996732b73c2e1302f98c84.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Beijing start-point field before replacing its text.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/5cc3afb994fad0c677e70a9b4769dcdcf50334a314996732b73c2e1302f98c84.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused start-point field with Beijing, China.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/b765276a7bfebc35689a66fde860f5fac12450afbdf63ac588a7d2ff43ada95e.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the Beijing, China city suggestion as the start point.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/57b0bc0e40c1480e0b992bda121355d30cad2682a85f023699ce205c01381e7e.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the destination field so Hangzhou can be entered.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/84f07b53c5e9e0cc1e55070d62685b4fb15f375cfa606baf2785c10f8f4ec352.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Hangzhou, Zhejiang, China in the focused destination field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/d95afb09ccdfa96812b43d333f90b5104e7568b733beab667ecf91030aa0700c.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the Hangzhou, Zhejiang, China city suggestion as the driving destination.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/72528d16e31765ca99b280fce2b2c5fe76ef85e425b90d883c39ce3bed9bff73.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google Maps displays the selected driving route from Beijing to Hangzhou as 1,277 km (12 hr 32 min). The required distance is established.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/e8297667825471cac7f05a4ba54fed04d86e5d1667192d906eb2d1e99b64b9a1.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "beijing to Hangzhou: 1,277 km",
+      "action": "complete",
+      "reason": "beijing to Hangzhou: 1,277 km",
+      "screenshot": "screens/e8297667825471cac7f05a4ba54fed04d86e5d1667192d906eb2d1e99b64b9a1.webp",
+      "screenNumber": 10
+    }
+  ]
+}

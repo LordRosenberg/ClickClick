@@ -1,0 +1,141 @@
+{
+  "task": "CheckDistanceAskUserTask2",
+  "variant": "hitl",
+  "screenCount": 11,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 11
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What city or town is your hometown (the driving origin)?",
+      "question": "What city or town is your hometown (the driving origin)?",
+      "answer": "Jinan, Shandong, China",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/9d878d2d4b88cfce53f6a4316011a527186b2d368e6a1f4f37582da702de328a.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find the displayed driving distance in kilometers for a route from Jinan, Shandong, China to Tianjin, China, and retain the integer kilometer value for the strict final response.",
+      "action": "execute",
+      "reason": "The clarified origin is Jinan, Shandong, China; retrieve the driving-route distance to Tianjin in Maps.",
+      "screenshot": "screens/eb31a477f569e3abcc11f6ac951012f6466cf079a63e131fb1daf1734bd2277d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps to retrieve the driving distance from Jinan to Tianjin.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/eb31a477f569e3abcc11f6ac951012f6466cf079a63e131fb1daf1734bd2277d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional sign-in to access Maps route search.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/bfc4fa9b6ad9ec8e5e245df3446ab957072f79d8b21606c032c07d600623e6e2.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open route directions to enter the origin and destination.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/95722f268ebd5acaf5e3d1ae889e3537eeea493b1eac9e47e83525f126fb924d.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Jinan, Shandong, China as the driving origin.",
+      "action": "replace_text(index=3)",
+      "reason": "",
+      "screenshot": "screens/3ef511639e2e8efa4a332d48ecf7af301c8373996a3a786a6f0ef9e6472b587d.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the start-location field before entering the origin.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/3ef511639e2e8efa4a332d48ecf7af301c8373996a3a786a6f0ef9e6472b587d.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused start-location field with Jinan, Shandong, China.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/25226774acb55894f2d118356bd9b4150b84eab429d01da00248ba13c29d58c4.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact Jinan, Shandong, China suggestion as the origin.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/b461ccab3932b47065f2f8587792dfc6de140fc84123bf2b7f917c010d21d786.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the destination field to enter Tianjin, China.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/acc26f3b5aca5cfe327689d21cd6ca883d0c721a7f09a91c073749606c0ea860.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Replace the focused destination field with Tianjin, China.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/43b7d61449605d579534f66a2db89cfad9899c37fdc9c6f8d737d50b1d8aa8bb.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the exact Tianjin, China suggestion as the destination.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/7ed88ae6bb398fa321d200caa0b1dc4b7857476e746dd2548ff7985875ff93fe.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "331",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d81b06d469432bd492ec0c436300a2155f65d2dfcfbe7ac2f87cebc8dfb5efa4.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "331",
+      "action": "complete",
+      "reason": "331",
+      "screenshot": "screens/d81b06d469432bd492ec0c436300a2155f65d2dfcfbe7ac2f87cebc8dfb5efa4.webp",
+      "screenNumber": 10
+    }
+  ]
+}

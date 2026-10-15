@@ -1,0 +1,285 @@
+{
+  "task": "SendPhoneNumberAskUserTask",
+  "variant": "hitl",
+  "screenCount": 27,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 26
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In the Phone app, find Kevin's contact and record his actual phone number for use in the email body, without modifying contacts.",
+      "action": "execute",
+      "reason": "Kevin's actual phone number must be retrieved before composing the requested email.",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Phone app to look up Kevin's contact and phone number.",
+      "action": "tap(index=12)",
+      "reason": "",
+      "screenshot": "screens/074d0f5ada093be7c36d5d96636dedf361656be719faf845e0771da615d1fd02.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Phone app's contact search field to search for Kevin.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/2dc11552d5b1d8b8aecad398f24356c8772476d65acd1d7f987693f404866998.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search contacts for Kevin using the focused Phone search field.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/cbc0c011807db2aeb00307aac4ed8d9a366b48fcbe10ab0f4bd500e195a71511.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the optional location-access prompt so contact search results for Kevin can be viewed.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/71e92547a6b1c6f477ad0bdf6ac8f68060dbb2a16e666854769a968a7588ad7f.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close the blank search overlay and use the Phone app's Contacts view as a targeted alternative to find Kevin.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/9acc4021567583d7a8158651010468647ea1dd561b6a78c2f998ed894fc0a124.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Phone app's Contacts tab to locate Kevin directly.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/52abc7c9831411bb15d35b3aa6f4d6816a8102b5cdf68eec709b31a78797658e.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the Contacts list down from J to reach Kevin's entry.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/edc7caee7bba7df184db8a4634d206dd068eb2979eba7cd872351ab05ce1b8ac.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use search from the Contacts tab to check for Kevin, since the alphabetical list currently jumps from J to L.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/c05c79bae309406c46fff426a0f1f71009c12fc06a58481d10115487171492b9.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Kevin in the focused Contacts search field to retrieve any matching contact.",
+      "action": "type",
+      "reason": "",
+      "screenshot": "screens/7c4b5dfc9a532fbe10f3d6525fcbb7e1064b8c8fe8e5342fb3db0bc0a5b83fe9.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Phone Contacts has no Kevin entry: the alphabetical list advances directly from Jessica Lee (J) to Leonard Hofstadter (L), and a scoped search for exact text “Kevin” returns no result. Kevin’s phone number therefore cannot be retrieved in the current Phone-app route; choose another supported source or clarify which Kevin if needed.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d70b7a00157aa06fbe31144875bf6849f61fef81ac22c4ada7a5bfb024ed3d0f.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Kevin is not present in the device’s contacts. Which Kevin do you mean, or what phone number should I send to Grace?",
+      "question": "Kevin is not present in the device’s contacts. Which Kevin do you mean, or what phone number should I send to Grace?",
+      "answer": "Kevin’s phone number is 15551234567. Send that number in the email body to Grace.",
+      "round": 10,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/d70b7a00157aa06fbe31144875bf6849f61fef81ac22c4ada7a5bfb024ed3d0f.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open the email app, resolve Grace as the recipient, and send an email with `15551234567` in the message body. Use the supported Grace contact resolution and preserve the number exactly; do not alter contacts.",
+      "action": "execute",
+      "reason": "The user supplied Kevin’s phone number, so the remaining work is to resolve Grace as the email recipient and send the requested email.",
+      "screenshot": "screens/20a0b70749361f5f2eebdeaa7ccb0be8caf49ce72a76dda0f625c39c2f9d79f4.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the specified email app to compose the requested message to Grace.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/20a0b70749361f5f2eebdeaa7ccb0be8caf49ce72a76dda0f625c39c2f9d79f4.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new email draft.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/46212d1dfd086df07552bec755cce08188d452e9e404b20a4a77ed5591da2a15.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Grace in the recipient field to resolve the supported contact.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/f7adc17bfbfa11250a0a76712c2c14270b06c2ff260cd9f3b072bb35aa286e44.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Commit the typed recipient so the email app can resolve Grace to her actual address.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/7f5081fca22630845e573810dab10b099dff7b63f3d3687843ceea64503ab5d9.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Refocus the recipient field to inspect and select Grace's contact resolution rather than sending an unresolved name.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/e381e4d9ad4be8511e1660e94a3dc8ab2d23d759b54540d122da17e251fb6a43.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Use Grace's full supported contact name to trigger recipient resolution in the email app.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/0406cf1ef65fbbe7bb78758b5582a65dfda066d57b445afe805868ae626485b1.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Commit the full Grace Hall recipient so the email app can resolve it to the supported contact address.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/b39a45e5f7ec5e010aba0b7f5dcf9171abdd1062cfc5084f82d9135ead31f793.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Inspect the supported Grace Hall contact for her actual email destination before sending; the draft recipient is still only unresolved display text.",
+      "action": "launch(app=com.google.android.dialer)",
+      "reason": "",
+      "screenshot": "screens/68addcf6fd21120e977affb86a042e48f9cddefcc37a5f96c6518bc3bd6aa40c.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search the contacts directory for the supported Grace Hall record so her actual email address can be read without modifying contacts.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/18963c67af07c431ae6cf823dac390f3a361a82cb6bb974ba35fd061eda3fc12.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the unique Grace Hall search result to read its supported contact details and obtain the actual email destination.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/2eaf5d3b59abeee83f4cfd73cf0bdc0207e22a4f118212eb33c2158dbd7488be.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the target email app; the Dialer confirms the supported Grace Hall contact but does not expose an email address, so recipient resolution must occur in Gmail.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/42796d2ea8133c857390c2f5849ae1bf0d8b148032d61baa5c7f0c94d82d0743.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the To field containing Grace Hall to inspect and complete Gmail's supported recipient resolution before entering the message body.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/e014bb1f2ad2de4591ba036d69467a78bd7f535cf8f71113dad16dedb4984b0a.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Commit the exact Grace Hall text in Gmail's To field so the app can resolve it to the supported contact recipient.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/ab27afb9e91ab499f2fe8ff1f3e99a84e25e3376d9ec0c4ec366c50e3bbeef52.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Kevin's phone number exactly as supplied into the email message body; Gmail has accepted Grace Hall as the committed recipient text.",
+      "action": "replace_text(index=7)",
+      "reason": "",
+      "screenshot": "screens/9bdc6d400431639a88a44481288483f2e234b7381d3f8cbea47ca6a8ed5b0fd5.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the composed email to the supported Grace Hall recipient with exactly `15551234567` as the message body.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/5f16c76f0862f8f4c6020b86f5963a3ba9f05a7665b22bbc2c3fca7c1bbee439.webp",
+      "screenNumber": 25
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email sent successfully to the supported Grace Hall recipient with exactly `15551234567` in the message body. Gmail displayed `Email Sent`; contacts were not altered.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/615b010f891375726c24313a316d23dcd8fc123c8d657a298ba5cea32165442b.webp",
+      "screenNumber": 26
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Email sent successfully to Grace with Kevin’s phone number `15551234567` in the message body. Gmail displayed `Email Sent`.",
+      "action": "complete",
+      "reason": "Email sent successfully to Grace with Kevin’s phone number `15551234567` in the message body. Gmail displayed `Email Sent`.",
+      "screenshot": "screens/615b010f891375726c24313a316d23dcd8fc123c8d657a298ba5cea32165442b.webp",
+      "screenNumber": 26
+    }
+  ]
+}

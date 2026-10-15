@@ -1,0 +1,150 @@
+{
+  "task": "CalculateCartPricesByOwnerAskUserTask",
+  "variant": "hitl",
+  "screenCount": 13,
+  "roleCounts": {
+    "Planner": 2,
+    "Executor": 13
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Open the 淘店 shopping cart, inspect all cart items and any layered detail pages needed to determine which belong to me versus my roommate, record each applicable price, and calculate both totals without changing the cart.",
+      "action": "execute",
+      "reason": "Need inspect the Taodian cart and its layered item details to identify each item's owner and price before calculating separate totals.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the requested 淘店 app to inspect the shopping cart.",
+      "action": "launch(app=com.testmall.app)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Close the unrelated cash-reward popup before opening the cart.",
+      "action": "tap(index=6)",
+      "reason": "",
+      "screenshot": "screens/b2a6ddd175d5b3697566d40e3d330fa349641a3481eeb9a8764d58ddb189413b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the shopping cart tab showing 20 items.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/8f0384c89d27bf34c62871f9c135b82f3017b8cda678c975360ab199b09e92cb.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the first cart item's detail page to find its ownership marker while preserving the cart.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/fdd6740cabbf9221d3d04ee80018a7737b981a5e22b4c47321899e9dc1311c7e.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Restore the first item's selection state after the prior tap toggled its cart checkbox rather than opening details.",
+      "action": "tap(index=22)",
+      "reason": "",
+      "screenshot": "screens/16d14ba465605fed3da2b49fe95407b56f637f7ea9edec2808827248de1ae6b9.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the first item's product details by tapping its visible name area, avoiding the selection checkbox.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/01f1a2d106026c5b029ea5ab0247700b938cb74913edb3f242f133af977f069a.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll through the cart to inspect the remaining items, prices, and any ownership labels.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/01f1a2d106026c5b029ea5ab0247700b938cb74913edb3f242f133af977f069a.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue scrolling through the 20-item cart to capture the remaining item prices and any ownership cues.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/29379b559db2b2f1a991ddb3ac802356329ef1e7bac05efe559a201d38e9f276.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue to the cart bottom to finish enumerating all item prices and inspect for ownership indicators.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/ad94e96ac2c5c66f17c8a24f3296b5593ef303645828b92ef2c2cee21fe82dfd.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the visible iPhone cart item's detail page to look for ownership information associated with the item.",
+      "action": "tap_xy",
+      "reason": "",
+      "screenshot": "screens/2b906e82f95331c5317006cc67fd2ec86af9ced3005ca49a99e9077249a26c68.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Question",
+      "summary": "How can I tell which cart items are yours versus your roommate’s (for example, which item names belong to each person)?",
+      "question": "How can I tell which cart items are yours versus your roommate’s (for example, which item names belong to each person)?",
+      "answer": "T-shirt-related items belong to my roommate; all other items are mine.",
+      "round": 11,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/9e301be0c2cffbf0cb679a079caa4bcd7948fa52de825aae679e1d5400e72e29.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll slightly upward to recover the partially obscured POLO-collar T-shirt price needed for the roommate total.",
+      "action": "swipe",
+      "reason": "",
+      "screenshot": "screens/e0cf39319a6876375a5de90cb1b35f6a53706505048c0b02ab510e94c0279c41.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "me:16282.92;roommate:754.00",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/20c4a4a72c5964f9a0cf0ed27426ceabeea2ca079b1da083006082640a000464.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "me:16282.92;roommate:754.00",
+      "action": "complete",
+      "reason": "me:16282.92;roommate:754.00",
+      "screenshot": "screens/20c4a4a72c5964f9a0cf0ed27426ceabeea2ca079b1da083006082640a000464.webp",
+      "screenNumber": 12
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "task": "CheckMeetingEventAskUserTask",
+  "variant": "hitl",
+  "screenCount": 21,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 20
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the full schedule for next week (October 20-26, 2025, preserving the phrase “next week”) and record every meeting involving another person, including its date/time, title, attendee identity, and any available email address needed for follow-up.",
+      "action": "execute",
+      "reason": "The schedule and recipient details must be identified before sending the requested cancellation inquiries.",
+      "screenshot": "screens/dc0a6166afb70912e244138a0bcb391fb3d86846a14b18bfd45306a55a697e0e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to inspect October 20-26, 2025.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/dc0a6166afb70912e244138a0bcb391fb3d86846a14b18bfd45306a55a697e0e.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the calendar view selector to switch to a chronological event list for full week coverage.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/de7cb4bb0bf26ddc9868af13c9da61c5809b683cc1ea90497b6034426de9b486.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Simple event list to inspect all events chronologically.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/cc9e89ec7b8ecc02732fc28f654785fae1b6f05a04569d52780c448fa42028ad.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Team Standup to inspect participant and email details.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/e7e994a4adffad2dc6db1637fb5c784f4d0b94ab8345a014636cd1a5471ad1de.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the event list; Team Standup has no attendee identity or email field in its full details.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/a8ac95c88c40fc0d2d9efe19f9c0d7e512e2c5fa62bc12baffc958f2b2ee14fd.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Meet with Sam to inspect its full details for participant contact information.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/58310460fa25113bbbadbb55fc2f32edc5c3c815dd06b9c1bba7bd085979afff.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the chronological list; Meet with Sam confirms Sam as the participant by title, Monday October 20 from 9:00-11:00 AM, but exposes no email address.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/c8a015f8d89c11fee8b184a87383f92591f3c353ed643a4505a9169ea9be902f.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue through the chronological event list to cover the rest of Friday and the weekend.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/aaeb62f4cc6b8cf540e0de8629be3e993e661a579bbc917d17af40d2e513fa6e.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll to the end of next week's range to verify all Saturday and Sunday entries.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/00e66e3d9a60139cc3d0b2d1f1a8e28da67485d6e9ecd2eecaa6e75c5ecb17ad.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Lunch with Sarah to inspect its full details for an attendee email address.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/09a2ca20d7d97e19e1893a018eb0611ed5c3ba3b6ff6e82e8f58c99735c273eb.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the schedule after confirming Lunch with Sarah has no attendee or email field in its full details.",
+      "action": "back",
+      "reason": "",
+      "screenshot": "screens/325966d16a122e318c03afbe0d4292627e383b157f131348945b38dc330937b4.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Project Review Meeting to inspect its full details for attendee identity and email.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/326079960426860f1e1ae71e391322d895fa5414422a367cbdac857e44649f5a.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed the full next-week schedule inspection for Oct 20-26. Found four meeting candidates: Team Standup (Mon 9:00-9:30), Meet with Sam (Mon 9:00-11:00), Lunch with Sarah (Wed 12:30-1:30), and Project Review Meeting (Thu 3:00-4:30). Sam and Sarah are identified by title, but no email addresses are available; Team Standup and Project Review expose neither participant identities nor emails.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4146850040cc396ee70f633f3309d08e6edf9cc3d722f5b114df3bf889d70a92.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What recipient email address should I use for each of these meetings: Team Standup, Meet with Sam, Lunch with Sarah, and Project Review Meeting? For Team Standup and Project Review Meeting, please also identify the intended person if needed to determine the address.",
+      "question": "What recipient email address should I use for each of these meetings: Team Standup, Meet with Sam, Lunch with Sarah, and Project Review Meeting? For Team Standup and Project Review Meeting, please also identify the intended person if needed to determine the address.",
+      "answer": "- Meet with Sam: `sam.smith@gmail.com`\n- Team Standup, Lunch with Sarah, and Project Review Meeting: I don’t have recipient details or enough information to identify an intended person.",
+      "round": 13,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/4146850040cc396ee70f633f3309d08e6edf9cc3d722f5b114df3bf889d70a92.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Email sam.smith@gmail.com about the next-week meeting “Meet with Sam” on Monday, October 20, 2025 from 9:00-11:00 AM, asking whether it can be canceled.",
+      "action": "execute",
+      "reason": "Sam’s recipient address is now supplied, so the supported cancellation inquiry can be sent; the other three meetings remain blocked by the user’s stated lack of recipient details.",
+      "screenshot": "screens/fd466247480880c128ca8cd3d70de941271408a98fd51ce1d8e81e76b9c3085e.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the email app to compose the requested cancellation inquiry to Sam.",
+      "action": "launch(app=com.gmailclone)",
+      "reason": "",
+      "screenshot": "screens/fd466247480880c128ca8cd3d70de941271408a98fd51ce1d8e81e76b9c3085e.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open a new email draft.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/c4197e709d69607adb446b9f1903d4fa67a04299f76b80787432a2fc4841147c.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Address the cancellation inquiry to Sam at the supplied email address.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/51d703e9095f9ebe65daf58234c1412124aec70d775e8ed22a46916a0bc3c4a6.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a clear subject for the cancellation inquiry.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/8658ce0d1118acba71a480c9036e34f85f85220a7b8551c2022e6b1551b37e1c.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Write the cancellation inquiry with the meeting date and time.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/8ad8c7498b28f77f8aba6e0b0d7676301af7906545209d5031fae99c722bd990.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed cancellation inquiry to Sam.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/bb8e6c8aa0774d8f1e46b3d05525380420746ced8d3c361b2b7f2d593e6172ec.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Sent the cancellation inquiry to sam.smith@gmail.com for “Meet with Sam” on Monday, October 20, 2025, 9:00-11:00 AM. The app confirmed “Email Sent.” The other identified meetings remain without recipient details, as the user stated.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/f240879fa2536733b2144bd74393ee3be3ae65a168df4503ab0434a5400a2b9f.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Checked next week (October 20-26, 2025) and identified four meeting candidates. The cancellation inquiry for “Meet with Sam” on Monday, October 20, 9:00-11:00 AM was sent to sam.smith@gmail.com, with the app confirming “Email Sent.” Inquiries for Team Standup, Lunch with Sarah, and Project Review Meeting could not be sent because the calendar contains no attendee email details and the user stated they do not have recipient details or enough information to identify the intended recipients.",
+      "action": "inconclusive",
+      "reason": "Checked next week (October 20-26, 2025) and identified four meeting candidates. The cancellation inquiry for “Meet with Sam” on Monday, October 20, 9:00-11:00 AM was sent to sam.smith@gmail.com, with the app confirming “Email Sent.” Inquiries for Team Standup, Lunch with Sarah, and Project Review Meeting could not be sent because the calendar contains no attendee email details and the user stated they do not have recipient details or enough information to identify the intended recipients.",
+      "screenshot": "screens/f240879fa2536733b2144bd74393ee3be3ae65a168df4503ab0434a5400a2b9f.webp",
+      "screenNumber": 20
+    }
+  ]
+}

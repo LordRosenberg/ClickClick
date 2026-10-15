@@ -1,0 +1,114 @@
+{
+  "task": "DeleteEventAskUserTask",
+  "variant": "hitl",
+  "screenCount": 8,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 7
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the Calendar schedule for October 20, 2025 (the requested 10/20) and record all events with enough identifying details for the user to choose among them; do not delete anything yet.",
+      "action": "execute",
+      "reason": "The requested date is resolvable, but the events to remove are materially unspecified. Inspecting that date first will provide grounded choices without risking deletion of unrelated events.",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Fossify Calendar to inspect October 20, 2025 without changing events.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open October 20 to inspect every scheduled event and its identifying details.",
+      "action": "tap(index=31)",
+      "reason": "",
+      "screenshot": "screens/c831e4a8aae364e712ce64f88ffa6f36518291c4191005d20c81115773ecad96.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Inspected October 20, 2025 and found four events: Morning run (08:00 AM–09:00 AM), Team Standup (09:00 AM–09:30 AM; description “Daily team sync”), Meet with Sam (09:00 AM–11:00 AM), and Personal Time Off (12:00 PM–06:00 PM). No events were deleted. The user still needs to choose which events to remove.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/968b9e4cc46705a0ebaf441cd3d20686f0ab24376476733bdf0fba47fa29a1d4.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Which October 20 events should I remove? The schedule has: Morning run (8:00–9:00 AM), Team Standup (9:00–9:30 AM), Meet with Sam (9:00–11:00 AM), and Personal Time Off (12:00–6:00 PM). Please name every event you want deleted.",
+      "question": "Which October 20 events should I remove? The schedule has: Morning run (8:00–9:00 AM), Team Standup (9:00–9:30 AM), Meet with Sam (9:00–11:00 AM), and Personal Time Off (12:00–6:00 PM). Please name every event you want deleted.",
+      "answer": "Delete “Meet with Sam” (9:00–11:00 AM) only.",
+      "round": 3,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/968b9e4cc46705a0ebaf441cd3d20686f0ab24376476733bdf0fba47fa29a1d4.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Delete only “Meet with Sam” scheduled on October 20, 2025 from 9:00–11:00 AM, preserving Morning run, Team Standup, Personal Time Off, and all other events.",
+      "action": "execute",
+      "reason": "The user selected exactly one event for deletion, so the remaining work is to remove that event while preserving the other three.",
+      "screenshot": "screens/2a7da3d077f04f2055e79821bc3c0b82b568c811b6dca9d394b5f4e00aa8a380.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the specifically selected “Meet with Sam” event (9:00–11:00 AM) to delete it while preserving the other events.",
+      "action": "tap(index=57)",
+      "reason": "",
+      "screenshot": "screens/2a7da3d077f04f2055e79821bc3c0b82b568c811b6dca9d394b5f4e00aa8a380.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Delete the verified one-time “Meet with Sam” event on October 20 from 9:00–11:00 AM.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/e34a84bf5251902b35ccf39789a0d9abc0e16514b6988745d4102571ba37185d.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm deletion of only the selected “Meet with Sam” event.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/196bb115840cfcb4490e35a8a58f38dfeebb77bc3d7d6dc4210d7e0b9cf4ab3d.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Deleted only “Meet with Sam” (9:00–11:00 AM) from October 20, 2025. The day view confirms Morning run, Team Standup, and Personal Time Off remain.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8a43a66c1bb3d7952f062d063e13911a72074d176041a25cf6cf33915ee6316f.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Deleted only “Meet with Sam” (9:00–11:00 AM) from October 20, 2025. Morning run, Team Standup, and Personal Time Off remain unchanged.",
+      "action": "complete",
+      "reason": "Deleted only “Meet with Sam” (9:00–11:00 AM) from October 20, 2025. Morning run, Team Standup, and Personal Time Off remain unchanged.",
+      "screenshot": "screens/8a43a66c1bb3d7952f062d063e13911a72074d176041a25cf6cf33915ee6316f.webp",
+      "screenNumber": 7
+    }
+  ]
+}

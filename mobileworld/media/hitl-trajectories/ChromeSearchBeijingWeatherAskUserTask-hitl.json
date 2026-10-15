@@ -1,0 +1,105 @@
+{
+  "task": "ChromeSearchBeijingWeatherAskUserTask",
+  "variant": "hitl",
+  "screenCount": 8,
+  "roleCounts": {
+    "Planner": 3,
+    "Executor": 7
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What is your hometown (city and country or region)?",
+      "question": "What is your hometown (city and country or region)?",
+      "answer": "Beijing, China",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/1d9af0ab883e962ab5cdddb13d63f1fb69b9539f134a4736915e38ee5524d1ae.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find the forecast maximum temperature for Beijing, China tomorrow (October 16, 2026), in degrees Celsius, and retain the displayed integer value for the required answer.",
+      "action": "execute",
+      "reason": "Use Chrome to retrieve the forecast high for the clarified hometown and date.",
+      "screenshot": "screens/ea5e49a92abc77691a060441627050e5feb886ecee5d18f59efcd35c2f7b1670.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Chrome to look up Beijing's forecast high for October 16, 2026.",
+      "action": "launch(app=com.android.chrome)",
+      "reason": "",
+      "screenshot": "screens/ea5e49a92abc77691a060441627050e5feb886ecee5d18f59efcd35c2f7b1670.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Continue into Chrome without adding an account.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/d563197c29a245401f4791b73033107dd4a9d4a9e5967255bd2e3b412ee91ddb.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Decline optional Chrome notifications and proceed to browsing.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/929d71259ccda45443ac40c36a15b8421e021ba7f6f6bf215de5f5c185270a8f.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus Chrome's search field to query the Beijing forecast.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/292b5ec64668ed88938f82242f5971a45170eca78b08336848bca0dc3ac3714c.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a targeted query for Beijing's October 16, 2026 forecast high.",
+      "action": "replace_text(index=27)",
+      "reason": "",
+      "screenshot": "screens/bea5c22b22aca2e87ad602bf96b5e43ded6b21f0b005a7ce17bf444b0a5b2f66.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Submit the targeted Beijing weather search.",
+      "action": "key(key=enter)",
+      "reason": "",
+      "screenshot": "screens/f9d3c204e21a6977d2f64d597a28dc73eeaea7a17ea58a26a4c284ff795e7d47.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google's Beijing forecast shows tomorrow, Friday October 16, 2026, with a maximum temperature of 18°C. Required answer: 18.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/4b2c113f8bf94143078a609988640cb3d4d6b5fbdc35b2ccd66b7a4ad8728209.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "18",
+      "action": "complete",
+      "reason": "18",
+      "screenshot": "screens/4b2c113f8bf94143078a609988640cb3d4d6b5fbdc35b2ccd66b7a4ad8728209.webp",
+      "screenNumber": 7
+    }
+  ]
+}

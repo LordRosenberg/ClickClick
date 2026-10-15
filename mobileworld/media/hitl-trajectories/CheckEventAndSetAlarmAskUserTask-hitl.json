@@ -1,0 +1,195 @@
+{
+  "task": "CheckEventAndSetAlarmAskUserTask",
+  "variant": "hitl",
+  "screenCount": 17,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 16
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What date and time is your meeting with Sam?",
+      "question": "What date and time is your meeting with Sam?",
+      "answer": "Please check the Calendar app for the meeting with Sam; I don’t have its date and time.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/28007eb10e90b3c120a86ffaf96feabe06ddd27d4c8652117c5bd537433ac0e9.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Find the Calendar event for the meeting with Sam and retain its date and start time so the alarm can be set exactly 5 minutes in advance.",
+      "action": "execute",
+      "reason": "The user delegated finding the meeting time to Calendar; this lookup must precede calculating and creating the alarm.",
+      "screenshot": "screens/e6a075a55f7aa3ab269a3bc092aa3e2769b96b874f31fafd5e4718d3904dc7e0.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Calendar to locate the meeting with Sam.",
+      "action": "launch(app=org.fossify.calendar)",
+      "reason": "",
+      "screenshot": "screens/e6a075a55f7aa3ab269a3bc092aa3e2769b96b874f31fafd5e4718d3904dc7e0.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Search Calendar for events matching Sam.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/c604bb09519178de994ee3b3339de44808f9eb9c3b07a21c45019cae72e067e9.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found the Calendar event \"Meet with Sam\" on Monday, October 20, 2025, starting at 9:00 AM; the exact alarm time is 8:55 AM that day.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/2663d387957ee4e0e5fcd77492a9a2945b2b1d8eba2a62fb9b8c6b71b5afdddf.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct Clock alarm for Monday, October 20, 2025 at 8:55 AM, labeled to identify the meeting with Sam, preserving any existing alarms.",
+      "action": "execute",
+      "reason": "The Calendar result establishes the meeting starts at 9:00 AM on Monday, October 20, 2025, so the requested reminder time is 8:55 AM that day.",
+      "screenshot": "screens/b4ca805fb7840b7b40de7b84f60e430283b6798af6128c3aa964b4449a33591f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Clock to create the requested 8:55 AM alarm for the meeting with Sam.",
+      "action": "launch(app=com.google.android.deskclock)",
+      "reason": "",
+      "screenshot": "screens/b4ca805fb7840b7b40de7b84f60e430283b6798af6128c3aa964b4449a33591f.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Add a distinct alarm without modifying existing alarms.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/6918833f68997c222a9d5f966e400baebdaf6727267e683c9b293a818ebcd4a2.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm hour to 8.",
+      "action": "tap(index=11)",
+      "reason": "",
+      "screenshot": "screens/46cc64b9d76f0c64ab1098ecaef7fd4f5bb658c0a60e5264ad94b41715588b44.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm minutes to 55.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/0c02e823d4026e699172e2201c5f2a83f07765964ec252f5a997c0052f1e961a.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm to 8:55 AM rather than PM.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/2c14c0f846038cbc1e8ec407114963f7238d19086955d3c09bc3f18ae5b7125c.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected 8:55 AM time and proceed to configure the alarm date and label.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/a74d4dcab089064a75cc624d494751a943bb7b6ec3c27f54879b4e25d6289b42.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Schedule alarm to set the one-time date to Monday, October 20, 2025.",
+      "action": "tap(index=13)",
+      "reason": "",
+      "screenshot": "screens/0c3e2e9e916e1bea702386bf89b7aeee5a663338c783bc925d19dd585b9d93a8.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select Monday, October 20, 2025 for the alarm.",
+      "action": "tap(index=23)",
+      "reason": "",
+      "screenshot": "screens/49338771d8c73515ef46a2914d953f861419a3e0d01d0f491a0041e51e6c5502.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm the selected alarm date, October 20, 2025.",
+      "action": "tap(index=36)",
+      "reason": "",
+      "screenshot": "screens/94ee25ac3b7a56825fc6761ecd2069a5dd804ca8f112dcc9474afbfb9aa15f93.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the label editor for the newly scheduled 8:55 AM alarm.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/021b98af22f89e5fcbe1ad51586dc7226f2b66e2ee96531ffe7c4e0d694bf935.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter a label identifying the alarm as the meeting with Sam.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/45e6fe4ef0d296d7612e727950a07d6a6f250604de5ce33e4184f6f80a90ffb0.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the label “Meeting with Sam” on the scheduled 8:55 AM alarm.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/fa807c7a60850ab8e6dc9855d1e25b84f822c47f34fad3ec2ae686bb04b1af77.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and enabled a distinct alarm labeled “Meeting with Sam” for 8:55 AM on October 20, 2025, five minutes before the 9:00 AM meeting. Existing alarms were preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/15152c7a75d909b495a3e00ec72f9c7bc029efae3fd898cbb55e153404416c27.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created and enabled a distinct alarm labeled “Meeting with Sam” for 8:55 AM on October 20, 2025, five minutes before the 9:00 AM meeting. Existing alarms were preserved.",
+      "action": "complete",
+      "reason": "Created and enabled a distinct alarm labeled “Meeting with Sam” for 8:55 AM on October 20, 2025, five minutes before the 9:00 AM meeting. Existing alarms were preserved.",
+      "screenshot": "screens/15152c7a75d909b495a3e00ec72f9c7bc029efae3fd898cbb55e153404416c27.webp",
+      "screenNumber": 16
+    }
+  ]
+}

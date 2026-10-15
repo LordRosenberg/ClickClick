@@ -1,0 +1,213 @@
+{
+  "task": "GoogleMapsAlibabaPhoneContactAskUserTask",
+  "variant": "hitl",
+  "screenCount": 18,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 18
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What is the name of Kevin’s company to look up in Google Maps?",
+      "question": "What is the name of Kevin’s company to look up in Google Maps?",
+      "answer": "Kevin’s company is Alibaba Hangzhou headquarters in Binjiang District.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/cc474736b6949a58fbf32b66380820b87e67fd6dccc4a6619bc6b06fdd963ed5.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "In Google Maps, find the listing for Alibaba Hangzhou headquarters in Binjiang District and record its displayed company name and phone number, ensuring the phone belongs to that matching location.",
+      "action": "execute",
+      "reason": "The supplied Maps guidance concerns route estimates and does not change this business-listing lookup. Retrieve the matching location's company name and phone number before creating the contact.",
+      "screenshot": "screens/a9783a1f7247ea7622a36d53d3416dbca55786f906553cd823c70082d7561f4c.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Google Maps to look up the specified Alibaba Hangzhou headquarters listing.",
+      "action": "launch(app=com.google.android.apps.maps)",
+      "reason": "",
+      "screenshot": "screens/a9783a1f7247ea7622a36d53d3416dbca55786f906553cd823c70082d7561f4c.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional sign-in to reach Maps search.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/b93a0ae246bdfdf6a7a02c4affa2b3ea660bc7a3a843069f647e290f5979205d.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the specified Alibaba Hangzhou headquarters query in Maps.",
+      "action": "replace_text(index=1)",
+      "reason": "",
+      "screenshot": "screens/c98a44f36ec3a627d56cbd045ea72ac941d85db8dbaf2bdadfd54a3b0bd792bc.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Focus the Maps search field before entering the company query.",
+      "action": "tap(index=1)",
+      "reason": "",
+      "screenshot": "screens/c98a44f36ec3a627d56cbd045ea72ac941d85db8dbaf2bdadfd54a3b0bd792bc.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the full company and location query into the focused Maps search field.",
+      "action": "replace_text",
+      "reason": "",
+      "screenshot": "screens/95b203eefa7ae217ae2a83e1274ddd54726ad366764ae0689aa24ca190b420d0.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the exact Alibaba Hangzhou Headquarters listing on Wangshang Road in Binjiang District.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/4cd40f51897cb87b626e450d81be740aa1543dd5829fd8fe467028cf27914735.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Scroll the Alibaba headquarters place sheet to reveal its address and phone details.",
+      "action": "scroll(direction=down)",
+      "reason": "",
+      "screenshot": "screens/9d8d705fe8e51d31637da0a8974281f9e04f576be2f2130e03f742426db45e70.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open all place information to reveal the listing's phone number.",
+      "action": "tap(index=17)",
+      "reason": "",
+      "screenshot": "screens/b2d9ba775e1075d72c7293d17c3faad6caaf56682e0ac3d6ec811c75e7418936.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Google Maps listing matched Alibaba Hangzhou Headquarters at 699 Wangshang Rd, Binjiang District, Hangzhou. The displayed company name is \"Alibaba Hangzhou Headquarters\" and its phone number is \"+86 571 8502 2088\".",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/d5141322e3d8181ed0d2a27c4653a014d9b09faefa363b0671777e29360042c5.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create a distinct new contact named Kevin Zhang with company \"Alibaba Hangzhou Headquarters\" and phone number \"+86 571 8502 2088\", preserving both values in their proper contact fields.",
+      "action": "execute",
+      "reason": "The Google Maps listing has supplied the matching company name and phone number. The remaining requested work is to create the new contact with those details.",
+      "screenshot": "screens/0664d9bd41b81af82c1f4c230e10fac859f9aefca35db4bfbc3cfd7217a71ef0.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Launch the installed Google Contacts package.",
+      "action": "launch(app=com.google.android.contacts)",
+      "reason": "",
+      "screenshot": "screens/0664d9bd41b81af82c1f4c230e10fac859f9aefca35db4bfbc3cfd7217a71ef0.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Skip optional Google Account sign-in and continue with local contact creation.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/be06920624725b14a44d8fc070f4c3353643a37244b6e826bca35084a1845406.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-contact form.",
+      "action": "tap(index=20)",
+      "reason": "",
+      "screenshot": "screens/2419b7e5a234cebb3ccc3e3f72df336ca99731fd00fe936f742c7f13e6113ea8.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Kevin in the first-name field.",
+      "action": "replace_text(index=5)",
+      "reason": "",
+      "screenshot": "screens/3af4f6e0dceaeebc220c9356192082ebe157c537ee96a9826cf636d108877bb1.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter Zhang in the last-name field.",
+      "action": "replace_text(index=8)",
+      "reason": "",
+      "screenshot": "screens/49d7c823accb82372489c8231619b5eff310112f383a3f8445e10d8613a708d0.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the mapped company name in the Company field.",
+      "action": "replace_text(index=10)",
+      "reason": "",
+      "screenshot": "screens/868b21a23076c99326f0e07b2fafb60a86891286f49463e31ca2b2b043237040.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the Google Maps phone number in the Phone field.",
+      "action": "replace_text(index=12)",
+      "reason": "",
+      "screenshot": "screens/5922af1d7c7d5b01f53dace33869a5b57193a01c8d76b43d51c130efc1f33e81.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Save the new Kevin Zhang contact with the entered company and phone details.",
+      "action": "tap(index=3)",
+      "reason": "",
+      "screenshot": "screens/19be52419f2ead6125df339a15cd00738483dc6697f5b03860a900095f7364ab.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Found Alibaba Hangzhou Headquarters phone number in Google Maps as +86 571 8502 2088 and created/saved a distinct contact named Kevin Zhang with company Alibaba Hangzhou Headquarters and that mobile number. The saved contact detail page visibly confirms the name, company, and phone.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/685a9a53ec6e2ba0a498fe38b330e72672e804a71382e8d0f342607d56d800c7.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Found the matching Alibaba Hangzhou Headquarters phone number in Google Maps as +86 571 8502 2088, then created and saved a distinct contact named Kevin Zhang with company \"Alibaba Hangzhou Headquarters\" and that phone number.",
+      "action": "complete",
+      "reason": "Found the matching Alibaba Hangzhou Headquarters phone number in Google Maps as +86 571 8502 2088, then created and saved a distinct contact named Kevin Zhang with company \"Alibaba Hangzhou Headquarters\" and that phone number.",
+      "screenshot": "screens/685a9a53ec6e2ba0a498fe38b330e72672e804a71382e8d0f342607d56d800c7.webp",
+      "screenNumber": 17
+    }
+  ]
+}

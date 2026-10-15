@@ -1,0 +1,1008 @@
+{
+  "category": "hitl",
+  "date": "2026-10-15",
+  "comparison_date": "2026-10-16",
+  "model": "GPT-5.6-SOL",
+  "reasoning": "high",
+  "jev": "off",
+  "tasks": 44,
+  "original_passed": 34,
+  "questions": 56,
+  "leaderboard_source": "https://tongyi-mai.github.io/MobileWorld/",
+  "leaderboard": [
+    {
+      "model": "MagicGUI-Agent (GPT-5.4 + Seed-1.8)",
+      "score": 65.9,
+      "category": "Agentic",
+      "runs": 1
+    },
+    {
+      "model": "GPT-5 + UI-Ins-7B",
+      "score": 62.2,
+      "category": "Agentic",
+      "runs": 1
+    },
+    {
+      "model": "Seed-2.0-Pro",
+      "score": 61.4,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Claude-Opus-4.7",
+      "score": 59.1,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Kimi-K2.6",
+      "score": 56.8,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Wuying-Mobile-27B",
+      "score": 56.8,
+      "category": "Specialized",
+      "runs": 1
+    },
+    {
+      "model": "GUI-Owl-1.5-32B-Instruct",
+      "score": 56.1,
+      "category": "Specialized",
+      "runs": 3
+    },
+    {
+      "model": "Qwen3.5-397B-A17B",
+      "score": 54.4,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "GUI-Owl-1.5-8B-Instruct",
+      "score": 53.8,
+      "category": "Specialized",
+      "runs": 3
+    },
+    {
+      "model": "Kimi-K2.5",
+      "score": 51.2,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "MAI-UI-235B-A22B",
+      "score": 51.1,
+      "category": "Specialized",
+      "runs": 1
+    },
+    {
+      "model": "MAI-UI-32B",
+      "score": 46.7,
+      "category": "Specialized",
+      "runs": 1
+    },
+    {
+      "model": "Qwen3.5-122B-A10B",
+      "score": 40.9,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Claude-Sonnet-4.5",
+      "score": 38.6,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Claude-4.5-Sonnet + UI-Ins-7B",
+      "score": 37.8,
+      "category": "Agentic",
+      "runs": 1
+    },
+    {
+      "model": "GPT-5.5",
+      "score": 34.1,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Claude-Opus-4.6",
+      "score": 34.1,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Doubao-1.5-UI-TARS",
+      "score": 32.4,
+      "category": "Specialized",
+      "runs": 1
+    },
+    {
+      "model": "Seed-1.8",
+      "score": 29.5,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Gemini-3-Pro",
+      "score": 29.5,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "GUI-Owl-1.5-2B-Instruct",
+      "score": 25.8,
+      "category": "Specialized",
+      "runs": 3
+    },
+    {
+      "model": "Gemini-3-Pro + UI-Ins-7B",
+      "score": 24.4,
+      "category": "Agentic",
+      "runs": 1
+    },
+    {
+      "model": "Gemini-3.1-Pro-Preview",
+      "score": 22.7,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "MAI-UI-8B",
+      "score": 22.2,
+      "category": "Specialized",
+      "runs": 1
+    },
+    {
+      "model": "GELab-Zero-4B",
+      "score": 6.7,
+      "category": "Specialized",
+      "runs": 1
+    },
+    {
+      "model": "Qwen3-VL-32B",
+      "score": 6.7,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Qwen3-VL-235B-A22B",
+      "score": 4.4,
+      "category": "General",
+      "runs": 1
+    },
+    {
+      "model": "Qwen3-VL-8B",
+      "score": 0,
+      "category": "General",
+      "runs": 1
+    }
+  ],
+  "cases": [
+    {
+      "id": "SetAlarmTaskAskUser1",
+      "ordinal": 1,
+      "original": {
+        "score": 0.0,
+        "goal": "Please set a wake-up alarm for me on Friday.",
+        "actions": 10,
+        "rounds": 12,
+        "seconds": 130.1,
+        "budget": 50,
+        "apps": [
+          "Clock"
+        ],
+        "trajectory": "media/hitl-trajectories/SetAlarmTaskAskUser1-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SetAlarmTaskAskUser2",
+      "ordinal": 2,
+      "original": {
+        "score": 1.0,
+        "goal": "Please set a wake-up alarm for my weekend, and choose my favorite ringtone.",
+        "actions": 12,
+        "rounds": 15,
+        "seconds": 153.1,
+        "budget": 50,
+        "apps": [
+          "Clock"
+        ],
+        "trajectory": "media/hitl-trajectories/SetAlarmTaskAskUser2-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "SetAlarmTaskAskUser3",
+      "ordinal": 3,
+      "original": {
+        "score": 1.0,
+        "goal": "Please set a morning wake-up alarm for my weekend at 9:45 p.m. Choose the ringtone 'beebeep' for the alarm.",
+        "actions": 12,
+        "rounds": 14,
+        "seconds": 161.8,
+        "budget": 50,
+        "apps": [
+          "Clock"
+        ],
+        "trajectory": "media/hitl-trajectories/SetAlarmTaskAskUser3-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "BidFileRenameAskUserTask",
+      "ordinal": 4,
+      "original": {
+        "score": 1.0,
+        "goal": "将Download中前缀为bid_的文件, 按照一定的顺序，统一改为'bid_{序号}.{原扩展名}'。",
+        "actions": 26,
+        "rounds": 28,
+        "seconds": 314.7,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/BidFileRenameAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "BuyBlackTennisShoesBrotherAddressAskUserTask",
+      "ordinal": 5,
+      "original": {
+        "score": 0.0,
+        "goal": "I want to buy a pair of black tennis shoes for my brother on TaoDian app and ship them directly to his school dormitory.",
+        "actions": 40,
+        "rounds": 42,
+        "seconds": 506.8,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ],
+        "trajectory": "media/hitl-trajectories/BuyBlackTennisShoesBrotherAddressAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "BuySugarFreeColaWorkAddressAskUserTask",
+      "ordinal": 6,
+      "original": {
+        "score": 0.0,
+        "goal": "帮我在淘店上买一箱无糖可乐，寄到我这次上班的地址，不要寄错到家里",
+        "actions": 15,
+        "rounds": 16,
+        "seconds": 203.3,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ],
+        "trajectory": "media/hitl-trajectories/BuySugarFreeColaWorkAddressAskUserTask-hitl.json",
+        "queries": 0
+      },
+      "changed": false
+    },
+    {
+      "id": "CVEmailAskUserTask",
+      "ordinal": 7,
+      "original": {
+        "score": 1.0,
+        "goal": "在Download内找到最近一个月下载的简历文件，把文件发送给我的HR同事，标题为candiaditaes_cv。",
+        "actions": 9,
+        "rounds": 11,
+        "seconds": 210.2,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/CVEmailAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CalculateCartPricesByOwnerAskUserTask",
+      "ordinal": 8,
+      "original": {
+        "score": 0.0,
+        "goal": "Help me calculate the prices of items in the Taodian shopping cart separately for me and my roommate, tell me how much each person needs to pay. Answer in the format 'me/roommate:amount', separated by semicolons, no extra content or whitespace.",
+        "actions": 11,
+        "rounds": 13,
+        "seconds": 222.6,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ],
+        "trajectory": "media/hitl-trajectories/CalculateCartPricesByOwnerAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CartManagementAskUserTask",
+      "ordinal": 9,
+      "original": {
+        "score": 0.0,
+        "goal": "Please help me delete all short-sleeve items from the shopping cart in the TaoDian app. Log in using the password.",
+        "actions": 9,
+        "rounds": 13,
+        "seconds": 219.1,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ],
+        "trajectory": "media/hitl-trajectories/CartManagementAskUserTask-hitl.json",
+        "queries": 3
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckCandidateAskUserTask1",
+      "ordinal": 10,
+      "original": {
+        "score": 1.0,
+        "goal": "Find Kevin's resume and check whether his skills in database matches my job requirements. If yes, send a text message to HR: 'please kickoff the interview for Kevin.' If no, send a text message to HR: 'please reject the application for Kevin.'",
+        "actions": 27,
+        "rounds": 30,
+        "seconds": 406.2,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckCandidateAskUserTask1-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckCandidateAskUserTask2",
+      "ordinal": 11,
+      "original": {
+        "score": 1.0,
+        "goal": "Find Kevin's resume and check whether his GPA matches my job requirements. If yes, send a text message to HR: 'please pass the application for Kevin.' If no, send a text message to HR: 'please reject the application for Kevin.'",
+        "actions": 23,
+        "rounds": 26,
+        "seconds": 374.3,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckCandidateAskUserTask2-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckDistanceAskUserTask1",
+      "ordinal": 12,
+      "original": {
+        "score": 1.0,
+        "goal": "What is the driving distance in kilometers from Beijing to my hometown? Response as the following format: beijing to xxx: distance km. xxx denotes the name of the hometown.",
+        "actions": 10,
+        "rounds": 12,
+        "seconds": 137.7,
+        "budget": 50,
+        "apps": [
+          "Maps"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckDistanceAskUserTask1-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckDistanceAskUserTask2",
+      "ordinal": 13,
+      "original": {
+        "score": 1.0,
+        "goal": "I want to drive to Tianjin, China from my hometown. Please check the driving distance in kilometers. Reponse only one integer number. No other text.",
+        "actions": 10,
+        "rounds": 12,
+        "seconds": 134.2,
+        "budget": 50,
+        "apps": [
+          "Maps"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckDistanceAskUserTask2-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckEventAndSetAlarmAskUserTask",
+      "ordinal": 14,
+      "original": {
+        "score": 1.0,
+        "goal": "Set an alarm in Clock app to remind me of my meeting with Sam 5 minutes in advance.",
+        "actions": 14,
+        "rounds": 16,
+        "seconds": 216.3,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Clock"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckEventAndSetAlarmAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckInvoiceTask4AskUser",
+      "ordinal": 15,
+      "original": {
+        "score": 1.0,
+        "goal": "Read the invoice PDF file in the download directory. 3rd party API will increase 25% of the unit price. Notify Kevin via SMS the new total amount.",
+        "actions": 13,
+        "rounds": 15,
+        "seconds": 256.4,
+        "budget": 50,
+        "apps": [
+          "Messages",
+          "Files",
+          "Docreader"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckInvoiceTask4AskUser-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckMealEventAskUserTask",
+      "ordinal": 16,
+      "original": {
+        "score": 1.0,
+        "goal": "Check next week's schedule. If there is a meal with someone, email them to ask if it can be canceled.",
+        "actions": 23,
+        "rounds": 25,
+        "seconds": 371.4,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Calendar",
+          "Mail"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckMealEventAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "CheckMeetingEventAskUserTask",
+      "ordinal": 17,
+      "original": {
+        "score": 1.0,
+        "goal": "Check next week's schedule. If there is a meeting with someone, email them to ask if it can be canceled.",
+        "actions": 18,
+        "rounds": 20,
+        "seconds": 301.9,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Calendar",
+          "Mail"
+        ],
+        "trajectory": "media/hitl-trajectories/CheckMeetingEventAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "ChromeSearchBeijingWeatherAskUserTask",
+      "ordinal": 18,
+      "original": {
+        "score": 1.0,
+        "goal": "What will be the maximum temperature at my hometown tomorrow? Answer with only an integer (the number of Celsius degree) and no other text.",
+        "actions": 6,
+        "rounds": 8,
+        "seconds": 127.1,
+        "budget": 50,
+        "apps": [
+          "Chrome"
+        ],
+        "trajectory": "media/hitl-trajectories/ChromeSearchBeijingWeatherAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "DeleteAllMessagesAskUserTask",
+      "ordinal": 19,
+      "original": {
+        "score": 1.0,
+        "goal": "Delete all messages in SMS app sent from my company.",
+        "actions": 6,
+        "rounds": 8,
+        "seconds": 157.3,
+        "budget": 50,
+        "apps": [
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/DeleteAllMessagesAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "DeleteEventAskUserTask",
+      "ordinal": 20,
+      "original": {
+        "score": 1.0,
+        "goal": "My schedule on 10/20 is a bit full, please remove a few events.",
+        "actions": 5,
+        "rounds": 7,
+        "seconds": 130.2,
+        "budget": 50,
+        "apps": [
+          "Calendar"
+        ],
+        "trajectory": "media/hitl-trajectories/DeleteEventAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "DeleteItemsAskUserTask",
+      "ordinal": 21,
+      "original": {
+        "score": 0.0,
+        "goal": "I want to remove some electronic products in the shopping cart of the TaoDian app.",
+        "actions": 5,
+        "rounds": 8,
+        "seconds": 129.8,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ],
+        "trajectory": "media/hitl-trajectories/DeleteItemsAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "DeleteMessagesAskUserTask",
+      "ordinal": 22,
+      "original": {
+        "score": 1.0,
+        "goal": "Delete the message about deployment issues in SMS app sent from my company.",
+        "actions": 5,
+        "rounds": 7,
+        "seconds": 95.5,
+        "budget": 50,
+        "apps": [
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/DeleteMessagesAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "DeleteUselessFilesAskUserTask",
+      "ordinal": 23,
+      "original": {
+        "score": 1.0,
+        "goal": "Help me to clean the useless files in download directory for stoarage saving.",
+        "actions": 16,
+        "rounds": 19,
+        "seconds": 300.2,
+        "budget": 50,
+        "apps": [
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/DeleteUselessFilesAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "GoogleMapsAlibabaPhoneContactAskUserTask",
+      "ordinal": 24,
+      "original": {
+        "score": 1.0,
+        "goal": "Find the Kevin's componany phone number using the google map, and based on that, create a new contact named Kevin Zhang with the company.",
+        "actions": 16,
+        "rounds": 18,
+        "seconds": 240.8,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Maps"
+        ],
+        "trajectory": "media/hitl-trajectories/GoogleMapsAlibabaPhoneContactAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "GoogleMapsAlibabaSouthNeighborAskUserTask",
+      "ordinal": 25,
+      "original": {
+        "score": 1.0,
+        "goal": "Open Google Maps and find which company is directly south of my company. ONLY output the company name in English.",
+        "actions": 17,
+        "rounds": 19,
+        "seconds": 241.3,
+        "budget": 50,
+        "apps": [
+          "Maps"
+        ],
+        "trajectory": "media/hitl-trajectories/GoogleMapsAlibabaSouthNeighborAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonDumpImgAskUserTask",
+      "ordinal": 26,
+      "original": {
+        "score": 1.0,
+        "goal": "Save the images from pupper's earliest post on Mastodon to the specified path.",
+        "actions": 22,
+        "rounds": 24,
+        "seconds": 288.6,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ],
+        "trajectory": "media/hitl-trajectories/MastodonDumpImgAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonDumpQcodeAskUserTask",
+      "ordinal": 27,
+      "original": {
+        "score": 1.0,
+        "goal": "Save the frank's QR code on Mastodon to my frequently used directory for easy access.",
+        "actions": 21,
+        "rounds": 23,
+        "seconds": 276.7,
+        "budget": 50,
+        "apps": [
+          "Mastodon"
+        ],
+        "trajectory": "media/hitl-trajectories/MastodonDumpQcodeAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "MastodonSharePhotosAskUserTask",
+      "ordinal": 28,
+      "original": {
+        "score": 1.0,
+        "goal": "Share all photos of flowers from the Pictures album (in Gallery app) via Mastodon, and add a caption.",
+        "actions": 23,
+        "rounds": 25,
+        "seconds": 309.6,
+        "budget": 50,
+        "apps": [
+          "Mastodon",
+          "Gallery"
+        ],
+        "trajectory": "media/hitl-trajectories/MastodonSharePhotosAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "ProjectPaperEmailAskUserTask",
+      "ordinal": 29,
+      "original": {
+        "score": 1.0,
+        "goal": "查找手机Documents文件夹内所有project开头的pdf文件，移动到我指定的文件夹下，并把文件夹下的所有文件发送到Catherine，标题为project。",
+        "actions": 31,
+        "rounds": 34,
+        "seconds": 520.9,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/ProjectPaperEmailAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "ReplyEmailViaSmsAskUserTask",
+      "ordinal": 30,
+      "original": {
+        "score": 1.0,
+        "goal": "I received an email about the Next.js Conf. Please check my calendar. If I'm available, send the sender an SMS saying, 'I can attend the conference.' If not, reply with, 'Sorry, I can't attend.'",
+        "actions": 11,
+        "rounds": 13,
+        "seconds": 197.9,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Calendar",
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/ReplyEmailViaSmsAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SayHelloRoommatesAskUserTask1",
+      "ordinal": 31,
+      "original": {
+        "score": 1.0,
+        "goal": "Add my new roommates contacts to favorites and text 'hello' to each of them.",
+        "actions": 29,
+        "rounds": 31,
+        "seconds": 355.3,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/SayHelloRoommatesAskUserTask1-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SayHelloRoommatesAskUserTask2",
+      "ordinal": 32,
+      "original": {
+        "score": 1.0,
+        "goal": "Add my new roommates contacts to favorites and text 'hello' to each of them.",
+        "actions": 34,
+        "rounds": 37,
+        "seconds": 510.9,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/SayHelloRoommatesAskUserTask2-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "ScheduleLunchViaSmsAskUserTask",
+      "ordinal": 33,
+      "original": {
+        "score": 0.0,
+        "goal": "I've received a lunch invitation via text message; please reply \"OK\" and schedule a lunch event ranging from 11 a.m. to 12 a.m. on Oct 16.",
+        "actions": 19,
+        "rounds": 20,
+        "seconds": 232.4,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/ScheduleLunchViaSmsAskUserTask-hitl.json",
+        "queries": 0
+      },
+      "changed": false
+    },
+    {
+      "id": "ScheduleOneOneViaSmsAskUserTask",
+      "ordinal": 34,
+      "original": {
+        "score": 0.0,
+        "goal": "I've received a one-on-one meeting invitation from my boss. Please check my calendar and reply 'OK' if it's clear. If there's a scheduling conflict, please notify the person in the conflict event by SMS: 'Sorry, I can't attend the meeting.'",
+        "actions": 40,
+        "rounds": 43,
+        "seconds": 580.9,
+        "budget": 50,
+        "apps": [
+          "Calendar",
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/ScheduleOneOneViaSmsAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "SearchTopInfoAskUserTask",
+      "ordinal": 35,
+      "original": {
+        "score": 1.0,
+        "goal": "Search for the recent news in the field I am interested, and send an email to Kevin with a subject line that includes the field name and the following message:\nHere is the recent news in the [field name] field:\n[One sentence summary of the recent news you found]",
+        "actions": 30,
+        "rounds": 33,
+        "seconds": 367.1,
+        "budget": 50,
+        "apps": [
+          "Chrome",
+          "Mail"
+        ],
+        "trajectory": "media/hitl-trajectories/SearchTopInfoAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "SearchWhiteSneakersCheckoutAskUserTask",
+      "ordinal": 36,
+      "original": {
+        "score": 1.0,
+        "goal": "帮我在淘店上找一双白色的鞋，日常通勤穿的，按我平时穿的码下单，默认收件人和地址",
+        "actions": 27,
+        "rounds": 30,
+        "seconds": 415.3,
+        "budget": 50,
+        "apps": [
+          "Taodian"
+        ],
+        "trajectory": "media/hitl-trajectories/SearchWhiteSneakersCheckoutAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "SendInterviewInvitationAskUserTask",
+      "ordinal": 37,
+      "original": {
+        "score": 1.0,
+        "goal": "Send a message to Kevin to information him \"Your interview is scheduled for tomorrow morning at 10:30 AM\".",
+        "actions": 18,
+        "rounds": 20,
+        "seconds": 199.3,
+        "budget": 50,
+        "apps": [
+          "Messages"
+        ],
+        "trajectory": "media/hitl-trajectories/SendInterviewInvitationAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SendInvoiceWithInfoTask",
+      "ordinal": 38,
+      "original": {
+        "score": 0.0,
+        "goal": "Send the invoice PDF file in the download directory to Mia. And attach the following information to the email: the total amount of the invoice and exchange to RMB according to the latest exchange rate. The format is total amount: xxx, exchange rate: xxx, total amount in RMB: xxx.",
+        "actions": 38,
+        "rounds": 40,
+        "seconds": 484.1,
+        "budget": 50,
+        "apps": [
+          "Chrome",
+          "Mail",
+          "Files",
+          "Docreader"
+        ],
+        "trajectory": "media/hitl-trajectories/SendInvoiceWithInfoTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SendPhoneNumberAskUserTask",
+      "ordinal": 39,
+      "original": {
+        "score": 0.0,
+        "goal": "Send Kevin's phone number (in message body) to Grace via email. ",
+        "actions": 24,
+        "rounds": 26,
+        "seconds": 363.3,
+        "budget": 50,
+        "apps": [
+          "Contacts",
+          "Mail"
+        ],
+        "trajectory": "media/hitl-trajectories/SendPhoneNumberAskUserTask-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SendZipFilesAskUserTask1",
+      "ordinal": 40,
+      "original": {
+        "score": 1.0,
+        "goal": "Compress all downloaded files in the \"Download\" folder from the past three months into a single file, renamed as \"documents.zip\", email it to Kevin using `Mail` app with the list of compressed files, seprated by comma. No other text.",
+        "actions": 20,
+        "rounds": 22,
+        "seconds": 300.8,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/SendZipFilesAskUserTask1-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SendZipFilesAskUserTask2",
+      "ordinal": 41,
+      "original": {
+        "score": 1.0,
+        "goal": "Compress the earliest 5 downloaded files into a single file, renamed as \"documents.zip\", email it to Kevin using `Mail` app with the list of compressed files, seprated by comma. No other text.",
+        "actions": 32,
+        "rounds": 34,
+        "seconds": 388.4,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Files"
+        ],
+        "trajectory": "media/hitl-trajectories/SendZipFilesAskUserTask2-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "SharePhotosAskUserTask",
+      "ordinal": 42,
+      "original": {
+        "score": 1.0,
+        "goal": "Send some photos to Kevin via email, with text \"Here are some pictures for you.\" ",
+        "actions": 20,
+        "rounds": 23,
+        "seconds": 332.7,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Gallery"
+        ],
+        "trajectory": "media/hitl-trajectories/SharePhotosAskUserTask-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    },
+    {
+      "id": "TakeSelfieAskUserTask1",
+      "ordinal": 43,
+      "original": {
+        "score": 1.0,
+        "goal": "Take a selfie, and share it with Jimmy via email.",
+        "actions": 16,
+        "rounds": 18,
+        "seconds": 234.7,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Gallery",
+          "Camera"
+        ],
+        "trajectory": "media/hitl-trajectories/TakeSelfieAskUserTask1-hitl.json",
+        "queries": 1
+      },
+      "changed": false
+    },
+    {
+      "id": "TakeSelfieAskUserTask2",
+      "ordinal": 44,
+      "original": {
+        "score": 1.0,
+        "goal": "Take a photo, and share it with Henry via email.",
+        "actions": 28,
+        "rounds": 31,
+        "seconds": 405.5,
+        "budget": 50,
+        "apps": [
+          "Mail",
+          "Gallery",
+          "Camera"
+        ],
+        "trajectory": "media/hitl-trajectories/TakeSelfieAskUserTask2-hitl.json",
+        "queries": 2
+      },
+      "changed": false
+    }
+  ],
+  "clarifications": []
+}

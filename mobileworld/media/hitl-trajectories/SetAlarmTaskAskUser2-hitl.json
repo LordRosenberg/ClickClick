@@ -1,0 +1,172 @@
+{
+  "task": "SetAlarmTaskAskUser2",
+  "variant": "hitl",
+  "screenCount": 15,
+  "roleCounts": {
+    "Planner": 4,
+    "Executor": 13
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "What time should the weekend wake-up alarm ring?",
+      "question": "What time should the weekend wake-up alarm ring?",
+      "answer": "9:45 AM on Saturdays and Sundays.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/7d225d3497959958dd4a37d711045c20e679091882382e381c199637adae95d4.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Which ringtone is your favorite for this alarm?",
+      "question": "Which ringtone is your favorite for this alarm?",
+      "answer": "My favorite ringtone is “beebeep.”",
+      "round": 2,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/558ad06467b881dc46e9dcc5728d296329807b1f8879a14f50cac4d4ec03152b.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Create and enable one repeating wake-up alarm for 9:45 AM every Saturday and Sunday, set its ringtone to “beebeep,” and preserve unrelated alarms. Ensure the ringtone selection is saved back to the alarm.",
+      "action": "execute",
+      "reason": "The user supplied the required time, weekend recurrence, and favorite ringtone; proceed in Clock using the supplied save behavior for the sound picker.",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Clock to create the requested weekend alarm.",
+      "action": "launch(app=com.google.android.deskclock)",
+      "reason": "",
+      "screenshot": "screens/623404f241da214261067002273de6865023c9b30acda9945fc7a3a5f1376b20.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the new-alarm time picker while leaving existing alarms unchanged.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/0f5e820c2fa741047f44fa609884d6ec4220d77e8150543076b4421a91bc6773.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm hour to 9.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/c12934fe1893999b3acd0c33737f9c65ed8492b9c40fb512d4d7697de9e336ec.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the alarm minutes to 45.",
+      "action": "tap(index=9)",
+      "reason": "",
+      "screenshot": "screens/c5a52b81ed2095ee2ac0dbc4bc2e1e13421731248afbf1042a4331c3b2b48f3a.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Switch the selected 9:45 time from PM to AM.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/7e8b376287c3d3118eecde19c6bfc0c7a62d4d0714ab5b6be82eec1e6e512c91.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Confirm creation of the new 9:45 AM alarm.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/da3154727e3d9a7df83a8b5f3079574827654582930b6c56504369d435e72fde.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enable Sunday recurrence on the new 9:45 AM alarm.",
+      "action": "tap(index=10)",
+      "reason": "",
+      "screenshot": "screens/e2fdf891e7925cae057c139a7b30150cfeb39556a64af2885f5f823e3ab8139b.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enable Saturday recurrence so the new alarm repeats on both weekend days.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/7f558c3ec9099a7337027f147e44b60161600958040b8af38feef881331bd5bf.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the ringtone picker for the new 9:45 AM weekend alarm.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/0c5cf2f2164eaf639413e761f40b1a8c9f0122a94193cfe046f690bcc08a4946.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Dismiss the optional music-provider popup to access the alarm sound list.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/9dfd5d9b3bd688097e604622e07ff116dd82ce9f5a39f7d1d369567ce1625bdd.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the matching “BeeBeep Alarm” ringtone for the new weekend alarm.",
+      "action": "tap(index=8)",
+      "reason": "",
+      "screenshot": "screens/a3bde972524787e7e3afcc7df935611ed577445176e85a6dc3f55da9c6638e4f.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Navigate back to save the selected BeeBeep ringtone to the owning alarm.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/d6a09e62ddb5d7b25f34d9976dd5191866f0056f4dbdc752fe6e8ff337c7b3df.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Created and enabled a 9:45 AM alarm repeating every Saturday and Sunday, with the saved ringtone set to BeeBeep Alarm. The unrelated alarms remain unchanged.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/eeaadb72f7562967162ff7367c68e109ce443d77d2b4713219e146054aba73e3.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Created and enabled a 9:45 AM wake-up alarm repeating every Saturday and Sunday, with the ringtone saved as BeeBeep Alarm. Unrelated alarms remain unchanged.",
+      "action": "complete",
+      "reason": "Created and enabled a 9:45 AM wake-up alarm repeating every Saturday and Sunday, with the ringtone saved as BeeBeep Alarm. Unrelated alarms remain unchanged.",
+      "screenshot": "screens/eeaadb72f7562967162ff7367c68e109ce443d77d2b4713219e146054aba73e3.webp",
+      "screenNumber": 14
+    }
+  ]
+}

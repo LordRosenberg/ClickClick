@@ -1,0 +1,280 @@
+{
+  "task": "SharePhotosAskUserTask",
+  "variant": "hitl",
+  "screenCount": 25,
+  "roleCounts": {
+    "Planner": 6,
+    "Executor": 23
+  },
+  "events": [
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "Which photos would you like me to attach?",
+      "question": "Which photos would you like me to attach?",
+      "answer": "Please first summarize all the photo categories available in the Gallery app. Then I can decide which photos to attach.",
+      "round": 1,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/e6dc5892b4b4a55119ee9b5c34f4f6864ab9c33328f2a57ed9cd1ec6c1583204.webp",
+      "screenNumber": 0
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect the Gallery app and compile a complete, concise summary of all available photo categories, preserving distinct category names and any visible counts or descriptions; do not select or send photos yet.",
+      "action": "execute",
+      "reason": "The user wants a complete category summary before choosing attachments; the Gallery guidance adds no condition beyond accurately reading the available categories.",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Gallery app to inspect its available photo categories.",
+      "action": "launch(app=gallery.photomanager.picturegalleryapp.imagegallery)",
+      "reason": "",
+      "screenshot": "screens/a664418df8b3c51493d9dd38affacb5fc18443eea933f972e10acd6435febf6d.webp",
+      "screenNumber": 1
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Gallery's Albums view is fully visible and contains two available photo categories: Pictures (11) and Camera (7). No category descriptions are shown, and the remainder of the album grid is empty.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/8fcac174204142f90feb61b21341e502b6d58dafc1b42582c72b7190c3f57efc.webp",
+      "screenNumber": 2
+    },
+    {
+      "role": "Planner",
+      "kind": "Question",
+      "summary": "The Gallery has two categories: Pictures (11 photos) and Camera (7 photos), with no category descriptions shown. Which category or specific photos would you like me to attach?",
+      "question": "The Gallery has two categories: Pictures (11 photos) and Camera (7 photos), with no category descriptions shown. Which category or specific photos would you like me to attach?",
+      "answer": "Please attach all photos of flowers from both categories and email them to Kevin Zhang at `kevin_zhang@example.com`.",
+      "round": 3,
+      "answerSource": "Official MobileWorld simulated user",
+      "action": "ask_user",
+      "reason": "",
+      "screenshot": "screens/45c69da5fb838bbc8b03968369a6df069bdddd8b24e507d4ba68b7b99a74644a.webp",
+      "screenNumber": 3
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Inspect every photo in both Gallery categories, Pictures (11) and Camera (7), and select all distinct photos whose visible image content shows flowers; preserve complete coverage of both categories, exclude non-flower photos, and do not send yet.",
+      "action": "execute",
+      "reason": "The selection rule and email destination are now supplied. The next dependency is to identify and select every flower photo across all 18 photos in both categories before composing the email.",
+      "screenshot": "screens/4606512d0cfcf3a7d241c0e808771d8e14c53624ad94fbea621d2aea33e237b6.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open Pictures (11) to inspect every thumbnail and select all flower photos.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/4606512d0cfcf3a7d241c0e808771d8e14c53624ad94fbea621d2aea33e237b6.webp",
+      "screenNumber": 4
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the first qualifying flower photo in Pictures and enter multi-select mode.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/f97002b95049aca2d2eb1c341a329b9955e07cb01a3171d1d962fe7d3b3c1010.webp",
+      "screenNumber": 5
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the sunflower photo in Pictures.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/47bd7b68b6a9e5942dfaf63974ae123322c8c5e04f209cf98e132e1d0d3bc6a4.webp",
+      "screenNumber": 6
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the yellow flower photo in Pictures.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/fae7f630fcf5e1c53019a9f12de74c1cd5ceb4f09e8f944721f83cdd9d236729.webp",
+      "screenNumber": 7
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the purple flower photo, the remaining flower image in Pictures.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/f177159c0e230e3df0e0c8a16569ccb5b438a94f19532eb14e942d7167c62d23.webp",
+      "screenNumber": 8
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Exit Pictures selection mode so the Camera category can be inspected; the four identified Pictures flower photos are recorded by their visible positions/content.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/e228d3ad2785fc6140c9dbda3cc59c4b8769c1d3817619d04ed1a1c24eab1495.webp",
+      "screenNumber": 9
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Return to the Gallery category list to inspect all seven Camera photos.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/ceebf29cf78905e3c109f3129d5ad809f82b09c79b717ea61e5b51dd6eabd810.webp",
+      "screenNumber": 10
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Camera album to inspect all seven photos for flowers.",
+      "action": "tap(index=5)",
+      "reason": "",
+      "screenshot": "screens/29a65d5c30870e31540ab1e2d108009d671edb82377c40a3c9094090296810d7.webp",
+      "screenNumber": 11
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "All seven Camera photos are visible and show food scenes, not flowers; return to Albums so the four flower photos can be selected together without leaving selection mode.",
+      "action": "tap(index=0)",
+      "reason": "",
+      "screenshot": "screens/8ea36d1f49e1ca2e2247d5abda9a58e7934a9047d5ba253929e4cf14311d534f.webp",
+      "screenNumber": 12
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Reopen Pictures to select the four confirmed flower photos.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/626ece938a8ac7b53816e92f149723a99e6da2dec22df061229f499ff9836dd4.webp",
+      "screenNumber": 13
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter selection mode by selecting the red rose, the first of four confirmed flower photos.",
+      "action": "long_press",
+      "reason": "",
+      "screenshot": "screens/d6242988dda25ee6ac9461491b018e5f63bb298c1baeada8d3b2dd6491656ea0.webp",
+      "screenNumber": 14
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the sunflower, the second confirmed flower photo.",
+      "action": "tap(index=14)",
+      "reason": "",
+      "screenshot": "screens/99256cb0aa0899b2b473445cccd317a345fe04525507094d6e47945d7686228f.webp",
+      "screenNumber": 15
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the yellow flower cluster, the third confirmed flower photo.",
+      "action": "tap(index=16)",
+      "reason": "",
+      "screenshot": "screens/1a4a1d79a805ea3c3b5d45f317d46b61a56b4435e0d172e745226418bb3fa2ca.webp",
+      "screenNumber": 16
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Select the purple flower, the fourth and final confirmed flower photo.",
+      "action": "tap(index=18)",
+      "reason": "",
+      "screenshot": "screens/df13817b80bce61c760ed98cac2e179c9ac88b1c4a4366d9d9377dc1e0b82439.webp",
+      "screenNumber": 17
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Completed full Gallery coverage: all 11 Pictures and all 7 Camera photos were inspected. Selected exactly the four flower photos in Pictures (red rose, sunflower, yellow flower cluster, purple flower); current toolbar confirms 4/11 selected. All Camera photos and the seven non-flower Pictures were excluded. Nothing has been shared or sent yet.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/50aece0e2fb065c6a497c74417c4ff5ef06a6210f37c4980954a2a68fa83d239.webp",
+      "screenNumber": 18
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Share the four currently selected flower photos as attachments in an email to Kevin Zhang at kevin_zhang@example.com, set the message body exactly to \"Here are some pictures for you.\", and send it; preserve all four attachments and do not add an unsupported subject.",
+      "action": "execute",
+      "reason": "The complete four-photo flower set is selected and the recipient and exact message are supplied; the remaining work is to share those attachments through email and send the message.",
+      "screenshot": "screens/0ba3c51027e4b7310242ca124d9f8f181b6d4bb50bac57ce709bc6ad43b9ecc5.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Open the Android share flow for the four selected flower photos so they can be attached to the email.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/0ba3c51027e4b7310242ca124d9f8f181b6d4bb50bac57ce709bc6ad43b9ecc5.webp",
+      "screenNumber": 19
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Choose Mail as the share destination for the four selected images.",
+      "action": "tap(index=2)",
+      "reason": "",
+      "screenshot": "screens/06cbb615865966f0f62491dae4b9d19df79b111839bcb0b90e87fd2548af1a0a.webp",
+      "screenNumber": 20
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Set the email recipient to Kevin Zhang's supplied address while preserving all four attachments and leaving the subject blank.",
+      "action": "replace_text(index=4)",
+      "reason": "",
+      "screenshot": "screens/da81f3ce6be028de7bd6689ee1afe0154819fe5d070e80ca4794b9ce132139a6.webp",
+      "screenNumber": 21
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Enter the exact requested email body while keeping the subject blank and preserving all four attachments.",
+      "action": "replace_text(index=9)",
+      "reason": "",
+      "screenshot": "screens/7f6a1061129a5f7bb6c1e514c6df2a18e8d0b0fee659014037d7b6e13b2999cd.webp",
+      "screenNumber": 22
+    },
+    {
+      "role": "Executor",
+      "kind": "Action",
+      "summary": "Send the completed email to kevin_zhang@example.com with the exact requested body, a blank subject, and all four flower-photo attachments.",
+      "action": "tap(index=4)",
+      "reason": "",
+      "screenshot": "screens/f332a9e00a4fcb45358eee99b8a3850c482192974b6a729d3f6b2fbf5627cc1b.webp",
+      "screenNumber": 23
+    },
+    {
+      "role": "Executor",
+      "kind": "Decision",
+      "summary": "Email Sent confirmation is visible. The email was sent to kevin_zhang@example.com with the exact body \"Here are some pictures for you.\", no subject added, and all four selected flower-photo attachments preserved.",
+      "action": "request_replan",
+      "reason": "",
+      "screenshot": "screens/e7ec08e76c6970eb72b5d6936838fb2cffaab69fcb5876beee18d93eff9ccb74.webp",
+      "screenNumber": 24
+    },
+    {
+      "role": "Planner",
+      "kind": "Decision",
+      "summary": "Sent an email to Kevin Zhang at kevin_zhang@example.com with all four flower photos attached and the exact message \"Here are some pictures for you.\" The visible Email Sent confirmation establishes completion.",
+      "action": "complete",
+      "reason": "Sent an email to Kevin Zhang at kevin_zhang@example.com with all four flower photos attached and the exact message \"Here are some pictures for you.\" The visible Email Sent confirmation establishes completion.",
+      "screenshot": "screens/e7ec08e76c6970eb72b5d6936838fb2cffaab69fcb5876beee18d93eff9ccb74.webp",
+      "screenNumber": 24
+    }
+  ]
+}
