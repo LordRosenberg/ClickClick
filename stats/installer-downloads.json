@@ -35,6 +35,18 @@
     "621858646": {
       "name": "ClickClick-0.2.0-windows-x86_64.exe",
       "downloads": 2
+    },
+    "646244734": {
+      "name": "ClickClick-0.3.0-macos-aarch64.zip",
+      "downloads": 0
+    },
+    "646244679": {
+      "name": "ClickClick-0.3.0-macos-x86_64.zip",
+      "downloads": 0
+    },
+    "646244709": {
+      "name": "ClickClick-0.3.0-windows-x86_64.exe",
+      "downloads": 0
     }
   },
   "schema": 1,
@@ -76,5 +88,5 @@
       "downloads": 7
     }
   ],
-  "sampled_at": "2026-10-16T01:30:32Z"
+  "sampled_at": "2026-10-16T05:24:46Z"
 }
