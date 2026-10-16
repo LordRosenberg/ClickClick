@@ -114,10 +114,11 @@ jobs:
           --keyboard-apk build/device-assets/keyboardservice/build/outputs/apk/debug/keyboardservice-debug.apk
           --keyboard-source build/device-assets/ADBKeyboard-source.zip
       - uses: actions/upload-artifact@v4
+        if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch'
         with:
           name: clickclick-${{ matrix.os }}
-          # Keep push builds briefly; allow longer downloads for releases/manual builds.
-          retention-days: ${{ github.event_name == 'push' && github.ref_type == 'branch' && 1 || 7 }}
+          # Branch pushes validate installers without retaining large copies.
+          retention-days: 7
           path: |
             dist/desktop/*.exe
             dist/desktop/*.zip
