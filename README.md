@@ -250,7 +250,6 @@ Explore per-task scores and execution traces on the [AndroidWorld results site](
 | [Evaluation](docs/evaluation.md) | Benchmark setup, scoring and reproduction. | [中文](docs/evaluation.zh-CN.md) |
 | [Skills](skills/README.md) | App knowledge, operating guidance and skill authoring. | [中文](skills/README.zh-CN.md) |
 | [Human-in-the-loop](docs/hitl.md) | Questions, confirmations and reply routing. | [中文](docs/hitl.zh-CN.md) |
-| [Skill self-improvement](docs/skill-evolution.md) | Learning from real tasks, independent review, selective validation and capability boundaries. | [中文](docs/skill-evolution.zh-CN.md) |
 
 Licensed under [Apache 2.0](LICENSE).
 

@@ -250,7 +250,6 @@ python -m evaluation.androidworld.reproduce --install
 | [评测指南](docs/evaluation.zh-CN.md) | 基准配置、评分与复现。 | [English](docs/evaluation.md) |
 | [Skills 指南](skills/README.zh-CN.md) | 应用知识、操作经验和技能编写。 | [English](skills/README.md) |
 | [HITL 提问与确认](docs/hitl.zh-CN.md) | 必要时提问、回答入口与原调用恢复。 | [English](docs/hitl.md) |
-| [Skills 自进化](docs/skill-evolution.zh-CN.md) | 从真实任务提炼经验、独立审查、选择性验证与能力边界。 | [English](docs/skill-evolution.md) |
 
 许可证：[Apache 2.0](LICENSE)。
 
