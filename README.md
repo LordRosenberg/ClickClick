@@ -31,7 +31,7 @@ The comparison incorporates six wording clarifications and one official-account 
 
 ## 77.27% on MobileWorld User-Int. · #1 in our comparison
 
-**34 of 44 original interaction tasks passed**, with GPT-5.6-Sol (high), Jev off, and the official user simulator. All 44 tasks have official predicate scores and continuous recordings; 56 question/answer exchanges appear as separate steps in the public trajectories. The result exceeds published 50-step User-Int. rows checked on October 16, 2026; official leaderboard acceptance is pending.
+**34 of 44 original interaction tasks passed**, with GPT-5.6-Sol (high), Jev off, and the official user simulator. All 44 tasks have official predicate scores and continuous recordings; 56 question/answer exchanges appear as separate steps in the public trajectories. The result exceeds published 50-step User-Int. rows checked on October 16, 2026.
 
 **[Explore all 44 tasks and conversations →](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)** · [Methodology and limits](docs/mobileworld-hitl-results-20261015.md).
 

@@ -31,7 +31,7 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## MobileWorld 交互类：77.27%，成绩对比第 1
 
-**44 道交互原题通过 34 道**，使用 GPT-5.6-Sol（high）、官方用户模拟器，Jev 关闭。全部 44 题均有官方评分和连续录屏，56 次问答在公开轨迹中作为独立步骤展示。成绩高于 2026-10-16 核对的公开 50 步 User-Int. 榜单各项，尚未获官方榜单收录。
+**44 道交互原题通过 34 道**，使用 GPT-5.6-Sol（high）、官方用户模拟器，Jev 关闭。全部 44 题均有官方评分和连续录屏，56 次问答在公开轨迹中作为独立步骤展示。成绩高于 2026-10-16 核对的公开 50 步 User-Int. 榜单各项。
 
 **[查看全部 44 题及问答轨迹 →](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)** · [评测方法与能力边界](docs/mobileworld-hitl-results-20261015.md)。
 

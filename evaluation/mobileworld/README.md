@@ -56,4 +56,4 @@ scores and complete recordings before exporting a local submission package.
 The public gallery is a separate reviewed export: `devtools/build_mobileworld_hitl.py`
 keeps question/answer events in order, omits authentication replies and retains
 all failed cases. Raw databases, private paths, keys and model request logs must
-not be published. Local export does not constitute official acceptance.
+not be published.

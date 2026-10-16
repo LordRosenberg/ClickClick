@@ -16,7 +16,7 @@
 
 ## Comparison / 排名口径
 
-**#1 in our User-Int. comparison / 交互类成绩对比第 1。** The [published leaderboard](https://tongyi-mai.github.io/MobileWorld/) was checked on 2026-10-16: its highest numeric 50-step User-Int. row was 65.9%, below 77.27%. This is a comparison of our local evaluation with published results, not a claim that ClickClick has been accepted onto the official leaderboard. Agent configurations and repeat counts differ across entries.
+**#1 in our User-Int. comparison / 交互类成绩对比第 1。** The [published leaderboard](https://tongyi-mai.github.io/MobileWorld/) was checked on 2026-10-16: its highest numeric 50-step User-Int. row was 65.9%, below 77.27%. Agent configurations and repeat counts differ across entries.
 
 ## Results and limits / 成绩与边界
 
