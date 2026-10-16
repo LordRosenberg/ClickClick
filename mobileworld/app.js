@@ -111,7 +111,7 @@ window.addEventListener('hashchange', () => { if (guiData && hitlData) openLocat
 localize();
 Promise.all(['data.json?v=results-20261007', 'hitl.json?v=results-20261015'].map(url => fetch(url).then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }))).then(([gui, hitl]) => {
   guiData = gui; hitlData = hitl;
-  const rows = [{model: 'ClickClick · GPT-5.6-SOL', score: hitl.original_passed / hitl.tasks * 100, ours: true, category: '34/44 · local evaluation'}, ...hitl.leaderboard].sort((a,b) => b.score-a.score);
+  const rows = [{model: 'ClickClick · GPT-5.6-SOL', score: hitl.original_passed / hitl.tasks * 100, ours: true, category: t('Original · 34/44', '原题 · 34/44')}, ...hitl.leaderboard].sort((a,b) => b.score-a.score);
   $('hitlLeaderboardRows').innerHTML = rows.slice(0,8).map((row, index) => `<tr class="${row.ours ? 'ours' : ''}"><td>${index+1}</td><td>${esc(row.model)}</td><td>${row.score.toFixed(row.ours ? 2 : 1)}%</td><td>${esc(row.category)}</td></tr>`).join('');
   openLocation();
 }).catch(error => { $('detail').textContent = `${t('Could not load results', '无法加载成绩')}: ${error.message}`; });
