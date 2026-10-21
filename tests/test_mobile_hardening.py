@@ -68,11 +68,14 @@ async def test_late_completion_is_not_success(runtime, monkeypatch, role, stop):
         return reply(terminal(tools), decision="complete", reason="Visible result")
 
     monkeypatch.setattr("agent.session.complete", complete)
-    assert await orch.run_task(task.id) == TaskStatus.CANCELLED
-    assert db.get_task(task.id).status == TaskStatus.CANCELLED
+    expected = TaskStatus.FAILED if stop == "deadline" else TaskStatus.CANCELLED
+    assert await orch.run_task(task.id) == expected
+    assert db.get_task(task.id).status == expected
     assert driver.actions == []
     if stop == "deadline":
         assert db.get_task(task.id).failure_reason == "task_deadline_exhausted"
+        assert db.get_task(task.id).state.revisable.stop_reason == "budget_exhausted"
+        assert db.get_task(task.id).state.revisable.checkpoint_resumable
 
 
 @pytest.mark.parametrize("requester", ["planner", "executor"])

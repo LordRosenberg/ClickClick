@@ -36,13 +36,16 @@ async def test_reviewer_transcript_keeps_independent_reads_and_invalid_output_wi
         await b.review("test-model", "independent review", {"candidate": "rule"}, budget)
     directory = store.artifacts.root / "skill-learning" / "runs" / task.id / b.telemetry.id
     records = [json.loads(path.read_text(encoding="utf-8")) for path in (directory / "records").glob("*.json")]
-    final = next(row for row in records if row["status"] == "output_received")
+    final = next(row for row in records if row["status"] == "output_received" and not row["payload"].get("contract_repair"))
     messages = final["payload"]["messages"]
     assert messages[0]["content"] == "independent review"
     assert messages[-1]["content"] == "invalid JSON reviewer output"
     assert any(row.get("role") == "tool" and "Search" in row["content"] for row in messages)
-    assert "invalid JSON reviewer output" not in str(requests[-1])
-    assert store.records("observation") == before and budget.calls == 2
+    assert "invalid JSON reviewer output" not in str(requests[1])
+    assert len(requests) == 3
+    assert "invalid JSON reviewer output" in str(requests[2])
+    assert "One contract correction allowed" in str(requests[2])
+    assert store.records("observation") == before and budget.calls == 3
     assert final["cost"]["provider_usage"]["unknown_responses"] == 2
     b.close()
 

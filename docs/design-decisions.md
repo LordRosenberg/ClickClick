@@ -62,7 +62,7 @@ Multi-app learning separates files by knowledge ownership and selects necessary 
 
 ## Budgets and metrics
 
-Ordinary tasks default to 200 Executor decisions and 1,000 model requests; explicit task limits take precedence. Budget exhaustion keeps the failed verdict and a safe checkpoint for explicit cumulative renewal, preserving prior attempts and usage. The reported AndroidWorld experiment uses complexity-derived action and model-call limits plus a 900-second deadline. Compression counts toward model calls; non-action stage handoffs do not count as device actions.
+An over-budget device action retains its original rejection feedback, so the model can still report established results or finish through the normal protocol without dispatching an extra action. Ordinary tasks default to 200 Executor decisions and 1,000 model requests; explicit task limits take precedence. Budget exhaustion keeps the failed verdict and a safe checkpoint for explicit cumulative renewal, preserving prior attempts and usage. The reported AndroidWorld experiment uses complexity-derived action and model-call limits plus a 900-second deadline. Compression counts toward model calls; non-action stage handoffs do not count as device actions.
 
 Report elapsed time, provider calls, submitted actions, physical subactions and token/cache usage separately. The [evaluation report](androidworld-results-20260921.md) defines the benchmark action space. Missing provider usage remains unavailable; estimated input volume is not a monetary bill.
 

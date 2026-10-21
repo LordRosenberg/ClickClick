@@ -349,14 +349,22 @@ async def test_base_executor_has_no_transient_pending_compound_evidence_path(
 
 @pytest.mark.asyncio
 async def test_plan_executor_restores_history_before_current_observation_without_resaving_it(
-    monkeypatch,
+    monkeypatch, tmp_path,
 ):
     from agent.revisable.roles import PlanExecutor
+    from shared.config import Settings
+    from shared.db import Database
+    from shared.schemas import AgentState
 
-    executor = PlanExecutor(SimpleNamespace(), None, model="test-model")
+    state = AgentState(instruction="test instruction")
+    db = Database(tmp_path / "executor-history.db")
+    task = db.create_task(state.instruction, state)
+    executor = PlanExecutor(Settings(hitl_enabled=False), None, model="test-model")
     executor._restored_history = [{"role": "user", "content": "older dialogue"}]  # noqa: SLF001
     saved_dialogue = []
     executor.store = SimpleNamespace(
+        db=db, task_id=task.id,
+        role_prompt=lambda *_args: "test executor policy",
         observe=lambda *_args: None,
         execution_context=lambda *_args: {"runtime": "current"},
         save_dialogue=lambda messages, _state: saved_dialogue.extend(messages),
@@ -380,10 +388,7 @@ async def test_plan_executor_restores_history_before_current_observation_without
     monkeypatch.setattr(executor._session, "run", run)  # noqa: SLF001
     current = _compound_package("current-list")
     context_state = {
-        "agent_state": SimpleNamespace(
-            revisable=SimpleNamespace(stage=None), active_target_app="",
-            instruction="test instruction",
-        ),
+        "agent_state": state,
         "active_package": current,
         "render_observation_bucket": lambda _package: (
             [{"role": "user", "content": "latest current observation"}],
@@ -405,6 +410,7 @@ async def test_plan_executor_restores_history_before_current_observation_without
     ]
     assert captured["observation"][-1]["content"] == '{"runtime": "current"}'
     assert [item["content"] for item in saved_dialogue] == ["new terminal decision"]
+    db.close()
 
 
 def test_terminal_preflight_rejects_unlisted_skill_action_without_driver_input(tmp_path):
