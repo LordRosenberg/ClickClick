@@ -5,10 +5,14 @@ function setLanguage(language) {
   localized.forEach((element) => { if (element.tagName === 'TEXTAREA') element.value = element.dataset[language]; else element.textContent = element.dataset[language]; });
   document.querySelectorAll('[data-install-link]').forEach(element => {
     const chinese = language === 'zh';
-    const anchor = element.dataset.installLink === 'manual'
-      ? (chinese ? '也可以手动安装' : 'manual-installation')
-      : (chinese ? '部署' : 'deployment');
-    element.href = 'https://github.com/LordRosenberg/ClickClick' + (chinese ? '/blob/main/README.zh-CN.md' : '') + '#' + encodeURIComponent(anchor);
+    const guide = element.dataset.installLink === 'manual'
+      ? (chinese ? 'desktop-setup.zh-CN.md' : 'local-mcp.md#desktop-setup')
+      : (chinese ? 'deployment.zh-CN.md' : 'deployment.md');
+    element.href = 'https://github.com/LordRosenberg/ClickClick/blob/main/docs/' + guide;
+  });
+  document.querySelectorAll('[data-guide]').forEach(element => {
+    const suffix = language === 'zh' ? '.zh-CN.md' : '.md';
+    element.href = 'https://github.com/LordRosenberg/ClickClick/blob/main/docs/' + element.dataset.guide + suffix;
   });
   const notice = document.getElementById('installCopyStatus');
   if (notice) notice.textContent = '';
