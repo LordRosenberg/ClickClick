@@ -279,9 +279,12 @@ async def test_planner_continue_keeps_stage_identity_and_context(runtime, monkey
     task = db.create_task(state.instruction, state)
     HumanInputBroker(db).configure(task.id, HitlConfig(enabled=True))
     SteeringInbox(db, task.id).accept(SteeringRequest(instruction="Report it in Chinese", request_key="change"))
+    role_calls = []
 
     async def complete(model, messages, *, tools, **kwargs):
         kwargs["attempt_meter"]("model_call_started", {})
+        role_calls.append(next(t["function"]["name"] for t in tools
+                               if t["function"]["name"].startswith("submit_")))
         if any(t["function"]["name"] == "submit_planner_decision" for t in tools):
             decision = "continue" if SteeringInbox(db, task.id).pending() else "complete"
             return reply("submit_planner_decision", {"decision": decision, "reason": "Chinese response required"})
@@ -293,7 +296,10 @@ async def test_planner_continue_keeps_stage_identity_and_context(runtime, monkey
                      "observation_id": update["current_observation_id"]})
 
     monkeypatch.setattr("agent.session.complete", complete)
-    assert await asyncio.wait_for(orch.run_task(task.id), 10) == TaskStatus.SUCCEEDED
+    # FULL-durability SQLite writes can exceed 10s on hosted Intel macOS.
+    # This outer test guard is independent of the task's resource limits.
+    assert await asyncio.wait_for(orch.run_task(task.id), 60) == TaskStatus.SUCCEEDED
+    assert role_calls == ["submit_planner_decision", "submit_executor_step", "submit_planner_decision"]
     assert db.get_task(task.id).state.revisable.revision == 4
     assert not driver.actions
 
