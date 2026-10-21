@@ -21,30 +21,13 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 通过 **MCP** 接入 PC 端 AI 助手后，你可以在对话中交办手机任务、补充或调整正在执行的要求，也可以暂停、恢复或取消。助手支持内置浏览器时，会优先打开任务投屏预览，让你同时查看手机画面与模型输出。
 
-## MobileWorld 纯 GUI：95.73%，成绩对比第 1
+## 评测成绩
 
-最新测试原题成绩为 **106/117（90.60%）**，加入 7 道澄清题补充后的对照成绩为 **112/117（95.73%）**。使用 `chatgpt/gpt-5.6-sol`（high）、Android API 34，每题最多 50 个 MobileWorld 回合、2400 秒；117 道原题均有官方数值评分。运行时结合可修订规划、持久记忆、作用域技能与 Jev 核验。
-
-澄清对照采用 6 道措辞澄清及 1 道官方账号信息补充，其余任务采用原题结果。两项成绩均高于 2026-10-07 核对的公开 50 回合纯 GUI 榜单各项。
-
-[逐题成绩、截图与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [澄清明细与评测方法](docs/mobileworld-results-20261007.md)
-
-## MobileWorld 交互类：77.27%，成绩对比第 1
-
-**44 道交互原题通过 34 道**，使用 GPT-5.6-Sol（high）、官方用户模拟器，Jev 关闭。全部 44 题均有官方评分和连续录屏，56 次问答在公开轨迹中作为独立步骤展示。成绩高于 2026-10-16 核对的公开 50 步 User-Int. 榜单各项。
-
-**[查看全部 44 题及问答轨迹 →](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)** · [评测方法与能力边界](docs/mobileworld-hitl-results-20261015.md)。
-
-HITL 可选：助手引导首次安装默认开启，其他安装默认关闭；已有保存的选择优先。Planner 澄清未确定的任务意图，Executor 在执行中遇到重要选择时补充提问。问题持久化后暂停任务，匹配回答恢复同一次调用；Console、CLI 与支持回复桥接的助手共享单一回答入口，入口断开时转到 Console。[使用与接入 →](docs/hitl.zh-CN.md)
-
-## AndroidWorld：99.14%，按成功率档位并列第 2
-
-使用 `chatgpt/gpt-5.6-sol`（high）在 Android API 33 上完成评测，**115/116 个任务通过官方评分**。
-
-[成绩与执行轨迹 →](https://lordrosenberg.github.io/ClickClick/androidworld/) · [评测方法与配置](docs/androidworld-results-20260921.md)
-
-
-按 2026-10-02 的[公开榜单](https://docs.google.com/spreadsheets/d/1cchzP9dlTZ3WXQTfYNhh3avxoLipqHN75v1Tb86uhHo/edit?gid=0)及其一位小数精度，与 Artemis 同为 99.1%，按成功率档位并列第 2；100% 为第 1 档。
+| 评测 | 成绩 | 已核对的公开榜单对比 | 详情 |
+| --- | --- | --- | --- |
+| MobileWorld 纯 GUI | 原题 **90.60%（106/117）**；澄清对照 **95.73%（112/117）** | 第 1（2026-10-07） | [逐题轨迹](https://lordrosenberg.github.io/ClickClick/mobileworld/) · [评测说明](docs/mobileworld-results-20261007.md) |
+| MobileWorld 交互类 | **77.27%（34/44）** | 第 1（2026-10-16） | [逐题问答](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore) · [评测说明](docs/mobileworld-hitl-results-20261015.md) |
+| AndroidWorld | **99.14%（115/116）** | 并列第 2（2026-10-02） | [逐题轨迹](https://lordrosenberg.github.io/ClickClick/androidworld/) · [评测说明](docs/androidworld-results-20260921.md) |
 
 ## 效果演示
 
@@ -64,192 +47,70 @@ HITL 可选：助手引导首次安装默认开启，其他安装默认关闭；
 
 ### AndroidWorld 演示
 
-
 真实成功任务录屏。点击预览，观看 **3 倍速完整视频**。
 
 | 笔记 → 食谱 | 图片 → 费用记录 | 重复日历事件 |
 | --- | --- | --- |
 | [![从 Markor 向 Broccoli 转录食谱](docs/assets/demos/notes-to-recipes.gif)](docs/assets/demos/notes-to-recipes.mp4) | [![从图片读取费用并录入 Pro Expense](docs/assets/demos/image-to-expenses.gif)](docs/assets/demos/image-to-expenses.mp4) | [![创建重复日历事件](docs/assets/demos/recurring-calendar-event.gif)](docs/assets/demos/recurring-calendar-event.mp4) |
-| 读取笔记，创建 **3 份食谱**，保留食材、做法及其他字段。 | 读取来源图片，录入 **3 条费用**的金额、类别和备注。 | 设置日期、开始时间、**45 分钟时长**、描述和每日重复规则。 |
 
 | 费用去重 | 按顺序创建歌单 | 每周运动时长统计 |
 | --- | --- | --- |
 | [![辨别重复费用并保留不同记录](docs/assets/demos/deduplicate-expenses.gif)](docs/assets/demos/deduplicate-expenses.mp4) | [![查找歌曲并按指定顺序创建歌单](docs/assets/demos/ordered-playlist.gif)](docs/assets/demos/ordered-playlist.mp4) | [![筛选本周游泳活动并统计总时长](docs/assets/demos/weekly-activity-summary.gif)](docs/assets/demos/weekly-activity-summary.mp4) |
-| 检查长列表中的费用，删除**完全重复的记录**，每种独立费用保留一条。 | 创建指定名称的歌单，查找 **2 首歌曲**，按要求排序并核对。 | 按**本周与游泳类别**定位活动，检查时长并给出分钟数汇总。 |
 
 [任务指令与录屏说明](docs/demos.md)
 
-## 为复杂任务而构建
+## 核心能力
 
-- **自主规划，随执行调整。** 将目标拆成有意义的阶段，根据实际页面修订后续路线，延续已完成的工作；需要独立判断时调用 Reviewer。
-- **跨应用记住关键信息。** 版本化笔记与短保留正文独立于结构化历史摘要保存，摘要逐条引用持久来源，近期完整步骤保持可见。需要细节时，可回读笔记、早先的截图和原始记录。[记忆与上下文管理](docs/architecture.zh-CN.md#上下文记忆与技能)
-- **可靠操作真实界面。** 结合截图与无障碍结构定位控件，将支持的点击绑定到被观察的原生节点，检查文本输入，并根据动作反馈决定下一步。
-- **把应用经验变成可复用技能。** 无需重新训练模型即可扩展应用知识。从任务记录中提炼流程和避坑点，经独立审查与必要验证后进入待审库，支持多应用候选及局部验收。[Skills 自进化](docs/skill-evolution.zh-CN.md)。应用自身的界面经验可跨设备共享，系统界面知识按设备配置匹配，通用技能可跨应用复用；受支持的复合动作可完成详情读取和返回，同时保留中间证据。
-- **自由选择模型与设备。** 为规划和执行配置模型，连接本地真机或模拟器，也可通过远程 Driver 管理设备。
-
-Agent Harness 将 **可修订规划、持久记忆、作用域技能和设备反馈** 组织成完整执行流程。[技术概览](docs/reliability-design.zh-CN.md)
-
-## 看见并理解每次执行
-
-Console 将已保存的观测截图与 Agent 执行历史放在同一个工作区。
-
-- **跟随进度：** 查看最新记录的观测截图、当前阶段和流式模型响应。
-- **浏览历史任务：** 分页查看任务概览，筛选失败任务，按需打开执行详情。
-- **检查决策：** 打开 Timeline 调用，查看实际模型输入、返回决策、激活技能、工具调用和关联截图。
-- **定位问题：** 沿动作追查目标、回执和结果观测，回看所选步骤或模型轮次的历史画面。截图不会重新采集手机。
-- **分析开销：** 查看任务与模型耗时、调用次数，以及提供方返回的输入、输出和缓存用量。
-
-[Console 与可观测性指南 →](docs/observability.zh-CN.md)
-
-## 执行中也能调整要求
-
-开启 HITL 后，不必等 Agent 提问，你也可以直接告诉助手：“刚才那个任务改一下……”——补充筛选条件、更换目标，或保留当前步骤并调整后续安排。ClickClick 保留原始要求和执行记录，由 Planner 根据新要求及实际进展调整计划。暂停中的任务仍保持暂停；已经完成的任务会创建关联的后续任务。
-
-新要求会及时确认接收，尚未派发的旧动作会停止；已经发出的操作可能完成，已产生的外部结果不会自动撤销。需要你选择下一步时，任务会通过 HITL 提问。[HITL 使用指南](docs/hitl.zh-CN.md)
-
-## 在助手旁查看手机画面
-
-派发本机 Android 任务后，支持内置浏览器的助手会优先打开**投屏预览页**，左右展示手机最近画面和持续追加的模型输出。也可从任务详情顶部点击「投屏预览」进入，再从预览页返回详情。预览只读；任务暂停或结束后会明确标记保留的最后画面。宿主不能打开浏览器或任务不支持投屏时，仍可通过任务链接跟踪进度。
+- **规划与执行：** 根据实际页面调整计划，结合截图与无障碍结构操作设备，按需调用 Reviewer。
+- **记忆与技能：** 保留跨应用任务的关键信息，回读原始记录，复用应用经验；可通过“优化我的工作流”生成技能候选，经审查后逐文件批准。[Skills 自进化](docs/skill-evolution.zh-CN.md)
+- **过程可查看：** Console 展示截图、模型输入与输出、工具调用和用量；支持在助手旁打开只读投屏预览。[可观测性指南](docs/observability.zh-CN.md)
+- **执行中可交互：** 开启 HITL 后，Agent 可提问等待回答，你也可补充要求或调整计划。已完成的外部操作不会自动撤销。[HITL 指南](docs/hitl.zh-CN.md)
+- **模型与设备可选：** 支持配置规划和执行模型，连接本地真机、模拟器或远程 Driver。
 
 ## 核心架构
 
-![ClickClick 核心架构](docs/assets/clickclick-architecture.svg)
+![ClickClick 核心架构](docs/assets/clickclick-architecture.zh-CN.svg)
 
-默认循环为 **Planner → Executor → 观测 → 继续或重规划**，Reviewer 按需介入。Harness 管理上下文、技能与执行，持久 Session 保存任务证据，Android 工具提供动作和观测；Console 展示执行过程，外部评测器检查任务结果。
+**Planner → Executor → 观测 → 继续或重规划**，Reviewer 按需介入。Harness 管理上下文、技能与执行，持久 Session 保存任务证据，Console 展示过程。
 
-Harness 分别组装原始任务、当前阶段、新鲜观测、结构化摘要、近期完整步骤与短保留笔记。观测包携带像素、UI 结构、身份和几何；原生细节裁剪／分片用于阅读，动作仍绑定新鲜全局观测。
-
-[架构与模块接口](docs/architecture.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md)
+[架构详解](docs/architecture.zh-CN.md) · [技术概览](docs/reliability-design.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md)
 
 ## 通过 MCP 接入 PC 端 AI 助手
 
-把 ClickClick 接入支持 MCP 的 PC 端 AI 助手，在对话中交办手机任务、查询进度，也可以调整正在执行的任务，或暂停、恢复和取消。
+**推荐让 AI 助手安装并连接。** 展开并复制下面的完整指令，发给支持 MCP、能在电脑上执行命令的助手：
 
-### 推荐安装方式：让 AI 助手安装并连接
+<details>
+<summary>完整安装指令（点击展开）</summary>
 
-如果你的助手能在电脑上执行命令，把下面这段话发给它，让它代办下载、安装、手机连接和 MCP 设置：
+> 请先完整阅读官方安装指南（https://github.com/LordRosenberg/ClickClick/blob/main/docs/desktop-setup.zh-CN.md），再帮我在这台电脑上安装并连接 ClickClick（https://github.com/LordRosenberg/ClickClick）。按安装指南识别 Windows/macOS 和 CPU 架构，从官方 Releases 下载匹配的安装器并核对该发布的 SHA-256；没有匹配安装器时，按源码部署指南处理，不把源码压缩包当安装器。助手引导首次安装应在安装器支持时传入 --origin assistant，使 HITL 默认开启；旧版不支持该选项时在首次 Console 设置中明确开启并保存，保留已有用户选择。安装后检查退出状态及后台 identity。打开本机设置页，让我选择订阅登录或 API，协助官方授权；API Key 由我在页面填写，不放进聊天。问我用 Wi-Fi、USB 还是已有模拟器，代办电脑侧连接并具体指导手机调试与权限确认。在设置页的“让助手添加”入口取得包含完整本机配置文件路径的接入提示词，读取该 stdio 配置，并用你自己的官方 MCP 管理命令或配置入口注册 clickclick，保留已有设置。若通过安装版 CLI 导出，必须指定 --client generic --transport stdio --output 和一个明确的本机文件完整路径，再读取该文件；不要调用 ClickClick register 代替你的注册步骤。能在当前会话加载 MCP 就调用 get_status，检查模型配置和手机初始化，分享 Console 链接。若需我重启客户端或新开会话，请报告“注册完成，待验证”，给出具体操作，并让我在新会话发送：“请调用 ClickClick 的 get_status，检查连接、模型配置和手机初始化，说明是否就绪及未完成事项。”不要把注册或 ADB 在线当成验证成功；get_status 不进行模型请求或手机任务测试。只有我明确要求时才执行实际手机测试任务。验证后在当前对话简短介绍 ClickClick 和基本用法，说明当前 HITL 开关、Console 配置位置及仅新任务生效；今后派发成功后优先用你的内置浏览器打开任务页，按任务复用，不可用时提供链接。
 
-> 请帮我在这台电脑上安装并连接 ClickClick（https://github.com/LordRosenberg/ClickClick）。按安装指南识别 Windows/macOS 和 CPU 架构，从官方 Releases 下载匹配的安装器并核对该发布的 SHA-256；没有匹配安装器时，按源码部署指南处理，不把源码压缩包当安装器。助手引导首次安装时，若安装器支持请显式使用 --origin assistant，默认开启 HITL；已有保存的选择保持不变。安装后检查退出状态及后台 identity。打开本机设置页，让我选择订阅登录或 API，协助官方授权；API Key 由我在页面填写，不放进聊天。问我用 Wi-Fi、USB 还是已有模拟器，代办电脑侧连接并具体指导手机调试与权限确认。在设置页的“让助手添加”入口取得包含完整本机配置文件路径的接入提示词，读取该 stdio 配置，并用你自己的官方 MCP 管理命令或配置入口注册 clickclick，保留已有设置。若通过安装版 CLI 导出，必须指定 --client generic --transport stdio --output 和一个明确的本机文件完整路径，再读取该文件；不要调用 ClickClick register 代替你的注册步骤。能在当前会话加载 MCP 就调用 get_status，检查模型配置和手机初始化，分享 Console 链接。若需我重启客户端或新开会话，请报告“注册完成，待验证”，给出具体操作，并让我在新会话发送：“请调用 ClickClick 的 get_status，检查连接、模型配置和手机初始化，说明是否就绪及未完成事项。”不要把注册或 ADB 在线当成验证成功；get_status 不进行模型请求或手机任务测试。只有我明确要求时才执行实际手机测试任务。
+</details>
 
-你只需在设置页选择 Codex 订阅登录或 API、完成模型和手机授权，并确认助手操作权限。[详细安装指南](docs/desktop-setup.zh-CN.md#两种首次安装入口)
+需要自行安装时，见[手动安装与手机连接指南](docs/desktop-setup.zh-CN.md)。
 
-### 也可以手动安装
-
-1. **安装 ClickClick。** 从 [GitHub Releases](https://github.com/LordRosenberg/ClickClick/releases) 选择适合你 Windows 或 macOS 电脑的安装包。没有对应安装包时，可按[源码部署指南](docs/deployment.zh-CN.md)安装。
-2. **配置模型，连接手机。** 打开设置页，选择 Codex 订阅登录或配置 API，通过 Wi-Fi 或 USB 连接 Android 手机，也可使用已有模拟器。按页面提示在手机上开启调试并确认权限。
-3. **接入助手。** 在设置页复制“助手接入提示词”发给助手；也可以展开“手动添加”，按所用助手执行命令或添加配置。如需重开会话，使用页面单独提供的连接验证指令。
-
-### 开始使用
-
-连接就绪后，在助手对话中描述你要完成的事情，例如：
+连接就绪后，直接在助手对话中描述任务：
 
 > 用 ClickClick 把这篇笔记里的三份食谱录入食谱 App，保留食材和做法，核对保存结果，并告诉我是否完成。
 
-执行中可以继续问“现在进展如何？”或说“暂停这个任务”。让助手提供 Console 链接，即可查看执行步骤和保存的截图。运行时请保持电脑与手机在线。
+执行中可查询进度、调整要求、暂停、恢复或取消，通过 Console 链接查看过程。运行时请保持电脑与手机在线。`get_status` 仅检查就绪状态，实际效果需通过任务验证。
 
-[安装、手机连接与助手配置](docs/desktop-setup.zh-CN.md) · [MCP 接入指南](docs/local-mcp.zh-CN.md)
-
-安装后可从桌面或应用程序入口启动 ClickClick，通过托盘图标打开控制台、启动/停止后台和设置开机启动。有任务运行时，关闭前可选择暂停或取消；关闭浏览器不会停止后台。
+[完整安装与手机连接指南](docs/desktop-setup.zh-CN.md) · [MCP 接入指南](docs/local-mcp.zh-CN.md) · [更多任务示例](docs/task-examples.zh-CN.md)
 
 ## 部署
 
-以下适用于从源码安装；使用桌面安装器时无需执行这些步骤。需要 Python 3.12、Node.js/npm、Android SDK Platform-Tools，以及支持图像和工具调用的模型服务。先从本机连接的设备开始；远程部署见[部署指南](docs/deployment.zh-CN.md)。
-
-### 1. 安装服务并配置模型
-
-在仓库根目录执行：
-
-```bash
-# Linux / macOS
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[decode]"
-cp .env.example .env
-```
-
-```powershell
-# Windows PowerShell
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[decode]"
-Copy-Item .env.example .env
-```
-
-在 `.env` 中配置模型与凭据，例如使用兼容 OpenAI 的 API：
-
-```dotenv
-CLICKCLICK_DEFAULT_MODEL=openai/YOUR_MODEL_ID
-CLICKCLICK_MODELS_JSON={"openai/YOUR_MODEL_ID":{"provider":"openai","base_url":"https://YOUR_ENDPOINT/v1","api_key":"YOUR_API_KEY","max_tokens":4096,"reasoning_supported":false}}
-CLICKCLICK_DRIVER_URL=
-CLICKCLICK_DRIVER_URLS_JSON=
-CLICKCLICK_USE_FIXTURE_DRIVER=false
-```
-
-其他提供方、登录接入及推理参数见[模型配置](docs/deployment.zh-CN.md#model-routing)。
-
-### 2. 连接设备
-
-真机开启 USB 调试、连接电脑并接受设备上的授权提示；模拟器先启动并解锁。执行 `adb devices`，确认目标序列号后显示 `device`。若显示 `unauthorized`，在手机上完成授权。
-
-### 3. 启动平台，等待自动初始化
-
-```bash
-npm --prefix web ci
-npm --prefix web run build
-clickclick-api
-```
-
-ClickClick 自动检测设备并部署 Accessibility Collector。保持设备解锁，按 Android 提示允许安装、调试或无障碍权限。如果设备尚未安装 ADBKeyboard，请按[输入法配置](docs/deployment.zh-CN.md#input-method-apk)提供 APK，以启用文本输入。
-
-远程设备、Collector 安装与连接排查见[部署指南](docs/deployment.zh-CN.md)。
-
-### 4. 运行首次任务并检查效果
-
-打开 [Console](http://127.0.0.1:8080)，在任务创建区选择 decision model、executor model 和一个空闲设备，输入：
-
-> 打开系统设置，在搜索框输入 Wi-Fi，查看无线网络相关设置并报告当前状态，不修改任何开关。
-
-点击 **submit**，在 Console 中跟随执行进度。选择 Timeline 中的调用可查看模型输入、工具和保存的观测截图；开启“跟随最新步骤”查看新记录，点击模型图片查看该轮输入画面。
-
-## 用自然语言下达任务
-
-直接在 Console 中描述你想完成的事，例如：“把 Markor 里这篇笔记中的食谱添加到 Broccoli。”Agent 会根据目标和实际页面规划步骤、操作应用。无需固定提示词格式，也无需预先编排操作流程。
-
-[任务示例](docs/task-examples.zh-CN.md)展示可以交给 Agent 的任务。示例中的应用、措辞和数据都可以按需替换；希望补充特定应用的操作经验时，可参考[技能指南](skills/README.zh-CN.md)，这是可选扩展。
-
-也可以在任务详情点击 **“优化我的工作流”**，授权本次学习预算和设备探索；在 **技能 → 待审 Pending** 检查候选、证据与独立审查，再决定逐文件批准。普通任务结束不会自动启动学习，候选不会自动发布。
-
-### 什么时候值得补充 Skill？
-
-普通任务可以直接用自然语言提交，Agent 会使用仓库已有的适用技能。以下情况值得补充或改进 Skill，以提高同类任务的成功率：
-
-- **应用操作不直观：** 特殊保存方式、隐藏入口、容易混淆的控件，或特定系统版本的交互差异。
-- **同类任务反复踩坑：** 跨应用转录丢字段、长列表漏项、同名记录误判，或填完后没有真正保存。
-- **需要稳定复用操作与核验经验：** 将已经验证的方法沉淀下来，让后续任务知道如何操作、如何检查结果。
-
-本次任务的目标和具体数据写在指令里，可复用的应用经验写入 Skill。Skill 能减少已知错误，不能保证每次成功；可在 Console 中检查实际加载内容和执行结果。[如何编写和验证 Skill →](skills/README.zh-CN.md#when-to-add-a-skill)
+源码安装需要 Python 3.12、Node.js/npm、Android SDK Platform-Tools，以及支持图像与工具调用的模型服务。按[部署指南](docs/deployment.zh-CN.md)完成环境安装、模型配置、设备连接和服务启动；使用桌面安装器可直接从设置页开始。
 
 ## 评测与复现
 
-MobileWorld 最新配置与成绩见[评测报告](docs/mobileworld-results-20261007.md)。另有[固定配置运行指南](docs/mobileworld-reproduction.zh-CN.md)，其准备与执行参数以该指南为准。
-
-
-
-准备好模型与 AndroidWorld 模拟器后，可一键运行公开的 116 个任务实例：
-
-```bash
-python -m evaluation.androidworld.reproduce --install
-```
-
-[完整准备、运行与恢复指南](evaluation/androidworld/README.md)。
-
-在 [AndroidWorld 成绩页](https://lordrosenberg.github.io/ClickClick/androidworld/)查看逐项评分与执行轨迹。[评测报告](docs/androidworld-results-20260921.md)说明 115/116 对应的模型、环境、任务选择和动作计数；[评测指南](docs/evaluation.zh-CN.md)介绍初始化、评分和复现条件，[AndroidWorld 适配器](docs/androidworld-benchmark.md)说明基准接入方法。
+- **MobileWorld：** [最新成绩与配置](docs/mobileworld-results-20261007.md) · [固定配置复现指南（117 道原题 + 9 道变体）](docs/mobileworld-reproduction.zh-CN.md)。
+- **交互类：** [评测方法与能力边界](docs/mobileworld-hitl-results-20261015.md)。
+- **AndroidWorld：** [完整准备、运行与恢复指南](evaluation/androidworld/README.md) · [评测报告](docs/androidworld-results-20260921.md)。
 
 ## 文档导航
 
 | 文档 | 内容 | English |
 | --- | --- | --- |
-| [PC 助手 MCP 接入](docs/local-mcp.zh-CN.md) | 接入、八个任务工具、进展与暂停恢复。 | [English](docs/local-mcp.md) |
+| [PC 助手 MCP 接入](docs/local-mcp.zh-CN.md) | 接入、九个任务工具、进展与暂停恢复。 | [English](docs/local-mcp.md) |
 | [桌面安装与连接](docs/desktop-setup.zh-CN.md) | 安装器、订阅/API、Wi-Fi/USB、注册与升级。 | [English quickstart](docs/local-mcp.md#desktop-setup) |
 | [技术概览](docs/reliability-design.zh-CN.md) | 设计目标与核心机制：为什么这样组织 Agent。 | [English](docs/reliability-design.md) |
 | [架构详解](docs/architecture.zh-CN.md) | 模块、接口与执行流程，以及各模块的详细设计。 | [English](docs/architecture.md) |
@@ -264,7 +125,6 @@ python -m evaluation.androidworld.reproduce --install
 许可证：[Apache 2.0](LICENSE)。
 
 第三方组件见[许可证说明](THIRD_PARTY_NOTICES.md)。
-
 
 ## 项目趋势
 
@@ -283,5 +143,3 @@ python -m evaluation.androidworld.reproduce --install
     <img alt="ClickClick installer downloads" src="https://raw.githubusercontent.com/LordRosenberg/ClickClick/codex/androidworld-gallery/stats/installer-downloads.svg" />
   </picture>
 </a>
-
-Star 趋势由 Star History 自动更新，图表服务设有 24 小时缓存。安装器下载数每小时刷新，桌面正式版发布后也会刷新，按天展示累计下载数，图中标注最后更新时间。GitHub 图片缓存可能带来额外的显示延迟。仅统计 Windows/macOS 安装包，包含重复下载与升级下载，不代表独立用户人数；趋势从首次采样开始积累。

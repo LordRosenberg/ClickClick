@@ -4,7 +4,7 @@
 
 本文说明 ClickClick 的**模块边界、接口和任务执行流程**，并提供各模块详细设计的入口。核心机制的设计目标见[技术概览](reliability-design.zh-CN.md)。
 
-![系统架构](assets/clickclick-architecture.svg)
+![系统架构](assets/clickclick-architecture.zh-CN.svg)
 
 <a id="what-harness-means-here"></a>
 ## Harness 的定义

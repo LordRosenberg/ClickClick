@@ -13,7 +13,23 @@ The steps below are for **running from source**. Use them when developing ClickC
 - Android 8.0+ is the Collector minimum. Authorize ADB on the target device. The AndroidWorld runner has stricter API 33/emulator requirements.
 - Model access is required for actual agent tasks. Fixture mode replaces device I/O, not the language model.
 
-Create and activate `.venv` using the platform-specific commands in the [README](../README.md#deployment), then install `python -m pip install -e ".[decode]"`. Add `dev` to the extras when running tests. Preserve an existing `.env` instead of overwriting it with the example.
+Run from the repository root:
+
+```bash
+# Linux / macOS
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[decode]"
+```
+
+```powershell
+# Windows PowerShell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[decode]"
+```
+
+If `.env` does not exist, copy `.env.example` to `.env` (`cp .env.example .env` on Linux/macOS or `Copy-Item .env.example .env` in PowerShell). Preserve an existing `.env`. Add `dev` to the install extras when running tests.
 
 ## Model routing
 

@@ -13,7 +13,23 @@
 - Collector 最低支持 Android 8.0+，目标设备需授权 ADB。AndroidWorld 运行器有更严格的 API 33／模拟器要求。
 - 真实 Agent 任务需要可用模型。Fixture 模式替换设备 I/O，不替换语言模型。
 
-按 [README](../README.zh-CN.md#部署) 中对应平台命令创建并激活 `.venv`，安装 `python -m pip install -e ".[decode]"`；运行测试时加入 `dev` 扩展。已有 `.env` 应保留，不用示例覆盖。
+在仓库根目录执行：
+
+```bash
+# Linux / macOS
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[decode]"
+```
+
+```powershell
+# Windows PowerShell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[decode]"
+```
+
+仅在 `.env` 不存在时复制 `.env.example`：Linux/macOS 使用 `cp .env.example .env`，PowerShell 使用 `Copy-Item .env.example .env`。已有配置应保留；运行测试时在安装扩展中加入 `dev`。
 
 <a id="model-routing"></a>
 ## 模型路由
