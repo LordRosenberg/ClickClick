@@ -2,8 +2,8 @@ import { t } from "@/lib/locale";
 import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Square } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ChevronLeft, Smartphone, Square } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ export function TaskDetailView() {
     useState<SelectedConversationVisual | null>(null);
   const [followLatest, setFollowLatest] = useState(true);
   const [stopping, setStopping] = useState(false);
+  const budgetRenewal = useRef<{ request_key: string; budget: Record<string, number> } | null>(null);
   // Last call key we already navigated to (rail click or hash scroll).
   // Silent `calls` merges must not re-scroll while this matches.
   const navigatedCallKeyRef = useRef<string | null>(null);
@@ -60,8 +61,26 @@ export function TaskDetailView() {
     !readOnly && taskIsActive(tk?.status);
   const canStop = !readOnly && taskIsNonterminal(tk?.status);
   const lifecycleMutation = useMutation({
-    mutationFn: (operation: "pause" | "resume") => operation === "pause" ? pauseTask(id!) : resumeTask(id!),
+    mutationFn: async (operation: "pause" | "resume") => {
+      if (operation === "pause") return pauseTask(id!);
+      const runtime = tk?.state?.revisable;
+      if (runtime?.stop_reason !== "budget_exhausted") return resumeTask(id!);
+      const dimension = runtime.budget_kind === "task_time" ? "seconds" : runtime.budget_kind;
+      if (!dimension) throw new Error("缺少预算类型，请查看任务详情");
+      const label = ({ executor_decisions: "执行决策次数", model_calls: "模型请求次数", device_actions: "设备动作次数", seconds: "时间（秒）" } as Record<string, string>)[dimension] ?? dimension;
+      const amount = window.prompt(`追加${label}预算（正整数；增加累计上限，不重置消耗）`,
+        dimension === "model_calls" ? "1000" : dimension === "seconds" ? "1800" : "200");
+      if (amount === null) return { task_id: id!, status: tk?.status };
+      const increment = Number(amount);
+      if (!Number.isSafeInteger(increment) || increment <= 0) throw new Error("请输入正整数");
+      const budget = { [dimension]: increment };
+      if (!budgetRenewal.current || JSON.stringify(budgetRenewal.current.budget) !== JSON.stringify(budget)) {
+        budgetRenewal.current = { request_key: crypto.randomUUID(), budget };
+      }
+      return resumeTask(id!, budgetRenewal.current);
+    },
     onSuccess: () => {
+      budgetRenewal.current = null;
       qc.invalidateQueries({ queryKey: ["task", id] });
       qc.invalidateQueries({ queryKey: ["timeline", id] });
       qc.invalidateQueries({ queryKey: ["tasks"] });
@@ -184,7 +203,7 @@ export function TaskDetailView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
           <ChevronLeft className="h-4 w-4" /> back
         </Button>
@@ -214,12 +233,20 @@ export function TaskDetailView() {
             ● live
           </span>
         )}
-        {(taskCanPause(tk?.status, readOnly) || taskCanResume(tk?.status, readOnly)) && (
+        {!readOnly && (
+          <Button asChild variant="outline" size="sm">
+            <Link to={`/tasks/${encodeURIComponent(tl.task_id)}/preview`} title={t("查看任务投屏与模型输出")}>
+              <Smartphone className="mr-1.5 h-4 w-4" aria-hidden />
+              {t("投屏预览")}
+            </Link>
+          </Button>
+        )}
+        {(taskCanPause(tk?.status, readOnly) || taskCanResume(tk?.status, readOnly, tk?.can_resume)) && (
           <Button type="button" variant="outline" size="sm"
             disabled={lifecycleMutation.isPending || stopping || cancelMutation.isPending}
-            onClick={() => lifecycleMutation.mutate(tk?.status === "paused" ? "resume" : "pause")}
+            onClick={() => lifecycleMutation.mutate(taskCanResume(tk?.status, readOnly, tk?.can_resume) ? "resume" : "pause")}
           >
-            {lifecycleMutation.isPending ? t("处理中…") : tk?.status === "paused" ? t("恢复任务") : t("暂停任务")}
+            {lifecycleMutation.isPending ? t("处理中…") : taskCanResume(tk?.status, readOnly, tk?.can_resume) ? t("恢复任务") : t("暂停任务")}
           </Button>
         )}
         {canStop && (

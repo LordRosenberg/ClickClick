@@ -13,7 +13,7 @@ from agent.revisable.session import ExecutionSession, terminal_registry
 from agent.revisable.tools import ReadResult, register_memory_tools
 from agent.session import AgentSession
 from agent.tool_registry import AgentToolResult
-from shared.revisable import PlannerDecision, Review
+from shared.revisable import PlannerDecision, Review, SteeringPlannerDecision
 
 def prompt(role, *, hitl_enabled=False, hitl_mode="managed"):
     return render_role_system(role, hitl_enabled=hitl_enabled, hitl_mode=hitl_mode)
@@ -44,10 +44,14 @@ class PlanDecisionRole(DecisionRoleRunner):
             self.session.set_stage_skills(target, stage.skill_ids)
         image, _ = self.prepare_observation(package)
         store.observe(package, state)
-        schema = PlannerDecision if self.role == "planner" else Review
+        from shared.steering import SteeringInbox
+        adjusting = enabled and self.role == "planner" and bool(SteeringInbox(store.db, task_id).pending())
+        schema = (SteeringPlannerDecision if adjusting else PlannerDecision) if self.role == "planner" else Review
 
         async def submit(args, ctx):
             decision = schema.model_validate(args)
+            if decision.decision == "continue" and state.revisable.stage is None:
+                raise ValueError("continue requires an existing active stage; use execute for new work")
             from agent.revisable.recall import resolve_source
             for source in decision.source_refs:
                 resolve_source(store, source)

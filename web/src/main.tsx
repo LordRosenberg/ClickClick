@@ -9,6 +9,7 @@ import { DeviceView } from "@/views/DeviceView";
 import { SkillsView } from "@/views/SkillsView";
 import { SetupView } from "@/views/SetupView";
 import { RootLayout } from "@/views/RootLayout";
+import { TaskPreviewView } from "@/views/TaskPreviewView";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -21,6 +22,7 @@ const queryClient = new QueryClient({
 });
 
 const router = createBrowserRouter([
+  { path: "/tasks/:id/preview", element: <TaskPreviewView /> },
   {
     path: "/",
     element: <RootLayout />,

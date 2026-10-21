@@ -72,7 +72,7 @@ async def test_sdk_tool_surface_batch_errors_images_and_no_host_context(app):
         transport=ASGITransport(app=app), base_url="http://127.0.0.1:8080"))
     tools = await server.list_tools()
     assert {t.name for t in tools} == {"get_status", "start_task", "get_task", "list_tasks",
-                                     "get_task_snapshot", "cancel_task", "pause_task", "resume_task"}
+                                     "get_task_snapshot", "cancel_task", "pause_task", "resume_task", "steer_task"}
     start_schema = next(t.inputSchema for t in tools if t.name == "start_task")
     assert set(start_schema["properties"]) == {"instruction", "device_ids", "request_key"}
     output = await server.call_tool("get_task", {"task_ids": [task.id, "missing"]})
@@ -201,7 +201,7 @@ async def test_real_stdio_disconnect_does_not_cancel_running_harness(tmp_path):
                     initialized = await session.initialize()
                     assert initialized.instructions
                     discovered = (await session.list_tools()).tools
-                    assert len(discovered) == 8
+                    assert len(discovered) == 9
                     assert all(tool.description for tool in discovered)
                     status = await session.call_tool("get_status")
                     assert status.structuredContent["models_configured"]

@@ -16,6 +16,10 @@ test("paused tasks remain cancellable and resume only from a clean paused state"
   }
   assert.equal(taskCanPause("running", true), false);
   assert.equal(taskCanResume("paused", true), false);
+  assert.equal(taskCanResume("failed", false, true), true);
+  assert.equal(taskCanResume("failed", true, true), false);
+  assert.equal(taskCanResume("cancelled", false, true), false);
+  assert.equal(taskCanResume("succeeded", false, true), false);
   assert.equal(taskStatusLabel.pausing, "正在暂停");
   assert.equal(taskStatusLabel.paused, "已暂停");
 });

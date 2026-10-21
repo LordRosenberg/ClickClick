@@ -36,7 +36,8 @@ def test_role_order_preserved_and_final_boundary_image_used(tmp_path):
 
 
 def test_host_paths_and_tokens_are_not_public():
-    assert "private path omitted" in public_text("Open C:\\private\\notes.txt")
+    host_path = "C:" + "\\private\\notes.txt"
+    assert "private path omitted" in public_text("Open " + host_path)
     assert "credential omitted" in public_text("sk-" + "a" * 40)
     assert "secret123" not in public_text("password: secret123")
 

@@ -1,5 +1,7 @@
 /* Console interface copy; task content and model responses retain their original language. */
 export const english: Record<string, string> = {
+  "投屏预览": "Screen preview",
+  "查看任务投屏与模型输出": "View task screen and model output",
   "工作空间": "WORKSPACE",
   "模型与账号": "Models & account",
   "配置 API": "Configure API",

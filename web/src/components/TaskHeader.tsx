@@ -68,6 +68,7 @@ export function TaskHeader({
   const cacheRatio = metrics?.cache_read_ratio == null
     ? "—"
     : `${Math.round(metrics.cache_read_ratio * 100)}%`;
+  const budgetLabel = ({ executor_decisions: "执行决策次数", model_calls: "模型请求次数", device_actions: "设备动作次数", task_time: "任务时限", prediction_rounds: "评测轮数" } as Record<string, string>)[revisable?.budget_kind ?? ""] ?? "任务预算";
 
   return (
     <Card className="border-border bg-bg-1">
@@ -121,6 +122,33 @@ export function TaskHeader({
 
         {revisable?.plan && <RevisablePlanView runtime={revisable} />}
 
+        {liveTask?.adjustment && (
+          <div role="status" className="rounded border border-border p-2 text-sm">
+            任务调整 #{liveTask.adjustment.revision} · {liveTask.adjustment.status === "applied" ? "已纳入计划" : liveTask.adjustment.status === "cancelled" ? "已取消" : liveTask.adjustment.status === "follow_up" ? "已创建后续任务" : "已收到，等待处理"}
+            <div>{liveTask.adjustment.instruction}</div>
+            {liveTask.adjustment.feedback && <div>{liveTask.adjustment.feedback}</div>}
+          </div>
+        )}
+
+        {revisable?.stop_reason === "budget_exhausted" && (
+          <div role="status" className="rounded border border-border p-2 text-sm">
+            本次执行因预算耗尽而失败 · {budgetLabel}。已完成操作、累计消耗和原执行结果已保留。
+            {liveTask?.can_resume ? "可明确追加对应预算后续跑。" : "续跑资格以有效检查点及任务协议为准。"}
+            <div>决策上限：{revisable.limits?.executor_decisions ?? "默认"} · 模型请求上限：{revisable.limits?.model_calls ?? "默认"}</div>
+          </div>
+        )}
+
+
+        {!!liveTask?.execution_attempts?.length && (
+          <div className="rounded border border-border p-2 text-sm" aria-label="执行记录">
+            {liveTask.execution_attempts.map((attempt) => (
+              <div key={attempt.attempt}>
+                第 {attempt.attempt} 次执行：{attempt.status} · {attempt.failure_reason || "完成"}
+                {" "}· 累计决策 {attempt.executor_decisions} / 请求 {attempt.model_calls} / 动作 {attempt.device_actions}
+              </div>
+            ))}
+          </div>
+        )}
 
         {timeline.failure_reason && (
           <div className="rounded border border-err/40 bg-err/10 p-2 font-mono text-[11px] text-err">

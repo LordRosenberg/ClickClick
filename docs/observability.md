@@ -21,6 +21,12 @@ Inspect **active skills** to verify delivered IDs and versions. Open the observa
 
 Use **Trace 流** for errors, cancellation and diagnostic events. Not every capture or compression field has a dedicated UI chart: deeper inspection uses the associated artifact or an offline query. A task marked **运行时完成** means the runtime accepted a completion decision. It does not independently establish that every business field is correct.
 
+## Task screen preview
+
+Select **Screen preview** at the top of task details to view recent phone pixels and model output side by side. **Task details** in the footer returns to the complete record. An assistant can open the same page in its own in-app browser after delegation.
+
+This read-only view supports local running Android tasks and reuses their published pixels without operating the phone. Returned text and reasoning summaries append live; complete tool arguments appear after the round ends. Missing frames, pause and termination are labelled, and retained images are marked **Last received frame** rather than presented as current state or proof of success.
+
 ## Metrics and their meaning
 
 | Measure | Interpretation |

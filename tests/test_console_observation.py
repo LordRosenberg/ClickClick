@@ -12,6 +12,13 @@ from tests.test_scrcpy_stream import _PushSource
 from tests.test_task_pause import app  # noqa: F401 - isolated API fixture
 
 
+@pytest.fixture(autouse=True, params=[False, True])
+def console_boundary_mode(request, monkeypatch):
+    monkeypatch.setenv("CLICKCLICK_API_HOST", "127.0.0.1")
+    monkeypatch.setenv("CLICKCLICK_API_PORT", "8080")
+    monkeypatch.setenv("CLICKCLICK_MCP_HTTP_ENABLED", str(request.param).lower())
+
+
 async def test_removed_routes_leave_active_observation_lease_untouched(app, monkeypatch):
     source = _PushSource("fixture")
     registry = ScrcpyRegistry()
@@ -35,7 +42,7 @@ async def test_removed_routes_leave_active_observation_lease_untouched(app, monk
         ):
             assert not any(getattr(route, "path", None) in paths for route in application.routes)
             assert not any(getattr(route, "path", None) == ws_path for route in application.routes)
-            async with AsyncClient(transport=ASGITransport(app=application), base_url="http://test") as client:
+            async with AsyncClient(transport=ASGITransport(app=application), base_url="http://127.0.0.1:8080") as client:
                 for path in paths:
                     for _ in range(2):
                         response = await client.get(path, params={"device_key": "fixture"})
@@ -44,7 +51,7 @@ async def test_removed_routes_leave_active_observation_lease_untouched(app, monk
         task = app.state.db.create_task("saved image", device_serial="fixture")
         image = b"\x89PNG\r\n\x1a\nsaved-task-image"
         ref = app.state.artifacts.save_bytes("som", image, ".png")
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://127.0.0.1:8080") as client:
             response = await client.get(f"/api/tasks/{task.id}/artifacts/{ref}")
             assert response.status_code == 200
             assert response.content == image

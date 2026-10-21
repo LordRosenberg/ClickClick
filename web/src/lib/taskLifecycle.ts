@@ -12,8 +12,8 @@ export function taskCanPause(status?: string, readOnly = false): boolean {
   return !readOnly && (status === "queued" || status === "running");
 }
 
-export function taskCanResume(status?: string, readOnly = false): boolean {
-  return !readOnly && status === "paused";
+export function taskCanResume(status?: string, readOnly = false, canResumeFailure = false): boolean {
+  return !readOnly && (status === "paused" || (status === "failed" && canResumeFailure));
 }
 
 export const taskStatusLabel: Record<TaskStatus, string> = {

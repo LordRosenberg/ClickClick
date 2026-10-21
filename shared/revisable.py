@@ -65,11 +65,16 @@ class Review(BaseModel):
         description="For complete only: note_keys of supplied unresolved questions settled by the cited evidence. Explain in reason unless a strict answer format excludes it; this does not rewrite execution notes.")
 
 
+class SteeringPlannerDecision(PlannerDecision):
+    decision: Literal["execute", "continue", "review", "complete", "inconclusive"]
+
+
 class TaskLimits(BaseModel):
     """Caller-owned task limits, independent of per-call stepping boundaries."""
 
     model_config = ConfigDict(extra="forbid")
     device_actions: int | None = Field(default=None, ge=0)
+    executor_decisions: int | None = Field(default=None, ge=1)
     model_calls: int | None = Field(default=None, ge=1)
     prediction_rounds: int | None = Field(default=None, ge=1)
     deadline_at: float | None = Field(default=None, gt=0, allow_inf_nan=False)
@@ -98,7 +103,13 @@ class PlanRuntime(BaseModel):
     delivered_context: dict = Field(default_factory=dict)
     last_executor_stall: str = ""
     checkpoint_version: int = 0
+    checkpoint_resumable: bool = False
+    execution_attempt: int = Field(default=1, ge=1)
+    attempt_started_at: float | None = None
     paused_at: float | None = None
+    stop_reason: str | None = None
+    budget_kind: str | None = None
+    budget_required: int = 1
     compaction_failed_prefix: list[str] = Field(default_factory=list)
 
     def complete_stage(self, stage_id: str) -> bool:

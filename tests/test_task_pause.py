@@ -183,8 +183,10 @@ async def test_paused_cancel_deadline_and_orphan_resume(app):
         state.revisable.limits.deadline_at = time.time() - 1
         db.update_task(deadline_task.id, state=state)
         response = await client.post(f"/api/tasks/{deadline_task.id}/resume")
-        assert response.json()["status"] == "cancelled"
+        assert response.json()["status"] == "failed"
+        assert response.json()["budget_kind"] == "task_time"
         assert db.get_task(deadline_task.id).failure_reason == "task_deadline_exhausted"
+        assert (await client.post(f"/api/tasks/{deadline_task.id}/cancel")).json()["status"] == "failed"
         orphan = db.create_task("orphan", device_serial="fixture")
         db.update_task(orphan.id, status=TaskStatus.RUNNING)
         assert (await client.post(f"/api/tasks/{orphan.id}/resume")).status_code == 409

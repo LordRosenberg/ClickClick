@@ -10,7 +10,7 @@ from desktop.files import write_json
 from desktop.registration import client_path
 
 
-VERIFY_PROMPT = "请调用 ClickClick 的 get_status，检查 MCP 连接、模型配置和手机初始化状态，说明是否可以执行手机任务及尚未完成的步骤。不要发起模型请求或手机测试任务。"
+VERIFY_PROMPT = "请调用 ClickClick 的 get_status，检查 MCP 连接、模型配置和手机初始化状态，说明是否可以执行手机任务及尚未完成的步骤。首次接入后在当前对话简短介绍 ClickClick、自然语言派发、内置浏览器任务投屏预览页（不支持时回退详情页）和任务控制；说明当前 HITL 开关、Console 设置 → 运行与学习中的配置位置、保存设置及仅对新任务生效。不要自动修改已有安装的开关，不要发起模型请求或手机测试任务。"
 
 
 def shell_command(argv, *, system=None):
@@ -67,6 +67,8 @@ def connection_info(data_dir, entry, *, user_dir=None, system=None, locale="zh-C
         result["verification_prompt"] = (
             "Call ClickClick get_status to check the MCP connection, model configuration and phone initialization. "
             "Explain whether phone tasks can run and what steps remain. Do not send model requests or start a phone test task."
+            " After first connection, briefly introduce ClickClick, natural-language delegation, in-app browser task screen previews (details fallback when unsupported) and task controls in this conversation. "
+            "Explain the current HITL switch, Console Settings > Run and Learning location, saving settings and new-task-only scope. Do not change an existing installation's switch just by connecting."
         )
         result["assistant_prompt"] = (
             f"Add the ClickClick running on this computer to your own MCP. Read this local file: {path}\n"
@@ -87,4 +89,6 @@ def connection_info(data_dir, entry, *, user_dir=None, system=None, locale="zh-C
                 item["guidance"] = "Choose stdio in your assistant's local MCP settings and enter command and args below, or import in the client's supported format."
             else:
                 item["guidance"] = "Open this configuration file and merge mcpServers.clickclick below, preserving other servers and settings. Do not overwrite the entire file."
+    result["assistant_prompt"] += ("\nAfter verification, use get_status.assistant_onboarding to briefly introduce ClickClick in this conversation and explain the current HITL switch, its Console settings location and new-task-only scope. After future delegation, prefer your in-app browser for the returned supported preview_url task screen preview; otherwise use console_url details. Reuse by task ID and share links when browser opening is unavailable."
+                                   if locale == "en" else "\n验证后请按 get_status.assistant_onboarding，在当前对话简短介绍 ClickClick 与基本用法，说明当前 HITL 开关、Console 配置位置和仅新任务生效范围。今后派发成功后优先用你的内置浏览器打开返回的任务投屏预览页 preview_url，不支持投屏时回退 console_url 详情页；按任务复用，浏览器不可用时提供链接。")
     return result

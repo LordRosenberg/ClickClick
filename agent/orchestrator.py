@@ -34,8 +34,8 @@ _current_driver: contextvars.ContextVar[DeviceDriver | None] = contextvars.Conte
     "orch_current_driver", default=None,
 )
 
-DEFAULT_MAX_STEPS = 50
-DEFAULT_MAX_ROLE_INVOCATIONS = 200
+DEFAULT_MAX_STEPS = 200
+DEFAULT_MAX_ROLE_INVOCATIONS = 1000
 DEFAULT_ROLE_CALL_RETRY_N = 1
 DEFAULT_EXECUTOR_GROUNDING_RETRY_N = 1
 
@@ -89,6 +89,7 @@ class Orchestrator:
         self._device_lock = asyncio.Lock()
         self._learning_jobs: set[str] = set()
         self._pause_requested: set[str] = set()
+        self.steering_controls = {}
 
     def request_pause(self, task_id: str) -> None:
         self._pause_requested.add(task_id)
@@ -99,23 +100,27 @@ class Orchestrator:
     def is_pause_requested(self, task_id: str) -> bool:
         return task_id in self._pause_requested
 
-    def _pause(self, task_id: str, state: AgentState) -> TaskStatus:
-        """Commit a clean business checkpoint; paused is published after cleanup."""
+    def _prepare_checkpoint(self, task_id: str, state: AgentState) -> None:
+        """Validate saved history without changing the task's outcome."""
         from agent.revisable.store import TaskStore
 
-        try:
-            if state.revisable.dialogue_refs:
-                store = TaskStore(self.db, self.artifacts, task_id)
-                # A role can save its decision before the parent dispatches.
-                # Only completed steps (with receipts) belong to resume history.
-                closed_refs = [ref for ref in state.revisable.dialogue_refs
-                               if store.get("dialogue", ref)["payload"]["step"] < state.step_number]
-                store.read_dialogue(closed_refs)
-                state.revisable.dialogue_refs = closed_refs
-        except Exception as exc:
-            return self._fail(task_id, state, f"pause_checkpoint_invalid:{exc}")
+        if state.revisable.dialogue_refs:
+            store = TaskStore(self.db, self.artifacts, task_id)
+            # Only closed steps may supply actionable continuation history.
+            closed_refs = [ref for ref in state.revisable.dialogue_refs
+                           if store.get("dialogue", ref)["payload"]["step"] < state.step_number]
+            store.read_dialogue(closed_refs)
+            state.revisable.dialogue_refs = closed_refs
         state.revisable.delivered_context = {}
         state.revisable.checkpoint_version += 1
+        state.revisable.checkpoint_resumable = True
+
+    def _pause(self, task_id: str, state: AgentState) -> TaskStatus:
+        """Commit a clean business checkpoint; paused is published after cleanup."""
+        try:
+            self._prepare_checkpoint(task_id, state)
+        except Exception as exc:
+            return self._fail(task_id, state, f"pause_checkpoint_invalid:{exc}")
         state.revisable.paused_at = time.time()
         with self.db.transaction():
             self.db.update_task(task_id, status=TaskStatus.PAUSING, state=state)
@@ -152,6 +157,11 @@ class Orchestrator:
         device_serial: str | None = None,
     ) -> str:
         state = AgentState(instruction=instruction)
+        state.revisable.limits.executor_decisions = getattr(self.settings, "default_task_executor_decisions", self.max_steps)
+        state.revisable.limits.model_calls = getattr(self.settings, "default_task_model_calls", self.max_role_invocations)
+        state.revisable.limits.device_actions = getattr(self.settings, "default_task_device_actions", None)
+        seconds = getattr(self.settings, "default_task_seconds", None)
+        state.revisable.limits.deadline_at = time.time() + seconds if seconds else None
         record = self.db.create_task(
             instruction,
             state,
@@ -233,6 +243,12 @@ class Orchestrator:
     ) -> TaskStatus:
         from agent.pause import TaskPauseRequested
 
+        budget_check = getattr(self, "exhausted_budget", None)
+        if budget_check is not None and (dimension := budget_check(state)) is not None:
+            return self._budget_fail(task_id, state, dimension)
+        state.revisable.stop_reason = None
+        state.revisable.budget_kind = None
+        state.revisable.checkpoint_resumable = False
         if self.is_pause_requested(task_id):
             return self._pause(task_id, state)
         try:
@@ -418,6 +434,7 @@ class Orchestrator:
                 except Exception:  # noqa: BLE001
                     pass
             _current_driver.reset(token)
+            self.steering_controls.pop(task_id, None)
 
 
     async def _call_role(
@@ -450,9 +467,11 @@ class Orchestrator:
         raise AssertionError("unreachable role retry state")
 
     def _model_call_limit(self, state: AgentState) -> int | None:
-        limits = [value for value in (self.max_role_invocations, state.revisable.limits.model_calls)
-                  if value is not None]
-        return min(limits) if limits else None
+        task_limit = state.revisable.limits.model_calls
+        if self.max_role_invocations != DEFAULT_MAX_ROLE_INVOCATIONS:
+            limits = [value for value in (self.max_role_invocations, task_limit) if value is not None]
+            return min(limits) if limits else None
+        return task_limit if task_limit is not None else self.max_role_invocations
 
     def _model_call_meter(
         self,
@@ -464,10 +483,8 @@ class Orchestrator:
         def record(_kind: str, payload: dict[str, Any]) -> None:
             limit = self._model_call_limit(state)
             if limit is not None and state.role_invocation_count >= limit:
-                raise RoleInvocationLimitExceeded(
-                    "role_invocation_limit_exhausted:"
-                    f"{state.role_invocation_count}/{limit}"
-                )
+                from shared.task_budgets import TaskBudgetExhausted
+                raise TaskBudgetExhausted("model_calls")
             state.role_invocation_count += 1
             self._persist(task_id, state)
             self.traces.write(
@@ -660,10 +677,12 @@ class Orchestrator:
 
     def _succeed(self, task_id: str, state: AgentState, reason: str,
                  *, terminal_role: str = "reviewer") -> TaskStatus:
+        state.revisable.checkpoint_resumable = False
         self.db.update_task(
             task_id,
             status=TaskStatus.SUCCEEDED,
             failure_reason=None,
+            clear_failure_reason=True,
             state=state,
             current_node_id=state.current_subgoal or None,
         )
@@ -674,17 +693,20 @@ class Orchestrator:
             payload={"terminal_role": terminal_role},
         )
         self.cancel_registry.clear(task_id)
+        from shared.task_budgets import record_execution_attempt
+        record_execution_attempt(self.db, task_id)
         self._schedule_skill_learner(task_id)
         return TaskStatus.SUCCEEDED
 
-    def _fail(self, task_id: str, state: AgentState, reason: str) -> TaskStatus:
-        self.db.update_task(
-            task_id,
-            status=TaskStatus.FAILED,
-            failure_reason=reason,
-            state=state,
-            current_node_id=state.current_subgoal or None,
-        )
+    def _fail(self, task_id: str, state: AgentState, reason: str, *, resumable=False) -> TaskStatus:
+        from shared.task_budgets import record_execution_attempt
+        state.revisable.checkpoint_resumable = resumable
+        with self.db.transaction():
+            self.db.update_task(
+                task_id, status=TaskStatus.FAILED, failure_reason=reason,
+                state=state, current_node_id=state.current_subgoal or None,
+            )
+            record_execution_attempt(self.db, task_id)
         self.traces.write(
             task_id,
             kind="loop_tick",
@@ -790,6 +812,7 @@ class Orchestrator:
             # Outer cancellation handlers may still hold the pre-review object;
             # only the latest committed checkpoint can preserve completed work.
             state = task.state
+        state.revisable.checkpoint_resumable = False
         self.db.update_task(
             task_id,
             status=TaskStatus.CANCELLED,
@@ -807,5 +830,7 @@ class Orchestrator:
         from shared.hitl import HumanInputBroker
         HumanInputBroker(self.db).reconcile(task_id)
         self.cancel_registry.clear(task_id)
+        from shared.task_budgets import record_execution_attempt
+        record_execution_attempt(self.db, task_id)
         self._schedule_skill_learner(task_id)
         return TaskStatus.CANCELLED

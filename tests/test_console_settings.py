@@ -142,7 +142,7 @@ def test_private_profiles_legacy_restart_gateway_and_secret_preservation(tmp_pat
     for key, value in model_environment(tmp_path).items():
         monkeypatch.setenv(key, value)
     installed_restart = apply_saved_settings(Settings(data_dir=tmp_path, _env_file=None))
-    assert installed_restart.default_task_model_calls is None
+    assert installed_restart.default_task_model_calls == 1000
     assert installed_restart.default_task_seconds is None
     assert installed_restart.default_model == "chatgpt/model"
     kwargs = _build_completion_kwargs("chatgpt/model", [], None, None, None, restarted)
@@ -158,7 +158,7 @@ def test_private_profiles_legacy_restart_gateway_and_secret_preservation(tmp_pat
     lambda b: b["models"][0].update(extra_body="secret-invalid-json"),
     lambda b: b["models"][0].update(extra_body="[]"),
     lambda b: b["models"][0].update(base_url="https://user:secret@api.example"),
-    lambda b: b.update(default_task_model_calls=201),
+    lambda b: b.update(default_task_model_calls=100001),
     lambda b: b.update(manager_model="missing"),
     lambda b: b.update(default_model=""),
     lambda b: b.update(mode="subscription"),
@@ -322,14 +322,16 @@ async def test_learning_defaults_apply_without_granting_consent(app):
 
 
 def test_model_budget_counts_requests_and_retains_runtime_guard(app):
-    from agent.orchestrator import RoleInvocationLimitExceeded
+    from shared.task_budgets import TaskBudgetExhausted
     orch = app.state.orchestrator
     state = AgentState(instruction="goal", revisable={"limits": {"model_calls": 2}})
     task = app.state.db.create_task("goal", state)
     meter = orch._model_call_meter(task.id, state, "planner")
     meter("model", {}); meter("retry", {})
-    with pytest.raises(RoleInvocationLimitExceeded):
+    with pytest.raises(TaskBudgetExhausted):
         meter("retry", {})
     assert app.state.db.get_task(task.id).state.role_invocation_count == 2
     state.revisable.limits.model_calls = 300
-    assert orch._model_call_limit(state) == 200
+    assert orch._model_call_limit(state) == 300
+    orch.max_role_invocations = 100
+    assert orch._model_call_limit(state) == 100

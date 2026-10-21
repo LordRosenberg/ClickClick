@@ -36,6 +36,7 @@ from agent.tool_registry import AgentRole, AgentToolRegistry, AgentToolResult, A
 from perception.observation import decoded_image_size
 from shared.artifacts import ArtifactStore
 from shared.config import Settings, get_settings
+from shared.task_control import check_invocation
 from shared.llm_gateway import GatewayError, GatewayInputSafetyError, GatewayResponse, complete
 from shared.schemas import (
     SUPPORTED_ANDROID_KEY_ACTIONS,
@@ -1371,6 +1372,7 @@ class AgentSession:
             ]
             evidence_names = [name for name, _ in evidence_entries]
             evidence_messages = [message for _, message in evidence_entries]
+            check_invocation()
             if content_safety_degraded:
                 wire_messages, round_removed_image_count = _project_messages_without_images(messages)
                 evidence_messages, _ = _project_messages_without_images(evidence_messages)
@@ -1616,6 +1618,7 @@ class AgentSession:
                         for message_index, content_index in content_safety_offending_locations
                     ],
                 }
+            check_invocation()
             request_rounds.append(request_payload)
             messages = wire_messages
             delivered_image_count = count_message_images(messages)
@@ -2192,7 +2195,9 @@ class AgentSession:
                         checkpoint = context.state["_human_checkpoint"]
                         checkpoint["dialogue"].append(messages[-1])
                         checkpoint["tool_records"] = [r.model_dump(mode="json") for r in records]
+                    check_invocation()
                     result = await registry.execute(tc.name, args, context)
+                    check_invocation()
             if tc.name == "write_note" and result.status != ToolStatus.SUCCEEDED:
                 write_failed = True
             record.status = result.status

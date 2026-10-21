@@ -15,6 +15,6 @@ The Control API hosts the agent harness: role orchestration, task sessions, devi
 
 HTTP MCP has its own event loop and port. Task submission, progress queries and control requests go to the backend; model and device work execute there. Multiple MCP clients can share that backend, and disconnecting a client does not cancel its tasks.
 
-Control API serves the built Console. A separate Vite process is needed only for frontend development. The scrcpy source belongs to task observation; Console displays saved screenshots without acquiring or resetting the source.
+Control API serves the built Console. A separate Vite process is needed only for frontend development. The scrcpy source belongs to task observation; Console details display saved screenshots, while read-only task preview reuses frames already published by the task without acquiring or resetting the source.
 
 See [deployment](deployment.md) for startup and device access, [local MCP](local-mcp.md) for assistant connection, and [evaluation](evaluation.md) for benchmark processes.

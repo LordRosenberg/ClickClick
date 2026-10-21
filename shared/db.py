@@ -120,7 +120,7 @@ class Database:
         self._transaction_depth += 1
         try:
             yield
-        except Exception:
+        except BaseException:
             self._transaction_depth -= 1
             if outermost:
                 self._conn.rollback()
@@ -236,6 +236,13 @@ class Database:
             "SELECT id, status, created_at FROM tasks"
         ).fetchall()]
 
+    def task_preview_identity(self, task_id: str) -> dict | None:
+        """Read preview eligibility without loading execution state or history."""
+        row = self._conn.execute(
+            "SELECT id, status, device_serial FROM tasks WHERE id = ?", (task_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
     def get_task_summary(self, task_id: str) -> TaskRecord | None:
         """Materialize list metadata only for a selected page member."""
         row = self._conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
@@ -301,6 +308,7 @@ class Database:
         status: TaskStatus | None = None,
         current_node_id: str | None = None,
         failure_reason: str | None = None,
+        clear_failure_reason: bool = False,
         state: AgentState | None = None,
     ) -> None:
         """Update mutable task fields and/or the persisted AgentState."""
@@ -309,7 +317,7 @@ class Database:
             raise KeyError(task_id)
         new_status = status or task.status
         new_node = current_node_id if current_node_id is not None else task.current_node_id
-        new_fail = failure_reason if failure_reason is not None else task.failure_reason
+        new_fail = None if clear_failure_reason else (failure_reason if failure_reason is not None else task.failure_reason)
         if state is not None:
             state_json = state.model_dump_json()
             new_node = state.current_subgoal or None

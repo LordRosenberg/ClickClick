@@ -14,6 +14,7 @@ def main():
     parser.add_argument("--home", type=Path)
     parser.add_argument("--unattended", action="store_true")
     parser.add_argument("--no-start", action="store_true")
+    parser.add_argument("--origin", choices=("manual", "assistant"), default="manual")
     args = parser.parse_args()
     payload = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent)) / "payload.zip"
     try:
@@ -29,7 +30,7 @@ def main():
         env = {k: v for k, v in os.environ.items() if not k.startswith(("CLICKCLICK_", "_PYI_"))
                and k not in {"PYTHONPATH", "PYTHONHOME", "VIRTUAL_ENV"}}
         cwd = Path(stage["root"]) / "app"
-        argv = [command, "-I", "-m", "desktop.main", "--home", str(args.home.resolve()), "install", "--payload", str(payload)]
+        argv = [command, "-I", "-m", "desktop.main", "--home", str(args.home.resolve()), "install", "--payload", str(payload), "--origin", args.origin]
         if args.no_start:
             argv += ["--no-start"]
         if args.unattended:

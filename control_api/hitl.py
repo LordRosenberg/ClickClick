@@ -162,7 +162,8 @@ def mount_human_input(app, *, db, traces, schedule_run):
             # Recover answers accepted before a backend restart/scheduling interruption.
             for task in db.list_tasks(TaskStatus.QUEUED):
                 item = broker.current(task.id)
-                if item and item["status"] == "resolved":
+                from shared.steering import SteeringInbox
+                if (item and item["status"] == "resolved") or SteeringInbox(db, task.id).pending():
                     await schedule_run(task.id)
             await asyncio.sleep(1)
 

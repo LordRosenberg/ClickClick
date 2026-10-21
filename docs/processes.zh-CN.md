@@ -15,6 +15,6 @@ Control API 承载 Agent Harness，包括角色编排、任务会话、设备访
 
 HTTP MCP 使用独立事件循环和端口，将任务提交、进度查询及控制请求转发给后台；模型和设备操作在后台执行。多个 MCP 客户端可共用后台，断开助手连接不会取消任务。
 
-构建后的 Console 由 Control API 提供，只有前端开发需要独立 Vite 进程。scrcpy 视频源专用于任务观测；Console 读取已保存截图，不获取或重置视频源。
+构建后的 Console 由 Control API 提供，只有前端开发需要独立 Vite 进程。scrcpy 视频源由任务观测持有；Console 详情读取已保存截图，只读投屏页复用任务已发布画面，不获取或重置视频源。
 
 [部署指南](deployment.zh-CN.md)介绍启动和设备访问，[本地 MCP](local-mcp.zh-CN.md)介绍助手接入，[评测指南](evaluation.zh-CN.md)介绍基准运行进程。

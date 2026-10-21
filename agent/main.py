@@ -15,8 +15,8 @@ from shared.db import Database
 
 async def run_once(instruction: str, *, hitl: bool | None = None, answer_surface="terminal") -> str:
     """Run a single instruction through the closed loop; return task id."""
-    settings = get_settings()
     from desktop.configuration import console_values, apply_saved_settings
+    settings = apply_saved_settings(get_settings())
     enabled = hitl if hitl is not None else console_values(settings.data_dir).get("hitl_enabled", settings.hitl_enabled)
     if enabled:
         from agent.hitl_cli import run_shared
@@ -36,6 +36,9 @@ async def run_once(instruction: str, *, hitl: bool | None = None, answer_surface
     )
     task_id = await orch.start_task(instruction)
     print(task_id)
+    task = db.get_task(task_id)
+    if task and task.state and task.state.revisable.stop_reason:
+        print(f"{task.state.revisable.stop_reason}: {task.state.revisable.budget_kind}; checkpoint retained")
     return task_id
 
 

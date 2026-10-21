@@ -48,6 +48,7 @@ def main():
     installer.add_argument("--payload", type=Path, required=True)
     installer.add_argument("--no-start", action="store_true")
     installer.add_argument("--no-open", action="store_true")
+    installer.add_argument("--origin", choices=("manual", "assistant"), default="manual")
     for op in ("serve", "backend", "http-mcp", "start", "stop", "restart", "status", "setup", "mcp", "devices", "tray"):
         subs.add_parser(op)
     subs.add_parser("check-update")
@@ -77,7 +78,7 @@ def main():
     try:
         if args.operation == "install":
             from desktop.upgrade import install
-            result = install(home, args.payload, no_start=args.no_start)
+            result = install(home, args.payload, no_start=args.no_start, origin=args.origin)
             remember_home(home)
             if not args.no_start and not args.no_open:
                 result.update(setup_browser(home))

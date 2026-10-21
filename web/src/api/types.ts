@@ -85,6 +85,11 @@ export interface CurrentStagePlan {
     assumption_roadmap: string[];
 }
 export interface RevisablePlan {
+    checkpoint_resumable?: boolean;
+    execution_attempt?: number;
+    stop_reason?: string | null;
+    budget_kind?: string | null;
+    limits?: { executor_decisions?: number | null; model_calls?: number | null; device_actions?: number | null; deadline_at?: number | null };
     revision: number;
     plan: CurrentStagePlan | null;
     completed_stage_ids: string[];
@@ -92,6 +97,9 @@ export interface RevisablePlan {
     feedback: string;
 }
 export interface Task {
+    can_resume?: boolean;
+    execution_attempts?: { attempt: number; status: string; failure_reason?: string | null; model_calls: number; device_actions: number; executor_decisions: number }[];
+    adjustment?: { status: string; instruction: string; feedback?: string; revision: number } | null;
     id: string;
     instruction: string;
     status: TaskStatus;

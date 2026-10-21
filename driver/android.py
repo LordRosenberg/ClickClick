@@ -19,8 +19,10 @@ from dataclasses import dataclass
 import datetime
 import hashlib
 import io
+import logging
 import time
 from typing import Any, Callable
+from uuid import uuid4
 
 from driver import adb
 from driver.accessibility import (
@@ -179,6 +181,7 @@ class AndroidDriver:
         # dependency on AgentSession/model schemas and can always fall back to
         # one causal ADB tree/pixel capture.
         self._stream_provider = stream_provider
+        self._preview_binding: tuple[str, str, tuple[int, int]] | None = None
         self._last_frame_geometry: Any | None = None
         # ADBKeyBoard IME channel for non-ASCII `type` actions. The package
         # must already be installed on the device (`adb install
@@ -353,7 +356,50 @@ class AndroidDriver:
             return False
         return bool(await starter())
 
+    def _bind_task_preview(self, task_id: str) -> None:
+        provider = self._stream_provider
+        if provider is not None:
+            self._preview_binding = (task_id, uuid4().hex, provider.published_cursor())
+
+    def _clear_task_preview(self) -> None:
+        self._preview_binding = None
+
+    def _preview_lifecycle(self, task_id: str | None = None) -> None:
+        # Clear first: even a failed optional hook cannot expose a previous run.
+        self._preview_binding = None
+        try:
+            if task_id is not None:
+                self._bind_task_preview(task_id)
+            else:
+                self._clear_task_preview()
+        except Exception as exc:
+            self._preview_binding = None
+            logging.getLogger(__name__).warning(
+                "Task preview lifecycle unavailable (%s)", type(exc).__name__,
+            )
+
+    def peek_task_preview(self, task_id: str, *, device_serial: str | None = None) -> dict[str, Any]:
+        binding = self._preview_binding
+        if binding is None or binding[0] != task_id:
+            return {"reason": "owner_unavailable", "frame": None}
+        provider = self._stream_provider
+        if provider is None:
+            return {"reason": "decoder_unavailable", "frame": None}
+        if (device_serial is not None and device_serial != self._serial) or provider.device_key != self._serial:
+            return {"reason": "owner_unavailable", "frame": None}
+        result = provider.peek_published_frame()
+        frame = result.frame if result.status == "healthy" else None
+        if frame is not None and (
+            frame.generation == binding[2][0] and frame.frame_id <= binding[2][1]
+        ):
+            frame = None
+        return {
+            "run_epoch": binding[1], "frame": frame,
+            "reason": "" if frame else (result.detail if result.frame is None else "no_published_frame"),
+        }
+
     async def close_observation_provider(self) -> None:
+        self._preview_lifecycle()
         await self._task_power_lease.end()
         await self._collector.close()
         closer = getattr(self._stream_provider, "close", None)
@@ -1440,6 +1486,7 @@ class AndroidDriver:
 
     async def begin_task_session(self, task_id: str) -> dict[str, Any]:
         """Acquire the renewable display lease for one task execution."""
+        self._preview_lifecycle(task_id)
         if not self._collector_enabled:
             return {"status": "disabled", "reason": "collector_disabled"}
         try:
@@ -1451,6 +1498,7 @@ class AndroidDriver:
 
     async def end_task_session(self, _task_id: str = "") -> dict[str, Any]:
         """Release immediately; TTL remains the fallback after transport loss."""
+        self._preview_lifecycle()
         return await self._task_power_lease.end()
 
     async def _act(

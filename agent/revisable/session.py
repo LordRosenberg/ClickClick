@@ -151,11 +151,8 @@ class ExecutionSession(AgentSession):
                 from agent.targeted_input import required_actions
                 required = required_actions(ctx.state.get("active_package"), submission.action)
                 if limit is not None and runtime.execution_count + required > limit:
-                    return AgentToolResult(
-                        status=ToolStatus.PRECONDITION_NOT_MET,
-                        error="device_action_limit_exhausted",
-                        summary="Too few device actions remain for this operation. Choose a smaller supported action, or report established results and unfinished work; do not claim unsupported completion.",
-                    )
+                    from shared.task_budgets import TaskBudgetExhausted
+                    raise TaskBudgetExhausted("device_actions", required)
                 result = await legacy.execute(
                     "submit_executor_step",
                     {

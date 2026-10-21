@@ -354,6 +354,42 @@ class ScrcpyObservationProvider:
         count = self.decoder.publish_pending(force=True)
         self.metrics["decoded_frames"] = int(self.metrics["decoded_frames"]) + count
 
+    def published_cursor(self) -> tuple[int, int]:
+        """Read the publication boundary without flushing pending decoder pixels."""
+        frame = self.ring._frames[-1] if self.ring._frames else None
+        return (frame.generation, frame.frame_id) if frame else (self.generation, 0)
+
+    def peek_published_frame(self) -> CurrentFrameResult:
+        """Passive viewer read: no start, flush, wait, lease or decoder mutation.
+
+        Keep the existing Agent's current()/temporal() publication behavior
+        independent. All checks and the immutable reference read run without
+        yielding, so bytes and geometry belong to one publication instant.
+        """
+        if self._session is None or not self._session.is_alive():
+            return CurrentFrameResult("unavailable", detail="source_unavailable")
+        if self._task is None or self._task.done():
+            return CurrentFrameResult("unavailable", detail="decoder_unavailable")
+        if self.decoder.status != "healthy":
+            return CurrentFrameResult("unavailable", detail="decoder_unavailable")
+        frame = self.ring._frames[-1] if self.ring._frames else None
+        if frame is None or frame.generation != self.generation:
+            return CurrentFrameResult("unavailable", detail="no_published_frame")
+        if min(frame.geometry.stream_width, frame.geometry.stream_height,
+               frame.geometry.device_width, frame.geometry.device_height) <= 0:
+            return CurrentFrameResult("unavailable", detail="geometry_unavailable")
+        boundary = self._action_frame_boundary
+        if boundary is not None and (
+            boundary[0] != frame.generation or frame.frame_id <= boundary[1]
+        ):
+            return CurrentFrameResult("unavailable", detail="post_action_frame_pending")
+        return CurrentFrameResult(
+            "healthy", frame, detail="published_frame",
+            visual_age_ms=max(0.0, (time.monotonic() - frame.timestamp) * 1000),
+            source_healthy=True, source_alive=True, consumer_alive=True,
+            decoder_healthy=True,
+        )
+
     def current(self) -> CurrentFrameResult:
         self._publish_pending()
         if self.status == "decoder_unavailable":

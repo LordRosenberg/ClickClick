@@ -128,8 +128,8 @@ export async function cancelTask(id: string): Promise<CancelTaskResponse> {
 export async function pauseTask(id: string): Promise<{ task_id: string; status: string }> {
     return sendJson(`/api/tasks/${encodeURIComponent(id)}/pause`, "POST");
 }
-export async function resumeTask(id: string): Promise<{ task_id: string; status: string }> {
-    return sendJson(`/api/tasks/${encodeURIComponent(id)}/resume`, "POST");
+export async function resumeTask(id: string, extension?: { request_key: string; budget: Record<string, number> }): Promise<{ task_id: string; status: string }> {
+    return sendJson(`/api/tasks/${encodeURIComponent(id)}/resume`, "POST", extension);
 }
 export async function listDevices(): Promise<DeviceInfo[]> {
     return getJson<DeviceInfo[]>("/api/devices");

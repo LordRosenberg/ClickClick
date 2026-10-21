@@ -9,6 +9,20 @@ from urllib.parse import urlsplit
 from desktop.files import read_json, write_json
 
 
+def initialize_installation_defaults(data_dir, origin):
+    """Only first installation selects defaults; Console choices take precedence."""
+    if origin not in {"manual", "assistant"}:
+        raise ValueError("Unsupported installation origin")
+    path = Path(data_dir) / "installation-defaults.json"
+    if not path.exists():
+        write_json(path, {"version": 1, "origin": origin, "hitl_enabled": origin == "assistant"})
+
+
+def installation_defaults(data_dir):
+    value = read_json(Path(data_dir) / "installation-defaults.json")
+    return {"hitl_enabled": bool(value["hitl_enabled"])} if "hitl_enabled" in value else {}
+
+
 def model_config_path(data_dir):
     return Path(data_dir) / "api-model.json"
 
@@ -43,12 +57,15 @@ def model_environment(data_dir):
     console = console_values(data_dir)
     if console:
         return {"CLICKCLICK_" + key.upper(): value if isinstance(value, str) else json.dumps(value)
-                for key, value in console.items() if value is not None}
+                for key, value in {**installation_defaults(data_dir), **console}.items() if value is not None}
     value = read_json(model_config_path(data_dir))
     if not value:
-        return {}
+        return {"CLICKCLICK_" + key.upper(): json.dumps(value)
+                for key, value in installation_defaults(data_dir).items()}
     model = value["model"]
-    return {"CLICKCLICK_DEFAULT_MODEL": model, "CLICKCLICK_MANAGER_MODEL": model,
+    return {**{"CLICKCLICK_" + key.upper(): json.dumps(value)
+               for key, value in installation_defaults(data_dir).items()},
+            "CLICKCLICK_DEFAULT_MODEL": model, "CLICKCLICK_MANAGER_MODEL": model,
             "CLICKCLICK_EXECUTOR_MODEL": model, "CLICKCLICK_SKILL_LEARNER_MODEL": model,
             "CLICKCLICK_MODELS_JSON": json.dumps({model: {"base_url": value["base_url"],
                                                          "api_key": value["api_key"]}})}
@@ -85,6 +102,8 @@ def apply_saved_settings(settings):
     if not values:
         values = {key.removeprefix("CLICKCLICK_").lower(): value
                   for key, value in model_environment(settings.data_dir).items()}
+    else:
+        values = {**installation_defaults(settings.data_dir), **values}
     if values:
         checked = type(settings)(**{**settings.model_dump(), **values})
         for key in values:

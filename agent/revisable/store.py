@@ -25,16 +25,25 @@ class TaskStore:
         return project_summary(value, retained_packet, text_checks=summary_checks(self, value))
 
     def put(self, kind: str, key: str, payload: dict) -> dict:
+        from shared.task_control import check_invocation, current_lease
+        check_invocation()
+        lease = current_lease.get()
+        if lease is not None and kind in {"dialogue", "planner", "reviewer", "compaction"}:
+            payload = {**payload, "_invocation_id": lease.identity}
         return self.db.append_agent_record(self.task_id, kind, key, payload)
+
+    def _discarded(self, record):
+        identity = record["payload"].get("_invocation_id")
+        return identity and self.db.get_agent_record(self.task_id, "obsolete_invocation", identity) is not None
 
     def get(self, kind: str, key: str, version: int | None = None) -> dict:
         record = self.db.get_agent_record(self.task_id, kind, key, version)
-        if record is None:
+        if record is None or self._discarded(record):
             raise ValueError(f"Unknown {kind}: {key}")
         return record
 
     def records(self, kind: str) -> list[dict]:
-        return self.db.list_agent_records(self.task_id, kind)
+        return [row for row in self.db.list_agent_records(self.task_id, kind) if not self._discarded(row)]
 
     def role_prompt(self, role, config):
         """Freeze all role texts together, including across later source updates."""
@@ -191,6 +200,15 @@ class TaskStore:
         from shared.hitl import HumanInputBroker
         human = HumanInputBroker(self.db)
         if human.config(self.task_id)["enabled"]:
+            from shared.steering import SteeringInbox
+            changes = SteeringInbox(self.db, self.task_id).projection()
+            if changes:
+                context["user_adjustments"] = changes
+                context["instruction_revision"] = changes[-1]["revision"]
+                context["user_adjustment_policy"] = (
+                    "These are ordered later user instructions. Apply explicit changes to conflicting "
+                    "parts of the initial request, retaining other requirements. Planner owns changed "
+                    "goals. Actual effects remain facts; do not automatically undo or replay them.")
             if "remaining_budget" in context:
                 records = self.records("human_input")
                 context["remaining_budget"]["human_queries"] = max(0, human.config(self.task_id)["max_queries"] - len(records))

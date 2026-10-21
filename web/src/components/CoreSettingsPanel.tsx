@@ -15,7 +15,8 @@ const button = "setup-button";
 const numbers: Array<{ key: Exclude<keyof RuntimeSettings, "agent_architecture" | "hitl_enabled">; label: string; min: number; max: number; optional?: boolean }> = [
   { key: "executor_context_tokens", label: "执行历史默认长度（tokens）", min: 1, max: 1000000 },
   { key: "chatgpt_history_tokens", label: "订阅执行历史长度（留空跟随默认）", min: 1, max: 1000000, optional: true },
-  { key: "default_task_model_calls", label: "任务模型请求上限（留空使用 200 次保护上限）", min: 1, max: 200, optional: true },
+  { key: "default_task_executor_decisions", label: "任务执行决策上限（默认 200）", min: 1, max: 100000 },
+  { key: "default_task_model_calls", label: "任务模型请求上限（留空使用 1000 次默认上限）", min: 1, max: 100000, optional: true },
   { key: "default_task_device_actions", label: "任务设备动作上限（留空不额外限制）", min: 1, max: 10000, optional: true },
   { key: "default_task_seconds", label: "任务总时限（秒，留空不额外限制）", min: 1, max: 86400, optional: true },
   { key: "learning_default_calls", label: "Skill 学习模型请求上限", min: 12, max: 64 },

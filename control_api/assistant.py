@@ -16,6 +16,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from shared.chatgpt_auth import chatgpt_status
 from shared.model_catalog import build_model_catalog, is_chatgpt_subscription_model
 from shared.schemas import TaskStatus
+from shared.steering import SteeringInbox, SteeringRequest
+from shared.assistant_presentation import assistant_onboarding, task_page_presentation
+from shared.hitl import HumanInputBroker, InputConflict
 
 TERMINAL = {TaskStatus.SUCCEEDED, TaskStatus.FAILED, TaskStatus.CANCELLED}
 CONSOLE_HELP = "向用户提供 console_url：观测截图查看已保存的任务画面，Timeline 查看步骤和模型输入输出，Trace 查看详细日志。快照是已保存的历史画面。"
@@ -77,6 +80,30 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
         broker = HumanInputBroker(db)
         if broker.config(task.id)["enabled"]:
             payload["human_input"] = broker.public(task.id)
+            changes = SteeringInbox(db, task.id).projection()
+            payload["adjustment"] = changes[-1] if changes else None
+        if runtime:
+            from shared.task_budgets import resumable_budget_failure, execution_attempts
+            payload["stop_reason"] = runtime.stop_reason
+            payload["budget_kind"] = runtime.budget_kind
+            payload["budget_limits"] = runtime.limits.model_dump()
+            payload["can_resume"] = task.status == TaskStatus.PAUSED or resumable_budget_failure(task)
+            payload["execution_attempt"] = runtime.execution_attempt
+            payload["execution_attempts"] = execution_attempts(db, task.id)
+        # Enrich only after the original payload exists. Preview import,
+        # calculation and serialization errors cannot fail an accepted task.
+        preview = {"preview_url": None, "preview_support": {
+            "status": "unavailable", "reason": "preview_metadata_error",
+        }}
+        try:
+            from control_api.preview import safe_preview_projection
+            preview = safe_preview_projection(
+                task, settings=settings, pool=pool, base_url=base_url,
+                enabled=app.state.task_preview is not None,
+            )
+        except Exception:
+            pass
+        payload.update(preview)
         return payload
 
     def model_readiness():
@@ -131,6 +158,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             "collector": "accessibility-collector-setup.zh-CN.md",
         }.items() if (docs_dir / filename).is_file()}
         return {"backend": await identity(), "devices": devices, "hitl_enabled": settings.hitl_enabled,
+                "assistant_onboarding": assistant_onboarding(hitl_enabled=settings.hitl_enabled, setup_url=base_url + "/setup"),
                 "devices_truncated": len(inventory) > 64,
                 "models_configured": not missing, "roles": roles,
                 "missing_model_roles": missing, "model_authentication": authentication,
@@ -161,7 +189,8 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
                                             device_serials=devices, request_key=body.request_key,
                                             hitl_enabled=body.hitl_enabled),
                                    background_tasks, origin=body.submission_origin, binding=body.reply_binding)
-        return {"tasks": [compact(db.get_task(t["id"])) for t in result["tasks"]],
+        tasks = [compact(db.get_task(t["id"])) for t in result["tasks"]]
+        return {"tasks": tasks, "assistant_ui": task_page_presentation(tasks),
                 "replayed": result.get("replayed", False)}
 
     @router.post("/tasks")
@@ -169,6 +198,72 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
         # Include implicit-device selection in the same lock as dedup/create.
         async with submission_lock:
             return await _start(body, background_tasks)
+
+    @router.post("/tasks/{task_id}/steer")
+    async def steer(task_id: str, body: SteeringRequest, background_tasks: BackgroundTasks):
+        async with submission_lock:
+            task = db.get_task(task_id)
+            if task is None:
+                raise HTTPException(404, "task not found")
+            config = HumanInputBroker(db).config(task_id)
+            if not config["enabled"]:
+                return {"task_id": task_id, "status": "disabled", "code": "hitl_disabled",
+                        "message": "请在 Console 设置中打开 HITL 开关后创建新任务，才可中途干预。已有任务按创建时配置运行；如活动任务阻止保存设置，请先等待其结束或取消。",
+                        "settings_url": base_url + "/setup", **links(task_id)}
+            inbox = SteeringInbox(db, task_id)
+            try:
+                previous = inbox.previous(body)
+            except InputConflict as exc:
+                raise HTTPException(409, str(exc)) from exc
+            if previous:
+                return {"task_id": task_id, **previous["payload"], "replayed": True, **links(task_id)}
+            if task.status in {TaskStatus.FAILED, TaskStatus.CANCELLED} or app.state.orchestrator.is_cancel_requested(task_id):
+                raise HTTPException(409, "task failed or cancelled; inspect its result before starting new work")
+            live = app.state.running_tasks.get(task_id)
+            if task.status == TaskStatus.RUNNING and (live is None or live.done()):
+                raise HTTPException(409, "orphan running task; inspect or cancel it before continuing")
+            from desktop.updates import require_admission
+            require_admission(settings.data_dir)
+            if task.status == TaskStatus.SUCCEEDED:
+                import hashlib
+                followup_key = "steer:" + hashlib.sha256((task_id + ":" + body.request_key).encode()).hexdigest()
+                intent = db.get_agent_record(task_id, "followup_intent", body.request_key)
+                if intent and intent["payload"]["adjustment"] != body.instruction:
+                    raise HTTPException(409, "request_key_conflict")
+                if intent is None:
+                    from agent.revisable.recall import human_evidence_record
+                    answers = [human_evidence_record(r)["payload"] for r in db.list_agent_records(task_id, "human_input")
+                               if r["payload"]["status"] in {"resolved", "consumed"}]
+                    result = task.state.revisable.completion_reason if task.state else ""
+                    instruction = ("Follow-up to completed task " + task_id + ". Actual prior effects are not undone.\n"
+                                   "Original request:\n" + task.instruction + "\nPrior adjustments:\n" +
+                                   json.dumps([r["instruction"] for r in inbox.projection()], ensure_ascii=False) +
+                                   "\nPrior user answers:\n" + json.dumps(answers, ensure_ascii=False) +
+                                   "\nPrior result:\n" + result + "\nNew user request:\n" + body.instruction)
+                    db.append_agent_record(task_id, "followup_intent", body.request_key,
+                                           {"adjustment": body.instruction, "instruction": instruction})
+                else:
+                    instruction = intent["payload"]["instruction"]
+                created = await create_task(task_body(instruction=instruction, device_serials=[task.device_serial],
+                                                      request_key=followup_key, hitl_enabled=True),
+                                            background_tasks, origin=config.get("origin", "assistant"), binding=config.get("binding"))
+                child_id = created["tasks"][0]["id"]
+                with db.transaction():
+                    db.append_agent_record(child_id, "parent_task", "source", {"task_id": task_id})
+                    item = inbox.accept(body, status="follow_up", followup_task_id=child_id)
+                return {"task_id": task_id, **item, "followup_console_url": links(child_id)["console_url"],
+                        "assistant_ui": task_page_presentation([compact(db.get_task(child_id))]), **links(task_id)}
+            with db.transaction():
+                question = inbox.supersede_question()
+                item = inbox.accept(body, **({"superseded_question": question} if question else {}))
+                if task.status == TaskStatus.WAITING_FOR_INPUT:
+                    db.update_task(task_id, status=TaskStatus.QUEUED)
+            control = app.state.orchestrator.steering_controls.get(task_id)
+            if control is not None:
+                control.notify()
+            if task.status in {TaskStatus.QUEUED, TaskStatus.WAITING_FOR_INPUT}:
+                background_tasks.add_task(app.state.schedule_task, task_id)
+            return {"task_id": task_id, **item, "instruction_revision": item["revision"], **links(task_id)}
 
     @router.get("/tasks")
     async def listing(status: TaskStatus | None = None,

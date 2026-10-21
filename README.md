@@ -19,7 +19,7 @@ Cross-app tasks · PC assistant integration · Follow every step
 
 ClickClick is an open-source Android agent platform. Give it a goal in natural language: transfer information between apps, fill complex forms, manage collections or configure a schedule. It plans the work, operates the device and checks the result, with a web Console that lets you follow every step.
 
-Connect it to your PC AI assistant through **MCP** to delegate phone tasks, check progress, or pause and resume execution directly in chat.
+Through **MCP**, you can delegate Android tasks from your PC assistant, revise requirements during execution, check progress, and pause, resume or cancel. Assistants with an in-app browser can open a task preview showing the phone screen alongside model output.
 
 ## 95.73% on MobileWorld GUI-only · #1 in our comparison
 
@@ -35,7 +35,7 @@ The comparison incorporates six wording clarifications and one official-account 
 
 **[Explore all 44 tasks and conversations →](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore)** · [Methodology and limits](docs/mobileworld-hitl-results-20261015.md).
 
-HITL is optional and disabled by default. Planner clarifies unresolved intent; Executor asks when execution reveals a material choice. Questions pause the task durably, and matched replies resume the same call. Console, CLI and compatible assistant hosts share one answer owner, with Console fallback. [Usage and integration →](docs/hitl.md)
+HITL is optional: assistant-guided first installations default it on, other installations off, and saved choices take precedence. Planner clarifies unresolved intent; Executor asks when execution reveals a material choice. Questions pause the task durably, and matched replies resume the same call. Console, CLI and compatible assistant hosts share one answer owner, with Console fallback. [Usage and integration →](docs/hitl.md)
 
 ## 99.14% on AndroidWorld · tied #2 by success-rate tier
 
@@ -101,6 +101,16 @@ The Console puts saved observation screenshots and the agent's execution history
 
 [Console and observability guide →](docs/observability.md)
 
+## Revise requirements while a task runs
+
+With HITL enabled, you can send a change through your assistant without waiting for a question: add a filter, change the destination, or keep the current step while revising later work. ClickClick preserves the original request and execution history, and Planner updates the plan using your changes and actual progress. Paused tasks stay paused; changes to completed tasks create linked follow-up work.
+
+Reception is acknowledged promptly. Undispatched obsolete actions stop; actions already sent may finish, and completed external effects are not automatically undone. If the next step needs a choice, ClickClick asks through HITL. See the [HITL guide](docs/hitl.md).
+
+## Watch the phone alongside your assistant
+
+After delegating a local Android task, an assistant with an in-app browser can open a **task preview** with the latest phone screen and append-only model output side by side. You can also select **Screen preview** at the top of task details and return through **Task details**. The view is read-only and labels retained images after pause or completion. Task links remain available when the host cannot open a browser or preview is unsupported.
+
 ## Architecture
 
 ![ClickClick architecture](docs/assets/clickclick-architecture.svg)
@@ -119,7 +129,7 @@ Connect ClickClick to a PC AI assistant that supports MCP. Delegate phone tasks 
 
 If your assistant can run commands on this PC, send it this prompt to handle downloading, installation, phone connection and MCP setup:
 
-> Install and connect ClickClick on this PC (https://github.com/LordRosenberg/ClickClick). Follow the installation guide, detect Windows/macOS and CPU architecture, download the matching official Release installer and verify its published SHA-256. If unavailable, follow source deployment; do not treat a source ZIP as an installer. Check the installation exit status and backend identity. Open local settings so I can choose subscription login or an API; guide official authorization and let me enter API keys in the page, keeping them out of chat. Ask whether I want Wi-Fi, USB or an existing emulator, handle PC-side connection and guide phone debugging and permission prompts. Obtain the generated assistant connection prompt from Settings, read the local stdio configuration at its complete path, and register clickclick through your own official MCP command or configuration entry, preserving existing settings. If exporting with the installed ClickClick CLI, explicitly specify --client generic --transport stdio --output with a complete local file path, then read that file; do not use ClickClick register instead of your own registration mechanism. If this session can load MCP, call get_status to check model configuration and device initialization, and share the Console URL. If I must restart the client or open a new session, report "registered, verification pending", give exact steps, and provide this standalone instruction for the new session: "Call ClickClick get_status, check the connection, model configuration and phone initialization, and report readiness and unfinished steps." Registration and ADB connectivity alone are not successful verification. get_status makes no model requests or phone test tasks; run an actual phone test only when I explicitly request it.
+> Install and connect ClickClick on this PC (https://github.com/LordRosenberg/ClickClick). Follow the installation guide, detect Windows/macOS and CPU architecture, download the matching official Release installer and verify its published SHA-256. If unavailable, follow source deployment; do not treat a source ZIP as an installer. For an assistant-guided first installation, explicitly use --origin assistant when supported to default HITL on; preserve saved choices. Check the installation exit status and backend identity. Open local settings so I can choose subscription login or an API; guide official authorization and let me enter API keys in the page, keeping them out of chat. Ask whether I want Wi-Fi, USB or an existing emulator, handle PC-side connection and guide phone debugging and permission prompts. Obtain the generated assistant connection prompt from Settings, read the local stdio configuration at its complete path, and register clickclick through your own official MCP command or configuration entry, preserving existing settings. If exporting with the installed ClickClick CLI, explicitly specify --client generic --transport stdio --output with a complete local file path, then read that file; do not use ClickClick register instead of your own registration mechanism. If this session can load MCP, call get_status to check model configuration and device initialization, and share the Console URL. If I must restart the client or open a new session, report "registered, verification pending", give exact steps, and provide this standalone instruction for the new session: "Call ClickClick get_status, check the connection, model configuration and phone initialization, and report readiness and unfinished steps." After verification, briefly introduce ClickClick, natural-language task delegation and controls, explain the current HITL switch in Console Settings with its save and new-task scope, and prefer your in-app browser for supported task previews. Registration and ADB connectivity alone are not successful verification. get_status makes no model requests or phone test tasks; run an actual phone test only when I explicitly request it.
 
 Choose Codex subscription login or an API in settings, complete model and phone authorization, and approve assistant actions. [Detailed installation guide](docs/local-mcp.md#let-a-local-assistant-install-it)
 

@@ -57,7 +57,7 @@ except ImportError:
             self._max_steps = max_steps
 
 
-from agent.orchestrator import DEFAULT_MAX_STEPS
+DEFAULT_MAX_STEPS = 50  # Preserve the AndroidWorld fallback protocol, independent of ordinary defaults.
 from agent.runtime import create_orchestrator
 from agent.traces import TraceWriter
 from driver.factory import get_driver
@@ -139,6 +139,8 @@ class _ClickClickRuntime:
             driver=driver,
             artifacts=artifacts,
             settings=settings,
+            max_steps=50,
+            max_role_invocations=200,
         )
         self._event_loop = asyncio.new_event_loop()
         self._loop_ready = threading.Event()
@@ -191,6 +193,8 @@ class _ClickClickRuntime:
             "clickclick_executor_steps": new_steps,
             "clickclick_executor_step": new_steps[-1] if new_steps else None,
             "clickclick_failure_reason": task.failure_reason,
+            "clickclick_stop_reason": task.state.revisable.stop_reason,
+            "clickclick_budget_kind": task.state.revisable.budget_kind,
             "clickclick_completion_reason": task.state.revisable.completion_reason,
         }
 

@@ -218,7 +218,7 @@ async def test_real_http_mcp_auth_lifespan_and_disconnect(tmp_path):
                     init = await session.initialize()
                     assert "wireless" in init.instructions
                     tools = (await session.list_tools()).tools
-                    assert len(tools) == 8
+                    assert len(tools) == 9
                     task = await session.call_tool("start_task", {"instruction": "HTTP fixture task", "request_key": "http"})
                     assert not task.isError
                     tid = task.structuredContent["tasks"][0]["task_id"]

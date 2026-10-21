@@ -32,6 +32,7 @@ export type RuntimeSettings = {
   hitl_enabled?: boolean;
   agent_architecture: "plan_executor" | "plan_reviewer";
   executor_context_tokens: number; chatgpt_history_tokens: number | null;
+  default_task_executor_decisions?: number;
   default_task_model_calls: number | null; default_task_device_actions: number | null; default_task_seconds: number | null;
   learning_default_calls: number; learning_default_actions: number; learning_default_seconds: number;
 };
@@ -41,6 +42,7 @@ export type JevSettings = {
 };
 export type SettingsSummary = RuntimeSettings & { mode: Mode; profiles: Partial<Record<Mode, Profile>>; jev?: JevSettings };
 const RUNTIME_KEYS: Array<keyof RuntimeSettings> = ["agent_architecture", "hitl_enabled", "executor_context_tokens", "chatgpt_history_tokens",
+  "default_task_executor_decisions",
   "default_task_model_calls", "default_task_device_actions", "default_task_seconds",
   "learning_default_calls", "learning_default_actions", "learning_default_seconds"];
 

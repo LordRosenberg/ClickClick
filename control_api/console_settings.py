@@ -11,7 +11,7 @@ from desktop.files import read_json, write_json
 from shared.model_catalog import is_chatgpt_subscription_model
 
 ROLE_FIELDS = ("default_model", "manager_model", "executor_model", "skill_learner_model", "skill_reviewer_model")
-RUNTIME_FIELDS = ("agent_architecture", "hitl_enabled", "executor_context_tokens", "chatgpt_history_tokens", "default_task_model_calls", "default_task_device_actions",
+RUNTIME_FIELDS = ("agent_architecture", "hitl_enabled", "executor_context_tokens", "chatgpt_history_tokens", "default_task_executor_decisions", "default_task_model_calls", "default_task_device_actions",
                   "default_task_seconds", "learning_default_calls", "learning_default_actions", "learning_default_seconds")
 JEV_FIELDS = ("jev_mode", "jev_allow_external", "jev_api_key", "jev_base_url", "jev_model", "jev_timeout_s", "jev_failure_policy")
 
@@ -97,7 +97,8 @@ class CoreSettingsBody(BaseModel):
     agent_architecture: Literal["plan_executor", "plan_reviewer"] = "plan_executor"
     hitl_enabled: bool | None = None
     chatgpt_history_tokens: int | None = Field(default=None, ge=1, le=1000000, strict=True)
-    default_task_model_calls: int | None = Field(default=None, ge=1, le=200, strict=True)
+    default_task_executor_decisions: int = Field(default=200, ge=1, le=100000, strict=True)
+    default_task_model_calls: int | None = Field(default=1000, ge=1, le=100000, strict=True)
     default_task_device_actions: int | None = Field(default=None, ge=1, le=10000, strict=True)
     default_task_seconds: int | None = Field(default=None, ge=1, le=86400, strict=True)
     learning_default_calls: int = Field(default=24, ge=12, le=64, strict=True)

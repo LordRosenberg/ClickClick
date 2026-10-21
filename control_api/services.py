@@ -481,7 +481,14 @@ class ObservabilityQueries:
 
     def task_detail(self, task: TaskRecord) -> dict[str, Any]:
         """Serialize a TaskRecord for the API, projecting closed-loop fields."""
+        from shared.hitl import HumanInputBroker
+        from shared.steering import SteeringInbox
+        from shared.task_budgets import execution_attempts, resumable_budget_failure
+        changes = SteeringInbox(self.db, task.id).projection() if HumanInputBroker(self.db).config(task.id)["enabled"] else []
         return {
+            "can_resume": task.status == TaskStatus.PAUSED or resumable_budget_failure(task),
+            "execution_attempts": execution_attempts(self.db, task.id),
+            "adjustment": changes[-1] if changes else None,
             "id": task.id,
             "instruction": task.instruction,
             "status": task.status.value,
@@ -914,9 +921,9 @@ class ObservabilityQueries:
             "next_role": task.state.revisable.next_role if task.state else None,
             "revisable": (
                 task.state.revisable.model_dump(
-                    include={"revision", "plan", "completed_stage_ids", "next_role", "feedback"}
+                    include={"revision", "plan", "completed_stage_ids", "next_role", "feedback", "stop_reason", "budget_kind", "limits", "checkpoint_resumable", "execution_attempt"}
                 )
-                if task.state and task.state.revisable.plan else None
+                if task.state else None
             ),
             "role_invocation_count": (
                 task.state.role_invocation_count if task.state else None

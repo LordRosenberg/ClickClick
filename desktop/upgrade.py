@@ -30,7 +30,9 @@ def task_gate(home, running):
             shutdown.release(home / "data", job)
 
 
-def install(home, payload, *, no_start=False):
+def install(home, payload, *, no_start=False, origin="manual"):
+    if origin not in {"manual", "assistant"}:
+        raise ValueError("Unsupported installation origin")
     home = Path(home).resolve()
     with startup_lock(home / "data/.install.lock", timeout=0):
         # Direct CLI installation needs the same preflight as the bootstrap.
@@ -53,6 +55,9 @@ def install(home, payload, *, no_start=False):
                     service.wait_process_exited(home, previous.get("backend", {}).get("pid"))
                 activated = True
                 result = install_payload(payload, home)
+                if not old:
+                    from desktop.configuration import initialize_installation_defaults
+                    initialize_installation_defaults(home / "data", origin)
                 result.update(install_entries(home))
                 # Refresh both login entries even for a deliberately stopped install.
                 service.native("install", home)

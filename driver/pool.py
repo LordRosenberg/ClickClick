@@ -171,6 +171,15 @@ class DriverPool:
                 )
         return out
 
+    def peek(self, key: str) -> "DeviceDriver | None":
+        """Return an existing local Driver only; never connect or resolve a hub."""
+        if self.mode != "android":
+            return None
+        driver_id, _ = parse_device_key(key)
+        if driver_id != LOCAL_DRIVER_ID:
+            return None
+        return self._drivers.get(key)
+
     def get(self, key: str) -> "DeviceDriver":
         """Return (creating if needed) the driver bound to ``key``."""
         mode = self.mode

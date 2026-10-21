@@ -32,6 +32,7 @@ from shared.config import get_settings
 from shared.db import Database
 from shared.model_catalog import build_model_catalog, catalog_model_ids
 from shared.schemas import AgentState, LogLevel, TaskStatus
+from shared.task_budgets import ResumeRequest, extend_budget, resumable_budget_failure, record_execution_attempt
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 DIST_DIR = WEB_DIR / "dist"
@@ -140,6 +141,7 @@ def create_app(
     app.state.settings = settings
     app.state.bus = bus
     app.state.driver_pool = pool
+    app.state.task_preview = None
 
     orch = create_orchestrator(
         db,
@@ -177,6 +179,11 @@ def create_app(
                 state = latest.state or AgentState(instruction=latest.instruction)
                 orch._cancel(task_id, state, mode="hard")
         finally:
+            try:
+                if app.state.task_preview is not None:
+                    app.state.task_preview.budget.finished(task_id)
+            except Exception:
+                logger.warning("Task preview cleanup unavailable")
             _running.pop(task_id, None)
             orch.cancel_registry.clear(task_id)
             orch.clear_pause(task_id)
@@ -197,6 +204,8 @@ def create_app(
             return
         handle = asyncio.create_task(_run(task_id))
         _running[task_id] = handle
+
+    app.state.schedule_task = _schedule_run
 
     async def _hard_cancel_after(task_id: str) -> None:
         await asyncio.sleep(float(settings.task_cancel_hard_timeout_s))
@@ -436,6 +445,7 @@ def create_app(
                         manager_model=manager_model,
                         executor_model=executor_model,
                         revisable={"limits": {
+                            "executor_decisions": settings.default_task_executor_decisions,
                             "model_calls": settings.default_task_model_calls,
                             "device_actions": settings.default_task_device_actions,
                             "deadline_at": (time.time() + settings.default_task_seconds
@@ -593,35 +603,82 @@ def create_app(
         return {"task_id": task_id, "status": "pausing", "pause_requested": True}
 
     @app.post("/api/tasks/{task_id}/resume")
-    async def resume_task(task_id: str, background_tasks: BackgroundTasks):
+    async def resume_task(task_id: str, background_tasks: BackgroundTasks, body: ResumeRequest | None = None):
+        async with _submission_lock:
+            return await _resume_checkpoint(task_id, background_tasks, body)
+
+    async def _resume_checkpoint(task_id, background_tasks, body):
         task = db.get_task(task_id)
         if task is None:
             raise HTTPException(404, "task not found")
-        if task.status in _TERMINAL:
+        if body is not None and body.budget is not None:
+            previous = db.get_agent_record(task_id, "budget_extension", body.request_key)
+            if previous and previous["payload"]["increments"] != body.budget.model_dump(exclude_none=True):
+                raise HTTPException(409, "request_key_conflict")
+            if previous and previous["payload"].get("resumed_attempt"):
+                return {"task_id": task_id, "status": task.status.value, "resumed": False,
+                        "replayed": True, "execution_attempt": previous["payload"]["resumed_attempt"]}
+        budget_failure = resumable_budget_failure(task)
+        if task.status in _TERMINAL and not budget_failure:
             return {"task_id": task_id, "status": task.status.value, "resumed": False}
         if task.status in (TaskStatus.RUNNING, TaskStatus.QUEUED):
             handle = _running.get(task_id)
             if task.status == TaskStatus.RUNNING and (handle is None or handle.done()):
                 raise HTTPException(409, "orphan running task cannot resume; inspect or cancel it")
             return {"task_id": task_id, "status": task.status.value, "resumed": False}
-        if task.status != TaskStatus.PAUSED:
+        if task.status != TaskStatus.PAUSED and not budget_failure:
             raise HTTPException(409, "pause has not reached a safe checkpoint yet")
         if task.state is None or not task.state.revisable.checkpoint_version:
             raise HTTPException(409, "task has no clean checkpoint")
         state = task.state
-        if state.revisable.limits.expired():
-            status = orch._cancel(task_id, state, mode="soft", reason="task_deadline_exhausted")
-            return {"task_id": task_id, "status": status.value, "resumed": False}
+        continuing_failure = budget_failure or state.revisable.stop_reason == "budget_exhausted"
+        handle = _running.get(task_id)
+        if handle is not None and not handle.done():
+            raise HTTPException(409, "previous execution is still cleaning up")
+        serial = task.device_serial
+        if serial:
+            owner = db.busy_serials().get(serial)
+            if (owner is not None and owner != task_id) or pool.lock_for(serial).locked():
+                raise HTTPException(409, "device is busy; checkpoint retained")
         from desktop.updates import require_admission
         require_admission(settings.data_dir)
+        if continuing_failure:
+            record_execution_attempt(db, task_id)
+        try:
+            extend_budget(db, task, body or ResumeRequest(), default_decisions=orch.max_steps,
+                          default_calls=orch.max_role_invocations)
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
+        if (dimension := orch.exhausted_budget(state)) is not None:
+            if task.status == TaskStatus.PAUSED:
+                orch._budget_fail(task_id, state, dimension)
+            else:
+                state.revisable.budget_kind = dimension
+                db.update_task(task_id, state=state)
+            return {"task_id": task_id, "status": "failed", "resumed": False,
+                    "stop_reason": "budget_exhausted", "budget_kind": dimension}
         orch.clear_pause(task_id)
         orch.cancel_registry.clear(task_id)
         state.revisable.paused_at = None
-        db.update_task(task_id, status=TaskStatus.QUEUED, state=state)
+        state.revisable.stop_reason = None
+        state.revisable.budget_kind = None
+        state.revisable.checkpoint_resumable = False
+        # Failed attempts remain immutable; normal operator pause stays in its attempt.
+        if continuing_failure:
+            state.revisable.execution_attempt += 1
+            state.revisable.attempt_started_at = time.time()
+        with db.transaction():
+            db.update_task(task_id, status=TaskStatus.QUEUED, state=state, clear_failure_reason=True)
+            if body is not None and body.budget is not None:
+                renewal = db.get_agent_record(task_id, "budget_extension", body.request_key)
+                db.append_agent_record(task_id, "budget_extension", body.request_key, {
+                    **renewal["payload"], "resumed_attempt": state.revisable.execution_attempt,
+                })
         traces.write(task_id, kind="system", message="operator_resume_requested",
                      payload={"event": "operator_resume_requested"})
         background_tasks.add_task(_schedule_run, task_id)
-        return {"task_id": task_id, "status": "queued", "resumed": True}
+        return {"task_id": task_id, "status": "queued", "resumed": True,
+                "execution_attempt": state.revisable.execution_attempt}
 
     @app.get("/api/tasks/{task_id}")
     async def get_task(task_id: str) -> dict[str, Any]:
@@ -1079,6 +1136,11 @@ def create_app(
             reconcile_task.cancel()
             await asyncio.gather(reconcile_task, return_exceptions=True)
         data_sources.close()
+        try:
+            if app.state.task_preview is not None:
+                app.state.task_preview.budget.clear()
+        except Exception:
+            logger.warning("Task preview shutdown unavailable")
         await OBSERVATION_STREAMS.shutdown()
 
     from control_api.assistant import mount_assistant_api
@@ -1100,6 +1162,18 @@ def create_app(
                                  "mcp_url": http_base_url(settings) + "/mcp/"}, status_code=410)
     from control_api.setup import mount_setup_api
     mount_setup_api(app, settings=settings, submission_lock=_submission_lock)
+
+    # Mount last so the preview's stricter boundary also covers rejections by
+    # existing middleware. It bypasses every original business route unchanged.
+    preview_routes, preview_middleware = list(app.router.routes), list(app.user_middleware)
+    try:
+        from control_api.preview import mount_preview_api
+        app.state.task_preview = mount_preview_api(app, db=db, pool=pool, settings=settings)
+    except Exception as exc:
+        app.router.routes[:] = preview_routes
+        app.user_middleware[:] = preview_middleware
+        app.state.task_preview = None
+        logger.warning("Task preview initialization unavailable (%s)", type(exc).__name__)
 
     # Serve the built Console as an SPA. StaticFiles(html=True) only falls back
     # to index.html for directory paths, so React Router deep links like

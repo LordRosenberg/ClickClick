@@ -8,9 +8,9 @@
 
 工作流先验证版本、构建固定版本的 ADBKeyboard，再分别构建 Windows x86_64、macOS Intel 和 Apple Silicon。三个平台全部成功后，发布任务校验每个安装器的版本/平台清单及校验文件，汇总为 `desktop-update.json`，上传安装器、SHA-256、inventory 和汇总清单。上传完成才把草稿转为公开 Release，任何平台失败不会发布可见更新。工作流只在发布任务拥有 `contents: write`；可重试尚未发布的草稿，拒绝覆盖已公开版本。
 
-`workflow_dispatch` 可手动构建测试版本并下载 Actions artifacts，不创建公开 Release。`desktop-v0.2.0-rc.1` 等预览标签生成 prerelease，客户端稳定版检查忽略；develop 和 main 每次推送都会构建唯一的 `ci` 测试版本，产物在 Actions 中下载；这些构建不会创建 Release，也不会通知用户升级。Collector 发布使用自己的标签，客户端不会把 Collector 当作桌面新版。
+`workflow_dispatch` 可手动构建测试版本并下载 Actions artifacts，不创建公开 Release。`desktop-v0.2.0-rc.1` 等预览标签生成 prerelease，客户端稳定版检查忽略；develop 和 main 每次推送都会构建唯一的 `ci` 测试版本并验证构建，但不上传安装器；这些构建不会创建 Release，也不会通知用户升级。Collector 发布使用自己的标签，客户端不会把 Collector 当作桌面新版。
 
-Actions 中的中间键盘产物保留 1 天，分支推送的安装器保留 1 天，手动和标签构建的安装器保留 7 天；正式 Release 附件不受此期限影响。原有产物仍沿用创建时的期限。若上传报 `Artifact storage quota has been hit`，应先核对历史 CI 产物，保留所需构建并经确认清理旧产物，再重试失败任务；这是存储配额错误，不能据此认定编译或测试失败。[GitHub 的配额统计每 6–12 小时更新](https://github.com/actions/upload-artifact#limitations)，清理后未必立即恢复上传。
+Actions 中的中间键盘产物保留 1 天，分支推送不保留安装器，手动和标签构建的安装器保留 7 天；正式 Release 附件不受此期限影响。原有产物仍沿用创建时的期限。若上传报 `Artifact storage quota has been hit`，应先核对历史 CI 产物，保留所需构建并经确认清理旧产物，再重试失败任务；这是存储配额错误，不能据此认定编译或测试失败。[GitHub 的配额统计每 6–12 小时更新](https://github.com/actions/upload-artifact#limitations)，清理后未必立即恢复上传。
 
 发布前应分别验收首次安装、旧版升级、后台注册、模型/设备配置与任务运行。发布 macOS 正式版前，请完成 Developer ID 签名和公证，再重新归档 `.app` 并生成校验文件及发布清单。默认工作流没有签名或公证凭据，生成的 macOS 包用于测试；正式发布需要额外完成签名验收。更新器遵循 Gatekeeper 检查。
 

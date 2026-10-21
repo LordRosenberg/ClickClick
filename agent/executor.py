@@ -1185,6 +1185,11 @@ class Executor:
             if getattr(self, "pause_requested", lambda: False)():
                 from agent.pause import TaskPauseRequested
                 raise TaskPauseRequested
+            from shared.task_control import begin_dispatch
+            if state is not None and state.revisable.limits.expired():
+                from shared.task_budgets import TaskBudgetExhausted
+                raise TaskBudgetExhausted("task_time")
+            begin_dispatch()
             if action.type == "replace_text" and action.index is not None:
                 from agent.targeted_input import replace_target_text
                 runtime = state.revisable if state is not None else None

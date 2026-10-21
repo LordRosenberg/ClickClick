@@ -46,9 +46,14 @@ Traceable sources do not guarantee correct interpretation, successful input does
 | Why were particular approaches chosen? | [Design decisions](design-decisions.md) |
 | How can an execution be inspected? | [Console guide](observability.md) |
 
+## HITL questions and active intervention
 
-## Questions and confirmations when needed (HITL)
+HITL is frozen at task creation: assistant-guided first installations default on, other installations off, and saved choices take precedence. Models use `ask_user` for necessary questions; users can independently send task changes through `steer_task`. Original intent and ordered updates remain recorded, Planner interprets current intent, and disabled tasks retain the original model input and scheduling path.
 
-HITL is off by default. Roles share a base prompt and select a task-frozen decision section and tool policy. Planner clarifies material intent; Executor asks about necessary choices discovered during execution; Reviewer has no human tool. `ask_user` persists the continuation and enters `waiting_for_input`. A matched reply resumes the same call with its existing budget/deadline and a fresh observation before GUI actions. Origin-based routing and versioned ownership prevent duplicate answers, with Console fallback after disconnection. The model chooses when to ask; the runtime manages identity, waiting and resumption, without a separate semantic interception layer.
+**Separate plan revision from execution eligibility.** Changes are persisted before reception is acknowledged. Undispatched obsolete invocations lose eligibility; instruction revisions and execution generations prevent late replies from committing plans, actions or completion. Already dispatched actions record actual results and are not automatically reversed. Planner can retain a valid stage and Executor history. Material choices use existing question handling, paused tasks stay paused, and completed-task changes create linked follow-ups.
 
-MobileWorld User-Int.: **34/44 (77.27%)**, GPT-5.6-Sol (high), Jev off. See [usage and integration](hitl.md) and [evaluation methodology and limits](mobileworld-hitl-results-20261015.md).
+**Retain facts and consumption.** Changes do not clear receipts, budgets or earlier outcomes. Exhaustion stays failed, with explicit budget extension from a safe checkpoint and immutable earlier attempts; benchmark episodes and recorded scores are not rewritten. Models own semantic choices while the runtime checks identity, invocation eligibility and dispatch order.
+
+## Generic assistant screen preview
+
+The task preview reuses local Android frames and existing model events instead of creating another device-capture or input path. Hosts select their own browser from returned preview/details links and reuse pages by task ID. Read-only viewing is independent of execution; disconnects, slow readers and missing frames do not change task outcomes. The UI labels frame age and retained images, while task details keeps full outputs and saved evidence. See [usage](hitl.md).

@@ -202,11 +202,11 @@ async def test_protocol_responsive_while_backend_blocked(tmp_path):
                             pending_tool = asyncio.create_task(session.call_tool("get_status"))
                             try:
                                 await asyncio.wait_for(session.send_ping(), timeout=1.5)
-                                assert len((await asyncio.wait_for(session.list_tools(), timeout=1.5)).tools) == 8
+                                assert len((await asyncio.wait_for(session.list_tools(), timeout=1.5)).tools) == 9
                                 async with streamable_http_client(url, http_client=mcp_http) as (fresh_read, fresh_write, _):
                                     async with ClientSession(fresh_read, fresh_write) as fresh:
                                         await asyncio.wait_for(fresh.initialize(), timeout=1.5)
-                                        assert len((await asyncio.wait_for(fresh.list_tools(), timeout=1.5)).tools) == 8
+                                        assert len((await asyncio.wait_for(fresh.list_tools(), timeout=1.5)).tools) == 9
                                 assert not block.done() and not pending_tool.done()
                                 assert (await block).is_success
                                 assert not (await pending_tool).isError

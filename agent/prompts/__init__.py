@@ -67,7 +67,23 @@ def render_role_system(role: str, *, hitl_enabled: bool = False, hitl_mode: str 
     if profile.enabled and role != "reviewer":
         block = _render(block, {"tool_form": profile.tool_form})
     role_text = _render(_read(f"revisable_{role}.md"), {"decision_policy": block})
-    return role_text + "\n\n" + _render(_read("revisable_common.md"), {})
+    result = role_text + "\n\n" + _render(_read("revisable_common.md"), {})
+    if hitl_enabled:
+        result += ("\n\nUser adjustments: original_instruction is the initial user request, not an immutable goal. "
+                   "Ordered user_adjustments are later user instructions; apply their explicit changes to "
+                   "conflicting parts and preserve other constraints. Earlier plans, notes and completed-stage "
+                   "claims do not override these changes. All actual effects remain facts. Never replay or "
+                   "automatically undo effects. Prefer modifying existing results. A material missing user "
+                   "choice must be resolved by Planner/Executor through the configured human-input channel. "
+                   "Superseded questions in the adjustment are "
+                   "unresolved context: determine whether the new instruction answers, invalidates or leaves "
+                   "them open. Planner owns adjustments; when submit_planner_decision offers continue, "
+                   "prefer continue when an active stage's goal and ordering remain valid, including "
+                   "adjustments only to final reporting language or format. Record those later requirements "
+                   "in your reason; do not rewrite the plan merely to repeat an unchanged goal with new "
+                   "reporting constraints. Choose execute for a changed stage goal/order. continue requires "
+                   "an active stage. Executor follows the retained/updated stage and user constraints.")
+    return result
 
 
 def render_planner_system(*, hitl_enabled: bool = False, hitl_mode: str = "managed") -> str:

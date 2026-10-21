@@ -4,7 +4,7 @@ import asyncio
 import time
 from functools import partial
 
-from agent.orchestrator import Orchestrator
+from agent.orchestrator import Orchestrator, DEFAULT_MAX_STEPS
 from agent.pause import TaskPauseRequested
 from agent.revisable.store import TaskStore
 from agent.tool_registry import stable_hash
@@ -13,25 +13,121 @@ from perception.observation import ObservationPackage
 from shared.llm_gateway import GatewayError
 from shared.schemas import ExecutorDecisionKind, TaskStatus
 from shared.hitl import HumanInputBroker, HumanInputSuspended
+from shared.task_budgets import TaskBudgetExhausted
+from shared.task_control import SteeringControl, TaskSteered, current_lease
+from shared.steering import SteeringInbox
 
 
 class PlanOrchestrator(Orchestrator):
-    def _cancel(self, task_id, state, *, mode, reason="cancelled_by_operator"):
-        if state.revisable.limits.expired():
-            reason = "task_deadline_exhausted"
-        return super()._cancel(task_id, state, mode=mode, reason=reason)
+    def decision_limit(self, state):
+        task_limit = state.revisable.limits.executor_decisions
+        if self.max_steps != DEFAULT_MAX_STEPS:
+            limits = [value for value in (self.max_steps, task_limit) if value is not None]
+            return min(limits) if limits else None
+        return task_limit if task_limit is not None else self.max_steps
 
-    def _soft_cancel_if_requested(self, task_id, state):
-        if state.revisable.limits.expired():
-            return self._cancel(task_id, state, mode="soft")
-        return super()._soft_cancel_if_requested(task_id, state)
+    def exhausted_budget(self, state):
+        runtime = state.revisable
+        if runtime.limits.expired():
+            return "task_time"
+        limit = self.decision_limit(state)
+        if limit is not None and state.step_number >= limit:
+            return "executor_decisions"
+        limit = self._model_call_limit(state)
+        if limit is not None and state.role_invocation_count >= limit:
+            return "model_calls"
+        if (runtime.budget_kind == "device_actions" and runtime.limits.device_actions is not None
+                and runtime.execution_count + runtime.budget_required > runtime.limits.device_actions):
+            return "device_actions"
+        return None
+
+    def _budget_fail(self, task_id, state, dimension, required=1):
+        state.revisable.stop_reason = "budget_exhausted"
+        state.revisable.budget_kind = dimension
+        state.revisable.budget_required = required
+        try:
+            self._prepare_checkpoint(task_id, state)
+        except Exception as exc:
+            return self._fail(task_id, state, f"budget_checkpoint_invalid:{exc}")
+        self.traces.write(task_id, kind="system", message="Task budget exhausted",
+                          payload={"event": "budget_exhausted", "budget_kind": dimension})
+        reason = {
+            "executor_decisions": "step_limit_exhausted",
+            "model_calls": "role_invocation_limit_exhausted",
+            "device_actions": "task_device_action_limit_exhausted",
+            "task_time": "task_deadline_exhausted",
+            "prediction_rounds": "mobileworld_round_limit_exhausted",
+        }[dimension]
+        return self._fail(task_id, state, reason, resumable=dimension != "prediction_rounds")
+
+    async def _invoke(self, task_id, state, role, make_call, control):
+        if control is None:
+            return await self._call_role(task_id, state, role, make_call(state, self._model_call_meter(task_id, state, role)))
+        lease = control.acquire(SteeringInbox(self.db, task_id).revision())
+        private = state.model_copy(deep=True)
+        record = self._model_call_meter(task_id, state, role)
+
+        def meter(kind, payload):
+            lease.check()
+            record(kind, payload)
+            private.role_invocation_count = state.role_invocation_count
+
+        async def run():
+            token = current_lease.set(lease)
+            try:
+                return await self._call_role(task_id, private, role, make_call(private, meter))
+            finally:
+                current_lease.reset(token)
+
+        invocation = asyncio.create_task(run())
+        changed = asyncio.create_task(control.changed.wait())
+        adopted = False
+        try:
+            await asyncio.wait((invocation, changed), return_when=asyncio.FIRST_COMPLETED)
+            if control.changed.is_set() and not lease.dispatching:
+                lease.revoked = True
+                invocation.cancel()
+                # Do not wait for an uncooperative provider. A revoked lease fences
+                # its tools/records, and private state cannot overwrite the new run.
+                def discarded(future):
+                    try:
+                        future.result()
+                    except BaseException:
+                        pass
+                    try:
+                        self.traces.write(task_id, kind="system", message="Obsolete invocation discarded",
+                                          payload={"event": "invocation_superseded", "generation": lease.generation})
+                    except Exception:
+                        pass  # Backend shutdown may already have closed diagnostics.
+                invocation.add_done_callback(discarded)
+                raise TaskSteered()
+            result = await invocation
+            private.role_invocation_count = state.role_invocation_count
+            state.__dict__.update(private.__dict__)
+            adopted = True
+            return result
+        finally:
+            if not adopted:
+                self.db.append_agent_record(task_id, "obsolete_invocation", lease.identity,
+                                            {"revision": lease.revision, "generation": lease.generation})
+            changed.cancel()
+            if not invocation.done() and not lease.revoked:
+                lease.revoked = True
+                invocation.cancel()
+                invocation.add_done_callback(lambda f: f.exception() if not f.cancelled() else None)
+
+    def _cancel(self, task_id, state, *, mode, reason="cancelled_by_operator"):
+        status = super()._cancel(task_id, state, mode=mode, reason=reason)
+        if status == TaskStatus.CANCELLED and HumanInputBroker(self.db).config(task_id)["enabled"]:
+            SteeringInbox(self.db, task_id).cancelled()
+        return status
 
     def _remaining_budget(self, state):
         runtime = state.revisable
         limits = runtime.limits
         remaining = {
             "device_actions": None if limits.device_actions is None else max(0, limits.device_actions - runtime.execution_count),
-            "executor_decisions": None if self.max_steps is None else max(0, self.max_steps - state.step_number),
+            "executor_decisions": None if self.decision_limit(state) is None else max(0, self.decision_limit(state) - state.step_number),
             "model_calls": None if self._model_call_limit(state) is None else max(0, self._model_call_limit(state) - state.role_invocation_count),
             "seconds": None if limits.deadline_at is None else max(0, int(limits.deadline_at - time.time())),
         }
@@ -52,8 +148,10 @@ class PlanOrchestrator(Orchestrator):
         record = super()._model_call_meter(task_id, state, phase)
 
         def check_and_record(kind, payload):
-            if self.is_cancel_requested(task_id) or state.revisable.limits.expired():
+            if self.is_cancel_requested(task_id):
                 raise asyncio.CancelledError
+            if state.revisable.limits.expired():
+                raise TaskBudgetExhausted("task_time")
             if self.is_pause_requested(task_id):
                 raise TaskPauseRequested
             record(kind, payload)
@@ -86,9 +184,13 @@ class PlanOrchestrator(Orchestrator):
         store.human_provider_budget = lambda: (None if self._model_call_limit(state) is None else
                                                self._model_call_limit(state) - state.role_invocation_count)
         executor.store = store
+        executor_driver = executor.driver
+        enabled = HumanInputBroker(self.db).config(task_id)["enabled"]
+        control = self.steering_controls.setdefault(task_id, SteeringControl()) if enabled else None
+        inbox = SteeringInbox(self.db, task_id) if enabled else None
         executor.pause_requested = lambda: self.is_pause_requested(task_id)
         executor.cancel_requested = lambda: (
-            self.is_cancel_requested(task_id) or state.revisable.limits.expired()
+            self.is_cancel_requested(task_id)
         )
         runtime = state.revisable
         carried = None
@@ -97,6 +199,7 @@ class PlanOrchestrator(Orchestrator):
         device_actions = 0
         action_attempts = 0
         while True:
+            runtime = state.revisable
             if (cancelled := self._soft_cancel_if_requested(task_id, state)) is not None:
                 return cancelled
             if self.is_pause_requested(task_id):
@@ -108,29 +211,39 @@ class PlanOrchestrator(Orchestrator):
                 return TaskStatus.RUNNING
             if max_action_attempts is not None and action_attempts >= max_action_attempts:
                 return TaskStatus.RUNNING
-            if self.max_steps is not None and state.step_number >= self.max_steps:
-                return self._fail(task_id, state, "step_limit_exhausted")
+            if (dimension := self.exhausted_budget(state)) is not None:
+                return self._budget_fail(task_id, state, dimension)
+            if inbox is not None and inbox.pending():
+                runtime.next_role = "planner"
+                runtime.handoff = "replan"
+                runtime.delivered_context = {}
+                carried = None
             try:
                 package = carried or await self._observe(will_send_image=True)
                 carried = None
                 self._persist_observation(package)
                 role = runtime.next_role
-                meter = self._model_call_meter(task_id, state, role)
                 if role in {"planner", "reviewer"}:
                     decision_role = planner if role == "planner" else reviewer
-                    (decision, refs), _ = await self._call_role(
-                        task_id,
-                        state,
-                        role,
-                        partial(
+                    (decision, refs), _ = await self._invoke(
+                        task_id, state, role,
+                        lambda call_state, meter: partial(
                             decision_role.decide,
-                            state,
+                            call_state,
                             package,
                             store=store,
                             task_id=task_id,
                             model_call_meter=meter,
-                        ),
+                        ), control,
                     )
+                    runtime = state.revisable
+                    if runtime.limits.expired():
+                        return self._budget_fail(task_id, state, "task_time")
+                    if inbox is not None:
+                        if control.lease.revision != inbox.revision():
+                            raise TaskSteered()
+                        if role == "planner":
+                            inbox.applied(control.lease.revision, decision.reason)
                     # A reply may arrive after cancellation/deadline while the
                     HumanInputBroker(self.db).complete(task_id)
                     # provider was in flight. Never commit its terminal verdict.
@@ -146,7 +259,10 @@ class PlanOrchestrator(Orchestrator):
                     if role == "planner":
                         runtime.plan_reason = decision.reason
                         runtime.feedback = ""
-                        if decision.decision == "execute":
+                        if decision.decision == "continue":
+                            runtime.next_role = "executor"
+                            refresh_before_executor = True
+                        elif decision.decision == "execute":
                             runtime.plan = decision.plan
                             runtime.revision += 1
                             runtime.stage_start_step = state.step_number
@@ -201,23 +317,22 @@ class PlanOrchestrator(Orchestrator):
                         state.active_target_app, stage.skill_ids if stage else []
                     ) if pack.kind == "workflow"
                 ]
-                (step, result, ui, mode, refs), _ = await self._call_role(
-                    task_id,
-                    state,
-                    "executor",
-                    partial(
+                (step, result, ui, mode, refs), _ = await self._invoke(
+                    task_id, state, "executor",
+                    lambda call_state, meter: partial(
                         executor.act_once,
                         state.current_subgoal,
                         package,
                         task_id=task_id,
-                        state=state,
+                        state=call_state,
                         model_call_meter=meter,
                         observe_after_handoff=(
                             partial(self._observe, will_send_image=True)
                             if refresh_before_executor else None
                         ),
-                    ),
+                    ), control,
                 )
+                runtime = state.revisable
                 refresh_before_executor = False
                 HumanInputBroker(self.db).complete(task_id)
                 package = refs.pop("active_package")
@@ -301,6 +416,27 @@ class PlanOrchestrator(Orchestrator):
                 if step.decision == ExecutorDecisionKind.ACT:
                     device_actions += result.detail.get("device_action_units", 1)
                     action_attempts += 1
+            except TaskSteered:
+                # No incomplete cognitive state is adopted. New role objects prevent
+                # an obsolete invocation's finally block from touching the new one.
+                planner, reviewer, executor = self.planner_factory(), self.reviewer_factory(), self.executor_factory()
+                driver = decision_role.driver if role in {"planner", "reviewer"} else executor_driver
+                for new_role in (planner, reviewer, executor):
+                    new_role.driver, new_role.traces = driver, self.traces
+                if state.manager_model:
+                    planner.set_model(state.manager_model)
+                    reviewer.set_model(state.manager_model)
+                if state.executor_model:
+                    executor.set_model(state.executor_model)
+                executor.store = store
+                executor.pause_requested = lambda: self.is_pause_requested(task_id)
+                executor.cancel_requested = lambda: self.is_cancel_requested(task_id)
+                await executor._session.bind_device_skills(executor.driver)
+                carried = None
+                refresh_before_executor = True
+                continue
+            except TaskBudgetExhausted as exc:
+                return self._budget_fail(task_id, state, exc.dimension, exc.required)
             except asyncio.CancelledError:
                 raise
             except HumanInputSuspended as exc:

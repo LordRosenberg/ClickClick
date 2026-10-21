@@ -30,7 +30,7 @@ These are logical boundaries. Control API hosts the harness; device tools can ru
 5. The harness validates the submission, executes accepted actions and stores receipts and resulting evidence.
 6. Execution continues, returns to planning, or requests independent review. Task termination preserves the final state and trace.
 
-The original instruction remains authoritative as stages change. Models interpret requirements; deterministic checks validate schemas, references, stage identity, supported input preconditions and limits.
+The original instruction remains recorded; later accepted user changes supersede conflicting requirements. Models interpret requirements; deterministic checks validate schemas, references, stage identity, supported input preconditions and limits.
 
 ## Roles and transitions
 
@@ -38,6 +38,7 @@ The original instruction remains authoritative as stages change. Models interpre
 
 | Role / submission | Default `plan_executor` behavior |
 | --- | --- |
+| Planner `continue` | Keep the current stage and Executor dialogue after assessing a user adjustment. |
 | Planner `execute` | Persist the revised current stage and invoke Executor. |
 | Planner `complete` | Complete the task if submission checks and task limits permit it. |
 | Planner `review` | Invoke Reviewer with the stated conflict and evidence. |
@@ -68,7 +69,7 @@ Skill-authorized compound actions run a closed sequence through the same primiti
 
 ## Observation path
 
-The driver-owned scrcpy stream supplies agent pixels; Console reads saved task image artifacts. PyAV decodes frames; Accessibility Collector supplies nodes, windows and available events. Perception builds the normalized UI and Set-of-Mark view. ADB screencap is the fallback pixel source.
+The driver-owned scrcpy stream supplies agent pixels; Console details reads saved screenshots; the read-only task preview can display frames already published by a running task. PyAV decodes frames; Accessibility Collector supplies nodes, windows and available events. Perception builds the normalized UI and Set-of-Mark view. ADB screencap is the fallback pixel source.
 
 Freshness checks use capture request boundaries and window generations. Bounded resampling handles transitions; usable pixels can remain available when structure is missing. Pixels and accessibility state are asynchronous, so this is not an atomic snapshot of every animated interface. See [capture design](design-decisions.md#scrcpy-collector-and-python).
 
@@ -95,6 +96,22 @@ Each note has a versioned full body and an optional `retained` excerpt of at mos
 Planner selects stage skills from the catalog. Device profiles filter system-specific guidance; target and observed foreground identities determine applicable app knowledge. Role sections tailor the delivered body, with skill IDs, versions and content hashes recorded. App-owned compound recipes additionally require matching active stage and foreground scope. See the [skill authoring guide](../skills/README.md).
 
 An explicit research entry point can extract skill revisions from real failures and detours. Learner maintains continuous analysis; an independent Skill Reviewer checks quality and selects necessary validation. One job supports multiple app files, joint checks and local admission per file. Candidates enter pending review rather than hot-writing the canonical library, and ordinary completion does not automatically start paid learning. See [Skill self-improvement](skill-evolution.md) for the cycle, evidence boundaries and current capability.
+
+## HITL intervention and plan updates
+
+MCP `steer_task` and the corresponding Control API append ordered, idempotent user changes to a durable task inbox. The original request remains intact. Planner keeps a still-valid stage and Executor dialogue or revises affected work. Every role receives user changes through independent dynamic context; compaction cannot discard them or rewrite the stable prompt prefix.
+
+Model invocations carry instruction revisions and execution generations. Accepting a change invalidates undispatched obsolete work and allows replanning without waiting for stale inference; late replies remain diagnostic. Dispatch and reception have a deterministic order: an in-flight transaction records its actual receipt before subsequent work is replanned. Completion first creates linked follow-up work; an accepted update first must be processed before completion. Pause, cancellation and question handling retain their lifecycle boundaries.
+
+HITL is frozen when a task is created. Assistant-guided first installations default it on, other installations off, and saved choices take precedence. Disabled tasks add no intervention policy, model tools or steering waiter; the MCP tool stays discoverable and returns settings guidance. See [HITL usage and integration](hitl.md).
+
+Ordinary defaults are cumulative limits of 200 Executor decisions and 1000 model requests; explicit evaluation budgets take precedence. Exhaustion remains failed, with explicit extension from a safe budget checkpoint. Earlier attempts, receipts and total usage are retained; only explicit extra time extends a deadline. Ordinary failures are not resumable through this feature.
+
+## Read-only preview alongside an assistant
+
+Accepted delegation returns preview/details links and generic host presentation hints. An assistant with an in-app browser prefers the task preview and reuses its tab by task ID, falls back to details when unsupported, or shares links when browser opening is unavailable. This contract does not depend on a named assistant or sidebar API.
+
+The local Android preview reads frames already published by the active task and appends model output through existing SSE and response artifacts. Task/device/run identity is checked and retained images are labelled. Viewing acquires no separate device lease, triggers no extra capture or input, and cannot change task outcomes. Details and preview offer navigation in both directions. See [Console observability](observability.md).
 
 ## Operational boundaries
 
@@ -132,8 +149,6 @@ Cancellation and task limits stop further work at runtime boundaries. A receipt 
 | Evaluation integration | [AndroidWorld adapter](../agent/integrations/android_world.py), [evaluation guide](evaluation.md) |
 
 
-## Questions and confirmations when needed (HITL)
-
-HITL is off by default. Roles share a base prompt and select a task-frozen decision section and tool policy. Planner clarifies material intent; Executor asks about necessary choices discovered during execution; Reviewer has no human tool. `ask_user` persists the continuation and enters `waiting_for_input`. A matched reply resumes the same call with its existing budget/deadline and a fresh observation before GUI actions. Origin-based routing and versioned ownership prevent duplicate answers, with Console fallback after disconnection. The model chooses when to ask; the runtime manages identity, waiting and resumption, without a separate semantic interception layer.
+## HITL evaluation
 
 MobileWorld User-Int.: **34/44 (77.27%)**, GPT-5.6-Sol (high), Jev off. See [usage and integration](hitl.md) and [evaluation methodology and limits](mobileworld-hitl-results-20261015.md).

@@ -170,9 +170,8 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
             waiting = database.get_task(record.id)
             if (waiting.state.revisable.prediction_round_count >= limits["rounds"]
                     or waiting.state.revisable.limits.expired()):
-                status = TaskStatus.FAILED
-                database.update_task(record.id, status=status, failure_reason="mobileworld_round_or_deadline_exhausted")
-                human_transport.broker.reconcile(record.id)
+                dimension = "task_time" if waiting.state.revisable.limits.expired() else "prediction_rounds"
+                status = orchestrator._budget_fail(record.id, waiting.state, dimension)
                 break
             await asyncio.to_thread(human_transport.dispatch, record.id)
             status = await orchestrator.run_task(record.id)
@@ -188,9 +187,8 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
             final_answer = current.state.revisable.completion_reason if current and current.state else None
             if final_answer:
                 answer_submission = _submit_final_answer(args, str(final_answer))
-        if status not in TERMINAL_STATUSES:
-            status = TaskStatus.FAILED
-            database.update_task(record.id, status=status, failure_reason="mobileworld_round_limit_exhausted")
+        if status not in TERMINAL_STATUSES | {TaskStatus.PAUSED}:
+            status = orchestrator._budget_fail(record.id, current.state, "prediction_rounds")
         task = database.get_task(record.id)
         return {
             "clickclick_task_id": record.id,
@@ -199,6 +197,8 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
             "mobileworld_rounds": rounds,
             "executor_decisions": task.state.step_number if task and task.state else 0,
             "failure_reason": task.failure_reason if task else None,
+            "stop_reason": task.state.revisable.stop_reason if task and task.state else None,
+            "budget_kind": task.state.revisable.budget_kind if task and task.state else None,
             "limits": limits,
             "elapsed_s": time.time() - started,
             "role_invocations": (
