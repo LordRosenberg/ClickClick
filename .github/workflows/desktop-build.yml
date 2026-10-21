@@ -131,8 +131,8 @@ jobs:
             ./gradlew assembleDebug
           }
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          New-Item -ItemType Directory -Force ../device-assets | Out-Null
-          Copy-Item keyboardservice/build/outputs/apk/debug/keyboardservice-debug.apk ../device-assets/
+          New-Item -ItemType Directory -Force ../device-assets/keyboardservice/build/outputs/apk/debug | Out-Null
+          Copy-Item keyboardservice/build/outputs/apk/debug/keyboardservice-debug.apk ../device-assets/keyboardservice/build/outputs/apk/debug/
           git archive --format=zip HEAD -o ../device-assets/ADBKeyboard-source.zip
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Pop-Location
