@@ -7,8 +7,10 @@ import pytest
 
 from agent.session import AgentSession
 from agent.tool_registry import AgentToolResult
+from agent.traces import TraceWriter
 from shared.artifacts import ArtifactStore
 from shared.config import Settings
+from shared.db import Database
 from shared.llm_gateway import GatewayResponse, ToolCall
 
 
@@ -21,7 +23,7 @@ def _planner_payload() -> dict:
 
 @pytest.mark.asyncio
 async def test_round_artifacts_are_retrievable_redacted_and_deduplicated(
-    monkeypatch, tmp_path: Path,
+    monkeypatch, tmp_path: Path, request,
 ):
     async def fake_complete(*args, **kwargs):
         return GatewayResponse(
@@ -39,6 +41,15 @@ async def test_round_artifacts_are_retrievable_redacted_and_deduplicated(
 
     monkeypatch.setattr("agent.session.complete", fake_complete)
     artifacts = ArtifactStore(tmp_path / "artifacts")
+    db = Database(tmp_path / "trace.db")
+    request.addfinalizer(db.close)
+    traces = TraceWriter(db, artifacts)
+
+    def persist_round(kind, payload):
+        if kind in {"agent_llm_round_started", "agent_llm_round_finished"}:
+            # Reference publication completes when the consumer commits it.
+            traces.write("task-artifacts", kind=kind, payload=payload)
+
     session = AgentSession("planner", "test-model", settings=Settings(gateway_max_retries=0))
     session.set_stable_system("system")
     session.freeze_allow_dirs(["generic"])
@@ -49,6 +60,7 @@ async def test_round_artifacts_are_retrievable_redacted_and_deduplicated(
         ]}],
         observation_message_names=["observation"],
         artifacts=artifacts,
+        event_sink=persist_round,
     )
 
     round_record = result.llm_rounds[0]
@@ -67,8 +79,20 @@ async def test_round_artifacts_are_retrievable_redacted_and_deduplicated(
     assert result.tool_calls[0].local_result["summary"] == "accepted"
     assert result.tool_calls[0].model_result == {"status": "succeeded", "summary": "accepted"}
     assert artifacts.save_json("llm", response) == round_record.response_ref
-    artifacts.save_json("llm", {"older": True})
+    artifacts.release_pins({round_record.response_ref})
+    older_ref = artifacts.save_json("llm", {"older": True})
+    artifacts.release_pins({older_ref})
     assert artifacts.prune("llm", max_files=1) == 2
+
+
+def test_retention_waits_for_publication_handoff(tmp_path: Path):
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    refs = [artifacts.save_json("llm", {"round": number}) for number in range(3)]
+    assert artifacts.prune("llm", max_files=1) == 0
+    assert all(artifacts.resolve(ref).is_file() for ref in refs)
+    artifacts.release_pins(refs)
+    assert artifacts.prune("llm", max_files=1) == 2
+    assert artifacts.read_text(refs[-1])
 
 
 @pytest.mark.asyncio
