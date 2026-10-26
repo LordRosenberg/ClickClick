@@ -61,6 +61,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
         last = db.latest_agent_record(task.id, "event")
         progress = (last["payload"].get("executor_report", "") if last else "")
         payload = {
+            "recovery": task.recovery,
             "task_id": task.id, "status": task.status.value,
             "instruction": task.instruction[:2000], "device_id": task.device_serial,
             "created_at": task.created_at, "updated_at": task.updated_at,
@@ -87,7 +88,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             payload["stop_reason"] = runtime.stop_reason
             payload["budget_kind"] = runtime.budget_kind
             payload["budget_limits"] = runtime.limits.model_dump()
-            payload["can_resume"] = task.status == TaskStatus.PAUSED or resumable_budget_failure(task)
+            payload["can_resume"] = task.status == TaskStatus.PAUSED or resumable_budget_failure(task) or "recover" in task.recovery.get("available_actions",[])
             payload["execution_attempt"] = runtime.execution_attempt
             payload["execution_attempts"] = execution_attempts(db, task.id)
         # Enrich only after the original payload exists. Preview import,

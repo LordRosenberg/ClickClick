@@ -1231,6 +1231,10 @@ class AndroidDriver:
                         "serial": serial,
                         "error": f"device serial not online: {serial}",
                     }
+            # A frozen/disconnected TCP guest can remain in ADB's inventory.
+            # Probe a current read so recovery observes unavailable -> available
+            # instead of exhausting attempts against a stale "online" entry.
+            await adb.shell_async(serial,["getprop","ro.serialno"],timeout=1.0)
         except AdbError as exc:
             return {"ok": False, "platform": "android", "error": str(exc)}
         collector = (

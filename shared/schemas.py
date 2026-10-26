@@ -23,9 +23,58 @@ class TaskStatus(str, Enum):
     PAUSING = "pausing"
     PAUSED = "paused"
     WAITING_FOR_INPUT = "waiting_for_input"
+    RECOVERING = "recovering"
+    WAITING_FOR_DEVICE = "waiting_for_device"
+    RECOVERY_BLOCKED = "recovery_blocked"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
     CANCELLED = "cancelled"
+
+
+class RecoveryPolicy(str, Enum):
+    SAFE_AUTO = "safe_auto"
+    MANUAL = "manual"
+    DISABLED = "disabled"
+
+
+class RecoveryPhase(str, Enum):
+    DETECTED = "detected"
+    VERIFYING_OWNER = "verifying_owner"
+    VALIDATING_STATE = "validating_state"
+    COLLECTING_RESULTS = "collecting_results"
+    RECORDING_RESULTS = "recording_results"
+    RESTORING_CONTEXT = "restoring_context"
+    REFRESHING_DEVICE = "refreshing_device"
+    WAITING_FOR_DEVICE = "waiting_for_device"
+    BLOCKED = "blocked"
+    UNRECOVERABLE = "unrecoverable"
+    READY = "ready"
+
+
+class RecoveryReason(str,Enum):
+    DEVICE_UNAVAILABLE="device_unavailable"
+    DEVICE_IDENTITY_MISMATCH="device_identity_mismatch"
+    OLD_INPUT_CHAIN_LIVE="old_input_chain_live"
+    EXPLICIT_RECOVERY_REQUIRED="explicit_recovery_required"
+    DISABLED="crash_recovery_disabled"
+    LEGACY_UNSUPPORTED="legacy_recovery_unsupported"
+    DRIVER_UNSUPPORTED="driver_recovery_unsupported"
+    REQUIRED_CONTEXT_UNRECOVERABLE="required_context_unrecoverable"
+    CONTROL_CHANGED="control_changed_during_recovery"
+
+
+class OperationStatus(str, Enum):
+    PREPARED = "prepared"
+    DISPATCHING = "dispatching"
+    RESULT_RECORDED = "result_recorded"
+    COMMITTED = "committed"
+    SUPERSEDED = "superseded"
+
+
+class DesiredTaskState(str, Enum):
+    RUN = "run"
+    PAUSE = "pause"
+    CANCEL = "cancel"
 
 
 class AppResolutionStatus(str, Enum):
@@ -578,6 +627,7 @@ class AgentState(BaseModel):
     active_workflow_ids: list[str] = Field(default_factory=list, max_length=2)
     # Explicit opt-in: ordinary and evaluation tasks never run a hidden learner call.
     skill_learn: bool = False
+    recovery: dict[str, Any] = Field(default_factory=dict)
     # Optional per-task model overrides (must be keys in MODELS_JSON when set).
     manager_model: str | None = None
     executor_model: str | None = None
@@ -665,3 +715,4 @@ class TaskRecord(BaseModel):
     state: AgentState | None = None
     device_serial: str | None = None
     skill_learn: bool = False
+    recovery: dict[str, Any] = Field(default_factory=dict)

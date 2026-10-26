@@ -93,6 +93,10 @@ class Database:
             self._conn = sqlite3.connect(self.path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._transaction_depth = 0
+        self.artifacts = None
+        self._after_commit = []
+        self._after_rollback = []
+        self._conn.create_function("clickclick_schema_writer",0,lambda:1)
         if not read_only:
             # Task startup writes many records before the first model await.
             # Reusing a WAL avoids rollback-journal file creation/deletion on
@@ -103,20 +107,49 @@ class Database:
             self.migrate()
 
     def migrate(self) -> None:
-        """Create the current schema idempotently; historical schemas are unsupported."""
+        """Incremental migration, refusing writes from an older runtime."""
+        from shared.recovery_store import SCHEMA_VERSION, RecoveryConflict, migrate_recovery
+        if self._conn.execute("PRAGMA user_version").fetchone()[0] > SCHEMA_VERSION:
+            raise RecoveryConflict("database schema is newer; refusing incompatible writes")
         self._conn.executescript(SCHEMA_SQL)
         self._conn.commit()
+        migrate_recovery(self)
 
     def _commit(self) -> None:
         if self._transaction_depth == 0:
             self._conn.commit()
+            self._run_after_commit()
+
+    def after_commit(self,callback):
+        self._after_commit.append(callback)
+
+    def after_rollback(self,callback):
+        self._after_rollback.append(callback)
+
+    def _references_committed(self,payload):
+        if self.artifacts is not None:
+            from shared.recovery_store import RecoveryStore
+            refs=RecoveryStore(self,self.artifacts)._file_refs(payload)
+            if refs:
+                self.after_commit(lambda:self.artifacts.release_pins(refs))
+                # Rollback does not prove another unpublished same-content
+                # writer is finished. Retain pins until process reconciliation.
+
+    def _run_after_commit(self):
+        callbacks,self._after_commit = self._after_commit,[]
+        self._after_rollback.clear()
+        for callback in callbacks:
+            try:
+                callback()
+            except (OSError,RuntimeError):
+                pass  # Reference publication is committed; stale pins may be reconciled later.
 
     @contextmanager
     def transaction(self):
         """Commit related task/trace writes together on this connection."""
         outermost = self._transaction_depth == 0
         if outermost:
-            self._conn.execute("BEGIN")
+            self._conn.execute("BEGIN IMMEDIATE")
         self._transaction_depth += 1
         try:
             yield
@@ -124,11 +157,19 @@ class Database:
             self._transaction_depth -= 1
             if outermost:
                 self._conn.rollback()
+                self._after_commit.clear()
+                callbacks,self._after_rollback=self._after_rollback,[]
+                for callback in callbacks:
+                    try:
+                        callback()
+                    except (OSError,RuntimeError):
+                        pass
             raise
         else:
             self._transaction_depth -= 1
             if outermost:
                 self._conn.commit()
+                self._run_after_commit()
 
     def close(self) -> None:
         """Close the underlying connection."""
@@ -208,6 +249,7 @@ class Database:
             state=state if include_state else None,
             device_serial=device_serial,
             skill_learn=skill_learn,
+            recovery=self._recovery_projection(row),
         )
 
     def get_task(self, task_id: str) -> TaskRecord | None:
@@ -216,6 +258,12 @@ class Database:
         if not row:
             return None
         return self._row_to_task(row)
+
+    def _recovery_projection(self,row):
+        if "recovery_protocol_version" not in row.keys() or not row["recovery_protocol_version"]:
+            return {}
+        from shared.recovery_store import RecoveryStore
+        return RecoveryStore(self).projection(row["id"])
 
     def list_tasks(
         self, status: TaskStatus | None = None, *, include_state: bool = True
@@ -254,12 +302,17 @@ class Database:
             """
             SELECT id, device_serial FROM tasks
             WHERE device_serial IS NOT NULL AND device_serial != ''
-              AND status IN (?, ?, ?, ?, ?)
+              AND status IN (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (TaskStatus.QUEUED.value, TaskStatus.RUNNING.value,
-             TaskStatus.PAUSING.value, TaskStatus.PAUSED.value, TaskStatus.WAITING_FOR_INPUT.value),
+             TaskStatus.PAUSING.value, TaskStatus.PAUSED.value, TaskStatus.WAITING_FOR_INPUT.value,
+             TaskStatus.RECOVERING.value,TaskStatus.WAITING_FOR_DEVICE.value,TaskStatus.RECOVERY_BLOCKED.value),
         ).fetchall()
-        return {r["device_serial"]: r["id"] for r in rows}
+        busy = {r["device_serial"]: r["id"] for r in rows}
+        if not self.read_only:
+            for row in self._conn.execute("SELECT device_key,task_id FROM device_runtime WHERE task_id IS NOT NULL"):
+                busy[row["device_key"]] = row["task_id"]
+        return busy
 
     def get_submission(self, request_key: str) -> dict[str, Any] | None:
         row = self._conn.execute(
@@ -312,6 +365,8 @@ class Database:
         state: AgentState | None = None,
     ) -> None:
         """Update mutable task fields and/or the persisted AgentState."""
+        from shared.recovery_context import check_owner
+        check_owner(task_id, allow_stopped=True)
         task = self.get_task(task_id)
         if not task:
             raise KeyError(task_id)
@@ -325,10 +380,10 @@ class Database:
             state_json = task.state.model_dump_json() if task.state else None
         self._conn.execute(
             """
-            UPDATE tasks SET status=?, current_node_id=?, failure_reason=?, state_json=?, updated_at=?
+            UPDATE tasks SET status=?, current_node_id=?, failure_reason=?, state_json=?, updated_at=?,state_version=state_version+?
             WHERE id=?
             """,
-            (new_status.value, new_node, new_fail, state_json, time.time(), task_id),
+            (new_status.value, new_node, new_fail, state_json, time.time(), int(state is not None), task_id),
         )
         self._commit()
 
@@ -352,16 +407,29 @@ class Database:
         state: AgentState,
     ) -> None:
         """Atomically persist one completed step and its routed agent state."""
-        with self._conn:
+        from shared.recovery_context import check_owner
+        from shared.recovery_store import RecoveryStore
+        check_owner(task_id, allow_stopped=True)
+        recovery = RecoveryStore(self, self.artifacts)
+        enabled = recovery.metadata(task_id)["recovery_protocol_version"] == 1
+        with self.transaction():
+            if enabled:
+                inserted = self._conn.execute(
+                    "INSERT OR IGNORE INTO agent_records VALUES (?,?,?,?,?)",
+                    (task_id, "step_commit", str(seq), 1, json.dumps({"seq": seq})),
+                )
+                if not inserted.rowcount:
+                    return
             cursor = self._conn.execute(
                 """
-                UPDATE tasks SET current_node_id=?, state_json=?, updated_at=?
+                UPDATE tasks SET current_node_id=?, state_json=?, updated_at=?,state_version=state_version+1,last_committed_seq=?
                 WHERE id=?
                 """,
                 (
                     state.current_subgoal or None,
                     state.model_dump_json(),
                     time.time(),
+                    seq,
                     task_id,
                 ),
             )
@@ -374,6 +442,9 @@ class Database:
                 """,
                 (task_id, node_id, seq, json.dumps(payload)),
             )
+            if enabled:
+                recovery.settle(task_id, seq)
+                recovery.publish_manifest(task_id, state=state)
 
     def list_steps(self, task_id: str) -> list[dict[str, Any]]:
         """Return ordered steps for replay."""
@@ -390,6 +461,7 @@ class Database:
         return out
 
     def add_trace(self, event: TraceEvent) -> None:
+        self._references_committed({"ref":event.payload_ref,"payload":event.payload})
         """Append a trace event."""
         self._conn.execute(
             """
@@ -440,6 +512,10 @@ class Database:
         ]
 
     def append_agent_record(self, task_id: str, kind: str, key: str, payload: dict) -> dict:
+        self._references_committed(payload)
+        if kind not in {"recovery_fact","recovery_event","obsolete_invocation"}:
+            from shared.recovery_context import check_owner
+            check_owner(task_id,allow_stopped=True)
         with self.transaction():
             row = self._conn.execute(
                 "SELECT COALESCE(MAX(version), 0) + 1 FROM agent_records "

@@ -150,6 +150,22 @@ class DriverClient:
         result = await self._rpc("act", {"action": action.model_dump()})
         return ActionResult.model_validate(result)
 
+    async def recovery_capabilities(self):
+        return await self._rpc("recovery_capabilities")
+
+    async def act_durable(self, envelope):
+        return ActionResult.model_validate(await self._rpc("act_durable", envelope))
+
+    async def get_operation(self, operation_id):
+        return await self._rpc("get_operation", {"operation_id":operation_id})
+
+    async def fence_device(self, device_key, device_fence, task_id, epoch, *, timeout=5):
+        return await self._rpc("fence_device", {"device_key":device_key,"device_fence":device_fence,
+                                               "task_id":task_id,"epoch":epoch,"timeout":timeout})
+
+    async def close_execution(self, device_key, task_id, epoch):
+        return await self._rpc("close_execution", {"device_key":device_key,"task_id":task_id,"epoch":epoch})
+
     async def wake_and_unlock(self) -> None:
         """Wake + unlock the device via Driver RPC (best-effort, never raises)."""
         try:

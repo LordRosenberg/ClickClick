@@ -113,15 +113,48 @@ Accepted delegation returns preview/details links and generic host presentation 
 
 The local Android preview reads frames already published by the active task and appends model output through existing SSE and response artifacts. Task/device/run identity is checked and retained images are labelled. Viewing acquires no separate device lease, triggers no extra capture or input, and cannot change task outcomes. Details and preview offer navigation in both directions. See [Console observability](observability.md).
 
+## Recovery after an unexpected interruption
+
+The independent backend owns tasks; MCP/API clients submit and control them, so a client disconnect is distinct from a backend crash. After an unexpected backend exit, a durable scheduling scan finds non-terminal tasks whose owner was lost and resumes them under exclusive ownership. New tasks freeze `safe_auto` (the default), `manual` or `disabled` at creation; legacy tasks without recovery metadata are not forced to continue.
+
+### Persistence and action ordering
+
+**Model returns a call → T1 pre-dispatch transaction → Driver journal accepts and executes → T2 persists the receipt → post-observation → T3 commits the step and complete state.** T1 stores the normalized decision, notes and budget reservation; T3 atomically updates the step, AgentState, recovery manifest and accounting. Database transactions do not span ADB or model requests and cannot atomically commit a phone's side effects.
+
+- `execution_epoch / worker_token` fence task writes; a cross-task monotonic `device_fence` fences device input. Recovery fences and drains the old input chain before taking over. Devices remain quarantined if quiescence cannot be established; cancellation and device cleanup are separate.
+- The Driver journal deduplicates operation IDs with argument digests and retains receipts. Reusing an old ID never issues input again. Compound actions retain child ordinals; recovery neither restarts the sequence nor automatically runs its remaining tail.
+- Recovery queries the original receipt within a bound. A missing receipt closes the original attempt as `unknown`; screenshots cannot establish whether the historical action executed. Old action grounding expires. The saved role receives a fresh `recovery_current` observation and decides what to do next, using a new ID for any new action.
+- Unknown reservations become `settled_uncertain` instead of being refunded as unexecuted. Late facts are appended once without duplicating tool results, steps or charges, or reviving terminal tasks. Missing model usage also remains unknown.
+
+### Recovery states and context
+
+Successful recovery follows `recovering → queued → running` through ordinary scheduling. An unavailable device enters `waiting_for_device`; a timeout or structural problem enters `recovery_blocked`, with explicit recheck after resources are repaired. Terminal tasks stay terminal, and pause/cancellation take priority over continuation. Unknown results alone add no approval gate, read-only restriction or automatic HITL question.
+
+The recovery manifest retains the original request, active plan, summary, current notes, next role, role prompts, loaded Skill bodies, retained dialogue and HITL/user-change records. Bodies use integrity-checked references; files are atomically published before references commit. Complete DB post-state and retained manifests can reconstruct missing metadata; unrecoverable required bodies produce an explicit error. Read tools reconnect and a fresh observation replaces old action grounding. Budgets, deadlines and creation-time HITL settings remain in force; clean pause/resume still uses the original checkpoint path.
+
+### Entry points and key configuration
+
+Console displays recovery phase, blocking reason, device quarantine and recent unknown operations. MCP `resume_task` and the existing `/resume` support eligible interrupted tasks. `POST /api/tasks/{task_id}/recover` accepts a unique `request_key` and idempotently acknowledges identical requests. Acceptance means the recovery intent was persisted; query task state to verify progress. Read-only status queries invoke neither models nor device actions.
+
+| Environment variable | Default | Purpose |
+| --- | --- | --- |
+| `CLICKCLICK_TASK_RECOVERY_POLICY` | `safe_auto` | New-task policy, frozen at creation |
+| `CLICKCLICK_TASK_RECOVERY_MAX_AUTO_ATTEMPTS` | `3` | Automatic attempts per failure episode |
+| `CLICKCLICK_TASK_RECOVERY_SCAN_INTERVAL_S` | `5` | Durable scheduling scan interval |
+| `CLICKCLICK_TASK_RECOVERY_BACKOFF_S` | `[1,5,15]` | Bounded retry backoff |
+| `CLICKCLICK_TASK_RECOVERY_ATTEMPT_TIMEOUT_S` | `60` | Per-attempt recovery deadline |
+| `CLICKCLICK_TASK_RECOVERY_DEVICE_WAIT_S` | `300` | Device-wait window retained across restarts |
+
 ## Operational boundaries
 
-Cancellation and task limits stop further work at runtime boundaries. A receipt identifies what the device path reported; models and external evaluators determine semantic success. Persistent history supports inspection and continuation but does not provide arbitrary crash recovery, transactional rollback or exactly-once device input. Deployment access and Android authorization are separate from tool validity checks.
+Cancellation and task limits stop further work at runtime boundaries. A receipt identifies what the device path reported; models and external evaluators determine semantic success. Recovery requires a compatible Driver, the original device and intact durable state; it does not provide transactional rollback or exactly-once business effects. MobileWorld checks cover hard exits, device failures and concurrent recovery; physical-phone disconnect/reboot and macOS input-process behavior still require separate acceptance. Deployment access and Android authorization are separate from tool validity checks.
 
 ## Module design guides
 
 | Module | Design and documentation | Coverage |
 | --- | --- | --- |
 | Task orchestration and roles | [Roles and transitions](#roles-and-transitions), [Role policy](design-decisions.md#role-policy) | Stage progression, replanning, on-demand review and completion |
+| Interruption recovery | [Recovery states, ordering and configuration](#recovery-after-an-unexpected-interruption), [Recovery trade-offs](design-decisions.md#recovery-and-execution-idempotency) | Durable execution facts, old-input isolation, unknown results and context reconstruction |
 | Memory and context | [Memory and context design](memory-and-context.md) | Notes, structured summaries, source retrieval and storage |
 | Skill management | [Skills guide](../skills/README.md), [Role-specific delivery](design-decisions.md#role-specific-skills) | Skill organization, app/device scope and role delivery |
 | Skill self-improvement | [Skill self-improvement](skill-evolution.md) | Trajectory extraction, continuous exploration, independent review, selective validation and pending artifacts |

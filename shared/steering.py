@@ -40,6 +40,7 @@ class SteeringInbox:
             payload = {"revision": self.revision() + 1, "instruction": request.instruction,
                        "status": "accepted", "created_at": time.time(), **extra}
             self.db.append_agent_record(self.task_id, "user_adjustment", request.request_key, payload)
+            self.db._conn.execute("UPDATE tasks SET control_revision=control_revision+1 WHERE id=?",(self.task_id,))
             return payload
 
     def applied(self, revision, reason):

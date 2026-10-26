@@ -149,6 +149,10 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
         deadline_at=started + limits["seconds"],
     )
     record = database.create_task(goal, state, device_serial=args.target)
+    # Episode continuation is explicit and never inherits the deployment's
+    # ordinary-task safe_auto default or replaces a prior official score.
+    from shared.recovery_store import RecoveryStore
+    RecoveryStore(database,artifacts).enable(record.id,getattr(args,"recovery_policy","manual"))
     human_transport = None
     if getattr(args, "enable_user_interaction", False):
         broker = HumanInputBroker(database, settings=settings)
@@ -166,7 +170,17 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
         # attempted-ACT boundary still counts rejected zero-unit actions and
         # stops before an extra terminal prediction after exhausting the budget.
         status = await orchestrator.run_task(record.id)
-        while status == TaskStatus.WAITING_FOR_INPUT and human_transport is not None:
+        from shared.recovery_store import RECOVERING
+        while (status == TaskStatus.WAITING_FOR_INPUT and human_transport is not None
+               or status.value in RECOVERING and getattr(args,"recovery_policy","manual")=="safe_auto"):
+            if status.value in RECOVERING:
+                from shared.recovery_runtime import RecoveryCoordinator
+                result=await RecoveryCoordinator(orchestrator,settings).recover(record.id)
+                status=database.get_task(record.id).status
+                if result.get("status")!="queued":
+                    break
+                status=await orchestrator.run_task(record.id)
+                continue
             waiting = database.get_task(record.id)
             if (waiting.state.revisable.prediction_round_count >= limits["rounds"]
                     or waiting.state.revisable.limits.expired()):
@@ -187,7 +201,7 @@ async def _run_clickclick(args: argparse.Namespace, goal: str) -> dict[str, Any]
             final_answer = current.state.revisable.completion_reason if current and current.state else None
             if final_answer:
                 answer_submission = _submit_final_answer(args, str(final_answer))
-        if status not in TERMINAL_STATUSES | {TaskStatus.PAUSED}:
+        if status not in TERMINAL_STATUSES | {TaskStatus.PAUSED} and status.value not in RECOVERING:
             status = orchestrator._budget_fail(record.id, current.state, "prediction_rounds")
         task = database.get_task(record.id)
         return {
@@ -242,6 +256,8 @@ def main() -> None:
     parser.add_argument("--output", default="")
     parser.add_argument("--keep-task", action="store_true")
     parser.add_argument("--no-recording", action="store_true", help="Keep screenshots and traces without screen recording")
+    parser.add_argument("--recovery-policy",choices=("manual","safe_auto","disabled"),default="manual",
+                        help="Freeze episode crash recovery policy; safe_auto is an explicit recovery experiment")
     parser.add_argument("--enable-user-interaction", action="store_true",
                         help="Delegate single clarification questions to the official user simulator")
     args = parser.parse_args()

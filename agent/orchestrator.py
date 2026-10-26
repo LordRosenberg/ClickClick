@@ -83,7 +83,13 @@ class Orchestrator:
             0, int(executor_grounding_retry_n),
         )
         self.artifacts = artifacts
+        self.db.artifacts = artifacts
         self.settings = settings
+        if settings is not None:
+            self.db.recovery_dependencies={"architecture":settings.agent_architecture,"tool_protocol":1,
+                "models":{"planner":settings.manager_model or settings.default_model,
+                          "reviewer":settings.manager_model or settings.default_model,
+                          "executor":settings.executor_model or settings.default_model}}
         self.observation_builder = ObservationBuilder()
         self.cancel_registry = CancelRegistry()
         self._device_lock = asyncio.Lock()
@@ -101,6 +107,8 @@ class Orchestrator:
         return task_id in self._pause_requested
 
     def _prepare_checkpoint(self, task_id: str, state: AgentState) -> None:
+        from shared.recovery_store import RecoveryStore
+        RecoveryStore(self.db,self.artifacts).finalize_tools(task_id)
         """Validate saved history without changing the task's outcome."""
         from agent.revisable.store import TaskStore
 
@@ -144,6 +152,10 @@ class Orchestrator:
         return self.cancel_registry.is_requested(task_id)
 
     def _resolve_driver(self, serial: str | None) -> DeviceDriver | None:
+        from shared.recovery_context import current_execution
+        execution = current_execution.get()
+        if execution is not None and hasattr(execution, "driver"):
+            return execution.driver
         if self.driver_pool is None:
             return self.driver
         if not serial:
@@ -167,10 +179,20 @@ class Orchestrator:
             state,
             device_serial=device_serial,
         )
+        if self.artifacts is not None and self.settings is not None:
+            from shared.recovery_store import RecoveryStore
+            RecoveryStore(self.db,self.artifacts).enable(record.id,self.settings.task_recovery_policy)
         await self.run_task(record.id)
         return record.id
 
     async def run_task(
+        self, task_id: str, *, max_device_actions=None, max_action_attempts=None,
+    ) -> TaskStatus:
+        from shared.recovery_runtime import run_owned_task
+        return await run_owned_task(self, task_id, max_device_actions=max_device_actions,
+                                    max_action_attempts=max_action_attempts)
+
+    async def _run_owned_task(
         self,
         task_id: str,
         *,
@@ -267,7 +289,7 @@ class Orchestrator:
             message=f"task started serial={serial or '—'}",
         )
         initializer = getattr(driver, "reconcile_environment", None)
-        if callable(initializer):
+        if callable(initializer) and not state.recovery:
             try:
                 environment = await initializer()
             except asyncio.CancelledError:
@@ -305,7 +327,7 @@ class Orchestrator:
                     "device_environment_reconciliation_failed:initialization_failed",
                 )
         date_reader = getattr(driver, "current_device_date", None)
-        if callable(date_reader) and (not state.current_device_date or state.revisable.checkpoint_version):
+        if callable(date_reader) and (not state.current_device_date or state.revisable.checkpoint_version or state.recovery):
             try:
                 state.current_device_date = str(await date_reader())
             except asyncio.CancelledError:
@@ -338,7 +360,7 @@ class Orchestrator:
             if self.is_pause_requested(task_id):
                 raise TaskPauseRequested
             session_starter = getattr(driver, "begin_task_session", None)
-            if callable(session_starter):
+            if callable(session_starter) and not state.recovery:
                 session = await session_starter(task_id)
                 session_status = (
                     str(session.get("status") or "")
@@ -380,12 +402,21 @@ class Orchestrator:
         except asyncio.CancelledError:
             return self._cancel(task_id, state, mode="hard")
         finally:
+            from shared.recovery_context import current_execution
+            from shared.recovery_store import StaleOwner
+            durable = current_execution.get()
+            cleanup_allowed = True
+            if durable is not None:
+                try:
+                    durable.store.check(durable.owner,allow_stopped=True)
+                except StaleOwner:
+                    cleanup_allowed = False
             if warm_task is not None:
                 if not warm_task.done():
                     warm_task.cancel()
                 await asyncio.gather(warm_task, return_exceptions=True)
             session_ender = getattr(driver, "end_task_session", None)
-            if callable(session_ender):
+            if callable(session_ender) and cleanup_allowed:
                 release_task = asyncio.create_task(
                     session_ender(task_id), name=f"screen-bright-release-{task_id}"
                 )
@@ -418,7 +449,7 @@ class Orchestrator:
                         ),
                     )
             closer = getattr(driver, "close_observation_provider", None)
-            if callable(closer):
+            if callable(closer) and cleanup_allowed:
                 try:
                     await closer()
                 except Exception as exc:  # noqa: BLE001
@@ -434,7 +465,8 @@ class Orchestrator:
                 except Exception:  # noqa: BLE001
                     pass
             _current_driver.reset(token)
-            self.steering_controls.pop(task_id, None)
+            if cleanup_allowed:
+                self.steering_controls.pop(task_id, None)
 
 
     async def _call_role(
@@ -544,6 +576,14 @@ class Orchestrator:
         return package
 
     def _persist_observation(self, package: ObservationPackage) -> None:
+        try:
+            self._persist_observation_files(package)
+        except OSError:
+            # Current pixels/tree stay in memory and canonical dialogue; a
+            # Console preview failure is not execution-state corruption.
+            package.capture_meta["diagnostic_artifact_unavailable"] = True
+
+    def _persist_observation_files(self, package: ObservationPackage) -> None:
         if self.artifacts is None:
             return
         if package.annotated_png is not None and package.som_ref is None:
@@ -674,9 +714,16 @@ class Orchestrator:
             state=state,
             current_node_id=state.current_subgoal or None,
         )
+        from shared.recovery_context import current_execution
+        execution = current_execution.get()
+        if execution is not None:
+            with self.db.transaction():
+                execution.store.publish_manifest(task_id, state=state)
 
     def _succeed(self, task_id: str, state: AgentState, reason: str,
                  *, terminal_role: str = "reviewer") -> TaskStatus:
+        from shared.recovery_store import RecoveryStore
+        RecoveryStore(self.db,self.artifacts).finalize_tools(task_id)
         state.revisable.checkpoint_resumable = False
         self.db.update_task(
             task_id,

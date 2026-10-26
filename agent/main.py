@@ -22,6 +22,15 @@ async def run_once(instruction: str, *, hitl: bool | None = None, answer_surface
         from agent.hitl_cli import run_shared
         return await run_shared(instruction, apply_saved_settings(settings), answer_surface=answer_surface)
     settings.data_dir.mkdir(parents=True, exist_ok=True)
+    from shared.file_lock import FileLock
+    runtime_lock=FileLock(settings.data_dir / ".backend-runtime.lock").acquire()
+    try:
+        return await _run_local(instruction,settings)
+    finally:
+        runtime_lock.close()
+
+
+async def _run_local(instruction,settings):
     db = Database(settings.db_path)
     artifacts = ArtifactStore(settings.artifacts_dir)
     traces = TraceWriter(db, artifacts)
@@ -34,12 +43,20 @@ async def run_once(instruction: str, *, hitl: bool | None = None, answer_surface
         artifacts=artifacts,
         settings=settings,
     )
-    task_id = await orch.start_task(instruction)
-    print(task_id)
-    task = db.get_task(task_id)
-    if task and task.state and task.state.revisable.stop_reason:
-        print(f"{task.state.revisable.stop_reason}: {task.state.revisable.budget_kind}; checkpoint retained")
-    return task_id
+    try:
+        serial=getattr(driver,"serial",None)
+        if not serial:
+            health=getattr(driver,"health",None)
+            if health:
+                serial=(await health()).get("serial")
+        task_id = await orch.start_task(instruction,device_serial=serial)
+        print(task_id)
+        task = db.get_task(task_id)
+        if task and task.state and task.state.revisable.stop_reason:
+            print(f"{task.state.revisable.stop_reason}: {task.state.revisable.budget_kind}; checkpoint retained")
+        return task_id
+    finally:
+        db.close()
 
 
 def main() -> None:

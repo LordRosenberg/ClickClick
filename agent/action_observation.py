@@ -1136,6 +1136,10 @@ class ActionObservationTransaction:
                 event_cursor = await cursor_reader(timeout_s=0.35)
             except Exception:  # noqa: BLE001 - optional evidence cannot block dispatch
                 event_cursor = None
+        from shared.recovery_context import current_execution
+        durable = current_execution.get()
+        if durable is not None:
+            durable.sensitive = bool(target and target.password)
         result = await self.driver.act(action)
         dispatch_completed_ms = time.monotonic() * 1000.0
         post_action_settle_elapsed_ms = 0.0
@@ -1144,7 +1148,7 @@ class ActionObservationTransaction:
             effect_class=effect_class_for(action),
             dispatch_succeeded=bool(result.success),
             effect_outcome=(
-                EffectOutcome.UNKNOWN if result.success else EffectOutcome.FAILED
+                EffectOutcome.UNKNOWN if result.success or result.detail.get("execution_result")=="unknown" else EffectOutcome.FAILED
             ),
             effect_reason=(
                 "dispatch_succeeded"

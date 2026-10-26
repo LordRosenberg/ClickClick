@@ -51,6 +51,12 @@ class CreateTaskBody(BaseModel):
     executor_model: str | None = None
     request_key: str | None = Field(default=None, min_length=1, max_length=160)
     hitl_enabled: bool | None = None
+    recovery_policy: Literal["safe_auto", "manual", "disabled"] | None = None
+
+
+class RecoverTaskBody(BaseModel):
+    model_config={"extra":"forbid"}
+    request_key: str = Field(min_length=1,max_length=160)
 
 
 class SkillUpsertBody(BaseModel):
@@ -155,12 +161,21 @@ def create_app(
         settings=settings,
     )
     app.state.orchestrator = orch
+    from shared.recovery_store import RECOVERING, RecoveryStore, RecoveryConflict
+    from shared.recovery_runtime import RecoveryCoordinator
+    recovery_store = RecoveryStore(db,artifacts)
+    recovery = RecoveryCoordinator(orch,settings)
+    app.state.recovery = recovery
+    _recovery_scan_task = None
+    _backend_lock = None
 
     # ChatGPT device-code login (single pending session for local Console).
     _chatgpt_pending: dict[str, PendingDeviceLogin | None] = {"login": None}
 
     # Retained handles so operator cancel can hard-stop a stuck run.
     _running: dict[str, asyncio.Task] = {}
+    _recovery_jobs: dict[str,asyncio.Task] = {}
+    _retiring: set[asyncio.Task] = set()
     _submission_lock = asyncio.Lock()
     app.state.running_tasks = _running
     _environment_reconcile_task: asyncio.Task[None] | None = None
@@ -175,10 +190,14 @@ def create_app(
             await orch.run_task(task_id)
         except asyncio.CancelledError:
             latest = db.get_task(task_id)
-            if latest is not None and latest.status not in _TERMINAL:
+            if asyncio.current_task() not in _retiring and _running.get(task_id) is asyncio.current_task() and latest is not None and latest.status not in _TERMINAL:
                 state = latest.state or AgentState(instruction=latest.instruction)
                 orch._cancel(task_id, state, mode="hard")
         finally:
+            _retiring.discard(asyncio.current_task())
+            # Delayed cleanup from a retired worker cannot remove its successor.
+            if _running.get(task_id) is not asyncio.current_task():
+                return
             try:
                 if app.state.task_preview is not None:
                     app.state.task_preview.budget.finished(task_id)
@@ -206,6 +225,63 @@ def create_app(
         _running[task_id] = handle
 
     app.state.schedule_task = _schedule_run
+
+    async def _recover_scheduled(task_id,keys,explicit):
+        try:
+            result=await recovery.recover(task_id,explicit=explicit)
+            recovery_store.finish_requests(task_id,keys)
+            if result.get("status")=="queued":
+                await _schedule_run(task_id)
+        except Exception:
+            logger.exception("task recovery failed: %s",task_id)
+        finally:
+            _recovery_jobs.pop(task_id,None)
+
+    async def _scan_recovery():
+        while True:
+            try:
+                await recovery.safety_cleanup(set(_running)|set(_recovery_jobs))
+                for header in db.task_headers():
+                    task_id = header["id"]
+                    handle = _running.get(task_id)
+                    if handle is not None and not handle.done():
+                        continue
+                    if task_id in _recovery_jobs:
+                        continue
+                    meta = recovery_store.metadata(task_id)
+                    explicit_requests = recovery_store.pending_requests(task_id)
+                    if meta["status"] == "queued" and not meta["worker_token"] and not recovery_store.operations(task_id,pending=True):
+                        await _schedule_run(task_id)
+                    elif meta["status"] in {"running","pausing",*RECOVERING} or meta["worker_token"]:
+                        if meta["status"] in {"succeeded","failed","cancelled","paused","waiting_for_input"}:
+                            continue
+                        if meta["recovery_protocol_version"] == 1:
+                            if meta["status"] in {"running","pausing"}:
+                                db.update_task(task_id,status=TaskStatus.RECOVERING)
+                            if meta["recovery_policy"]!="safe_auto" and meta["desired_state"]!="pause" and not explicit_requests:
+                                if meta["status"]!="recovery_blocked":
+                                    db.update_task(task_id,status=TaskStatus.RECOVERY_BLOCKED)
+                                    recovery_store.event(task_id,"blocked",reason="explicit_recovery_required" if meta["recovery_policy"]=="manual" else "crash_recovery_disabled")
+                                continue
+                            _recovery_jobs[task_id]=asyncio.create_task(_recover_scheduled(
+                                task_id,explicit_requests,bool(explicit_requests) or meta["desired_state"]=="pause"))
+                        elif meta["status"] in {"running","pausing"}:
+                            db.update_task(task_id,status=TaskStatus.RECOVERY_BLOCKED,failure_reason="legacy_recovery_unsupported")
+            except asyncio.CancelledError:
+                return
+            except Exception:
+                logger.exception("recovery scan failed")
+            await asyncio.sleep(settings.task_recovery_scan_interval_s)
+
+    @app.on_event("startup")
+    async def _start_recovery():
+        nonlocal _backend_lock,_recovery_scan_task
+        from shared.file_lock import FileLock
+        _backend_lock = FileLock(settings.data_dir / ".backend-runtime.lock").acquire()
+        from shared.recovery_runtime import instance_id
+        instance_id(orch)
+        artifacts.reconcile_pins()
+        _recovery_scan_task = asyncio.create_task(_scan_recovery(),name="task-recovery-scanner")
 
     async def _hard_cancel_after(task_id: str) -> None:
         await asyncio.sleep(float(settings.task_cancel_hard_timeout_s))
@@ -459,6 +535,7 @@ def create_app(
                     enabled=settings.hitl_enabled if body.hitl_enabled is None else body.hitl_enabled,
                     max_queries=settings.hitl_max_queries, timeout_seconds=settings.hitl_timeout_seconds),
                     origin=origin, binding=binding)
+                recovery_store.enable(record.id,body.recovery_policy or settings.task_recovery_policy)
                 created.append(record.model_dump())
             if body.request_key:
                 db.save_submission(body.request_key, fingerprint, [t["id"] for t in created])
@@ -550,7 +627,8 @@ def create_app(
                 "cancel_requested": False,
                 "already_terminal": True,
             }
-        if t.status not in (TaskStatus.QUEUED, TaskStatus.RUNNING, TaskStatus.PAUSING, TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT):
+        recovery_store.control(task_id,"cancel")
+        if t.status not in (TaskStatus.QUEUED, TaskStatus.RUNNING, TaskStatus.PAUSING, TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT,TaskStatus.RECOVERING,TaskStatus.WAITING_FOR_DEVICE,TaskStatus.RECOVERY_BLOCKED):
             raise HTTPException(409, f"cannot cancel status={t.status.value}")
 
         handle = _running.get(task_id)
@@ -586,6 +664,9 @@ def create_app(
         if task.status in _TERMINAL or task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT):
             return {"task_id": task_id, "status": task.status.value,
                     "pause_requested": task.status in (TaskStatus.PAUSING, TaskStatus.PAUSED)}
+        recovery_store.control(task_id,"pause")
+        if task.status.value in RECOVERING:
+            return {"task_id":task_id,"status":task.status.value,"pause_requested":True}
         handle = _running.get(task_id)
         live = handle is not None and not handle.done()
         if not live and task.status != TaskStatus.QUEUED:
@@ -608,6 +689,17 @@ def create_app(
             return await _resume_checkpoint(task_id, background_tasks, body)
 
     async def _resume_checkpoint(task_id, background_tasks, body):
+        record = db.get_task(task_id)
+        if record is not None and record.status.value in RECOVERING:
+            if body is not None and body.budget is not None:
+                raise HTTPException(409,"crash recovery does not extend budgets; use the existing budget checkpoint flow")
+            handle = _running.get(task_id)
+            if handle is not None and not handle.done():
+                return {"task_id":task_id,"status":record.status.value,"resumed":False,"accepted":True}
+            result = await recovery.recover(task_id,explicit=True)
+            if result.get("status") == "queued":
+                background_tasks.add_task(_schedule_run,task_id)
+            return {**result,"resumed":False}
         task = db.get_task(task_id)
         if task is None:
             raise HTTPException(404, "task not found")
@@ -668,6 +760,7 @@ def create_app(
             state.revisable.execution_attempt += 1
             state.revisable.attempt_started_at = time.time()
         with db.transaction():
+            recovery_store.control(task_id,"run")
             db.update_task(task_id, status=TaskStatus.QUEUED, state=state, clear_failure_reason=True)
             if body is not None and body.budget is not None:
                 renewal = db.get_agent_record(task_id, "budget_extension", body.request_key)
@@ -679,6 +772,42 @@ def create_app(
         background_tasks.add_task(_schedule_run, task_id)
         return {"task_id": task_id, "status": "queued", "resumed": True,
                 "execution_attempt": state.revisable.execution_attempt}
+
+    @app.post("/api/tasks/{task_id}/recover")
+    async def recover_task(task_id: str,body: RecoverTaskBody,background_tasks: BackgroundTasks):
+        async with _submission_lock:
+            if db.get_task(task_id) is None:
+                raise HTTPException(404,"task not found")
+            prior=db._conn.execute("SELECT response_json FROM recovery_requests WHERE task_id=? AND request_key=?",(task_id,body.request_key)).fetchone()
+            if prior:
+                try:
+                    return recovery_store.request(task_id,body.request_key,body.model_dump(),{})
+                except RecoveryConflict as exc:
+                    raise HTTPException(409,str(exc)) from exc
+            meta = recovery_store.metadata(task_id)
+            if meta["status"] in {"succeeded","failed","cancelled"}:
+                return {"task_id":task_id,"accepted":False,"status":meta["status"]}
+            if not meta["recovery_protocol_version"] or meta["recovery_policy"]=="disabled":
+                raise HTTPException(409,"legacy recovery unsupported" if not meta["recovery_protocol_version"] else "crash recovery disabled")
+            previous = db._conn.execute("SELECT payload_digest,response_json FROM recovery_requests WHERE task_id=? AND request_key=?",
+                                        (task_id,body.request_key)).fetchone()
+            response = {"task_id":task_id,"accepted":True,"status":db.get_task(task_id).status.value}
+            try:
+                response = recovery_store.request(task_id,body.request_key,body.model_dump(),response)
+            except RecoveryConflict as exc:
+                raise HTTPException(409,str(exc)) from exc
+            if previous:
+                return response
+            async def request_recovery():
+                live = _running.get(task_id)
+                if live is not None and not live.done():
+                    return
+                result = await recovery.recover(task_id,explicit=True)
+                recovery_store.finish_requests(task_id,[body.request_key])
+                if result.get("status") == "queued":
+                    await _schedule_run(task_id)
+            background_tasks.add_task(request_recovery)
+            return response
 
     @app.get("/api/tasks/{task_id}")
     async def get_task(task_id: str) -> dict[str, Any]:
@@ -1130,6 +1259,38 @@ def create_app(
     # Release process-owned task observation resources on normal shutdown.
     @app.on_event("shutdown")
     async def _shutdown_observation_streams() -> None:
+        nonlocal _recovery_scan_task,_backend_lock
+        if _recovery_scan_task is not None:
+            _recovery_scan_task.cancel()
+            await asyncio.gather(_recovery_scan_task,return_exceptions=True)
+            _recovery_scan_task = None
+        jobs=tuple(_recovery_jobs.values())
+        for job in jobs:
+            job.cancel()
+        if jobs:
+            await asyncio.gather(*jobs,return_exceptions=True)
+        from shared.recovery_runtime import journal_for
+        for task_id,handle in tuple(_running.items()):
+            if handle.done():
+                continue
+            _retiring.add(handle)
+            meta=recovery_store.metadata(task_id)
+            if meta["recovery_protocol_version"]==1 and meta["desired_state"]!="cancel" and meta["status"] not in {"succeeded","failed","cancelled"}:
+                # Shutdown retires ownership; it is not user cancellation.
+                with db.transaction():
+                    db._conn.execute("UPDATE tasks SET execution_epoch=execution_epoch+1,worker_token=NULL,status='recovering' WHERE id=?",(task_id,))
+                try:
+                    driver=await asyncio.to_thread(orch._resolve_driver,meta["device_serial"])
+                    close=getattr(driver,"close_execution",None)
+                    if close:
+                        await close(meta["device_serial"] or "default",task_id,meta["execution_epoch"])
+                    else:
+                        journal_for(orch).close_task(meta["device_serial"] or "default",task_id,meta["execution_epoch"])
+                except Exception:
+                    pass  # Persisted device quarantine survives shutdown.
+            handle.cancel()
+        if _running:
+            await asyncio.wait(tuple(_running.values()),timeout=5)
         nonlocal _environment_reconcile_task
         reconcile_task, _environment_reconcile_task = _environment_reconcile_task, None
         if reconcile_task is not None:
@@ -1142,6 +1303,9 @@ def create_app(
         except Exception:
             logger.warning("Task preview shutdown unavailable")
         await OBSERVATION_STREAMS.shutdown()
+        if _backend_lock is not None:
+            _backend_lock.close()
+            _backend_lock = None
 
     from control_api.assistant import mount_assistant_api
     from control_api.hitl import mount_human_input

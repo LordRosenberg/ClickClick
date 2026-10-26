@@ -20,6 +20,8 @@ def test_settings_contains_only_operator_controlled_fields():
         "chatgpt_history_tokens",
         "default_task_executor_decisions", "default_task_model_calls", "default_task_device_actions", "default_task_seconds",
         "hitl_enabled", "hitl_max_queries", "hitl_timeout_seconds",
+            "task_recovery_policy", "task_recovery_max_auto_attempts", "task_recovery_scan_interval_s",
+            "task_recovery_backoff_s", "task_recovery_attempt_timeout_s", "task_recovery_device_wait_s",
         "learning_default_calls", "learning_default_actions", "learning_default_seconds",
         "jev_mode", "jev_status_context", "jev_allow_external", "jev_api_key", "jev_base_url", "jev_model",
         "jev_support_threshold", "jev_reject_threshold", "jev_issue_threshold", "jev_timeout_s",

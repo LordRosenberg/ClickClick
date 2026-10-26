@@ -8,7 +8,7 @@
 // (executor > reviewer > planner), and optional focused-role members.
 // `step_seq` is the unique selection key for the Console — no `Array.find`
 // collision because only one Step object exists per `step_seq`.
-export type TaskStatus = "queued" | "running" | "pausing" | "paused" | "waiting_for_input" | "succeeded" | "failed" | "cancelled";
+export type TaskStatus = "queued" | "running" | "pausing" | "paused" | "waiting_for_input" | "recovering" | "waiting_for_device" | "recovery_blocked" | "succeeded" | "failed" | "cancelled";
 export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
 export type ObservationMode = "tree-only" | "tree+image" | "image-only";
 export type ActionType = "tap" | "tap_xy" | "type" | "replace_text" | "swipe" | "long_press" | "scroll" | "drag" | "key" | "launch" | "back" | "home" | "sleep";
@@ -97,6 +97,9 @@ export interface RevisablePlan {
     feedback: string;
 }
 export interface Task {
+    recovery?: { phase?: string; reason?: string | null; policy?: string; attempt_no?: number;
+        quarantined?: boolean; available_actions?: string[];
+        unknown_operations?: { operation_id: string; kind: string; status: string }[] };
     can_resume?: boolean;
     execution_attempts?: { attempt: number; status: string; failure_reason?: string | null; model_calls: number; device_actions: number; executor_decisions: number }[];
     adjustment?: { status: string; instruction: string; feedback?: string; revision: number } | null;

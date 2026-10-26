@@ -501,9 +501,12 @@ class SkillLibrary:
         self.root = (root or default_skills_root()).resolve()
         # None is the authoring/admin view; an empty set is an unknown device.
         self.device_profiles = None if device_profiles is None else frozenset(device_profiles)
+        self.frozen_packs: dict[str,SkillPack] = {}
 
     def for_device(self, profiles: Iterable[str]) -> SkillLibrary:
-        return SkillLibrary(self.root, device_profiles=profiles)
+        library = SkillLibrary(self.root, device_profiles=profiles)
+        library.frozen_packs = dict(self.frozen_packs)
+        return library
 
     def iter_files(self) -> Iterable[Path]:
         if not self.root.is_dir():
@@ -533,6 +536,7 @@ class SkillLibrary:
                 continue
             if not (pack.active or include_candidates):
                 continue
+            pack = self.frozen_packs.get(pack.id,pack)
             if (self.device_profiles is not None and pack.device_profiles
                     and not self.device_profiles.intersection(pack.device_profiles)):
                 continue
@@ -542,6 +546,11 @@ class SkillLibrary:
                     f"duplicate active skill id {pack.id!r}: {previous} and {path}"
                 )
             packs.append(pack)
+        present = {pack.id for pack in packs}
+        for pack in self.frozen_packs.values():
+            if pack.id not in present and (self.device_profiles is None or not pack.device_profiles
+                                          or self.device_profiles.intersection(pack.device_profiles)):
+                packs.append(pack)
         return packs
 
     def lint_authored_modules(self) -> list[str]:

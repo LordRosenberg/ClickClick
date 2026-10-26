@@ -89,6 +89,7 @@ class RpcRequest(dict):
 
 
 RPC_METHODS = frozenset({
+    "recovery_capabilities", "act_durable", "get_operation", "fence_device", "close_execution",
     "get_ui_state", "screenshot", "get_frame", "capture_deadline_frame",
     "act", "health",
     "wake_and_unlock", "begin_task_session", "end_task_session",

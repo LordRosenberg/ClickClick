@@ -76,7 +76,31 @@ class ReadResult(AgentToolResult):
         )
 
 
-def save_note(store: TaskStore, args: WriteNote, state: AgentState) -> ReadResult:
+def save_note(store: TaskStore, args: WriteNote, state: AgentState, *, write_identity=None) -> ReadResult:
+    from shared.recovery_context import current_execution,check_owner
+    from shared.recovery_store import digest,RecoveryConflict
+    durable=current_execution.get()
+    if durable is None:
+        return _save_note(store,args,state)
+    check_owner()
+    identity=digest([durable.invocation_id,durable.round_seq,durable.call_id,write_identity or args.note_key])
+    payload_digest=digest(args.model_dump())
+    outside=store.db._transaction_depth==0
+    with store.db.transaction():
+        prior=store.db.get_agent_record(store.task_id,"local_commit",identity)
+        if prior:
+            if prior["payload"]["digest"]!=payload_digest:
+                raise RecoveryConflict("local write identity conflict")
+            return ReadResult.model_validate(prior["payload"]["result"])
+        result=_save_note(store,args,state)
+        store.db.append_agent_record(store.task_id,"local_commit",identity,
+                                     {"digest":payload_digest,"result":result.model_dump(mode="json")})
+        if outside:
+            durable.store.publish_manifest(store.task_id,state=state)
+        return result
+
+
+def _save_note(store: TaskStore, args: WriteNote, state: AgentState) -> ReadResult:
     for observation_id in args.observation_ids:
         store.get("observation", observation_id)
     from agent.revisable.recall import resolve_source
@@ -176,6 +200,7 @@ def register_memory_tools(
             name="read_history",
             description="Read a missing or contradicted fact. Supply exactly one nonempty source or query: a copied source ID, or literal search keywords. Stop when answered.",
             category=ToolCategory.KNOWLEDGE, roles=(AgentRole(role),),
+            recovery_effect="read",
             parameters=parameters,
         ), read)
 
@@ -185,5 +210,6 @@ def register_memory_tools(
         registry.register(AgentToolSpec(
             name="write_note", description="Save facts needed later. append=true preserves ordered entries; otherwise replace the current note.",
             category=ToolCategory.KNOWLEDGE, roles=(AgentRole.EXECUTOR,),
+            recovery_effect="local_write",
             parameters=tool_schema(WriteNote),
         ), write)

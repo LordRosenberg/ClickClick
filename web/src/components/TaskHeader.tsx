@@ -12,6 +12,7 @@ const statusVariant: Record<string, "default" | "secondary" | "success" | "destr
   pausing: "warn",
   paused: "warn",
   waiting_for_input: "warn",
+  recovering: "warn", waiting_for_device: "warn", recovery_blocked: "warn",
   succeeded: "secondary",
   failed: "destructive",
   cancelled: "warn",
@@ -23,6 +24,7 @@ const statusLabel: Record<string, string> = {
   pausing: "正在暂停",
   paused: "已暂停",
   waiting_for_input: "等待回答",
+  recovering: "正在恢复", waiting_for_device: "等待设备", recovery_blocked: "恢复受阻",
   succeeded: "运行时完成",
   failed: "运行时失败",
   cancelled: "已取消",
@@ -150,6 +152,16 @@ export function TaskHeader({
           </div>
         )}
 
+        {liveTask?.recovery?.phase && (
+          <div role="status" className="rounded border border-border p-2 text-sm" aria-label="异常恢复">
+            恢复阶段：{liveTask.recovery.phase} · 尝试 {liveTask.recovery.attempt_no ?? 0}
+            {liveTask.recovery.reason && <div>{liveTask.recovery.reason}</div>}
+            {liveTask.recovery.quarantined && <div>旧输入链正在隔离，暂不发送新的设备输入。</div>}
+            {!!liveTask.recovery.unknown_operations?.length && <div>
+              历史结果未知：{liveTask.recovery.unknown_operations.length} 项。恢复后由模型结合最新观测决定后续操作。
+            </div>}
+          </div>
+        )}
         {timeline.failure_reason && (
           <div className="rounded border border-err/40 bg-err/10 p-2 font-mono text-[11px] text-err">
             <span className="text-[10px] uppercase tracking-wider">failure:</span>{" "}

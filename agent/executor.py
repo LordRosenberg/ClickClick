@@ -258,6 +258,11 @@ async def execute_tap_capture_key(
 ) -> tuple[ActionResult, ObservationPackage, ObservationPackage | None]:
     """Run the closed tap/capture/Back/capture recipe through primitive transactions."""
     tap = Action(type="tap_xy", x=action.x, y=action.y)
+    from shared.recovery_context import current_execution
+    durable=current_execution.get()
+    if durable is not None:
+        durable.compound_plan=[tap.model_dump(mode="json"),
+                              (Action(type="back") if key=="back" else Action(type="key",key=key)).model_dump(mode="json")]
     first, intermediate = await transaction.act_and_observe(tap, before, target=target)
     entries = [_compound_receipt_entry(tap, first)]
     results = [first]
@@ -279,7 +284,7 @@ async def execute_tap_capture_key(
         if item.receipt is not None
     )
     detail = {
-        "device_action_units": 1,
+        "device_action_units": physical_units if durable is not None else 1,
         "physical_subaction_units": physical_units,
         "capture_count": capture_count,
         "compound_receipt": {

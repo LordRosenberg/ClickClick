@@ -11,7 +11,7 @@ import time
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -147,6 +147,9 @@ class AgentToolSpec(BaseModel):
     parameters: dict[str, Any]
     timeout_ms: int = Field(default=10_000, ge=1, le=120_000)
     updates_action_context: bool = False
+    recovery_effect: Literal["read","local_write","external_write","unknown"] = "unknown"
+    recovery_idempotency_key: str | None = None
+    recovery_result_query: str | None = None
 
     def chat_completion_schema(self) -> dict[str, Any]:
         return {
@@ -451,24 +454,46 @@ class AgentToolRegistry:
                 summary=f"tool {name} is not available to {context.role.value}",
                 error="role_not_allowed",
             )
+        from shared.recovery_context import current_execution, check_owner
+        durable = current_execution.get()
+        operation_id = None
+        if durable is not None:
+            check_owner()
+            if reg.spec.recovery_effect in {"external_write","unknown"}:
+                import uuid
+                operation_id = uuid.uuid4().hex
+                messages_ref = durable.store.artifacts.save_json("recovery_dialogue",durable.messages)
+                durable.store.prepare(durable.owner,durable.state,operation_id=operation_id,
+                    kind="external_tool",args={"tool":name,"arguments":redact_value(arguments,max_string=None,max_items=None)},
+                    invocation_id=durable.invocation_id,call_id=durable.call_id,basis=durable.basis,
+                    intent={"messages_ref":messages_ref,"role":durable.role,"round_seq":durable.round_seq})
+                durable.operation_ids.append(operation_id)
         try:
             produced = reg.handler(arguments, context)
             if inspect.isawaitable(produced):
                 produced = await asyncio.wait_for(produced, reg.spec.timeout_ms / 1000)
             if not isinstance(produced, AgentToolResult):
                 raise TypeError(f"handler returned {type(produced).__name__}")
+            if operation_id:
+                durable.store.receipt(operation_id,redact_value(produced.model_dump(mode="json",exclude={"terminal_value"}),max_string=None,max_items=None),source="tool")
             return produced
         except asyncio.TimeoutError:
+            if operation_id:
+                durable.store.record_unknown(operation_id)
             return AgentToolResult(
                 status=ToolStatus.TIMEOUT,
                 summary=f"{name} timed out after {reg.spec.timeout_ms}ms",
                 error="timeout",
+                data={"execution_result":"unknown"} if operation_id else {},
             )
         except Exception as exc:  # noqa: BLE001
+            if operation_id:
+                durable.store.record_unknown(operation_id)
             return AgentToolResult(
                 status=ToolStatus.FAILED,
                 summary=f"{name} failed",
                 error=str(exc)[:500],
+                data={"execution_result":"unknown"} if operation_id else {},
             )
 
 

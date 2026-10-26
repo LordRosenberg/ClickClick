@@ -23,6 +23,23 @@ SAMPLE_XML = """<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
   </node>
 </hierarchy>"""
 
+
+@pytest.mark.parametrize("reachable",[False,True])
+async def test_health_requires_live_shell_even_if_adb_lists_device(monkeypatch,reachable):
+    async def devices():
+        return ["frozen-guest"]
+    probes=[]
+    async def shell(serial,args,*,timeout):
+        probes.append((serial,args,timeout))
+        if not reachable:
+            raise adb.AdbTimeoutError("device stopped responding")
+        return b"guest-identity\n"
+    monkeypatch.setattr(adb,"list_device_serials_async",devices)
+    monkeypatch.setattr(adb,"shell_async",shell)
+    result=await AndroidDriver(serial="frozen-guest").health()
+    assert result["ok"]==reachable,"ADB inventory alone does not prove device reachability"
+    assert len(probes)==1 and probes[0][2]<=2
+
 EXTENDED_XML = """<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <hierarchy rotation="0">
   <node index="0" text="搜索框" class="android.widget.FrameLayout" package="com.example.demo"

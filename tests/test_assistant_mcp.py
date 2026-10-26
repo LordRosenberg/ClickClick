@@ -252,13 +252,18 @@ def test_launcher_serializes_concurrent_auto_start_and_checks_identity(tmp_path,
         with ThreadPoolExecutor(max_workers=2) as executor:
             futures = [executor.submit(ensure_backend, base, root, tmp_path / "data") for _ in range(2)]
             outcomes = [future.exception(timeout=45) for future in futures]
+            successful = [future.result() for future, outcome in zip(futures, outcomes)
+                          if outcome is None]
+            if successful:
+                # Preserve ownership for finally even if the other caller fails.
+                identity = successful[0]
             if any(outcomes):
                 # A containing Windows Job Object can prohibit independence
                 # even when the immediate parent permits breakaway. Both
                 # serialized callers must fail safely, leaving no backend.
                 assert os.name == "nt"
                 assert all(isinstance(exc, RuntimeError) and str(exc) == INDEPENDENT_BACKEND_ERROR
-                           for exc in outcomes)
+                           for exc in outcomes),[repr(exc) for exc in outcomes]
                 import httpx
                 with httpx.Client(base_url=base, trust_env=False, timeout=.5) as client:
                     with pytest.raises(httpx.ConnectError):

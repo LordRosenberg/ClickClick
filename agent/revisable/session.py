@@ -87,6 +87,7 @@ def terminal_registry(session, schema, name, description, handler, *, timeout_ms
             name=name,
             description=description,
             category=ToolCategory.TERMINAL,
+            recovery_effect="read",
             timeout_ms=timeout_ms,
             roles=(AgentRole(session.role),),
             parameters=tool_schema(schema),
@@ -176,9 +177,18 @@ class ExecutionSession(AgentSession):
                 )
             if result.status == ToolStatus.SUCCEEDED and result.terminal_value:
                 if submission.notes:
-                    with self.store.db.transaction():
-                        for note in submission.notes:
-                            save_note(self.store, note, self.state)
+                    def write_notes():
+                        for ordinal,note in enumerate(submission.notes):
+                            save_note(self.store, note, self.state,write_identity=f"submission:{ordinal}")
+                    from shared.recovery_context import current_execution
+                    durable = current_execution.get()
+                    if durable is not None and submission.decision == "act":
+                        # No separate prepared/Tdispatch commit: paired notes and
+                        # physical dispatch intent commit together in T1.
+                        durable.local_write = write_notes
+                    else:
+                        with self.store.db.transaction():
+                            write_notes()
                 ctx.state["directive"] = submission.decision
                 ctx.state["completed_stage_id"] = submission.completed_stage_id
             return result
@@ -188,6 +198,7 @@ class ExecutionSession(AgentSession):
                 name="submit_executor_step",
                 description="Act, advance, replan, review, or finish. Include notes to save before the decision; a failed save prevents the action.",
                 category=ToolCategory.TERMINAL,
+                recovery_effect="local_write",
                 roles=(AgentRole.EXECUTOR,),
                 parameters=executor_submission_schema(),
             ),

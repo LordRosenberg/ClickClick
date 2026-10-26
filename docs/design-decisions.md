@@ -77,3 +77,11 @@ HITL is frozen at task creation: assistant-guided first installations default on
 ## Generic assistant screen preview
 
 The task preview reuses local Android frames and existing model events instead of creating another device-capture or input path. Hosts select their own browser from returned preview/details links and reuse pages by task ID. Read-only viewing is independent of execution; disconnects, slow readers and missing frames do not change task outcomes. The UI labels frame age and retained images, while task details keeps full outputs and saved evidence. See [usage](hitl.md).
+
+## Recovery and execution idempotency
+
+**Persist intent, execution facts and task state without treating a database transaction as a device transaction.** T1 records the decision and budget reservation before dispatch; an independent Driver journal deduplicates operation IDs, T2 retains the original receipt, and T3 atomically commits the step and complete post-state. This distinguishes undispatched, known and unknown operations while preventing lost committed state or repeated accounting. ADB side effects still cannot atomically commit with SQLite.
+
+**Let the model interpret unknown results using current state.** Takeover isolates old workers and input processes. If no reliable receipt is found, recovery closes the original call as unknown, restores its role, notes, plan and tool dialogue, then captures a fresh observation. Runtime does not infer historical execution from screenshots or automatically replay a call. A model-chosen repeat is a new decision with a new ID. Unknown alone enables no approval gate, read-only mode or HITL switch.
+
+**Separate crash recovery from a clean pause.** A pause resumes from a safe checkpoint; crash recovery first handles unresolved dispatch and the old input chain, then returns to ordinary scheduling. Cumulative budgets and deadlines survive, late receipts do not duplicate steps or charges, and cancellation/terminal state take priority. Blocking is limited to structural requirements such as device identity, ownership and required context integrity, with bounded rechecks when device or authorization resources recover. See [states and configuration](architecture.md#recovery-after-an-unexpected-interruption).

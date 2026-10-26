@@ -1,6 +1,7 @@
 """Synchronous, revisable plans. Routing contains no task interpretation."""
 
 import asyncio
+import json
 import time
 from functools import partial
 
@@ -61,10 +62,24 @@ class PlanOrchestrator(Orchestrator):
         return self._fail(task_id, state, reason, resumable=dimension != "prediction_rounds")
 
     async def _invoke(self, task_id, state, role, make_call, control):
+        from shared.recovery_context import current_execution
+        durable = current_execution.get()
+        if durable is not None:
+            import uuid
+            durable.state, durable.role = state, role
+            durable.invocation_id = uuid.uuid4().hex
+            durable.call_id, durable.messages, durable.operation_ids = "", [], []
+            durable.compound_plan = []
+            durable.admit_facts()
         if control is None:
-            return await self._call_role(task_id, state, role, make_call(state, self._model_call_meter(task_id, state, role)))
+            result=await self._call_role(task_id, state, role, make_call(state, self._model_call_meter(task_id, state, role)))
+            if durable is not None and not durable.operation_ids:
+                durable.check_decision()
+            return result
         lease = control.acquire(SteeringInbox(self.db, task_id).revision())
         private = state.model_copy(deep=True)
+        if durable is not None:
+            durable.state = private
         record = self._model_call_meter(task_id, state, role)
 
         def meter(kind, payload):
@@ -102,12 +117,19 @@ class PlanOrchestrator(Orchestrator):
                 invocation.add_done_callback(discarded)
                 raise TaskSteered()
             result = await invocation
+            if durable is not None and not durable.operation_ids:
+                durable.check_decision()
             private.role_invocation_count = state.role_invocation_count
             state.__dict__.update(private.__dict__)
+            if durable is not None:
+                durable.state = state
             adopted = True
             return result
         finally:
-            if not adopted:
+            # A T1-issued invocation has durable protocol facts. Discarding its
+            # saved dialogue would leave the recovery cut pointing at a hidden
+            # transcript, especially when HITL installs an invocation lease.
+            if not adopted and not (durable is not None and durable.operation_ids):
                 self.db.append_agent_record(task_id, "obsolete_invocation", lease.identity,
                                             {"revision": lease.revision, "generation": lease.generation})
             changed.cancel()
@@ -174,7 +196,8 @@ class PlanOrchestrator(Orchestrator):
             await asyncio.gather(provider_warm_task, return_exceptions=True)
         if self.is_pause_requested(task_id):
             return self._pause(task_id, state)
-        await self._wake_and_unlock()
+        if not state.recovery:
+            await self._wake_and_unlock()
         # Resolve system scope before inspecting Planner-selected skill IDs.
         # Executor.act_once binds too late for the handoff below.
         await executor._session.bind_device_skills(executor.driver)
@@ -193,9 +216,9 @@ class PlanOrchestrator(Orchestrator):
             self.is_cancel_requested(task_id)
         )
         runtime = state.revisable
-        carried = None
+        carried = getattr(self,"_recovery_packages",{}).pop(task_id,None)
         # A resumed Executor also prepares history before its handoff capture.
-        refresh_before_executor = runtime.next_role == "executor"
+        refresh_before_executor = runtime.next_role == "executor" and carried is None
         device_actions = 0
         action_attempts = 0
         while True:
@@ -221,6 +244,14 @@ class PlanOrchestrator(Orchestrator):
             try:
                 package = carried or await self._observe(will_send_image=True)
                 carried = None
+                if state.recovery:
+                    state.recovery["current_observation_id"] = package.observation_id
+                    state.recovery["observation_source"] = "recovery_current"
+                    state.recovery["interruption_gap"] = True
+                from shared.recovery_context import current_execution
+                durable = current_execution.get()
+                if durable is not None:
+                    durable.basis = package.observation_id
                 self._persist_observation(package)
                 role = runtime.next_role
                 if role in {"planner", "reviewer"}:
@@ -382,6 +413,8 @@ class PlanOrchestrator(Orchestrator):
                         else None
                     ),
                 )
+                if durable is not None:
+                    durable.flush_local_write()
                 if step.decision == ExecutorDecisionKind.ACT:
                     runtime.execution_count += result.detail.get("device_action_units", 1)
                     if runtime.limits.prediction_rounds is not None:
@@ -412,11 +445,17 @@ class PlanOrchestrator(Orchestrator):
                 self.db.add_step_and_update_state(
                     task_id, active_stage_id, completed_step, report.model_dump(), state
                 )
+                if durable is not None:
+                    state.recovery = {}
                 self._trace_executor_step(task_id, state, step, result, ui, mode, refs, package)
                 if step.decision == ExecutorDecisionKind.ACT:
                     device_actions += result.detail.get("device_action_units", 1)
                     action_attempts += 1
             except TaskSteered:
+                from shared.recovery_store import RecoveryStore
+                if RecoveryStore(self.db,self.artifacts).operations(task_id,pending=True):
+                    self.db.update_task(task_id,status=TaskStatus.RECOVERING)
+                    return TaskStatus.RECOVERING
                 # No incomplete cognitive state is adopted. New role objects prevent
                 # an obsolete invocation's finally block from touching the new one.
                 planner, reviewer, executor = self.planner_factory(), self.reviewer_factory(), self.executor_factory()
@@ -436,6 +475,9 @@ class PlanOrchestrator(Orchestrator):
                 refresh_before_executor = True
                 continue
             except TaskBudgetExhausted as exc:
+                if durable is not None and durable.store.operations(task_id,pending=True):
+                    from shared.recovery_runtime import InfrastructureInterrupted
+                    raise InfrastructureInterrupted("partial_attempt_at_budget_boundary") from exc
                 return self._budget_fail(task_id, state, exc.dimension, exc.required)
             except asyncio.CancelledError:
                 raise
@@ -446,6 +488,16 @@ class PlanOrchestrator(Orchestrator):
                                            "role": role})
                 return TaskStatus.WAITING_FOR_INPUT
             except GatewayError as exc:
+                if state.recovery and durable is not None and exc.category in {"auth","config","quota"}:
+                    from shared.recovery_runtime import configuration_fact
+                    reason={"auth":"model_authorization_unavailable","config":"model_configuration_unavailable",
+                            "quota":"model_quota_unavailable"}[exc.category]
+                    self.db.update_task(task_id,status=TaskStatus.RECOVERY_BLOCKED)
+                    durable.store.event(task_id,"blocked",reason=reason,
+                        configuration_fact=configuration_fact(self.settings),next_retry_at=0,
+                        attempt_no=max(self.settings.task_recovery_max_auto_attempts,
+                            json.loads(durable.store.metadata(task_id)["recovery_json"]).get("attempt_no",0)))
+                    return TaskStatus.RECOVERY_BLOCKED
                 signature = stable_hash((package.observation_id, runtime.execution_count))
                 if (
                     role != "executor"
@@ -472,6 +524,12 @@ class PlanOrchestrator(Orchestrator):
                 carried = package
                 self._persist(task_id, state)
             except Exception as exc:  # noqa: BLE001 — task boundary persists failures for the console
+                from shared.recovery_context import current_execution
+                from shared.recovery_runtime import InfrastructureInterrupted
+                from shared.recovery_store import RecoveryConflict
+                from httpx import TransportError
+                if current_execution.get() is not None and isinstance(exc, (InfrastructureInterrupted,ObservationStageError, OSError, ConnectionError,TransportError,RecoveryConflict)):
+                    raise InfrastructureInterrupted(type(exc).__name__) from exc
                 if isinstance(exc, ObservationStageError):
                     self.traces.write(
                         task_id, kind="system", message="Observation capture failed",

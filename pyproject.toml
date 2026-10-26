@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clickclick"
-version = "0.3.1"
+version = "0.3.2"
 description = "Local multi-process Computer Use Agent (Android-first MVP)"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,6 +22,7 @@ dependencies = [
   "pillow>=10.4.0",
   "aiofiles>=24.1.0",
   "pyyaml>=6.0",
+  "psutil>=6,<8",
   "tiktoken>=0.9.0",
 ]
 

@@ -30,8 +30,15 @@ class TraceWriter:
         bus: EventBusLike | None = None,
     ) -> None:
         self.db = db
+        self.db.artifacts = artifacts
         self.artifacts = artifacts
         self.bus = bus
+        def recovery_event(task_id,payload):
+            try:
+                self.write(task_id,kind="system",message=f"recovery:{payload['phase']}",payload=payload)
+            except Exception:
+                pass  # Canonical recovery events were already committed.
+        db.recovery_event_sink = recovery_event
 
     # Structured tick kinds whose payloads the Console timeline renders
     # inline (decision roles / executor_tick / loop_tick). These MUST NOT be
@@ -51,7 +58,16 @@ class TraceWriter:
         "harness_event",
     })
 
-    def write(
+    def write(self,task_id: str,**kwargs) -> TraceEvent:
+        try:
+            return self._write(task_id,**kwargs)
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning("trace unavailable: %s",type(exc).__name__)
+            return TraceEvent(task_id=task_id,kind="system",level=LogLevel.WARN,
+                              message="diagnostic_trace_unavailable",payload={"error_type":type(exc).__name__},ts=time.time())
+
+    def _write(
         self,
         task_id: str,
         *,

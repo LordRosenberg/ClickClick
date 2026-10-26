@@ -491,6 +491,40 @@ def _provision_project_adb() -> Path:
 
 def _run(args: list[str], *, capture_bytes: bool = False, timeout: float = 30.0) -> bytes:
     """Run an adb command, returning stdout bytes. Raises AdbError on failure."""
+    from driver.execution_journal import current_input, ensure_input_job
+    owned = current_input.get()
+    if owned is not None:
+        journal, envelope = owned
+        journal.check(envelope)
+        ensure_input_job()
+        ordinal=journal.begin_subaction(envelope)
+        from driver.processes import owned_process_args
+        args,process_options=owned_process_args(args,owned)
+        proc = subprocess.Popen(args, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, **process_options)
+        try:
+            try:
+                if os.name=="nt":
+                    journal.register_child(proc.pid, envelope)
+            except ProcessLookupError:
+                pass
+            stdout, stderr = proc.communicate(timeout=timeout)
+            journal.end_subaction(envelope,ordinal,proc.returncode)
+            if proc.returncode:
+                raise AdbError(f"adb command failed ({proc.returncode}): {stderr.decode('utf-8','replace')}")
+            return stdout
+        except subprocess.TimeoutExpired as exc:
+            proc.kill()
+            proc.communicate()
+            raise AdbTimeoutError("owned adb command timed out") from exc
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate()
+            if os.name=="nt":
+                journal.unregister_child(proc.pid)
+            else:
+                journal._reap_children(envelope["device_key"])
     try:
         proc = subprocess.run(
             args,
@@ -517,14 +551,25 @@ def _run(args: list[str], *, capture_bytes: bool = False, timeout: float = 30.0)
 async def _run_async(args: list[str], *, timeout: float) -> bytes:
     """Run and reap one adb subprocess with cooperative asyncio cancellation."""
     proc: asyncio.subprocess.Process | None = None
+    from driver.execution_journal import current_input, ensure_input_job
+    owned = current_input.get()
+    ordinal=None
+    if owned is not None:
+        owned[0].check(owned[1])
+        ensure_input_job()
+        ordinal=owned[0].begin_subaction(owned[1])
     try:
+        from driver.processes import owned_process_args
+        args,process_options=owned_process_args(args,owned)
         proc = await asyncio.create_subprocess_exec(
             *args,
             stdin=asyncio.subprocess.DEVNULL,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            **background_process_kwargs(),
+            **process_options,
         )
+        if owned is not None and os.name=="nt":
+            owned[0].register_child(proc.pid, owned[1])
         try:
             stdout, stderr = await asyncio.wait_for(
                 proc.communicate(), timeout=max(0.001, float(timeout))
@@ -535,10 +580,14 @@ async def _run_async(args: list[str], *, timeout: float) -> bytes:
                 f"adb command timed out: {' '.join(args)}"
             ) from exc
         if proc.returncode != 0:
+            if owned is not None:
+                owned[0].end_subaction(owned[1],ordinal,proc.returncode)
             raise AdbError(
                 f"adb command failed ({proc.returncode}): "
                 f"{(stderr or b'').decode('utf-8', 'replace').strip()}"
             )
+        if owned is not None:
+            owned[0].end_subaction(owned[1],ordinal,proc.returncode)
         return stdout or b""
     except FileNotFoundError as exc:
         raise AdbError(f"adb invocation failed: {exc}") from exc
@@ -546,6 +595,14 @@ async def _run_async(args: list[str], *, timeout: float) -> bytes:
         if proc is not None and proc.returncode is None:
             await _terminate_and_reap(proc)
         raise
+    finally:
+        if owned is not None and proc is not None:
+            if proc.returncode is None:
+                await _terminate_and_reap(proc)
+            if os.name=="nt":
+                owned[0].unregister_child(proc.pid)
+            else:
+                await asyncio.to_thread(owned[0]._reap_children,owned[1]["device_key"])
 
 
 async def _terminate_and_reap(proc: asyncio.subprocess.Process) -> None:

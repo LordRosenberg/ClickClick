@@ -246,7 +246,7 @@ def prepare(home, job, db):
         raise ValueError("更新请求已失效。")
     # No await between DB check and gate write: task admissions in the API's
     # single event loop cannot pass their final synchronous check concurrently.
-    for state in ("queued", "running", "pausing"):
+    for state in ("queued", "running", "pausing", "recovering", "waiting_for_device", "recovery_blocked"):
         if db.assistant_task_page(status=TaskStatus(state), limit=1):
             raise ValueError("还有活动手机任务，请先完成、暂停或取消，再重试升级。")
     write_json(paths(home) / "update-maintenance.json", {"job": job})

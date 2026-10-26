@@ -44,6 +44,16 @@ def create_driver_app(
         raise ValueError("create_driver_app requires driver= or pool=")
 
     app = FastAPI(title="ClickClick Driver", version="0.1.0")
+    execution_journal = None
+
+    def journal():
+        nonlocal execution_journal
+        if execution_journal is None:
+            from driver.execution_journal import ExecutionJournal
+            from shared.config import get_settings
+            settings = getattr(pool, "_settings", None) or get_settings()
+            execution_journal = ExecutionJournal(settings.data_dir / "driver-execution")
+        return execution_journal
     async def _inventory() -> list[dict[str, Any]]:
         if pool is not None:
             return await pool.inventory()
@@ -118,7 +128,24 @@ def create_driver_app(
                 return {"id": body.id, "result": result}
 
             drv = await _resolve(body.params)
-            if body.method == "get_ui_state":
+            physical_key = str(body.params.get("serial") or getattr(drv, "serial", "default"))
+            if body.method == "recovery_capabilities":
+                result = {"protocol_version":1,"deduplication":True,"fencing":True,"result_query":True}
+            elif body.method == "fence_device":
+                result = await journal().fence(physical_key,int(body.params["device_fence"]),
+                    body.params["task_id"],int(body.params["epoch"]),timeout=min(5,float(body.params.get("timeout",5))))
+            elif body.method == "get_operation":
+                result = journal().get(body.params["operation_id"])
+            elif body.method == "close_execution":
+                journal().close_task(physical_key,body.params["task_id"],int(body.params["epoch"]))
+                result = {"closed":True}
+            elif body.method == "act_durable":
+                envelope = {**body.params,"device_key":physical_key}
+                action = Action.model_validate(envelope["action"])
+                response = await journal().act(envelope,lambda:drv.act(action))
+                response.detail["driver_generation"]=journal().get(envelope["operation_id"])["generation"]
+                result = response.model_dump(mode="json")
+            elif body.method == "get_ui_state":
                 ui = await drv.get_ui_state()
                 result = ui.model_dump()
             elif body.method == "screenshot":
@@ -186,6 +213,10 @@ def create_driver_app(
                         "cancelled_tasks": list(exc.cancelled_tasks),
                     }}
             elif body.method == "act":
+                if execution_journal is not None:
+                    guard=execution_journal.conn.execute("SELECT closed FROM guards WHERE device_key=?",(physical_key,)).fetchone()
+                    if guard is not None and not guard[0]:
+                        raise ValueError("durable operation envelope required for this owned device")
                 action = Action.model_validate(body.params.get("action") or body.params)
                 result = (await drv.act(action)).model_dump()
             elif body.method == "wake_and_unlock":

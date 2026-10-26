@@ -486,7 +486,8 @@ class ObservabilityQueries:
         from shared.task_budgets import execution_attempts, resumable_budget_failure
         changes = SteeringInbox(self.db, task.id).projection() if HumanInputBroker(self.db).config(task.id)["enabled"] else []
         return {
-            "can_resume": task.status == TaskStatus.PAUSED or resumable_budget_failure(task),
+            "can_resume": task.status == TaskStatus.PAUSED or resumable_budget_failure(task) or "recover" in task.recovery.get("available_actions",[]),
+            "recovery": task.recovery,
             "execution_attempts": execution_attempts(self.db, task.id),
             "adjustment": changes[-1] if changes else None,
             "id": task.id,

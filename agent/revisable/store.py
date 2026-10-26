@@ -87,6 +87,10 @@ class TaskStore:
                 self.put("observation", package.observation_id, payload)
             return
         image = package.image_for_llm or package.clean_png or package.annotated_png
+        try:
+            image_ref = self.artifacts.save_bytes("history_images",image) if image else None
+        except OSError:
+            image_ref = None
         self.put(
             "observation",
             package.observation_id,
@@ -98,7 +102,7 @@ class TaskStore:
                 "visits": [visit],
                 "app": package.ui.app_id,
                 "text": package.text_for_llm,
-                "image_ref": self.artifacts.save_bytes("history_images", image) if image else None,
+                "image_ref": image_ref,
             },
         )
 
@@ -195,6 +199,20 @@ class TaskStore:
             "omitted_note_count": notes["total"] - len(notes["notes"]),
             "note_next_offset": notes["next_offset"],
         }
+        if state.recovery:
+            context["recovery_summary"] = state.recovery
+            context["recovery_policy"] = (
+                "The previous action result may be unknown: it may or may not have executed. "
+                "Use the latest current observation, original goal and known history to decide "
+                "what to do next. You may continue, observe again, operate again, replan or "
+                "finish under normal task rules. Unknown is not success or failure and does "
+                "not require an extra confirmation. Use existing HITL only for an actual "
+                "user choice required by the task. Current-state inference does not prove "
+                "historical execution."
+            )
+        fact_updates = self.db.list_agent_records(self.task_id,"recovery_fact")[-4:]
+        if fact_updates:
+            context["execution_fact_updates"] = [{"source":source_id("recovery_fact",row),**row["payload"]} for row in fact_updates]
         if self.budget_snapshot is not None:
             context["remaining_budget"] = self.budget_snapshot()
         from shared.hitl import HumanInputBroker
@@ -305,10 +323,10 @@ class TaskStore:
         state.revisable.delivered_context = current
         return {"runtime_update": update}
 
-    def save_dialogue(self, messages: list[dict], state: AgentState) -> None:
+    def save_dialogue(self, messages: list[dict], state: AgentState, *, step_seq=None) -> None:
         ref = self.artifacts.save_json("dialogue", messages)
         block_id = uuid.uuid4().hex
-        self.put("dialogue", block_id, {"step": state.step_number, "ref": ref})
+        self.put("dialogue", block_id, {"step": state.step_number if step_seq is None else step_seq, "ref": ref})
         state.revisable.dialogue_refs.append(block_id)
 
     def read_dialogue(self, refs: list[str]) -> list[dict]:

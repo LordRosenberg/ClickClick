@@ -764,6 +764,18 @@ class AgentSession:
 
     async def bind_device_skills(self, driver: Any) -> None:
         """Filter discovery and exact-id loading using the bound device profile."""
+        from shared.recovery_context import current_execution
+        durable = current_execution.get()
+        if durable is not None:
+            from agent.skills.library import parse_skill_markdown
+            import yaml
+            for record in durable.store.db.list_agent_records(durable.owner.task_id,"skill_snapshot"):
+                snapshot = record["payload"]
+                path = (self.library.root / snapshot["relative_path"]).resolve()
+                if not path.is_relative_to(self.library.root):
+                    raise ValueError("saved Skill path escapes library")
+                pack = parse_skill_markdown("---\n"+yaml.safe_dump(snapshot["frontmatter"],allow_unicode=True)+"---\n"+snapshot["body"],path=path)
+                self.library.frozen_packs[pack.id] = pack
         provider = getattr(driver, "skill_profile_ids", None)
         try:
             profiles = await provider() if callable(provider) else []
@@ -1026,6 +1038,18 @@ class AgentSession:
         return out
 
     def _store_skill_message(self, pack: SkillPack, *, label: str) -> None:
+        from shared.recovery_context import current_execution
+        durable = current_execution.get()
+        if durable is not None:
+            old = durable.store.db.get_agent_record(durable.owner.task_id,"skill_snapshot",pack.id)
+            if old is None:
+                durable.store.db.append_agent_record(durable.owner.task_id,"skill_snapshot",pack.id,{
+                    "relative_path":pack.path.resolve().relative_to(self.library.root).as_posix(),
+                    "frontmatter":pack.frontmatter,"body":pack.body,"version":pack.version})
+                self.library.frozen_packs[pack.id] = pack
+            else:
+                # bind_device_skills already restored this exact body into the library.
+                pack = self.library.frozen_packs.get(pack.id,pack)
         sid = pack.name
         body = pack.section_for(self._skill_projection_role())
         previous = self._skill_activation_metadata.get(sid, {})
@@ -1459,10 +1483,24 @@ class AgentSession:
                     input_visual.get("captured_monotonic_ms") if input_visual else None
                 ),
             }
-            initial_request_ref = (
-                artifacts.save_json("llm", request_payload) if artifacts is not None
-                else "sha256:" + stable_hash(request_payload)
-            )
+            from shared.recovery_context import current_execution,check_owner
+            durable = current_execution.get()
+            if durable is not None:
+                check_owner()
+                durable.invocation_id = invocation_id
+                durable.store.db.append_agent_record(
+                    durable.owner.task_id,"invocation_round",round_record_base["round_id"],
+                    {"invocation_id":invocation_id,"round_id":round_record_base["round_id"],
+                     "role":self.role,"step_seq":durable.state.step_number,
+                     "base_state_version":durable.store.metadata(durable.owner.task_id)["state_version"],
+                     "request_status":"prepared","token_cost_status":"unknown_until_receipt"})
+            try:
+                initial_request_ref = (
+                    artifacts.save_json("llm", request_payload) if artifacts is not None
+                    else "sha256:" + stable_hash(request_payload)
+                )
+            except OSError:
+                initial_request_ref = None  # Optional trace is not a dispatch prerequisite.
             await _emit(
                 event_sink,
                 "agent_llm_round_started",
@@ -1679,16 +1717,21 @@ class AgentSession:
                     "diagnostic_only": True,
                 },
             }
+            if durable is not None:
+                check_owner()
+                durable.store.db.append_agent_record(durable.owner.task_id,"invocation_round",round_record_base["round_id"],
+                    {"invocation_id":invocation_id,"round_id":round_record_base["round_id"],"role":self.role,
+                     "step_seq":durable.state.step_number,"request_status":"returned",
+                     "usage":response_payload["usage"],"token_cost_status":"reported" if resp.usage else "unreported"})
             if content_safety_degraded:
                 response_payload["content_safety_degraded"] = True
-            request_ref = (
-                artifacts.save_json("llm", request_payload) if artifacts is not None
-                else "sha256:" + stable_hash(request_payload)
-            )
-            response_ref = (
-                artifacts.save_json("llm", response_payload) if artifacts is not None
-                else "sha256:" + stable_hash(response_payload)
-            )
+            try:
+                request_ref = (artifacts.save_json("llm", request_payload) if artifacts is not None
+                               else "sha256:" + stable_hash(request_payload))
+                response_ref = (artifacts.save_json("llm", response_payload) if artifacts is not None
+                                else "sha256:" + stable_hash(response_payload))
+            except OSError:
+                request_ref,response_ref = None,None
             round_record = LLMRoundRecord(
                 **round_record_base,
                 request_ref=request_ref,
@@ -2000,6 +2043,9 @@ class AgentSession:
             "submit_executor_step": submit,
         }
         for spec in _catalog_specs(self.role):
+            # The owned built-in catalog performs reads/decision validation;
+            # physical input is journaled at the Driver boundary.
+            spec = spec.model_copy(update={"recovery_effect":"read"})
             if spec.name == "observe_screen" and self.role == "executor":
                 from agent.screen_detail import detail_parameters
                 spec = spec.model_copy(update={
@@ -2098,6 +2144,11 @@ class AgentSession:
         attachment_entries: list[tuple[str, dict[str, Any]]] = []
         for tc in resp.tool_calls:
             args = _safe_json(tc.arguments)
+            from shared.recovery_context import current_execution
+            durable = current_execution.get()
+            if durable is not None:
+                boundary = next((index for index,name in enumerate(message_names) if name=="assistant_tools"),len(messages)-1)
+                durable.decision(messages[boundary:], tc.id, context.invocation_id, llm_round_order, context.role)
             try:
                 spec = registry.spec(tc.name, context.role)
                 category = spec.category

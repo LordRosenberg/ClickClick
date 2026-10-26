@@ -6,7 +6,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Literal, TypeVar
+from typing import Annotated, Any, Literal, TypeVar
 
 from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     hitl_enabled: bool = False
     hitl_max_queries: int = Field(default=8, ge=1, le=50)
     hitl_timeout_seconds: int = Field(default=1800, ge=1, le=86400)
+    task_recovery_policy: Literal["safe_auto", "manual", "disabled"] = "safe_auto"
+    task_recovery_max_auto_attempts: int = Field(default=3, ge=1, le=100)
+    task_recovery_scan_interval_s: float = Field(default=5, gt=0, le=300)
+    task_recovery_backoff_s: list[Annotated[float,Field(ge=0,allow_inf_nan=False)]] = Field(default_factory=lambda: [1, 5, 15],min_length=1)
+    task_recovery_attempt_timeout_s: float = Field(default=60, gt=0, le=600)
+    task_recovery_device_wait_s: float = Field(default=300, gt=0, le=86400)
     # Opt-in text-fidelity harness; credentials are never part of model input.
     jev_mode: Literal["off", "shadow", "enforce"] = "off"
     # Experimental model-facing metadata; admission and checking are unchanged.

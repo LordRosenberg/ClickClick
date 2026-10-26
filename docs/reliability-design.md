@@ -36,6 +36,12 @@ Console connects model inputs, decisions, actions and observations so outcomes a
 
 Traceable sources do not guarantee correct interpretation, successful input does not establish that a record was saved, and skills cannot cover every app version. The system preserves evidence and feedback for subsequent judgment.
 
+## Recovery after an unexpected interruption
+
+After an unexpected backend exit, eligible new tasks can continue with the same task ID, plan, notes, history and cumulative budget. The runtime separately persists dispatch intent, Driver receipts and complete post-step state, then uses task ownership and device-input fencing to prevent an old worker from interfering. **An operation without a reliable receipt remains unknown and is never automatically replayed; the original role receives a fresh observation and decides what to do next.**
+
+A normal pause saves a checkpoint at a safe boundary; a crash can interrupt a physical action, requiring old-input isolation and receipt handling first. Recovery does not add budget, enable HITL or reopen terminal tasks. Console shows recovery phases and reasons, while assistants reuse `resume_task`. See [architecture](architecture.md#recovery-after-an-unexpected-interruption) for the state machine, configuration and guarantee boundaries.
+
 ## Continue reading
 
 | Question | Guide |

@@ -39,7 +39,7 @@ def record_text(kind, row, store=None):
 
 def resolve_source(store, source):
     # A model-written note key must never shadow a program-assigned source ID.
-    canonical = re.fullmatch(r"(note|event|observation|stage|measurement|dialogue|compaction|human_input|user_adjustment):([^@#]+)@([1-9][0-9]*)(?:#([0-9]+))?", source)
+    canonical = re.fullmatch(r"(note|event|observation|stage|measurement|dialogue|compaction|human_input|user_adjustment|recovery_fact|tool_result):([^@#]+)@([1-9][0-9]*)(?:#([0-9]+))?", source)
     if canonical:
         kind, key, version, offset = canonical.groups()
         row = store.get(kind, unquote(key), int(version))
