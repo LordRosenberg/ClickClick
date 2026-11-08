@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="898" viewBox="0 0 1600 898" role="img" aria-labelledby="title desc">
+<title id="title">定向输入：字段、焦点与读回</title>
+<desc id="desc">时间从上到下，实线为调用，虚线为返回；并行与条件分支标注在框内。</desc>
+<defs>
+<marker id="request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
+<marker id="response" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#287568"/></marker>
+</defs>
+<rect width="1600" height="898" fill="white"/>
+<text x="40" y="39" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449" text-anchor="start"><tspan x="40" dy="0">定向输入：字段、焦点与读回</tspan></text>
+<text x="40" y="65" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="40" dy="0">时间从上到下 · 实线调用 / 虚线返回</tspan></text>
+<rect x="155" y="467" width="1290" height="377" rx="5" fill="#F7FAFD" stroke="#C5D1DE" stroke-width="1.2"/>
+<text x="167" y="491" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="167" dy="0">alt</tspan></text>
+<text x="213" y="491" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="213" dy="0">已确认目标焦点</tspan></text>
+<path d="M155 747H1445" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="167" y="767" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="167" dy="0">else</tspan></text>
+<text x="213" y="767" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="213" dy="0">焦点未确认</tspan></text>
+<path d="M220 130V870" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="100" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="220" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="220" dy="0">Harness</tspan></text>
+<path d="M800 130V870" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="680" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="800" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">定向输入协调器</tspan></text>
+<path d="M1380 130V870" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="1260" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="1380" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="1380" dy="0">动作 / 观测事务</tspan></text>
+<g data-message="1" data-from="harness" data-to="input" data-label="replace_text 目标、文本和 O1">
+<text x="510" y="173" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="510" dy="0">replace_text 目标、文本和 O1</tspan></text>
+<path d="M220 186H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="2" data-from="input" data-to="input" data-label="属性匹配，解析唯一字段">
+<text x="861" y="228" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="861" dy="0">属性匹配，解析唯一字段</tspan></text>
+<path d="M800 241h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="3" data-from="input" data-to="transaction" data-label="执行确认焦点所需的动作与观测">
+<text x="1090" y="301" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="1090" dy="0">执行确认焦点所需的动作与观测</tspan></text>
+<path d="M800 314H1380" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="4" data-from="transaction" data-to="input" data-label="当前字段、焦点与输入法状态">
+<text x="1090" y="356" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="1090" dy="0">当前字段、焦点与输入法状态</tspan></text>
+<path d="M1380 369H800" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="5" data-from="input" data-to="input" data-label="复核同一字段、祖先路径和唯一焦点">
+<text x="861" y="411" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="861" dy="0">复核同一字段、祖先路径和唯一焦点</tspan></text>
+<path d="M800 424h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="6" data-from="input" data-to="transaction" data-label="清空、输入并取得后观测">
+<text x="1090" y="521" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="1090" dy="0">清空、输入并取得后观测</tspan></text>
+<path d="M800 534H1380" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="7" data-from="transaction" data-to="input" data-label="写入回执与当前字段">
+<text x="1090" y="576" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="1090" dy="0">写入回执与当前字段</tspan></text>
+<path d="M1380 589H800" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="8" data-from="input" data-to="input" data-label="匹配字段并比较读回文本">
+<text x="861" y="631" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="861" dy="0">匹配字段并比较读回文本</tspan></text>
+<path d="M800 644h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="9" data-from="input" data-to="harness" data-label="分阶段结果与有效后观测">
+<text x="510" y="704" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="510" dy="0">分阶段结果与有效后观测</tspan></text>
+<path d="M800 717H220" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="10" data-from="input" data-to="harness" data-label="返回原因，不执行写入">
+<text x="510" y="797" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="510" dy="0">返回原因，不执行写入</tspan></text>
+<path d="M800 810H220" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+</svg>

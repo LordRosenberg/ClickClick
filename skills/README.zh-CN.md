@@ -4,7 +4,7 @@
 
 Skill 保存可复用的应用操作知识。用户仍然用自然语言描述目标；Agent 根据任务选择适用内容，不要求用户指定 Skill ID 或按照 Skill 的结构提问。
 
-本文介绍技能格式、编写与运行时交付。从真实任务自动提炼候选、独立审查和验证的设计见[Skills 自进化](../docs/skill-evolution.zh-CN.md)；学习需要显式研究入口，候选不会自动发布。
+本文介绍技能格式与编写；运行时规则统一见[技能交付详设](../docs/skill-delivery.zh-CN.md)。从真实任务自动提炼候选、独立审查和验证的设计见[Skills 自进化](../docs/skill-evolution.zh-CN.md)；学习需要显式研究入口，候选不会自动发布。
 
 <a id="when-to-add-a-skill"></a>
 ## 什么时候需要补充 Skill？
@@ -35,33 +35,11 @@ Skill 有助于减少已知错误，不能保证每次成功。模型服务超�
 
 ## 运行时交付
 
-Planner 接收所有激活 workflow 的精简卡片。任务别名和精确前台身份用于优先排序；指令未提应用名时不会隐藏能力。对每个执行子目标，Planner 可选择一个目标应用及最多两个 workflow ID。Executor 与 Reviewer 接收该应用 core 和所选、按角色筛选的正文。前台身份仍是独立观测证据，无关的起始应用或覆盖层不会替换交接目标。
+目录卡片 → Planner 阶段选择 → 设备／应用作用域过滤 → 按角色交付正文。完整规则、数量上限、前台 core 与复合动作权限统一见[技能交付详设](../docs/skill-delivery.zh-CN.md)。
 
-Planner 优先提供应用名或别名；runtime 在接受新计划、绑定 skill 前解析实际安装包，也校验显式包名，未安装的猜测包名不会建立阶段的 skill 范围。
+<a id="界面归属与系统绑定"></a>
 
-精确观测到的前台应用还会补充自身 core，即使目标应用不同或历史计划的包名猜错。它只提供当前控件指导，不改写目标、不自动选择前台 workflow。离开前台后退出活跃交付；前台与目标相同时去重。
-
-Skill ID 全局唯一。加载时发现重复激活 ID 会拒绝继续，而不是静默隐藏前台工作流。交付通过通用 active-skill 元数据记录：ID、版本、内容哈希、范围、激活来源及规则类别。
-
-Planner 和 Executor 可按精确 ID 加载已提供的 generic skill。App workflow 由 Planner 根据卡片选择，Executor 不能替换；不依赖自由文本搜索。引用资源不会自动加载。
-
-每个阶段最多选择四个 generic/workflow ID，其中应用 workflow 最多两个。跨屏列表或网格可选择 `adaptive-list-traversal`：按可见锚点调整滑动、保留覆盖进度；App 技能保留排序、字段比较及控件知识。只有垂直单列中连续出现无法区分、且单行能完整放入屏幕的记录时，才额外选择 `identical-row-traversal`。专项操作流程仅提供给 Executor，Planner 接收适用条件和范围说明。App 正文提到其他技能不代表自动加载。
-
-## 界面归属与系统绑定
-
-每份 skill 声明 `interface_scope`：
-
-- `generic`：不依赖具体界面的通用方法，跨 App、跨系统共享。通用权限判断属于此类，固定权限页操作流程不属于此类。
-- `app`：三方 App 自己实现的功能，按精确包名匹配，默认跨系统共享。预装不等于系统专属，例如 Chrome 网页内容仍属于 App。
-- `system`：系统 App 或系统提供的权限页、文件/照片选择器、分享面板。即使从三方 App 进入，也必须绑定非空 `device_profiles`；缺失则拒绝加载。
-
-`device_profiles` 对三类都有效，可保留已有系统例外。默认共享不代表所有 App 版本均验证过；已知版本条件仍保留在正文，当前运行时不校验 App 版本。相同包名只用于匹配 App，不会让不同包名的克隆应用自动继承 skill。
-
-混合流程应拆开 App 内操作和具体系统界面步骤。仅要求按当前可见弹窗判断的通用方法不必拆成多个系统版本。DocumentsUI core 当前限定到已验证的 `androidworld_api33`，不直接推断兼容 API 34。
-
-profile ID 来自 `shared/app_alias_profiles.json`，依据设备指纹匹配。目录、精确 ID 读取和角色正文统一过滤；设备未知时仅提供没有 profile 限制的 skill，切换设备会清除旧范围。交付轨迹记录界面归属和声明/实际匹配的 profile。创建和更新 API 接受这些字段，写文件前验证。
-
-兼容旧文件时，已登记的系统组件包名默认 `system`，其他 App 默认 `app`，无 App 默认 `generic`；不按包名前缀或是否预装猜测。新 skill 应明确标记归属，尤其是新系统组件及从三方 App 进入的系统界面。
+编写时必须声明 `interface_scope`，系统界面声明 `device_profiles`；已知 App 版本条件写入正文。应用知识、workflow 与系统界面流程分开，具体匹配规则见上述详设。
 
 ## 目录结构
 
@@ -141,4 +119,4 @@ verified_actions:
 ## 编写途径
 
 1. 为重点应用手工编写教师 skills。
-2. SkillLearner（任务结束后／Console “learn from this task”）→ `_pending/` → 人工批准。
+2. 显式启动 SkillLearner（Console「优化我的工作流」）→ `_pending/` → 人工批准。

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1170" viewBox="0 0 1200 1170" role="img" aria-labelledby="title desc">
+<title id="title">异常处理与恢复：持续保存、异常隔离与原任务续接</title><desc id="desc">分组表示职责和归属，组间箭头表示整体交互或流程；具体时序见正文。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1170" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">异常处理与恢复：持续保存、异常隔离与原任务续接</text>
+<g data-group="durable" data-label="正常执行时持续保存 / 不等异常发生才保存"><defs><clipPath id="clip-durable"><rect x="40" y="120" width="350" height="740" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="740" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-durable)"/><rect x="40" y="120" width="350" height="740" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">正常执行时持续保存</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">不等异常发生才保存</text>
+</g>
+<g data-group="takeover" data-label="异常识别、记录与隔离 / 可捕获异常与硬崩溃分别处理"><defs><clipPath id="clip-takeover"><rect x="425" y="120" width="350" height="740" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="740" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-takeover)"/><rect x="425" y="120" width="350" height="740" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">异常识别、记录与隔离</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">可捕获异常与硬崩溃分别处理</text>
+</g>
+<g data-group="continuation" data-label="恢复核对与原角色续接 / 检查原资源，再根据新事实决定"><defs><clipPath id="clip-continuation"><rect x="810" y="120" width="350" height="740" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="740" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-continuation)"/><rect x="810" y="120" width="350" height="740" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">恢复核对与原角色续接</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">检查原资源，再根据新事实决定</text>
+</g>
+<g data-group="shared" data-label="关键契约与边界 / 贯穿各阶段的约束与可追溯记录"><defs><clipPath id="clip-shared"><rect x="40" y="945" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="945" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="945" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="945" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="973" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">关键契约与边界</text>
+<text x="62" y="996" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">贯穿各阶段的约束与可追溯记录</text>
+<path d="M600 1020L600 1116" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="intent" data-to="receipt" data-label="" d="M215 394 L215 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="receipt" data-to="postState" data-label="" d="M215 614 L215 650" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="detect" data-to="owner" data-label="" d="M600 394 L600 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="owner" data-to="fence" data-label="" d="M600 614 L600 650" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="reconcile" data-to="context" data-label="" d="M985 394 L985 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="context" data-to="fresh" data-label="" d="M985 614 L985 650" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="durable" data-to="takeover" data-label="" d="M390 490 L425 490" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="takeover" data-to="continuation" data-label="" d="M775 490 L810 490" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<g data-node="intent" data-label="T1：派发前保存意图 / 决策、状态、配对笔记与对话引用 / 操作 ID、参数摘要与预算预留 / 提交成功才允许派发">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">T1：派发前保存意图</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">决策、状态、配对笔记与对话引</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">用</text>
+<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">操作 ID、参数摘要与预算预留</text>
+<text x="82" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">提交成功才允许派发</text>
+</g>
+<g data-node="receipt" data-label="T2：保存原始回执 / Driver journal 独立保留执行事实 / Harness 收到回执后落任务库 / 此时尚未提交完整步骤">
+<text x="82" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">T2：保存原始回执</text>
+<text x="82" y="482" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Driver journal 独立保留执行事</text>
+<text x="82" y="506" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">实</text>
+<text x="82" y="530" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Harness 收到回执后落任务库</text>
+<text x="82" y="554" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">此时尚未提交完整步骤</text>
+</g>
+<g data-node="postState" data-label="T3：提交完整步骤 / 后观测后保存步骤与完整 post-state / 恢复清单、计量结算一并提交 / 下一轮从一致的任务状态推进">
+<text x="82" y="676" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">T3：提交完整步骤</text>
+<text x="82" y="702" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">后观测后保存步骤与完整</text>
+<text x="82" y="726" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">post-state</text>
+<text x="82" y="750" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">恢复清单、计量结算一并提交</text>
+<text x="82" y="774" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">下一轮从一致的任务状态推进</text>
+</g>
+<g data-node="detect" data-label="发现中断并标记 / 可捕获基础设施异常：原因 + recovering / 强杀或掉电：来不及补写 / 重启扫描运行状态与未闭合操作">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">发现中断并标记</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">可捕获基础设施异常：原因 +</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">recovering</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">强杀或掉电：来不及补写</text>
+<text x="467" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">重启扫描运行状态与未闭合操作</text>
+</g>
+<g data-node="owner" data-label="接管任务写入权 / execution_epoch + worker_token / 有序退出也先撤销旧执行所有权 / 旧响应和 finally 不能推进新 owner">
+<text x="467" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">接管任务写入权</text>
+<text x="467" y="482" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">execution_epoch +</text>
+<text x="467" y="506" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">worker_token</text>
+<text x="467" y="530" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">有序退出也先撤销旧执行所有权</text>
+<text x="467" y="554" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">旧响应和 finally 不能推进新</text>
+<text x="467" y="578" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">owner</text>
+</g>
+<g data-node="fence" data-label="停止旧设备输入 / 单调 device_fence + fence/drain / 有界清理属于任务的输入子进程 / 未证明静止则保持 quarantine">
+<text x="467" y="676" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">停止旧设备输入</text>
+<text x="467" y="702" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">单调 device_fence +</text>
+<text x="467" y="726" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">fence/drain</text>
+<text x="467" y="750" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">有界清理属于任务的输入子进程</text>
+<text x="467" y="774" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">未证明静止则保持 quarantine</text>
+</g>
+<g data-node="reconcile" data-label="核对与闭合原尝试 / 查原回执及子动作 / unknown；预留 settled_uncertain / 不重放组合动作或自动续尾">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">核对与闭合原尝试</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">查原回执及子动作</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">unknown；预留</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">settled_uncertain</text>
+<text x="852" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">不重放组合动作或自动续尾</text>
+</g>
+<g data-node="context" data-label="重建状态与上下文 / 完整 post-state 或更晚 T1 + 持久事实 / 原角色、计划、笔记、对话与 Skills / 检查必需正文及原设备、模型资源">
+<text x="852" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">重建状态与上下文</text>
+<text x="852" y="482" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">完整 post-state 或更晚 T1 +</text>
+<text x="852" y="506" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">持久事实</text>
+<text x="852" y="530" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">原角色、计划、笔记、对话与</text>
+<text x="852" y="554" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Skills</text>
+<text x="852" y="578" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">检查必需正文及原设备、模型资</text>
+<text x="852" y="602" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">源</text>
+</g>
+<g data-node="fresh" data-label="最新观测与新决策 / recovery_current + 上一步已知或未知事实 / 不重放旧动作；再次操作使用新 operation ID">
+<text x="852" y="676" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">最新观测与新决策</text>
+<text x="852" y="702" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">recovery_current + 上一步已</text>
+<text x="852" y="726" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">知或未知事实</text>
+<text x="852" y="750" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">不重放旧动作；再次操作使用新</text>
+<text x="852" y="774" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">operation ID</text>
+</g>
+<g data-node="dispatchContract" data-label="按最后提交点恢复 / 无回执：查询或 unknown；有回执：闭合步骤 / 步骤已提交：从完整状态继续，不重放动作">
+<text x="82" y="1046" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">按最后提交点恢复</text>
+<text x="82" y="1072" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">无回执：查询或 unknown；有回执：闭合步骤</text>
+<text x="82" y="1096" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">步骤已提交：从完整状态继续，不重放动作</text>
+</g>
+<g data-node="accountingContract" data-label="预算、迟到事实与终态 / 沿用累计预算和 deadline；迟到事实只追加一次，不重复结算或复活终态">
+<text x="642" y="1046" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">预算、迟到事实与终态</text>
+<text x="642" y="1072" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">沿用累计预算和 deadline；迟到事实只追加一次，不重复结</text>
+<text x="642" y="1096" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">算或复活终态</text>
+</g>
+</svg>

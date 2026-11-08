@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050" viewBox="0 0 1200 1050" role="img" aria-labelledby="title desc">
+<title id="title">记忆与上下文：压缩、独立恢复与来源回查</title><desc id="desc">分组表示职责和归属，组间箭头表示整体交互或流程；具体时序见正文。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1050" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">记忆与上下文：压缩、独立恢复与来源回查</text>
+<g data-group="records" data-label="事实与工作记忆 / 各自拥有持久来源"><defs><clipPath id="clip-records"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-records)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">事实与工作记忆</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">各自拥有持久来源</text>
+</g>
+<g data-group="compaction" data-label="结构化压缩 / 有界生成、校验后提交"><defs><clipPath id="clip-compaction"><rect x="425" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="620" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-compaction)"/><rect x="425" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">结构化压缩</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">有界生成、校验后提交</text>
+</g>
+<g data-group="assembly" data-label="角色上下文投影 / 原状态与历史按需组合"><defs><clipPath id="clip-assembly"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-assembly)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">角色上下文投影</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">原状态与历史按需组合</text>
+</g>
+<g data-group="shared" data-label="关键契约与边界 / 贯穿各阶段的约束与可追溯记录"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="853" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">关键契约与边界</text>
+<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">贯穿各阶段的约束与可追溯记录</text>
+<path d="M600 900L600 996" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="trigger" data-to="summary" data-label="" d="M600 354 L600 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="summary" data-to="admit" data-label="" d="M600 534 L600 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="restore" data-to="project" data-label="" d="M985 354 L985 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="project" data-to="recall" data-label="需要细节" d="M985 534 L985 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="999" y="556" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="400" fill="#586575">需要细节</text>
+<path data-from="records" data-to="compaction" data-label="" d="M390 430 L425 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="compaction" data-to="assembly" data-label="" d="M775 430 L810 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="records" data-to="assembly" data-label="原任务、计划与版本笔记独立注入，不经摘要改写" d="M215 120 L215 84 L985 84 L985 120" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<rect x="414" y="61" width="372" height="28" fill="white"/>
+<text x="424" y="81" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">原任务、计划与版本笔记独立注入，不经摘要改写</text>
+<path data-from="assembly" data-to="records" data-label="summary_source / read_history：按原始来源取回缺失细节" d="M985 740 L985 780 L215 780 L215 740" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<rect x="370.31999999999994" y="755" width="459.3600000000002" height="28" fill="white"/>
+<text x="380.31999999999994" y="775" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">summary_source / read_history：按原始来源取回缺失细节</text>
+<g data-node="raw" data-label="原始执行记录 / 对话、工具结果、观测与回执 / 完整原文和图片保留为来源">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">原始执行记录</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">对话、工具结果、观测与回执</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">完整原文和图片保留为来源</text>
+</g>
+<g data-node="notes" data-label="版本笔记 / note_key + version；正文保留旧版 / retained 摘录与 unresolved 独立维护">
+<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">版本笔记</text>
+<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">note_key + version；正文保留</text>
+<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">旧版</text>
+<text x="82" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">retained 摘录与 unresolved 独</text>
+<text x="82" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">立维护</text>
+</g>
+<g data-node="facts" data-label="当前任务状态 / 原需求、用户变更、有效计划与预算 / 不由历史摘要代替或改写">
+<text x="82" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">当前任务状态</text>
+<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">原需求、用户变更、有效计划与</text>
+<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">预算</text>
+<text x="82" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">不由历史摘要代替或改写</text>
+</g>
+<g data-node="trigger" data-label="选择压缩范围 / 默认历史阈值 16k 估算 token / 最近两个完整步骤与回执保留原文">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">选择压缩范围</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">默认历史阈值 16k 估算 token</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">最近两个完整步骤与回执保留原</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">文</text>
+</g>
+<g data-node="summary" data-label="来源摘要 / results · decisions_and_attempts / critical_context；目标 3k、上限 4k 字符">
+<text x="467" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">来源摘要</text>
+<text x="467" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">results ·</text>
+<text x="467" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">decisions_and_attempts</text>
+<text x="467" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">critical_context；目标 3k、上</text>
+<text x="467" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">限 4k 字符</text>
+</g>
+<g data-node="admit" data-label="校验与提交 / 检查结构、长度与来源；Jev 可选 / 故障或覆盖不足保留未验证标记">
+<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">校验与提交</text>
+<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">检查结构、长度与来源；Jev 可</text>
+<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">选</text>
+<text x="467" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">故障或覆盖不足保留未验证标记</text>
+</g>
+<g data-node="restore" data-label="独立恢复当前状态 / 原需求、计划、预算、笔记与 Skills / 摘要不能删除或改写这些内容">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">独立恢复当前状态</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">原需求、计划、预算、笔记与</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Skills</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">摘要不能删除或改写这些内容</text>
+</g>
+<g data-node="project" data-label="组装当前决策 / 摘要 + 近期原文 + 最新观测 / 按角色选择完整条目并报告省略">
+<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">组装当前决策</text>
+<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">摘要 + 近期原文 + 最新观测</text>
+<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">按角色选择完整条目并报告省略</text>
+</g>
+<g data-node="recall" data-label="按来源回查 / summary_source 与 read_history / 已知版本直接读取，截断结果可续读">
+<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">按来源回查</text>
+<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">summary_source 与</text>
+<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">read_history</text>
+<text x="852" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">已知版本直接读取，截断结果可</text>
+<text x="852" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">续读</text>
+</g>
+<g data-node="noteContract" data-label="笔记版本与可逆去重 / 仅当 note 版本和 retained 全文精确相同才隐藏摘要副本；存储不删除">
+<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">笔记版本与可逆去重</text>
+<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">仅当 note 版本和 retained 全文精确相同才隐藏摘要副本</text>
+<text x="82" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">；存储不删除</text>
+</g>
+<g data-node="sourceContract" data-label="来源与验证边界 / 引用追到原始记录；旧摘要不能自证。Jev 默认 off，不保证摘要无误">
+<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">来源与验证边界</text>
+<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">引用追到原始记录；旧摘要不能自证。Jev 默认 off，不保</text>
+<text x="642" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">证摘要无误</text>
+</g>
+</svg>

@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050" viewBox="0 0 1200 1050" role="img" aria-labelledby="title desc">
+<title id="title">Bidirectional HITL: continuation, revisions and dispatch order</title><desc id="desc">Groups express responsibilities and ownership; arrows between groups express overall interaction or flow. See the text for timing.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1050" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">Bidirectional HITL: continuation, revisions and dispatch order</text>
+<g data-group="questions" data-label="A Agent questions / Ask for needed intent or permission"><defs><clipPath id="clip-questions"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-questions)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">A Agent questions</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Ask for needed intent or permission</text>
+</g>
+<g data-group="steering" data-label="B User-initiated changes / Ordered changes to the same task"><defs><clipPath id="clip-steering"><rect x="425" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="620" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-steering)"/><rect x="425" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">B User-initiated changes</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Ordered changes to the same task</text>
+</g>
+<g data-group="runtime" data-label="C Shared execution boundary / Fence obsolete work"><defs><clipPath id="clip-runtime"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-runtime)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">C Shared execution boundary</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Fence obsolete work</text>
+</g>
+<g data-group="shared" data-label="Contracts and boundaries / Cross-stage constraints and traceability"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="853" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Contracts and boundaries</text>
+<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Cross-stage constraints and traceability</text>
+<path d="M600 900L600 996" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="ask" data-to="broker" data-label="" d="M215 354 L215 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="broker" data-to="continuation" data-label="" d="M215 534 L215 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="inbox" data-to="revision" data-label="" d="M600 354 L600 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="revision" data-to="planner" data-label="" d="M600 534 L600 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="eligibility" data-to="inflight" data-label="" d="M985 354 L985 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="inflight" data-to="lifecycle" data-label="" d="M985 534 L985 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="questions" data-to="runtime" data-label="Continue the answered call under current eligibility" d="M215 120 L215 84 L985 84 L985 120" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<rect x="388.24" y="61" width="423.52" height="28" fill="white"/>
+<text x="398.24" y="81" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Continue the answered call under current eligibility</text>
+<path data-from="steering" data-to="runtime" data-label="" d="M775 430 L810 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<g data-node="ask" data-label="Intermediate ask_user / Planner/Executor can ask; Reviewer cannot / Managed: 1–3 questions or explicit confirmation">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Intermediate ask_user</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Planner/Executor can ask;</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Reviewer cannot</text>
+<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Managed: 1–3 questions or</text>
+<text x="82" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">explicit confirmation</text>
+</g>
+<g data-node="broker" data-label="Durable question broker / Private host binding/SSE; fall back to Console / Owner version and reply identity reject stale writes">
+<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Durable question broker</text>
+<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Private host binding/SSE; fall</text>
+<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">back to Console</text>
+<text x="82" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Owner version and reply</text>
+<text x="82" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">identity reject stale writes</text>
+</g>
+<g data-node="continuation" data-label="Original-call continuation / Save role session, invocation and tool call / Yield worker, retain device; refresh after reply">
+<text x="82" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Original-call continuation</text>
+<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Save role session, invocation</text>
+<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and tool call</text>
+<text x="82" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Yield worker, retain device;</text>
+<text x="82" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">refresh after reply</text>
+</g>
+<g data-node="inbox" data-label="Durable control inbox / Append idempotently by request_key / Persist before ACK; accepted is not applied">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Durable control inbox</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Append idempotently by</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">request_key</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Persist before ACK; accepted</text>
+<text x="467" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">is not applied</text>
+</g>
+<g data-node="revision" data-label="Revision and eligibility / New changes update revision and generation / Undispatched old calls lose commit eligibility">
+<text x="467" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Revision and eligibility</text>
+<text x="467" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">New changes update revision</text>
+<text x="467" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and generation</text>
+<text x="467" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Undispatched old calls lose</text>
+<text x="467" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">commit eligibility</text>
+</g>
+<g data-node="planner" data-label="Planner interprets changes / continue retains valid stage and history / Replan affected work while preserving facts">
+<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Planner interprets changes</text>
+<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">continue retains valid stage</text>
+<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and history</text>
+<text x="467" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Replan affected work while</text>
+<text x="467" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">preserving facts</text>
+</g>
+<g data-node="eligibility" data-label="Late-response handling / Check revision, generation and call identity / Stale replies cannot dispatch or complete work">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Late-response handling</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Check revision, generation</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and call identity</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Stale replies cannot dispatch</text>
+<text x="852" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">or complete work</text>
+</g>
+<g data-node="inflight" data-label="Order in-flight actions / Persist actual receipts and effects first / Then apply changes; no automatic device undo">
+<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Order in-flight actions</text>
+<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Persist actual receipts and</text>
+<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">effects first</text>
+<text x="852" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Then apply changes; no</text>
+<text x="852" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">automatic device undo</text>
+</g>
+<g data-node="lifecycle" data-label="Preserve task lifecycle / Pause stays paused; terminal changes follow up / Keep history, budgets and the original deadline">
+<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Preserve task lifecycle</text>
+<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Pause stays paused; terminal</text>
+<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">changes follow up</text>
+<text x="852" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Keep history, budgets and the</text>
+<text x="852" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">original deadline</text>
+</g>
+<g data-node="replyContract" data-label="Question and reply identity / interaction_id · owner_version · response_id; identical replies are accepted once">
+<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Question and reply identity</text>
+<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">interaction_id · owner_version · response_id;</text>
+<text x="82" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">identical replies are accepted once</text>
+</g>
+<g data-node="policyContract" data-label="Frozen task policy / HITL off stays off; existing consent is retained and displaying a question never grants consent">
+<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Frozen task policy</text>
+<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">HITL off stays off; existing consent is retained and</text>
+<text x="642" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">displaying a question never grants consent</text>
+</g>
+</svg>

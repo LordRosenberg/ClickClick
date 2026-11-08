@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph capture["异步采集与配对 / 像素、树和窗口状态共同核对"]
+        pixels["像素帧推进 / 先等最多约 100 ms 自然更新，再按需 RESET / 记录流代次与帧号，必要时有界 ADB 回退"]
+        tree["窗口与图树核对 / window_generation + 300 ms 静默检查 / 最多两次完整采集，共用外层截止时间"]
+        pairing["可用观测交付 / 核对身份、几何和可解码像素 / 树缺失时可交付单图，取消无效索引"]
+    end
+    subgraph grounding["不可变动作依据 / 让模型输入与动作解析同源"]
+        package["ObservationPackage / observation_id · transaction_id / 图树、窗口身份、图片几何与可用程度"]
+        registry["当前观测登记 / 元素命名空间、缩放／旋转／裁剪 / 只在 active observation 中解析目标"]
+        views["按任务选择视图 / snapshot 当前；sequence 动态过程 / detail 原生细节，分片不作为点击坐标"]
+    end
+    subgraph execution["按动作核对与反馈 / 不把派发成功当作业务完成"]
+        target["本地原生节点点击 / 保留句柄；复核窗口／包／类／ID／文字 / 允许位移；单次 ACTION_CLICK，不静默回退"]
+        input["定向文本替换 / 字段属性／祖先路径 → 唯一焦点 / 聚焦、清空、输入与同字段读回分别记录"]
+        feedback["回执与后观测 / 分离 dispatch、交互证据和 effect / 有效 O2 直接进入下一轮；故障包仅诊断"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        frameContract["时序与采集边界 / 动作前记录已有帧位置，成功派发后提交边界；不为边界额外截图"]
+        effectContract["副作用与语义边界 / 不确定点击不自动重试或回退旧坐标；事件确认、读回与画面变化不独立证明保存"]
+    end
+    package --> registry
+    registry --> views
+    capture --> grounding
+    grounding --> execution
+    execution -->|"有效后观测 O2 复用为下一轮依据，减少重复采集"| grounding

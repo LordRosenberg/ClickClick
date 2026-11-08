@@ -1,0 +1,24 @@
+flowchart TB
+    subgraph discovery["Discoverable skill catalog / Files own canonical bodies"]
+        library["Canonical file library / Separate generic, app_core and workflow / Exclude _pending from ordinary active indexes"]
+        device["Device and interface filter / interface_scope and device_profiles / Apply the same profile to catalog, reads and bodies"]
+        catalog["Compact cards first / Expose enabled workflows and applicability / Task aliases and exact foreground affect priority"]
+    end
+    subgraph selection["Stage and app scope / Separate goal and foreground identity"]
+        stage["Planner stage selection / Resolve target app and select exact IDs / At most 4 IDs, including at most 2 workflows"]
+        core["Target and foreground core / Add exact foreground core to target guidance / Retire on exit; never rewrite target or workflow"]
+        scope["Explicit delivery scope / Planner owns workflows; Executor cannot replace / Exact-ID generic reads; clear scope on device change"]
+    end
+    subgraph delivery["Progressive role delivery / Guidance, reads and recipes differ"]
+        roleBody["Role body projection / Shared body plus Executor notes / Decision notes only for Planner/Reviewer"]
+        references["On-demand references / Mentioning another skill never loads it / References enter context only through explicit reads"]
+        recipes["Closed compound recipes / Active app skills may grant verified_actions / Match stage and foreground; retain child evidence"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        deliveryRecord["Auditable delivery identity / Record ID, version, body/projection hashes, scope and delivery source separately"]
+        knowledgeBoundary["Knowledge and action boundary / Guidance grants no user consent; loading is not adoption; recipes exclude arbitrary scripts"]
+    end
+    library --> device
+    device --> catalog
+    discovery --> selection
+    selection --> delivery

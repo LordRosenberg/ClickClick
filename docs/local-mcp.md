@@ -57,6 +57,12 @@ After registration, reload the assistant's MCP configuration if supported in the
 
 ## Source setup
 
+For a device attached to the backend computer, set `CLICKCLICK_USE_FIXTURE_DRIVER=false` and clear remote `CLICKCLICK_DRIVER_URL` / `CLICKCLICK_DRIVER_URLS_JSON` values while preserving other settings. The backend embeds the local Driver. If ADB is absent from PATH, set its absolute `CLICKCLICK_ADB_PATH`; see [source deployment](deployment.md#windows-adb-and-debugging).
+
+Initialization checks idle online devices and installs/updates Collector using an explicit `CLICKCLICK_ACCESSIBILITY_COLLECTOR_APK_PATH`, matching local build or pinned SHA-256-verified release. Follow device guidance to enable accessibility. Provide `CLICKCLICK_IME_APK_PATH` for an input-method APK when ADBKeyboard is absent; it is installed from the supplied file, not downloaded automatically. Check both Collector and `test_ime`. Setup and retries are detailed in [device initialization](deployment.md#initialization-results).
+
+When the existing backend uses HTTPS, use the matching loopback HTTPS origin and trust `CLICKCLICK_API_SSL_CERTFILE` from its configuration while retaining certificate/hostname verification. Do not connect to an HTTPS backend with an HTTP address.
+
 First configure a model and Android device using [deployment](deployment.md), then run from the repository root in the ClickClick Python environment:
 
 ```bash

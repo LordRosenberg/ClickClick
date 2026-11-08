@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant model as Role model
+    participant harness as Harness
+    participant driver as Driver / observation
+    participant collector as Collector
+    participant android as Android
+    harness->>driver: Capture current observation O1
+    par Pixels
+        driver->>android: Acquire pixels via scrcpy / ADB
+        android-->>driver: Pixels, frame position and geometry
+    and UI structure
+        driver->>collector: Request tree and window state
+        collector-->>driver: Tree, window generation and handles
+    end
+    driver-->>harness: Deliver checked observation O1
+    harness->>model: Task, context and O1
+    model-->>harness: Action and observation ID of O1
+    harness->>driver: Validate O1 and target, then dispatch
+    driver->>driver: Record frame position, no extra capture
+    driver->>android: Execute action via the selected path
+    android-->>driver: Dispatch result
+    driver->>driver: Commit boundary on success, capture O2
+    driver-->>harness: Receipt and accepted post-observation O2
+    harness->>model: Persist and deliver O2 for next decision

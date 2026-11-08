@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050" viewBox="0 0 1200 1050" role="img" aria-labelledby="title desc">
+<title id="title">长任务编排：滚动细化、角色会话与执行反馈</title><desc id="desc">分组表示职责和归属，组间箭头表示整体交互或流程；具体时序见正文。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1050" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">长任务编排：滚动细化、角色会话与执行反馈</text>
+<g data-group="planning" data-label="滚动细化与独立判断 / 当前阶段具体化，未来路线保留假设"><defs><clipPath id="clip-planning"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-planning)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">滚动细化与独立判断</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">当前阶段具体化，未来路线保留假设</text>
+</g>
+<g data-group="execution" data-label="Executor 会话 / 在有效阶段内连续推进"><defs><clipPath id="clip-execution"><rect x="425" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="620" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-execution)"/><rect x="425" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Executor 会话</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">在有效阶段内连续推进</text>
+</g>
+<g data-group="runtime" data-label="运行时与设备 / 记录事实并生成下一轮反馈"><defs><clipPath id="clip-runtime"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-runtime)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">运行时与设备</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">记录事实并生成下一轮反馈</text>
+</g>
+<g data-group="shared" data-label="关键契约与边界 / 贯穿各阶段的约束与可追溯记录"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="853" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">关键契约与边界</text>
+<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">贯穿各阶段的约束与可追溯记录</text>
+<path d="M600 900L600 996" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="planner" data-to="stage" data-label="" d="M215 354 L215 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="stage" data-to="reviewer" data-label="按需" d="M215 534 L215 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="229" y="556" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="400" fill="#586575">按需</text>
+<path data-from="decision" data-to="reviewer" data-label="review" d="M449 642 L366 642" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="372.7" y="610" width="69.6" height="28" fill="white"/>
+<text x="382.7" y="630" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">review</text>
+<path data-from="context" data-to="session" data-label="" d="M600 354 L600 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="session" data-to="decision" data-label="" d="M600 534 L600 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="validate" data-to="dispatch" data-label="" d="M985 354 L985 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="dispatch" data-to="commit" data-label="" d="M985 534 L985 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="planning" data-to="execution" data-label="" d="M390 430 L425 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="execution" data-to="runtime" data-label="" d="M775 430 L810 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="runtime" data-to="planning" data-label="advance / replan / finish：携带事实返回 Planner" d="M985 740 L985 780 L215 780 L215 740" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<rect x="404.88" y="755" width="390.24" height="28" fill="white"/>
+<text x="414.88" y="775" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">advance / replan / finish：携带事实返回 Planner</text>
+<g data-node="planner" data-label="Planner / 保留全局约束和未来假设路线 / 只具体化当前阶段，随反馈滚动修订">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Planner</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">保留全局约束和未来假设路线</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">只具体化当前阶段，随反馈滚动</text>
+<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">修订</text>
+</g>
+<g data-node="stage" data-label="滚动计划 / current_stage：当前结果、应用、技能 / assumption_roadmap：未来假设，不作执行授权">
+<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">滚动计划</text>
+<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">current_stage：当前结果、应</text>
+<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">用、技能</text>
+<text x="82" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">assumption_roadmap：未来假</text>
+<text x="82" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">设，不作执行授权</text>
+</g>
+<g data-node="reviewer" data-label="按需 Reviewer / Planner/Executor 均可请求独立核证 / 返回执行、重规划或任务结论">
+<text x="82" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">按需 Reviewer</text>
+<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Planner/Executor 均可请求独</text>
+<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">立核证</text>
+<text x="82" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">返回执行、重规划或任务结论</text>
+</g>
+<g data-node="context" data-label="当前决策上下文 / 任务、阶段、预算、记忆与适用技能 / 新鲜观测作为 GUI 动作依据">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">当前决策上下文</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">任务、阶段、预算、记忆与适用</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">技能</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">新鲜观测作为 GUI 动作依据</text>
+</g>
+<g data-node="session" data-label="模型网关与角色会话 / 角色路由、协议与用量记录 / 保留消息、工具结果与调用身份 / 不同于持久任务 Session">
+<text x="467" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">模型网关与角色会话</text>
+<text x="467" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">角色路由、协议与用量记录</text>
+<text x="467" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">保留消息、工具结果与调用身份</text>
+<text x="467" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">不同于持久任务 Session</text>
+</g>
+<g data-node="decision" data-label="结构化决策 / act 执行；advance/replan 交回规划 / finish 申请结论；review 请求独立核对">
+<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">结构化决策</text>
+<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">act 执行；advance/replan 交</text>
+<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">回规划</text>
+<text x="467" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">finish 申请结论；review 请求独</text>
+<text x="467" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">立核对</text>
+</g>
+<g data-node="validate" data-label="提交与资格校验 / schema、阶段与观测引用 / 检查剩余预算及当前调用资格">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">提交与资格校验</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">schema、阶段与观测引用</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">检查剩余预算及当前调用资格</text>
+</g>
+<g data-node="dispatch" data-label="动作派发与回执 / Driver 接受执行，返回原始回执 / 动作后采集新观测，保留实际结果">
+<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">动作派发与回执</text>
+<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Driver 接受执行，返回原始回执</text>
+<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">动作后采集新观测，保留实际结</text>
+<text x="852" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">果</text>
+</g>
+<g data-node="commit" data-label="提交步骤与完整状态 / 保存计划、笔记、历史和 next_role / 反馈续接当前 Executor 或返回规划">
+<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">提交步骤与完整状态</text>
+<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">保存计划、笔记、历史和</text>
+<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">next_role</text>
+<text x="852" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">反馈续接当前 Executor 或返回</text>
+<text x="852" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">规划</text>
+</g>
+<g data-node="identity" data-label="调用身份与执行资格 / 指令 revision、执行 generation 与 invocation ID 使过时调用失效">
+<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">调用身份与执行资格</text>
+<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">指令 revision、执行 generation 与 invocation ID 使过时</text>
+<text x="82" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">调用失效</text>
+</g>
+<g data-node="budgets" data-label="累计预算与完成边界 / 消耗不因重规划清零；回执、运行时完成与业务正确性分别判断">
+<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">累计预算与完成边界</text>
+<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">消耗不因重规划清零；回执、运行时完成与业务正确性分别</text>
+<text x="642" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">判断</text>
+</g>
+</svg>

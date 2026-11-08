@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant C as Eval controller
+    participant E as Environment / device
+    participant H as Ordinary Harness
+    participant S as Independent scorer
+    participant R as Results / evidence
+    C->>R: Freeze code, task, model, skills, budgets
+    C->>E: Initialize official task and start state
+    E-->>C: Initialization result or environment fault
+    C->>H: Run ordinary task, without scoring answers
+    H->>E: Observations, actions and feedback
+    H->>R: Persist roles, receipts, usage and trace
+    H-->>C: Return runtime verdict
+    C->>S: Request independent correctness check
+    S->>E: Read protocol-defined final state
+    E-->>S: Return app state and scoring evidence
+    S->>R: Save official score or unscored reason
+    C->>E: Cleanup; record teardown separately

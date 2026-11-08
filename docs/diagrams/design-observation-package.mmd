@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph capture["Asynchronous paired capture / Check pixels, tree and windows"]
+        pixels["Pixel-frame advance / Wait up to ~100 ms; reset only if needed / Stream generation and frame ID; bounded fallback"]
+        tree["Window and pair checks / window_generation and 300 ms quiet check / At most two captures under one outer deadline"]
+        pairing["Deliver usable evidence / Check identity, geometry and decodable pixels / Missing tree: usable image without stale indexes"]
+    end
+    subgraph grounding["Immutable action basis / Model and action share one view"]
+        package["ObservationPackage / observation_id · transaction_id / Pixels, tree, window, geometry and usability"]
+        registry["Active observation registry / Index namespace, scale, rotation and crop / Resolve targets only in the active observation"]
+        views["Choose the view / snapshot now; sequence over time / Native detail tiles are read-only, not coordinates"]
+    end
+    subgraph execution["Action checks and feedback / Dispatch is not business success"]
+        target["Local native node click / Refresh retained node / window, package, class, ID, text / One click; allow shifts"]
+        input["Targeted replacement / Field attributes or ancestry; unique focus / Record focus, clear, input and field readback"]
+        feedback["Receipt and post-view / Separate dispatch, interaction and effect / Reuse accepted O2; degraded packets are diagnostic"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        frameContract["Frame timing boundary / Record existing frame position before action; commit after dispatch, without an extra capture"]
+        effectContract["Effect and semantic boundary / Uncertain native click: no replay/fallback; ACK/readback/pixels do not prove saving"]
+    end
+    package --> registry
+    registry --> views
+    capture --> grounding
+    grounding --> execution
+    execution -->|"Reuse accepted post-observation O2 as the next action basis"| grounding

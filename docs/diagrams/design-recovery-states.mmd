@@ -1,0 +1,18 @@
+stateDiagram-v2
+    state "running / Ordinary task execution" as running
+    state "recovering / Fence, reconcile, restore" as recovering
+    state "queued / Return to normal scheduling" as queued
+    state "waiting_for_device / Original device unavailable" as waiting
+    state "recovery_blocked / Repair resource or structure" as blocked
+    state "paused / Pause wins after cleanup" as paused
+    state "Terminal / Cancel or unrecoverable failure" as terminal
+    running --> recovering: Fault
+    recovering --> queued: Ready
+    queued --> running: Normal scheduling
+    recovering --> waiting: Device unavailable
+    waiting --> recovering: Device available
+    waiting --> blocked: Wait expires
+    recovering --> blocked: Resource or structural issue
+    blocked --> recovering: Bounded recheck after repair
+    recovering --> paused: Pause requested
+    recovering --> terminal: Cancel / unrecoverable required body

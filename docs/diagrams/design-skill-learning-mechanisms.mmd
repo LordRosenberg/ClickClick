@@ -1,0 +1,30 @@
+flowchart TB
+    subgraph research["Trajectory and research / Explicit entry, evidence first"]
+        source["Source task evidence / Read request, actions, screenshots and receipts / Study detours or failures; skipping is valid"]
+        learner["Continuous Learner / Carry goals, hypotheses, facts, failures, budget / propose, explore or skip; retain research progress"]
+        candidate["Conditional candidate / Bind conditions, decision changes and sources / App-owned files; localized edits bind exact base text"]
+    end
+    subgraph review["Independent Skill Reviewer / Does not inherit the full dialogue"]
+        independent["Independent evidence / Read original sources and frozen guidance / Bind judgments to candidate and role-specific text"]
+        criteria["Six review dimensions / Root cause, transferability, conflict / Regression risk, concision, marginal value"]
+        admission["Separate admission claims / source_evidence supports local knowledge / measured_utility needs applicable execution evidence"]
+    end
+    subgraph validation["Selective trials and release / Ordinary runs, independent outcomes"]
+        selective["Select necessary checks / Reuse evidence; probe or run only for gaps / Freeze overlay; check delivery, adoption, outcome"]
+        utility["Local versus task benefit / Local guidance may pass while the task fails / Keep regressions, faults, unscored and unknown cost"]
+        publish["Review and publication / Save candidate, review and trial bindings / Review diff; recheck bindings, then publish"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        binding["Exact binding and reuse / Match body hash, base library, task, model, initialization and runtime contract before reuse"]
+        cost["Cost and closure / Budgets accumulate; close successful cycles without follow-up calls; learning starts explicitly"]
+    end
+    source --> learner
+    learner -->|"propose"| candidate
+    independent --> criteria
+    criteria --> admission
+    admission -->|"Reuse"| publish
+    selective --> utility
+    utility --> publish
+    research --> review
+    review --> validation
+    validation -->|"Failure or dispute: retain admitted guidance and investigate remaining blockers"| research

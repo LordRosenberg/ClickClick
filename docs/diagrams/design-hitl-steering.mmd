@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant U as Assistant / caller
+    participant C as API / control inbox
+    participant H as Harness
+    participant M as Model call
+    participant D as Driver
+    U->>C: Submit change and request_key
+    C->>C: Persist ordered change and revision
+    C-->>U: Acknowledge accepted, not applied
+    C->>H: Notify control change
+    alt Old work not dispatched
+    H->>H: Revoke old eligibility; replan
+    M-->>H: Late old reply: diagnostics only
+    else Action already dispatched
+    D-->>H: Return actual result; persist first
+    H->>H: Close records before applying change
+    end
+    H->>M: Planner reads changes and valid progress
+    M-->>H: Retain stage or revise plan
+    H->>C: Record applied revision and plan

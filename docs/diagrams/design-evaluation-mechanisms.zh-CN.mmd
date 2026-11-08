@@ -1,0 +1,27 @@
+flowchart TB
+    subgraph freeze["冻结可比较条件 / 不让隐式默认改变实验"]
+        code["代码与模型身份 / 源码版本、角色模型、配置与实验开关 / 不混用不同模型或轮次的基线"]
+        fixture["任务与初始状态 / 固定任务矩阵、fixture、seed 与环境 / 保存起点差异和覆盖未知"]
+        limits["技能与执行合同 / 精确技能库、实际加载、预算和 deadline / HITL 模拟器与恢复策略单独冻结"]
+    end
+    subgraph execution["普通 Harness 执行 / 初始化、动作与证据各自留痕"]
+        initialize["官方初始化与预检 / AndroidWorld/MobileWorld 初始化适配 / 初始化故障不伪装成 Agent 任务成败"]
+        harness["普通角色与动作通路 / 模型自行规划、观察和操作 / 评分答案不进入执行模型上下文"]
+        evidence["保留每次尝试 / 角色、请求、动作、回执、最终状态与用量 / 环境故障、取消、耗尽与缺失 usage 分开"]
+    end
+    subgraph judgment["独立评分与对照 / 结果、成本和因果口径分开"]
+        oracle["独立业务状态检查 / 官方评分器或外部业务核验 / 模型完成报告不作为正确性真值"]
+        cleanup["独立环境收尾 / teardown 与评分故障单独保存 / 未评分保留原因，不删除不利样本"]
+        comparison["匹配对照与技能收益 / 核对正文绑定、实际采用和最终得分 / 局部知识成立不等于稳定整任务收益"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        verdictContract["分开的结果字段 / runtime verdict · official score · environment status；恢复实验不改写历史成绩"]
+        costContract["可比较的计量边界 / 定义分母与计时范围；区分请求、提交动作、物理子动作及 input/cache/output"]
+    end
+    initialize --> harness
+    harness --> evidence
+    oracle --> cleanup
+    cleanup --> comparison
+    freeze --> execution
+    execution --> judgment
+    judgment -->|"下一次对照：复位初始环境，保留此前尝试和有效结果"| execution

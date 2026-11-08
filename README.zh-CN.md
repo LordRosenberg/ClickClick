@@ -33,15 +33,11 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ### MobileWorld 演示
 
-六个跨应用成功任务录屏。点击预览，观看 **3 倍速完整视频**。
+三个跨应用复杂任务。点击预览，观看 **3 倍速完整视频**。
 
 | 项目风险矩阵 | 资源预订冲突 | 网页资料转采购计划 |
 | --- | --- | --- |
 | [![项目风险矩阵](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![资源预订冲突](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![网页资料转采购计划](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
-
-| 讲座转日历 | 文件归档与邮件留档 | 按旅行地点整理照片 |
-| --- | --- | --- |
-| [![讲座转日历](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![文件归档与邮件留档](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![按旅行地点整理照片](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
 
 [任务指令与录屏说明](docs/demos.md#mobileworld-recordings--mobileworld-录屏) · [最新截图与执行轨迹](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 
@@ -53,11 +49,7 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 | --- | --- | --- |
 | [![从 Markor 向 Broccoli 转录食谱](docs/assets/demos/notes-to-recipes.gif)](docs/assets/demos/notes-to-recipes.mp4) | [![从图片读取费用并录入 Pro Expense](docs/assets/demos/image-to-expenses.gif)](docs/assets/demos/image-to-expenses.mp4) | [![创建重复日历事件](docs/assets/demos/recurring-calendar-event.gif)](docs/assets/demos/recurring-calendar-event.mp4) |
 
-| 费用去重 | 按顺序创建歌单 | 每周运动时长统计 |
-| --- | --- | --- |
-| [![辨别重复费用并保留不同记录](docs/assets/demos/deduplicate-expenses.gif)](docs/assets/demos/deduplicate-expenses.mp4) | [![查找歌曲并按指定顺序创建歌单](docs/assets/demos/ordered-playlist.gif)](docs/assets/demos/ordered-playlist.mp4) | [![筛选本周游泳活动并统计总时长](docs/assets/demos/weekly-activity-summary.gif)](docs/assets/demos/weekly-activity-summary.mp4) |
-
-[任务指令与录屏说明](docs/demos.md)
+[全部演示、任务指令与录屏说明](docs/demos.md)
 
 ## 核心能力
 
@@ -69,9 +61,9 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 
 ## 核心架构
 
-![ClickClick 核心架构](docs/assets/clickclick-architecture.zh-CN.svg)
+![ClickClick 核心架构：Harness、可靠观测、Session 与 Skills 自学习](docs/assets/clickclick-architecture.zh-CN.svg)
 
-**Planner → Executor → 观测 → 继续或重规划**，Reviewer 按需介入。Harness 管理上下文、技能与执行，持久 Session 保存任务证据，Console 展示过程。
+**Planner → Executor → 观测 → 继续或重规划**，Reviewer 按需介入。Harness 组织上下文、技能与执行，Session 保留证据并支持异常恢复，Console 展示过程；HITL 支持提问与主动调整，Skills 自学习从轨迹提炼可复用知识。
 
 [架构详解](docs/architecture.zh-CN.md) · [技术概览](docs/reliability-design.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md)
 
@@ -112,15 +104,14 @@ ClickClick 是一个开源 Android Agent 平台。用自然语言描述目标，
 | --- | --- | --- |
 | [PC 助手 MCP 接入](docs/local-mcp.zh-CN.md) | 接入、九个任务工具、进展与暂停恢复。 | [English](docs/local-mcp.md) |
 | [桌面安装与连接](docs/desktop-setup.zh-CN.md) | 安装器、订阅/API、Wi-Fi/USB、注册与升级。 | [English quickstart](docs/local-mcp.md#desktop-setup) |
-| [技术概览](docs/reliability-design.zh-CN.md) | 设计目标与核心机制：为什么这样组织 Agent。 | [English](docs/reliability-design.md) |
-| [架构详解](docs/architecture.zh-CN.md) | 模块、接口与执行流程，以及各模块的详细设计。 | [English](docs/architecture.md) |
-| [设计取舍](docs/design-decisions.zh-CN.md) | 审核、上下文、采集与输入的设计选择。 | [English](docs/design-decisions.md) |
+| [技术概览](docs/reliability-design.zh-CN.md) | 核心能力、设计难点与取舍、工程支撑。 | [English](docs/reliability-design.md) |
+| [架构详解](docs/architecture.zh-CN.md) | 模块关系、执行流程与各核心能力的独立详设索引。 | [English](docs/architecture.md) |
 | [部署指南](docs/deployment.zh-CN.md) | 模型、设备、安装与远程运行。 | [English](docs/deployment.md) |
 | [可观测性](docs/observability.zh-CN.md) | Console 操作、轨迹检查与性能分析。 | [English](docs/observability.md) |
 | [任务实例](docs/task-examples.zh-CN.md) | 自然语言任务示例和结果验证。 | [English](docs/task-examples.md) |
 | [评测指南](docs/evaluation.zh-CN.md) | 基准配置、评分与复现。 | [English](docs/evaluation.md) |
 | [Skills 指南](skills/README.zh-CN.md) | 应用知识、操作经验和技能编写。 | [English](skills/README.md) |
-| [HITL 提问与确认](docs/hitl.zh-CN.md) | 必要时提问、回答入口与原调用恢复。 | [English](docs/hitl.md) |
+| [HITL 提问与确认](docs/hitl.zh-CN.md) | 提问与确认、回答入口及执行中调整任务。 | [English](docs/hitl.md) |
 
 许可证：[Apache 2.0](LICENSE)。
 

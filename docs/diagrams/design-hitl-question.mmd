@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant A as Role session / Harness
+    participant B as HITL Broker
+    participant S as Session / DB
+    participant U as Reply surface
+    participant D as Device
+    A->>B: ask_user with original call identity
+    B->>S: Persist question, dialogue, owner version
+    B->>B: Enter waiting_for_input; yield worker
+    B->>U: Push question or provide Console entry
+    U->>B: Acknowledge display, not consent
+    U->>B: Explicit reply with response_id
+    B->>S: Check question, version and idempotency
+    S-->>B: Unique accepted answer
+    B-->>A: Continue the original tool call
+    A->>D: Refresh before further GUI actions
+    D-->>A: Fresh observation; same budget/deadline

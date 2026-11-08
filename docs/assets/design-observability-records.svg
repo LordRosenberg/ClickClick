@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050" viewBox="0 0 1200 1050" role="img" aria-labelledby="title desc">
+<title id="title">Observability: identities, evidence indexes and read-only views</title><desc id="desc">Groups express responsibilities and ownership; arrows between groups express overall interaction or flow. See the text for timing.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1050" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">Observability: identities, evidence indexes and read-only views</text>
+<g data-group="facts" data-label="Execution facts / Preserve distinct call identities"><defs><clipPath id="clip-facts"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-facts)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Execution facts</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Preserve distinct call identities</text>
+</g>
+<g data-group="queries" data-label="Storage and query joins / Small indexes, on-demand bodies"><defs><clipPath id="clip-queries"><rect x="425" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="620" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-queries)"/><rect x="425" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Storage and query joins</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Small indexes, on-demand bodies</text>
+</g>
+<g data-group="views" data-label="Read-only views and analysis / Viewing never controls execution"><defs><clipPath id="clip-views"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-views)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Read-only views and analysis</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Viewing never controls execution</text>
+</g>
+<g data-group="shared" data-label="Contracts and boundaries / Cross-stage constraints and traceability"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="853" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Contracts and boundaries</text>
+<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Cross-stage constraints and traceability</text>
+<path d="M600 900L600 996" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="storage" data-to="joins" data-label="" d="M600 354 L600 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="joins" data-to="events" data-label="" d="M600 534 L600 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="facts" data-to="queries" data-label="" d="M390 430 L425 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="queries" data-to="views" data-label="" d="M775 430 L810 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="views" data-to="queries" data-label="Read-only inspection: expand exact bodies, images and model inputs" d="M985 740 L985 780 L600 780 L600 740" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<rect x="522.1800000000001" y="755" width="540.6399999999999" height="28" fill="white"/>
+<text x="532.1800000000001" y="775" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Read-only inspection: expand exact bodies, images and model inputs</text>
+<g data-node="calls" data-label="Role and model calls / Role invocation, model round and tool call / Retain actual input, returned content and usage">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Role and model calls</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Role invocation, model round</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and tool call</text>
+<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Retain actual input, returned</text>
+<text x="82" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">content and usage</text>
+</g>
+<g data-node="effects" data-label="Action and receipt facts / Operation IDs, child actions and receipts / Separate dispatch, effects, input steps and faults">
+<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Action and receipt facts</text>
+<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Operation IDs, child actions</text>
+<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and receipts</text>
+<text x="82" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Separate dispatch, effects,</text>
+<text x="82" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">input steps and faults</text>
+</g>
+<g data-node="observations" data-label="Observation evidence / Observation ID, capture identity and artifacts / Capture source, age and degradation stay explicit">
+<text x="82" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Observation evidence</text>
+<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Observation ID, capture</text>
+<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">identity and artifacts</text>
+<text x="82" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Capture source, age and</text>
+<text x="82" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">degradation stay explicit</text>
+</g>
+<g data-node="storage" data-label="Record and body storage / SQLite: tasks, versions and trace / Load model I/O, images and trees by ref">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Record and body storage</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">SQLite: tasks, versions and</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">trace</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Load model I/O, images and</text>
+<text x="467" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">trees by ref</text>
+</g>
+<g data-node="joins" data-label="Join by invocation identity / Query the exact call and related evidence / Shared action position does not mean shared context">
+<text x="467" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Join by invocation identity</text>
+<text x="467" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Query the exact call and</text>
+<text x="467" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">related evidence</text>
+<text x="467" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Shared action position does</text>
+<text x="467" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">not mean shared context</text>
+</g>
+<g data-node="events" data-label="Events and live publication / SSE supplies saved and subsequent events / Lazy bodies; connections do not replace storage">
+<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Events and live publication</text>
+<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">SSE supplies saved and</text>
+<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">subsequent events</text>
+<text x="467" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Lazy bodies; connections do</text>
+<text x="467" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">not replace storage</text>
+</g>
+<g data-node="details" data-label="Task and call inspection / Inspect selected role input, output, tools, views / Show exact delivered skill identity and version">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Task and call inspection</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Inspect selected role input,</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">output, tools, views</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Show exact delivered skill</text>
+<text x="852" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">identity and version</text>
+</g>
+<g data-node="preview" data-label="Preview and model events / Reuse published frames; label retained images / No second lease, additional capture or input">
+<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Preview and model events</text>
+<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Reuse published frames; label</text>
+<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">retained images</text>
+<text x="852" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">No second lease, additional</text>
+<text x="852" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">capture or input</text>
+</g>
+<g data-node="metrics" data-label="Separate metric units / Wall clock, role time and model latency differ / Calls, tools, submissions and subactions differ">
+<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Separate metric units</text>
+<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Wall clock, role time and model</text>
+<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">latency differ</text>
+<text x="852" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Calls, tools, submissions and</text>
+<text x="852" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">subactions differ</text>
+</g>
+<g data-node="traceContract" data-label="Cross-layer evidence / Link task, invocation, model/tool call, operation, observation and artifact by identity">
+<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Cross-layer evidence</text>
+<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Link task, invocation, model/tool call, operation,</text>
+<text x="82" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">observation and artifact by identity</text>
+</g>
+<g data-node="measurementContract" data-label="Measurement limits / Missing usage is not zero; estimates are not bills and runtime completion is not business correctness">
+<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Measurement limits</text>
+<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Missing usage is not zero; estimates are not bills and</text>
+<text x="642" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">runtime completion is not business correctness</text>
+</g>
+</svg>

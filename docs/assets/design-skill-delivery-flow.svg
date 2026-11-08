@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050" viewBox="0 0 1200 1050" role="img" aria-labelledby="title desc">
+<title id="title">Skill delivery: catalog, scope and role bodies</title><desc id="desc">Groups express responsibilities and ownership; arrows between groups express overall interaction or flow. See the text for timing.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1050" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">Skill delivery: catalog, scope and role bodies</text>
+<g data-group="discovery" data-label="Discoverable skill catalog / Files own canonical bodies"><defs><clipPath id="clip-discovery"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-discovery)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Discoverable skill catalog</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Files own canonical bodies</text>
+</g>
+<g data-group="selection" data-label="Stage and app scope / Separate goal and foreground identity"><defs><clipPath id="clip-selection"><rect x="425" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="620" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-selection)"/><rect x="425" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Stage and app scope</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Separate goal and foreground identity</text>
+</g>
+<g data-group="delivery" data-label="Progressive role delivery / Guidance, reads and recipes differ"><defs><clipPath id="clip-delivery"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-delivery)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Progressive role delivery</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Guidance, reads and recipes differ</text>
+</g>
+<g data-group="shared" data-label="Contracts and boundaries / Cross-stage constraints and traceability"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="853" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Contracts and boundaries</text>
+<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Cross-stage constraints and traceability</text>
+<path d="M600 900L600 996" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="library" data-to="device" data-label="" d="M215 354 L215 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="device" data-to="catalog" data-label="" d="M215 534 L215 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="discovery" data-to="selection" data-label="" d="M390 430 L425 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="selection" data-to="delivery" data-label="" d="M775 430 L810 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<g data-node="library" data-label="Canonical file library / Separate generic, app_core and workflow / Exclude _pending from ordinary active indexes">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Canonical file library</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Separate generic, app_core</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and workflow</text>
+<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Exclude _pending from</text>
+<text x="82" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">ordinary active indexes</text>
+</g>
+<g data-node="device" data-label="Device and interface filter / interface_scope and device_profiles / Apply the same profile to catalog, reads and bodies">
+<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Device and interface filter</text>
+<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">interface_scope and</text>
+<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">device_profiles</text>
+<text x="82" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Apply the same profile to</text>
+<text x="82" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">catalog, reads and bodies</text>
+</g>
+<g data-node="catalog" data-label="Compact cards first / Expose enabled workflows and applicability / Task aliases and exact foreground affect priority">
+<text x="82" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Compact cards first</text>
+<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Expose enabled workflows and</text>
+<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">applicability</text>
+<text x="82" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Task aliases and exact</text>
+<text x="82" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">foreground affect priority</text>
+</g>
+<g data-node="stage" data-label="Planner stage selection / Resolve target app and select exact IDs / At most 4 IDs, including at most 2 workflows">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Planner stage selection</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Resolve target app and select</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">exact IDs</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">At most 4 IDs, including at</text>
+<text x="467" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">most 2 workflows</text>
+</g>
+<g data-node="core" data-label="Target and foreground core / Add exact foreground core to target guidance / Retire on exit; never rewrite target or workflow">
+<text x="467" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Target and foreground core</text>
+<text x="467" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Add exact foreground core to</text>
+<text x="467" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">target guidance</text>
+<text x="467" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Retire on exit; never rewrite</text>
+<text x="467" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">target or workflow</text>
+</g>
+<g data-node="scope" data-label="Explicit delivery scope / Planner owns workflows; Executor cannot replace / Exact-ID generic reads; clear scope on device change">
+<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Explicit delivery scope</text>
+<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Planner owns workflows;</text>
+<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Executor cannot replace</text>
+<text x="467" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Exact-ID generic reads; clear</text>
+<text x="467" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">scope on device change</text>
+</g>
+<g data-node="roleBody" data-label="Role body projection / Shared body plus Executor notes / Decision notes only for Planner/Reviewer">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Role body projection</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Shared body plus Executor</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">notes</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Decision notes only for</text>
+<text x="852" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Planner/Reviewer</text>
+</g>
+<g data-node="references" data-label="On-demand references / Mentioning another skill never loads it / References enter context only through explicit reads">
+<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">On-demand references</text>
+<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Mentioning another skill</text>
+<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">never loads it</text>
+<text x="852" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">References enter context</text>
+<text x="852" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">only through explicit reads</text>
+</g>
+<g data-node="recipes" data-label="Closed compound recipes / Active app skills may grant verified_actions / Match stage and foreground; retain child evidence">
+<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Closed compound recipes</text>
+<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Active app skills may grant</text>
+<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">verified_actions</text>
+<text x="852" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Match stage and foreground;</text>
+<text x="852" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">retain child evidence</text>
+</g>
+<g data-node="deliveryRecord" data-label="Auditable delivery identity / Record ID, version, body/projection hashes, scope and delivery source separately">
+<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Auditable delivery identity</text>
+<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Record ID, version, body/projection hashes, scope</text>
+<text x="82" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">and delivery source separately</text>
+</g>
+<g data-node="knowledgeBoundary" data-label="Knowledge and action boundary / Guidance grants no user consent; loading is not adoption; recipes exclude arbitrary scripts">
+<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Knowledge and action boundary</text>
+<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Guidance grants no user consent; loading is not</text>
+<text x="642" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">adoption; recipes exclude arbitrary scripts</text>
+</g>
+</svg>

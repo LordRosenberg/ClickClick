@@ -1,0 +1,284 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="5077" viewBox="0 0 1600 5077" role="img" aria-labelledby="title desc">
+<title id="title">Full sequence: persistence, interruption handling and continuation</title>
+<desc id="desc">Time runs downward. Solid arrows are calls; dashed arrows are returns. Frames identify parallel and alternative branches.</desc>
+<defs>
+<marker id="request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
+<marker id="response" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#287568"/></marker>
+</defs>
+<rect width="1600" height="5077" fill="white"/>
+<text x="40" y="39" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449" text-anchor="start"><tspan x="40" dy="0">Full sequence: persistence, interruption handling and continuation</tspan></text>
+<text x="40" y="65" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="40" dy="0">Time runs downward · solid calls / dashed returns</tspan></text>
+<rect x="348" y="1492" width="904" height="620" rx="5" fill="#F7FAFD" stroke="#C5D1DE" stroke-width="1.2"/>
+<text x="360" y="1516" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="360" dy="0">alt</tspan></text>
+<text x="406" y="1516" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="406" dy="0">Caught infrastructure exception</tspan></text>
+<path d="M348 1666H1252" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="360" y="1686" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="360" dy="0">else</tspan></text>
+<text x="406" y="1686" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="406" dy="0">Ordered backend shutdown</tspan></text>
+<path d="M348 1909H1252" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="360" y="1929" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="360" dy="0">else</tspan></text>
+<text x="406" y="1929" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="406" dy="0">Hard kill, crash or power loss</tspan></text>
+<rect x="403" y="3025" width="794" height="894" rx="5" fill="#F7FAFD" stroke="#C5D1DE" stroke-width="1.2"/>
+<text x="415" y="3049" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="415" dy="0">alt</tspan></text>
+<text x="461" y="3049" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="461" dy="0">A: T1 not committed</tspan></text>
+<path d="M403 3184H1197" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="415" y="3204" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="415" dy="0">else</tspan></text>
+<text x="461" y="3204" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="461" dy="0">B: T1 intent without T2 receipt</tspan></text>
+<path d="M403 3667H1197" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="415" y="3687" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="415" dy="0">else</tspan></text>
+<text x="461" y="3687" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="461" dy="0">C: T2 receipt without T3 step</tspan></text>
+<path d="M403 3782H1197" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="415" y="3802" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="415" dy="0">else</tspan></text>
+<text x="461" y="3802" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="461" dy="0">D: T3 committed</tspan></text>
+<rect x="415" y="3272" width="770" height="370" rx="5" fill="#F7FAFD" stroke="#C5D1DE" stroke-width="1.2"/>
+<text x="427" y="3296" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="427" dy="0">alt</tspan></text>
+<text x="473" y="3296" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="473" dy="0">Reliable original receipt found</tspan></text>
+<path d="M415 3446H1185" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="427" y="3466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="427" dy="0">else</tspan></text>
+<text x="473" y="3466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="473" dy="0">No reliable result or lookup fails</tspan></text>
+<rect x="28" y="4100" width="1544" height="923" rx="5" fill="#F7FAFD" stroke="#C5D1DE" stroke-width="1.2"/>
+<text x="40" y="4124" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="40" dy="0">alt</tspan></text>
+<text x="86" y="4124" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="86" dy="0">Cancelled, terminal or pause requested</tspan></text>
+<path d="M28 4241H1572" stroke="#C5D1DE" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="40" y="4261" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="40" dy="0">else</tspan></text>
+<text x="86" y="4261" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="86" dy="0">Continuation allowed</tspan></text>
+<path d="M160 130V5049" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="40" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="160" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="160" dy="0">Model</tspan></text>
+<path d="M480 130V5049" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="360" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="480" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="480" dy="0">Harness / Recovery</tspan></text>
+<path d="M800 130V5049" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="680" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="800" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">SQLite / Session</tspan></text>
+<path d="M1120 130V5049" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="1000" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="1120" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="1120" dy="0">Driver / journal</tspan></text>
+<path d="M1440 130V5049" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="1320" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="1440" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="1440" dy="0">Android</tspan></text>
+<g data-note="true" data-from="M" data-to="P" data-label="01 Normal persistence reference: an interruption executes only the prefix ending at A/B/C/D. Without interruption, continue directly to the next round and skip recovery below."><rect x="40" y="156" width="1520" height="44" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="56" y="181" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="56" dy="0">01 Normal persistence reference: an interruption executes only the prefix ending at A/B/C/D. Without interruption, continue directly to the next round and skip recovery below.</tspan></text>
+</g>
+<g data-note="true" data-from="M" data-to="S" data-label="A: waiting for inference or T1 not committed. This action has no durable dispatch intent and must not have entered Driver."><rect x="40" y="295" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="56" y="320" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="56" dy="0">A: waiting for inference or T1 not committed. This action has no durable dispatch intent and must not have</tspan><tspan x="56" dy="22">entered Driver.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="B: T1 committed, T2 absent. Dispatch may be unstarted, running, or finished without a saved receipt; never retry on intent alone."><rect x="360" y="566" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="591" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">B: T1 committed, T2 absent. Dispatch may be unstarted, running, or finished without a saved receipt; never</tspan><tspan x="376" dy="22">retry on intent alone.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="C: T2 saved, T3 absent. Execution facts are known, but post-observation or the complete step may be unfinished."><rect x="360" y="1020" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="1045" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">C: T2 saved, T3 absent. Execution facts are known, but post-observation or the complete step may be</tspan><tspan x="376" dy="22">unfinished.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="S" data-label="D: T3 committed. The full step and settlement are durable; do not repeat execution or accounting."><rect x="360" y="1346" width="560" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="1371" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">D: T3 committed. The full step and settlement are durable; do not</tspan><tspan x="376" dy="22">repeat execution or accounting.</tspan></text>
+</g>
+<g data-note="true" data-from="M" data-to="P" data-label="02 Interrupted tasks only. H is a logical lifeline: old execution handles cleanup, then takeover installs a new owner. Old execution cannot advance after takeover."><rect x="40" y="1430" width="1520" height="44" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="56" y="1455" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="56" dy="0">02 Interrupted tasks only. H is a logical lifeline: old execution handles cleanup, then takeover installs a new owner. Old execution cannot advance after takeover.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="Handlers/finalizers may never run. Use earlier durable data, journal and bodies; never assume a final save."><rect x="360" y="1942" width="880" height="44" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="1967" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">Handlers/finalizers may never run. Use earlier durable data, journal and bodies; never assume a final save.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="03 Entry: the scanner skips live running handles. safe_auto may enter automatically, manual needs an explicit request, disabled never continues."><rect x="360" y="2132" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="2157" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">03 Entry: the scanner skips live running handles. safe_auto may enter automatically, manual needs an</tspan><tspan x="376" dy="22">explicit request, disabled never continues.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="Missing device: waiting_for_device. Wait expired or identity mismatch: recovery_blocked. Return from this recovery attempt here."><rect x="360" y="2425" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="2450" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">Missing device: waiting_for_device. Wait expired or identity mismatch: recovery_blocked. Return from this</tspan><tspan x="376" dy="22">recovery attempt here.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="Without quiescence proof, retain quarantine, record recovery_blocked and return. Only successful isolation permits reconciliation."><rect x="360" y="2619" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="2644" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">Without quiescence proof, retain quarantine, record recovery_blocked and return. Only successful</tspan><tspan x="376" dy="22">isolation permits reconciliation.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="Verify state and required bodies. Unrecoverable bodies: failed; other repairable structural errors: blocked. Return now, with bounded rechecks only after repair."><rect x="360" y="2857" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="2882" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">Verify state and required bodies. Unrecoverable bodies: failed; other repairable structural errors:</tspan><tspan x="376" dy="22">blocked. Return now, with bounded rechecks only after repair.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="04 Reconcile by cut point: A/B/C/D below are alternatives matching 01. Pixels do not establish historical execution."><rect x="360" y="2941" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="2966" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">04 Reconcile by cut point: A/B/C/D below are alternatives matching 01. Pixels do not establish historical</tspan><tspan x="376" dy="22">execution.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="D" data-label="05 Restore original role, plan, notes, prompts, dialogue and skills. Reconnect read tools and clear stale grounding."><rect x="360" y="4016" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="4041" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">05 Restore original role, plan, notes, prompts, dialogue and skills. Reconnect read tools and clear stale</tspan><tspan x="376" dy="22">grounding.</tspan></text>
+</g>
+<g data-note="true" data-from="M" data-to="S" data-label="Late old-model replies cannot advance the new owner. Retain recorded requests/consumption and cumulative budgets."><rect x="40" y="4659" width="880" height="66" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="56" y="4684" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="56" dy="0">Late old-model replies cannot advance the new owner. Retain recorded requests/consumption and cumulative</tspan><tspan x="56" dy="22">budgets.</tspan></text>
+</g>
+<g data-note="true" data-from="H" data-to="P" data-label="Rejoin the normal chain: Driver execution, T2 receipt, post-observation, T3 full commit. Never replay the old operation ID."><rect x="360" y="4952" width="1200" height="44" rx="5" fill="#EEF7F4" stroke="#BCD5CC" stroke-width="1"/>
+<text x="376" y="4977" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="376" dy="0">Rejoin the normal chain: Driver execution, T2 receipt, post-observation, T3 full commit. Never replay the old operation ID.</tspan></text>
+</g>
+<g data-message="1" data-from="H" data-to="M" data-label="Assemble original-role context and request inference">
+<text x="320" y="235" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="320" dy="0">Assemble original-role context</tspan><tspan x="320" dy="22">and request inference</tspan></text>
+<path d="M480 270H160" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="2" data-from="M" data-to="H" data-label="Return a normalized action call">
+<text x="320" y="396" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="320" dy="0">Return a normalized action call</tspan></text>
+<path d="M160 409H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="3" data-from="H" data-to="S" data-label="T1: save decision, state, notes, intent and reservation">
+<text x="640" y="451" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">T1: save decision, state, notes,</tspan><tspan x="640" dy="22">intent and reservation</tspan></text>
+<path d="M480 486H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="4" data-from="S" data-to="H" data-label="Commit before allowing dispatch">
+<text x="640" y="528" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="640" dy="0">Commit before allowing dispatch</tspan></text>
+<path d="M800 541H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="5" data-from="H" data-to="D" data-label="Dispatch operation ID, argument digest and fence">
+<text x="800" y="667" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Dispatch operation ID, argument digest and fence</tspan></text>
+<path d="M480 680H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="6" data-from="D" data-to="D" data-label="Journal acceptance, deduplication and child stages">
+<text x="1181" y="722" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="1181" dy="0">Journal acceptance,</tspan><tspan x="1181" dy="22">deduplication and child stages</tspan></text>
+<path d="M1120 757h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="7" data-from="D" data-to="P" data-label="Execute device input">
+<text x="1280" y="817" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="1280" dy="0">Execute device input</tspan></text>
+<path d="M1120 830H1440" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="8" data-from="P" data-to="D" data-label="Device-path result">
+<text x="1280" y="872" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="1280" dy="0">Device-path result</tspan></text>
+<path d="M1440 885H1120" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="9" data-from="D" data-to="H" data-label="Journal retains result; return original receipt">
+<text x="800" y="927" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Journal retains result; return original receipt</tspan></text>
+<path d="M1120 940H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="10" data-from="H" data-to="S" data-label="T2: persist original receipt">
+<text x="640" y="982" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">T2: persist original receipt</tspan></text>
+<path d="M480 995H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="11" data-from="H" data-to="D" data-label="Acquire post-observation">
+<text x="800" y="1121" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Acquire post-observation</tspan></text>
+<path d="M480 1134H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="12" data-from="D" data-to="H" data-label="Return observation or diagnostics">
+<text x="800" y="1176" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Return observation or diagnostics</tspan></text>
+<path d="M1120 1189H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="13" data-from="H" data-to="S" data-label="T3: atomic step, full post-state, manifest and settlement">
+<text x="640" y="1231" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">T3: atomic step, full post-state,</tspan><tspan x="640" dy="22">manifest and settlement</tspan></text>
+<path d="M480 1266H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="14" data-from="S" data-to="H" data-label="Commit; allow next round">
+<text x="640" y="1308" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="640" dy="0">Commit; allow next round</tspan></text>
+<path d="M800 1321H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="15" data-from="H" data-to="S" data-label="Persist reason and recovering; retain committed facts">
+<text x="640" y="1546" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Persist reason and recovering;</tspan><tspan x="640" dy="22">retain committed facts</tspan></text>
+<path d="M480 1581H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="16" data-from="H" data-to="D" data-label="Leave execution; attempt endpoint/input cleanup">
+<text x="800" y="1623" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Leave execution; attempt endpoint/input cleanup</tspan></text>
+<path d="M480 1636H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="17" data-from="H" data-to="S" data-label="Retire old owner: increment epoch, clear token, recovering">
+<text x="640" y="1716" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Retire old owner: increment</tspan><tspan x="640" dy="22">epoch, clear token, recovering</tspan></text>
+<path d="M480 1751H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="18" data-from="H" data-to="D" data-label="Close old endpoint within a time bound">
+<text x="800" y="1793" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Close old endpoint within a time bound</tspan></text>
+<path d="M480 1806H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="19" data-from="H" data-to="H" data-label="Cancel old running handle">
+<text x="541" y="1848" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="541" dy="0">Cancel old running handle</tspan></text>
+<path d="M480 1861h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="20" data-from="H" data-to="S" data-label="Restart under local exclusive lock; scan stale status and operations">
+<text x="640" y="2021" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Restart under local exclusive</tspan><tspan x="640" dy="22">lock; scan stale status and</tspan><tspan x="640" dy="22">operations</tspan></text>
+<path d="M480 2078H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="21" data-from="H" data-to="D" data-label="Check original device availability and identity">
+<text x="800" y="2233" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Check original device availability and identity</tspan></text>
+<path d="M480 2246H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="22" data-from="D" data-to="H" data-label="Return resource facts">
+<text x="800" y="2288" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Return resource facts</tspan></text>
+<path d="M1120 2301H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="23" data-from="H" data-to="S" data-label="Claim exclusive ownership: new epoch, worker_token and device_fence">
+<text x="640" y="2343" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Claim exclusive ownership: new</tspan><tspan x="640" dy="22">epoch, worker_token and</tspan><tspan x="640" dy="22">device_fence</tspan></text>
+<path d="M480 2400H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="24" data-from="H" data-to="D" data-label="Fence/drain: reject old input and reap old input children">
+<text x="800" y="2526" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Fence/drain: reject old input and reap old input children</tspan></text>
+<path d="M480 2539H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="25" data-from="D" data-to="H" data-label="Return quiescence proof or isolation reason">
+<text x="800" y="2581" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Return quiescence proof or isolation reason</tspan></text>
+<path d="M1120 2594H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="26" data-from="H" data-to="S" data-label="Read manifest, full state, body refs and operations">
+<text x="640" y="2720" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Read manifest, full state, body</tspan><tspan x="640" dy="22">refs and operations</tspan></text>
+<path d="M480 2755H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="27" data-from="S" data-to="H" data-label="Latest post-state or later T1 state, plus durable facts">
+<text x="640" y="2797" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="640" dy="0">Latest post-state or later T1</tspan><tspan x="640" dy="22">state, plus durable facts</tspan></text>
+<path d="M800 2832H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="28" data-from="H" data-to="H" data-label="Use latest recoverable state; discard unfinished reasoning">
+<text x="541" y="3079" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="541" dy="0">Use latest recoverable</tspan><tspan x="541" dy="22">state; discard unfinished</tspan><tspan x="541" dy="22">reasoning</tspan></text>
+<path d="M480 3136h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="29" data-from="H" data-to="D" data-label="Bounded lookup of original operation receipt and child facts">
+<text x="800" y="3234" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Bounded lookup of original operation receipt and child facts</tspan></text>
+<path d="M480 3247H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="30" data-from="D" data-to="H" data-label="Return original execution result">
+<text x="800" y="3326" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Return original execution result</tspan></text>
+<path d="M1120 3339H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="31" data-from="H" data-to="S" data-label="Append receipt; close original attempt from known facts">
+<text x="640" y="3381" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Append receipt; close original</tspan><tspan x="640" dy="22">attempt from known facts</tspan></text>
+<path d="M480 3416H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="32" data-from="D" data-to="H" data-label="Outcome remains uncertain">
+<text x="800" y="3496" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Outcome remains uncertain</tspan></text>
+<path d="M1120 3509H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="33" data-from="H" data-to="S" data-label="Record unknown; settle reservation as uncertain; no replay or tail resume">
+<text x="640" y="3551" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Record unknown; settle</tspan><tspan x="640" dy="22">reservation as uncertain; no</tspan><tspan x="640" dy="22">replay or tail resume</tspan></text>
+<path d="M480 3608H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="34" data-from="H" data-to="S" data-label="Adopt saved receipt; close step/accounting without replay">
+<text x="640" y="3717" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Adopt saved receipt; close</tspan><tspan x="640" dy="22">step/accounting without replay</tspan></text>
+<path d="M480 3752H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="35" data-from="H" data-to="H" data-label="Use full post-state; no duplicate step or settlement">
+<text x="541" y="3832" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="541" dy="0">Use full post-state; no</tspan><tspan x="541" dy="22">duplicate step or settlement</tspan></text>
+<path d="M480 3867h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="36" data-from="H" data-to="S" data-label="Save closed state/manifest; keep history, budgets and deadline">
+<text x="640" y="3956" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Save closed state/manifest; keep</tspan><tspan x="640" dy="22">history, budgets and deadline</tspan></text>
+<path d="M480 3991H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="37" data-from="H" data-to="S" data-label="Honor controls; prepare safe pause checkpoint without inference">
+<text x="640" y="4154" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Honor controls; prepare safe</tspan><tspan x="640" dy="22">pause checkpoint without</tspan><tspan x="640" dy="22">inference</tspan></text>
+<path d="M480 4211H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="38" data-from="H" data-to="D" data-label="Acquire current observation: recovery_current">
+<text x="800" y="4291" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Acquire current observation: recovery_current</tspan></text>
+<path d="M480 4304H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="39" data-from="D" data-to="H" data-label="Current view, not the original causal post-observation">
+<text x="800" y="4346" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Current view, not the original causal post-observation</tspan></text>
+<path d="M1120 4359H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="40" data-from="H" data-to="S" data-label="Recheck current controls; persist queued and manifest">
+<text x="640" y="4401" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">Recheck current controls;</tspan><tspan x="640" dy="22">persist queued and manifest</tspan></text>
+<path d="M480 4436H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="41" data-from="S" data-to="H" data-label="Return to ordinary scheduling; changed controls stop continuation">
+<text x="640" y="4478" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="640" dy="0">Return to ordinary scheduling;</tspan><tspan x="640" dy="22">changed controls stop</tspan><tspan x="640" dy="22">continuation</tspan></text>
+<path d="M800 4535H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="42" data-from="H" data-to="M" data-label="Original-role context, current view and prior known/unknown facts">
+<text x="320" y="4577" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="320" dy="0">Original-role context, current</tspan><tspan x="320" dy="22">view and prior known/unknown</tspan><tspan x="320" dy="22">facts</tspan></text>
+<path d="M480 4634H160" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="43" data-from="M" data-to="H" data-label="Make a new decision from current state">
+<text x="320" y="4760" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="320" dy="0">Make a new decision from current</tspan><tspan x="320" dy="22">state</tspan></text>
+<path d="M160 4795H480" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="44" data-from="H" data-to="S" data-label="New action: new T1, new operation ID and reservation">
+<text x="640" y="4837" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">New action: new T1, new operation</tspan><tspan x="640" dy="22">ID and reservation</tspan></text>
+<path d="M480 4872H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="45" data-from="H" data-to="D" data-label="Dispatch only after the new T1 commits">
+<text x="800" y="4914" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Dispatch only after the new T1 commits</tspan></text>
+<path d="M480 4927H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+</svg>

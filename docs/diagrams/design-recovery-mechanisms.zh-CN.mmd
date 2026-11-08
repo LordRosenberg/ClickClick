@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph durable["正常执行时持续保存 / 不等异常发生才保存"]
+        intent["T1：派发前保存意图 / 决策、状态、配对笔记与对话引用 / 操作 ID、参数摘要与预算预留 / 提交成功才允许派发"]
+        receipt["T2：保存原始回执 / Driver journal 独立保留执行事实 / Harness 收到回执后落任务库 / 此时尚未提交完整步骤"]
+        postState["T3：提交完整步骤 / 后观测后保存步骤与完整 post-state / 恢复清单、计量结算一并提交 / 下一轮从一致的任务状态推进"]
+    end
+    subgraph takeover["异常识别、记录与隔离 / 可捕获异常与硬崩溃分别处理"]
+        detect["发现中断并标记 / 可捕获基础设施异常：原因 + recovering / 强杀或掉电：来不及补写 / 重启扫描运行状态与未闭合操作"]
+        owner["接管任务写入权 / execution_epoch + worker_token / 有序退出也先撤销旧执行所有权 / 旧响应和 finally 不能推进新 owner"]
+        fence["停止旧设备输入 / 单调 device_fence + fence/drain / 有界清理属于任务的输入子进程 / 未证明静止则保持 quarantine"]
+    end
+    subgraph continuation["恢复核对与原角色续接 / 检查原资源，再根据新事实决定"]
+        reconcile["核对与闭合原尝试 / 查原回执及子动作 / unknown；预留 settled_uncertain / 不重放组合动作或自动续尾"]
+        context["重建状态与上下文 / 完整 post-state 或更晚 T1 + 持久事实 / 原角色、计划、笔记、对话与 Skills / 检查必需正文及原设备、模型资源"]
+        fresh["最新观测与新决策 / recovery_current + 上一步已知或未知事实 / 不重放旧动作；再次操作使用新 operation ID"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        dispatchContract["按最后提交点恢复 / 无回执：查询或 unknown；有回执：闭合步骤 / 步骤已提交：从完整状态继续，不重放动作"]
+        accountingContract["预算、迟到事实与终态 / 沿用累计预算和 deadline；迟到事实只追加一次，不重复结算或复活终态"]
+    end
+    intent --> receipt
+    receipt --> postState
+    detect --> owner
+    owner --> fence
+    reconcile --> context
+    context --> fresh
+    durable --> takeover
+    takeover --> continuation

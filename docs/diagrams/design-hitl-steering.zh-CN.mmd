@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant U as 助手 / API 调用方
+    participant C as API / 控制收件箱
+    participant H as Harness
+    participant M as 模型调用
+    participant D as Driver
+    U->>C: 提交修改与 request_key
+    C->>C: 持久化有序修改，生成新指令版本
+    C-->>U: 确认已接收，尚不等于已应用
+    C->>H: 通知控制变更
+    alt 旧工作尚未派发
+    H->>H: 撤销旧调用资格，开始新规划
+    M-->>H: 迟到旧响应仅保留诊断
+    else 动作已派发
+    D-->>H: 返回真实结果，先保存事实
+    H->>H: 完成本次记录，再处理修改
+    end
+    H->>M: Planner 读取新要求与有效进度
+    M-->>H: 保留阶段或修订计划
+    H->>C: 记录已应用版本与新计划

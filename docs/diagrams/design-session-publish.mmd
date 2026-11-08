@@ -1,0 +1,11 @@
+sequenceDiagram
+    participant H as Harness / artifacts
+    participant F as Artifact files
+    participant S as SQLite / manifest
+    H->>H: Establish pin under publication lock
+    H->>F: Write same-directory temporary body
+    H->>F: fsync, integrity check, atomic publish
+    F-->>H: Durable readable body reference
+    H->>S: Commit manifest references and post-state
+    S-->>H: Release temporary pin after commit
+    H->>F: GC retains current and historical reachable bodies

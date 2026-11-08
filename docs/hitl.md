@@ -1,43 +1,53 @@
 # Human-in-the-loop questions, confirmations and task changes
 
-[README](../README.md) · [中文与宿主协议](hitl.zh-CN.md) · [Architecture](architecture.md)
+[README](../README.md) · [中文](hitl.zh-CN.md) · [Mechanisms and host protocol](hitl-design.md)
 
-Enable **Settings → Runtime and learning → Ask me when needed (HITL)** in Console. Assistant-guided first installations default it on; other installations default it off. Saved choices take precedence and MCP connection alone does not change them. Saved defaults affect new tasks, while each task retains its frozen setting and role/tool policy.
+Enable **Settings → Runtime and learning → Ask me when needed (HITL)** in Console. Assistant-guided first installations default on, other installations off; saved choices take precedence. Settings affect new tasks. Existing tasks retain their creation-time setting, and MCP connection does not change it.
 
-Planner resolves material uncertainty about intent before dependent planning. Executor asks when actual execution reveals a necessary unresolved choice or authorization gap. Both first use the request, accepted answers and available evidence. Explicitly authorized actions do not need the same permission again. Reviewer cannot ask. Question timing is model-controlled; this release adds no separate semantic judge that intercepts missed questions. Never collect passwords, verification codes or payment credentials through questions.
+## Answering questions
 
-`ask_user` is an intermediate tool. The broker persists the pending question, original invocation and tool-call IDs, then yields the worker. No model calls or device actions occur while waiting. A matched reply resumes that call once, with the original budget/deadline and a fresh observation before further GUI actions. Replies can clarify intent but cannot prove a device effect occurred. Conflicting or stale replies are rejected.
+Planner/Executor ask for necessary information, material choices or missing authorization after using the task, previous answers and readable evidence. Explicit existing authorization is not requested again. Use the app's secure flow for passwords, verification codes and payment credentials. Models choose when to ask; missed questions remain possible.
 
-Managed tasks can ask one to three related questions together, or request one explicit confirmation. Console offers choices and free text; selections are not submitted automatically. Decline, inability to answer and cancellation have distinct outcomes. The default limit is eight questions, 1,800 seconds per wait and 4,096 characters per answer, bounded by the task's earlier deadline.
+Waiting performs no inference or device actions while the original deadline remains active. Console keeps a pending-answer entry. Choose an option or enter text; selection never submits automatically. Confirmation requires an explicit allow/decline. Dismissal merely closes the dialog; inability to answer differs from cancellation. One clarification can contain 1–3 questions. A complete reply continues the original role session and refreshes observations before actions.
 
-Console tasks answer in Console. A foreground CLI or assistant host with a live session-specific reply bridge can answer at its origin. A disconnected or unsupported origin falls back to Console with the same question and deadline. A desktop notification opens the task page; it does not create a second answer form. Generic MCP elicitation support alone does not prove that a client can wake a background conversation. The detailed SSE binding/presentation/reply protocol is documented in the [host integration guide](hitl.zh-CN.md#助手联动与主动推送).
+A valid assistant reply bridge/foreground CLI can answer at the origin; otherwise use Console. Disconnect or missing timely presentation transfers to Console. A shown question with a live connection does not transfer because the user thinks for more than 30 seconds. Console can explicitly take over. Tray notifications open the task page rather than another reply form. Defaults are 8 questions, 1800 seconds per wait and 4096 characters per answer, bounded by an earlier task deadline.
 
-## Change a task while it runs
-
-Tell your assistant, for example: “Change the previous task: skip brightness and check whether the stopwatch is running. Do not start or reset it.” The assistant uses `steer_task` to append your request to the same task, without first pausing it or waiting for a question.
-
-- Running tasks acknowledge reception promptly; Planner keeps the current stage or revises affected work. A change can preempt model waiting, and obsolete replies cannot dispatch actions or commit completion. Accepted and applied are distinct progress states.
-- Already dispatched actions finish recording their actual result. Completed sends or bookings are not automatically undone; the next step follows actual facts and asks for material choices when needed.
-- Paused tasks stay paused. Changes during a question invalidate obsolete continuations while preserving unresolved question context for replanning.
-- Completed tasks create linked follow-ups without rewriting history. A task created with HITL disabled returns settings guidance; enabling the switch affects new tasks only.
-
-The original request and ordered changes remain inspectable. Earlier constraints and permissions remain effective where they do not conflict with the change. See [MCP integration](local-mcp.md).
-
-## Screen preview and progress
-
-An assistant with an in-app browser can open the task's local preview after delegation: recent phone pixels on the left, returned model text, reasoning summaries and completed tool-call output on the right. Tool arguments appear after the round completes. Task details offers **Screen preview**, and the preview offers **Task details** for return navigation.
-
-Preview is read-only, reuses the active task's published frames and does not run a host-driven screenshot or input loop. It supports local Android tasks and explains missing pixels, paused/finished tasks and unsupported modes. Browser availability does not affect independent phone execution.
-
-## Continue after budget exhaustion
-
-Ordinary task defaults are 200 Executor decisions and 1000 model requests, configurable in Console. Exhaustion remains a failed attempt; a safe budget checkpoint can continue after an explicit cumulative extension, preserving task identity, earlier failures, actions and total consumption. A task adjustment does not reset counters or extend deadlines. Ordinary failures are not resumable through this feature, and benchmark episodes never automatically continue or replace an earlier score.
+## CLI
 
 ```powershell
 python -m agent.main --hitl "Your task"
 python -m agent.main --hitl --answers console "Your task"
 ```
 
-Each role has one shared base prompt and a concentrated enabled/disabled decision section. `agent/interaction_policy.py` selects the matching tool description, schema and recovery hints. Human tools are absent when disabled; legacy task defaults remain disabled. Delegated MobileWorld evaluation uses one clarification question per call and the official user simulator, independently of the production reply surface.
+HITL CLI uses the same Control API, task database and reply broker. Interactive terminals accept numbered choices/free text; confirmations require explicit yes/no. `?` means unable to answer, `cancel` cancels, and empty input never agrees. Noninteractive input, EOF/exit or explicit Console mode transfers to Console with a task URL. Disabled HITL retains the original standalone CLI path.
 
-The full MobileWorld User-Int. run passed **34/44 (77.27%)**, with GPT-5.6-Sol (high), Jev off, continuous recordings and 56 matched question/answer exchanges. See [methodology and limits](mobileworld-hitl-results-20261015.md) and [all 44 public trajectories](https://lordrosenberg.github.io/ClickClick/mobileworld/?category=hitl#explore).
+## Change a task while it runs
+
+Send a change in the assistant conversation; `steer_task` appends it to the original task without first pausing or waiting for a question.
+
+- Running tasks distinguish reception from plan application. Planner retains a valid stage or revises affected work; obsolete responses cannot dispatch further actions.
+- Dispatched actions first retain actual results. Sends, bookings and similar effects are not automatically reversed.
+- Paused tasks stay paused; pending questions and continuation eligibility are rechecked.
+- Completed tasks create linked follow-ups while retaining completion history. Enable HITL for new tasks when the existing task has it disabled.
+
+Original requirements and ordered changes remain inspectable. Valid constraints, authorization and usage survive. See [MCP setup](local-mcp.md) and [HITL ordering](hitl-design.md#ordering-user-changes-and-in-flight-actions).
+
+## Screen preview and progress
+
+Open the task preview after delegation to view recent phone pixels beside returned model text/reasoning summaries. Tool arguments appear after the round completes. Preview and details link to each other. Read-only preview reuses existing frames from local Android tasks and labels paused, finished or missing-frame states without affecting execution. See [Console guide](observability.md#task-screen-preview).
+
+## Continue after budget exhaustion
+
+Ordinary cumulative defaults are 200 Executor decisions and 1000 model requests. Exhaustion remains failed; an eligible safe budget checkpoint can continue after an explicit extension, preserving failure history and consumption. Changes do not reset budgets or extend deadlines. Evaluation never automatically continues or overwrites scores. See [recovery paths](crash-recovery.md#clean-pause-budget-continuation-and-crash-takeover).
+
+## Assistant bridging and push delivery
+
+Private bindings, SSE, presentation acknowledgements and reply APIs are specified once in the [HITL host protocol](hitl-design.md#host-protocol). Generic MCP connection does not guarantee background question presentation. Clients without a bridge use Console; real-host compatibility requires separate validation.
+
+## Prompts, schemas and validation
+
+[HITL design](hitl-design.md) owns role policy, managed/delegated schemas, idempotent replies and call continuation. Protocol tests and appropriate model question timing are evaluated separately.
+
+## Interaction evaluation
+
+Historical results, dialogue traces and conditions: [MobileWorld interaction report](mobileworld-hitl-results-20261015.md). Methods: [evaluation design](evaluation-design.md).

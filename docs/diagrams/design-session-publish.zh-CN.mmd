@@ -1,0 +1,11 @@
+sequenceDiagram
+    participant H as Harness / 产物管理
+    participant F as 产物文件
+    participant S as SQLite / 清单
+    H->>H: 发布锁内先建立跨进程 pin
+    H->>F: 写同目录临时正文
+    H->>F: fsync、完整性检查、原子发布
+    F-->>H: 可读取的持久正文引用
+    H->>S: 事务提交清单引用与完整 post-state
+    S-->>H: 提交确认后释放临时 pin
+    H->>F: GC 保留当前与历史可达正文

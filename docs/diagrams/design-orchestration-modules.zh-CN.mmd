@@ -1,0 +1,30 @@
+flowchart TB
+    subgraph planning["滚动细化与独立判断 / 当前阶段具体化，未来路线保留假设"]
+        planner["Planner / 保留全局约束和未来假设路线 / 只具体化当前阶段，随反馈滚动修订"]
+        stage["滚动计划 / current_stage：当前结果、应用、技能 / assumption_roadmap：未来假设，不作执行授权"]
+        reviewer["按需 Reviewer / Planner/Executor 均可请求独立核证 / 返回执行、重规划或任务结论"]
+    end
+    subgraph execution["Executor 会话 / 在有效阶段内连续推进"]
+        context["当前决策上下文 / 任务、阶段、预算、记忆与适用技能 / 新鲜观测作为 GUI 动作依据"]
+        session["模型网关与角色会话 / 角色路由、协议与用量记录 / 保留消息、工具结果与调用身份 / 不同于持久任务 Session"]
+        decision["结构化决策 / act 执行；advance/replan 交回规划 / finish 申请结论；review 请求独立核对"]
+    end
+    subgraph runtime["运行时与设备 / 记录事实并生成下一轮反馈"]
+        validate["提交与资格校验 / schema、阶段与观测引用 / 检查剩余预算及当前调用资格"]
+        dispatch["动作派发与回执 / Driver 接受执行，返回原始回执 / 动作后采集新观测，保留实际结果"]
+        commit["提交步骤与完整状态 / 保存计划、笔记、历史和 next_role / 反馈续接当前 Executor 或返回规划"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        identity["调用身份与执行资格 / 指令 revision、执行 generation 与 invocation ID 使过时调用失效"]
+        budgets["累计预算与完成边界 / 消耗不因重规划清零；回执、运行时完成与业务正确性分别判断"]
+    end
+    planner --> stage
+    stage -->|"按需"| reviewer
+    decision -->|"review"| reviewer
+    context --> session
+    session --> decision
+    validate --> dispatch
+    dispatch --> commit
+    planning --> execution
+    execution --> runtime
+    runtime -->|"advance / replan / finish：携带事实返回 Planner"| planning

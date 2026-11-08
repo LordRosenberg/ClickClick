@@ -1,0 +1,18 @@
+stateDiagram-v2
+    state "running / 普通任务执行" as running
+    state "recovering / 隔离、核对与上下文恢复" as recovering
+    state "queued / 交回普通调度" as queued
+    state "waiting_for_device / 原设备暂不可用" as waiting
+    state "recovery_blocked / 需修复资源或结构条件" as blocked
+    state "paused / 暂停优先，机械收尾后保持" as paused
+    state "终态 / 取消或明确不可恢复失败" as terminal
+    running --> recovering: 中断
+    recovering --> queued: 就绪
+    queued --> running: 正常调度
+    recovering --> waiting: 设备不可用
+    waiting --> recovering: 设备恢复
+    waiting --> blocked: 等待到期
+    recovering --> blocked: 资源或结构条件未就绪
+    blocked --> recovering: 修复后有界重查
+    recovering --> paused: 收到暂停
+    recovering --> terminal: 取消／必需正文不可恢复

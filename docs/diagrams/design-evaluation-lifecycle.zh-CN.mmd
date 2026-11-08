@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant C as 评测控制器
+    participant E as 官方环境 / 设备
+    participant H as 普通 Harness
+    participant S as 独立评分器
+    participant R as 结果与证据记录
+    C->>R: 冻结代码、任务、模型、技能与预算
+    C->>E: 初始化官方任务与起始状态
+    E-->>C: 返回初始化结果或环境故障
+    C->>H: 提交普通执行，不注入评分答案
+    H->>E: 观测、动作与现场反馈
+    H->>R: 保存角色、回执、计量与轨迹
+    H-->>C: 返回运行时结论
+    C->>S: 请求独立任务正确性检查
+    S->>E: 读取评分协议要求的最终状态
+    E-->>S: 返回应用状态与评分证据
+    S->>R: 保存官方分数或未评分原因
+    C->>E: 清理环境，单独记录 teardown

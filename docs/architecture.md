@@ -34,136 +34,68 @@ The original instruction remains recorded; later accepted user changes supersede
 
 ## Roles and transitions
 
-`Settings.agent_architecture` selects the policy. `plan_executor` is the default; `plan_reviewer` requires final review.
-
-| Role / submission | Default `plan_executor` behavior |
-| --- | --- |
-| Planner `continue` | Keep the current stage and Executor dialogue after assessing a user adjustment. |
-| Planner `execute` | Persist the revised current stage and invoke Executor. |
-| Planner `complete` | Complete the task if submission checks and task limits permit it. |
-| Planner `review` | Invoke Reviewer with the stated conflict and evidence. |
-| Executor `act` | Validate and dispatch a typed action, then record feedback and continue. |
-| Executor `advance` | Complete the identified stage and return to Planner. |
-| Executor `replan` | Return the observed mismatch to Planner. |
-| Executor `finish` | Ask Planner for the task-level verdict. |
-| Executor `review` | Invoke Reviewer even in two-role mode. |
-| Reviewer `complete` | Complete the task. |
-| Reviewer `execute` / `replan` | Return to execution or planning according to the verdict and current stage. |
-| Planner or Reviewer `inconclusive` | End without claiming success. |
-
-In `plan_reviewer`, Planner completion and Executor `finish` route to Reviewer. This policy does not mean that every device action is reviewed. Explicit `review` remains available in either mode.
-
-On-demand review is chosen inside an existing model decision, not by a separate review-selection model. Prompts distinguish a known missing device check from a dispute needing independent judgment. Repeating review with the same observation, plan revision, execution count and note versions fails explicitly instead of looping indefinitely.
-
-Source: [runtime selection](../agent/runtime.py), [orchestration](../agent/revisable/orchestrator.py), [Planner/Reviewer schemas](../shared/revisable.py), [Executor submission](../agent/revisable/session.py).
+Planner uses rolling refinement: concretize one current stage and retain a tentative future roadmap. Executor performs that stage and returns results or mismatches; Planner checks the assumptions before choosing the next stage. Reviewer handles disputes on demand. Default `plan_executor` permits optional review; `plan_reviewer` requires final review. [Long-task orchestration](task-orchestration.md) owns planning granularity, role submissions, loop control, sessions and budgets.
 
 ## A device interaction
 
-An observation package binds a capture identity to global pixels, normalized UI structure, frame/model geometry and capture metadata. `accepted`, `actionable` and `index_actionable` distinguish an accepted capture, usable coordinate actions and usable indexed targets. Executor must reference the current observation when acting; retrieved historical images cannot replace that action basis.
-
-For supported local indexed taps, a private handle binds the selected index to the observed native node. The driver refreshes and checks the retained node before a single native click. Invalid or uncertain native results return feedback without silently reusing old coordinates. Other actions retain their documented coordinate paths.
-
-Supported targeted text replacement resolves a field, establishes and checks focus, writes the text and verifies readback. Receipts separate dispatch, input and observed effects. An input value is not by itself proof that the app saved a record.
-
-Skill-authorized compound actions run a closed sequence through the same primitive transactions. Intermediate observations are stored as historical evidence; the final observation supplies the next actionable state. Physical subactions and submitted action units are separately recorded.
+A model submits an action against the current observation. Harness checks invocation, target and budget; Driver executes and returns a receipt; post-observation supplies the next round. Supported local indexed taps refresh/check retained nodes, while targeted input verifies fields/focus and reads back. See [observation and execution consistency](observation-execution-consistency.md) for ordering and configuration.
 
 ## Observation path
 
-The driver-owned scrcpy stream supplies agent pixels; Console details reads saved screenshots; the read-only task preview can display frames already published by a running task. PyAV decodes frames; Accessibility Collector supplies nodes, windows and available events. Perception builds the normalized UI and Set-of-Mark view. ADB screencap is the fallback pixel source.
-
-Freshness checks use capture request boundaries and window generations. Bounded resampling handles transitions; usable pixels can remain available when structure is missing. Pixels and accessibility state are asynchronous, so this is not an atomic snapshot of every animated interface. See [capture design](design-decisions.md#scrcpy-collector-and-python).
-
-`observe_screen` offers three views through the same capture boundary:
-
-| Mode | Model input | Action basis |
-| --- | --- | --- |
-| `snapshot` | Current global screen and available UI structure | Accepted fresh global observation |
-| `sequence` | A bounded sequence showing change over time | The latest accepted global observation |
-| `detail` | Fresh native capture, locator overview and either a selected crop or four overlapping tiles | The paired fresh global observation; reading tiles are not actionable coordinates |
-
-The detail path preserves observation identity, native frame geometry and crop bounds on its attachments. It avoids reusing old tree overlays or enlarging reduced pixels. See [native detail capture](../agent/screen_detail.py) and [ObservationPackage](../perception/observation.py).
+Driver combines scrcpy pixels and Accessibility Collector structure, with ADB fallback pixels. Snapshot shows current state, sequence captures dynamic changes, and detail supplies native-resolution reading. Request/action frame boundaries and window checks reduce stale or mismatched evidence. [Observation/execution consistency](observation-execution-consistency.md) owns capture, action grounding and post-observation reuse; [scrcpy transport](scrcpy-observation.md) owns connection/performance diagnostics.
 
 ## Context, memory and skills
 
-Memory has three layers: original records preserve sources, versioned notes retain information needed later, and structured summaries connect earlier execution history. The original instruction, current stage, budget, fresh observation, historical summary, recent steps, retained notes and applicable skills are assembled independently for each role.
+Original records, versioned notes and sourced summaries are stored separately. Each role assembles current requirements, plan, budget, observations and memory; see [memory/context](memory-and-context.md). [Session/storage](session-storage.md) owns database, file and process-memory responsibilities.
 
-![Memory layers and context flow](assets/memory-overview.svg)
-
-Compaction keeps the newest two complete execution steps. `clickclick.summary.v2` separates `results`, `decisions_and_attempts` and `critical_context`; every item binds to durable source references. The summary targets 3,000 characters with a 4,000-character hard limit. Schema, length and reference validation establish a mechanically valid summary, not semantic truth.
-
-Each note has a versioned full body and an optional `retained` excerpt of at most 600 characters. A bounded 3,000-character packet restores selected excerpts alongside the note directory; unresolved questions and measurements are restored separately. Exact note-version and retained-text matches allow reversible display deduplication. `summary_source` and `read_history` retrieve the original evidence when detail is needed. Summaries cannot edit notes or delete raw records. See [Memory and context design](memory-and-context.md) for lifecycles, fields and budgets.
-
-Planner selects stage skills from the catalog. Device profiles filter system-specific guidance; target and observed foreground identities determine applicable app knowledge. Role sections tailor the delivered body, with skill IDs, versions and content hashes recorded. App-owned compound recipes additionally require matching active stage and foreground scope. See the [skill authoring guide](../skills/README.md).
-
-An explicit research entry point can extract skill revisions from real failures and detours. Learner maintains continuous analysis; an independent Skill Reviewer checks quality and selects necessary validation. One job supports multiple app files, joint checks and local admission per file. Candidates enter pending review rather than hot-writing the canonical library, and ordinary completion does not automatically start paid learning. See [Skill self-improvement](skill-evolution.md) for the cycle, evidence boundaries and current capability.
+Planner selects stage skills from a catalog; app/device/role scope controls progressive delivery, as specified in [skill delivery](skill-delivery.md). An explicit learning entry turns traces into candidates, independently reviewed and selectively validated before human publication; see [self-learning](skill-evolution.md). Ordinary completion never starts paid learning automatically.
 
 ## HITL intervention and plan updates
 
-MCP `steer_task` and the corresponding Control API append ordered, idempotent user changes to a durable task inbox. The original request remains intact. Planner keeps a still-valid stage and Executor dialogue or revises affected work. Every role receives user changes through independent dynamic context; compaction cannot discard them or rewrite the stable prompt prefix.
-
-Model invocations carry instruction revisions and execution generations. Accepting a change invalidates undispatched obsolete work and allows replanning without waiting for stale inference; late replies remain diagnostic. Dispatch and reception have a deterministic order: an in-flight transaction records its actual receipt before subsequent work is replanned. Completion first creates linked follow-up work; an accepted update first must be processed before completion. Pause, cancellation and question handling retain their lifecycle boundaries.
-
-HITL is frozen when a task is created. Assistant-guided first installations default it on, other installations off, and saved choices take precedence. Disabled tasks add no intervention policy, model tools or steering waiter; the MCP tool stays discoverable and returns settings guidance. See [HITL usage and integration](hitl.md).
-
-Ordinary defaults are cumulative limits of 200 Executor decisions and 1000 model requests; explicit evaluation budgets take precedence. Exhaustion remains failed, with explicit extension from a safe budget checkpoint. Earlier attempts, receipts and total usage are retained; only explicit extra time extends a deadline. Ordinary failures are not resumable through this feature.
+Agents can ask and continue the original call; users can independently change requirements through an assistant or API. A durable inbox separates acceptance from application. Instruction revisions/execution generations invalidate undispatched stale calls; dispatched effects are recorded before applying changes. [Bidirectional HITL](hitl-design.md) owns settings, reply ownership and concurrency; [usage](hitl.md) owns user steps.
 
 ## Read-only preview alongside an assistant
 
-Accepted delegation returns preview/details links and generic host presentation hints. An assistant with an in-app browser prefers the task preview and reuses its tab by task ID, falls back to details when unsupported, or shares links when browser opening is unavailable. This contract does not depend on a named assistant or sidebar API.
-
-The local Android preview reads frames already published by the active task and appends model output through existing SSE and response artifacts. Task/device/run identity is checked and retained images are labelled. Viewing acquires no separate device lease, triggers no extra capture or input, and cannot change task outcomes. Details and preview offer navigation in both directions. See [Console observability](observability.md).
+Tasks return preview/details links that hosts may open and reuse. Preview consumes existing frames/model events without a second device lease, capture or input path. Disconnects, slow readers and missing frames do not change execution. See [observability](observability.md) for presentation and [MCP usage](local-mcp.md) for assistant setup.
 
 ## Recovery after an unexpected interruption
 
-The independent backend owns tasks; MCP/API clients submit and control them, so a client disconnect is distinct from a backend crash. After an unexpected backend exit, a durable scheduling scan finds non-terminal tasks whose owner was lost and resumes them under exclusive ownership. New tasks freeze `safe_auto` (the default), `manual` or `disabled` at creation; legacy tasks without recovery metadata are not forced to continue.
+Client disconnect differs from backend failure. Clean pauses resume safe checkpoints; crash takeover must isolate old input, query receipts and restore the original role. Missing reliable outcomes stay unknown and lead to a new decision on fresh observations, never replay of saved actions. [Pause and crash recovery](crash-recovery.md) owns states, T1/T2/T3, idempotency, body manifests and configuration.
 
-### Persistence and action ordering
-
-**Model returns a call → T1 pre-dispatch transaction → Driver journal accepts and executes → T2 persists the receipt → post-observation → T3 commits the step and complete state.** T1 stores the normalized decision, notes and budget reservation; T3 atomically updates the step, AgentState, recovery manifest and accounting. Database transactions do not span ADB or model requests and cannot atomically commit a phone's side effects.
-
-- `execution_epoch / worker_token` fence task writes; a cross-task monotonic `device_fence` fences device input. Recovery fences and drains the old input chain before taking over. Devices remain quarantined if quiescence cannot be established; cancellation and device cleanup are separate.
-- The Driver journal deduplicates operation IDs with argument digests and retains receipts. Reusing an old ID never issues input again. Compound actions retain child ordinals; recovery neither restarts the sequence nor automatically runs its remaining tail.
-- Recovery queries the original receipt within a bound. A missing receipt closes the original attempt as `unknown`; screenshots cannot establish whether the historical action executed. Old action grounding expires. The saved role receives a fresh `recovery_current` observation and decides what to do next, using a new ID for any new action.
-- Unknown reservations become `settled_uncertain` instead of being refunded as unexecuted. Late facts are appended once without duplicating tool results, steps or charges, or reviving terminal tasks. Missing model usage also remains unknown.
-
-### Recovery states and context
-
-Successful recovery follows `recovering → queued → running` through ordinary scheduling. An unavailable device enters `waiting_for_device`; a timeout or structural problem enters `recovery_blocked`, with explicit recheck after resources are repaired. Terminal tasks stay terminal, and pause/cancellation take priority over continuation. Unknown results alone add no approval gate, read-only restriction or automatic HITL question.
-
-The recovery manifest retains the original request, active plan, summary, current notes, next role, role prompts, loaded Skill bodies, retained dialogue and HITL/user-change records. Bodies use integrity-checked references; files are atomically published before references commit. Complete DB post-state and retained manifests can reconstruct missing metadata; unrecoverable required bodies produce an explicit error. Read tools reconnect and a fresh observation replaces old action grounding. Budgets, deadlines and creation-time HITL settings remain in force; clean pause/resume still uses the original checkpoint path.
-
-### Entry points and key configuration
-
-Console displays recovery phase, blocking reason, device quarantine and recent unknown operations. MCP `resume_task` and the existing `/resume` support eligible interrupted tasks. `POST /api/tasks/{task_id}/recover` accepts a unique `request_key` and idempotently acknowledges identical requests. Acceptance means the recovery intent was persisted; query task state to verify progress. Read-only status queries invoke neither models nor device actions.
-
-| Environment variable | Default | Purpose |
-| --- | --- | --- |
-| `CLICKCLICK_TASK_RECOVERY_POLICY` | `safe_auto` | New-task policy, frozen at creation |
-| `CLICKCLICK_TASK_RECOVERY_MAX_AUTO_ATTEMPTS` | `3` | Automatic attempts per failure episode |
-| `CLICKCLICK_TASK_RECOVERY_SCAN_INTERVAL_S` | `5` | Durable scheduling scan interval |
-| `CLICKCLICK_TASK_RECOVERY_BACKOFF_S` | `[1,5,15]` | Bounded retry backoff |
-| `CLICKCLICK_TASK_RECOVERY_ATTEMPT_TIMEOUT_S` | `60` | Per-attempt recovery deadline |
-| `CLICKCLICK_TASK_RECOVERY_DEVICE_WAIT_S` | `300` | Device-wait window retained across restarts |
+<a id="persistence-and-action-ordering"></a>
+<a id="recovery-states-and-context"></a>
+<a id="entry-points-and-key-configuration"></a>
 
 ## Operational boundaries
 
-Cancellation and task limits stop further work at runtime boundaries. A receipt identifies what the device path reported; models and external evaluators determine semantic success. Recovery requires a compatible Driver, the original device and intact durable state; it does not provide transactional rollback or exactly-once business effects. MobileWorld checks cover hard exits, device failures and concurrent recovery; physical-phone disconnect/reboot and macOS input-process behavior still require separate acceptance. Deployment access and Android authorization are separate from tool validity checks.
+Models own semantic choices; runtime checks structure, references, eligibility and budgets. SQLite does not atomically commit phone effects. Observations are not strict atomic snapshots; receipts/readback alone do not establish business success. Benchmark scoring remains independent of completion reports; see [evaluation design](evaluation-design.md) for evidence conditions.
 
-## Module design guides
+<a id="module-design-guides"></a>
 
-| Module | Design and documentation | Coverage |
+<a id="hitl-evaluation"></a>
+
+## Module design documents
+
+| Capability / shared subsystem | Detailed design | Scope |
 | --- | --- | --- |
-| Task orchestration and roles | [Roles and transitions](#roles-and-transitions), [Role policy](design-decisions.md#role-policy) | Stage progression, replanning, on-demand review and completion |
-| Interruption recovery | [Recovery states, ordering and configuration](#recovery-after-an-unexpected-interruption), [Recovery trade-offs](design-decisions.md#recovery-and-execution-idempotency) | Durable execution facts, old-input isolation, unknown results and context reconstruction |
-| Memory and context | [Memory and context design](memory-and-context.md) | Notes, structured summaries, source retrieval and storage |
-| Skill management | [Skills guide](../skills/README.md), [Role-specific delivery](design-decisions.md#role-specific-skills) | Skill organization, app/device scope and role delivery |
-| Skill self-improvement | [Skill self-improvement](skill-evolution.md) | Trajectory extraction, continuous exploration, independent review, selective validation and pending artifacts |
-| Task observation | [scrcpy observation](scrcpy-observation.md), [Collector setup](accessibility-collector-setup.md) | Observation video, frame freshness, UI structure and fallback |
-| Actions and input | [Native node binding](design-decisions.md#native-node-binding), [Targeted text replacement](design-decisions.md#targeted-text-replacement) | Target validation, focus, replacement and readback |
-| Model integration | [Model routing](deployment.md#model-routing), [Prompt-cache continuity](design-decisions.md#prompt-cache-continuity) | Model configuration, role routing and request-context reuse |
-| Console and observability | [Observability design](observability.md) | Event records, timelines, model calls and artifact inspection |
-| Processes and device deployment | [Process topology](processes.md), [Deployment](deployment.md) | Local/remote Drivers, service boundaries and startup configuration |
-| Evaluation integration | [Evaluation and reproduction](evaluation.md), [AndroidWorld adapter](androidworld-benchmark.md) | Task initialization, action accounting and independent scoring |
+| Long-task orchestration | [Design](task-orchestration.md) | Stage plans, role transitions, tool sessions and budgets |
+| Context and memory | [Design](memory-and-context.md) | Role context, notes, sourced summaries, compaction and retrieval |
+| Observation/execution consistency | [Design](observation-execution-consistency.md) | Asynchronous capture, dynamic sequences, target/input checks and receipts |
+| Skill reuse | [Design](skill-delivery.md) | Catalog, app/device scope and progressive role delivery |
+| Skill self-learning | [Design](skill-evolution.md) | Extraction, independent review, selective validation and publication |
+| Bidirectional HITL | [Design](hitl-design.md) | Question continuation, reply bridging, steering and concurrency |
+| Pause and crash recovery | [Design](crash-recovery.md) | Checkpoints, T1/T2/T3, input fencing, unknowns and context restoration |
+| Observability | [Design](observability.md) | Trace relationships, Console, read-only preview and metrics |
+| Evaluation system | [Design](evaluation-design.md) | Independent scoring, adapters, controls, cost and utility |
+| Session and storage | [Design](session-storage.md) | SQLite, files, memory, version references, atomic publication and GC |
+
+Supporting modules and user guides:
+
+- Assistant access: [MCP setup/control](local-mcp.md); model routing: [deployment configuration](deployment.md#model-routing).
+- Capture connections: [scrcpy transport](scrcpy-observation.md), [Collector installation](accessibility-collector-setup.md).
+- Deployment: [process topology](processes.md), [deployment guide](deployment.md).
+- User workflows: [HITL](hitl.md), [skill authoring](../skills/README.md), [evaluation runs](evaluation.md).
+- Rationale: [design-decision index](design-decisions.md). Each detailed design links its historical evidence without maintaining a second current specification.
 
 ## Code map
 
@@ -180,8 +112,3 @@ Cancellation and task limits stop further work at runtime boundaries. A receipt 
 | Session: records and artifacts | [store.py](../agent/revisable/store.py), [db.py](../shared/db.py), [artifacts.py](../shared/artifacts.py) |
 | Console and runtime hosting | [control_api/](../control_api/), [web/](../web/) |
 | Evaluation integration | [AndroidWorld adapter](../agent/integrations/android_world.py), [evaluation guide](evaluation.md) |
-
-
-## HITL evaluation
-
-MobileWorld User-Int.: **34/44 (77.27%)**, GPT-5.6-Sol (high), Jev off. See [usage and integration](hitl.md) and [evaluation methodology and limits](mobileworld-hitl-results-20261015.md).

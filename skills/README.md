@@ -4,7 +4,7 @@
 
 Skills hold reusable knowledge about operating apps. Users still describe goals in natural language; the agent selects applicable guidance without requiring Skill IDs or a matching prompt format.
 
-This guide covers authoring, format and runtime delivery. See [Skill self-improvement](../docs/skill-evolution.md) for extraction from real tasks, independent review and validation. Learning requires an explicit research entry point and does not automatically publish candidates.
+This guide covers authoring and format; runtime rules are owned by [skill delivery](../docs/skill-delivery.md). See [Skill self-improvement](../docs/skill-evolution.md) for extraction from real tasks, independent review and validation. Learning requires an explicit research entry point and does not automatically publish candidates.
 
 <a id="when-to-add-a-skill"></a>
 ## When should you add a Skill?
@@ -36,76 +36,11 @@ There is no SQLite / DB skill store.
 
 ## Runtime delivery
 
-Planner receives compact cards for every active workflow. Task aliases and exact
-foreground identity rank those cards first; they do not hide capabilities when
-an instruction omits the App name. For each execute subgoal, Planner may select one target App and up to
-two workflow ids. Executor and Reviewer receive that App's core plus only the
-selected role-filtered bodies. Planner prefers app names/aliases; runtime resolves
-them and validates explicit package IDs before accepting a new plan and binding
-skills. Uninstalled guessed packages cannot establish the stage's skill scope.
-Foreground identity remains separate observation
-evidence, so an unrelated starting App or overlay does not replace the handoff.
-The exact observed foreground App also supplies its core, even when the target
-differs or was guessed incorrectly. This adds local control guidance without
-changing the goal or selecting foreground workflows. Departed foreground cores
-are retired from active delivery; matching target/foreground cores are deduplicated.
+Catalog cards → Planner stage selection → device/app scoping → role-specific bodies. [Skill delivery design](../docs/skill-delivery.md) owns limits, foreground core handling and compound-action permissions.
 
-Skill ids are globally unique. Duplicate active ids fail closed during loading
-instead of silently hiding a foreground workflow. Delivery is traced through
-the common active-skill metadata: id, version, content hash, scope, activation
-source, and rule categories.
+<a id="interface-ownership-and-system-compatibility"></a>
 
-### Interface ownership and system compatibility
-
-Every authored skill declares `interface_scope`:
-
-- `generic`: methods independent of a particular interface, shared across apps
-  and systems. General permission reasoning belongs here; fixed permission-page
-  sequences do not.
-- `app`: third-party app-owned behavior, shared across systems by default and
-  matched by exact package. Preinstallation does not make Chrome page content or
-  a third-party app's own controls system-specific.
-- `system`: system apps or system-owned surfaces (permission pages, document/photo
-  pickers, share sheets), even when entered from a third-party app. Requires a
-  nonempty `device_profiles` list; missing scope never enables these skills.
-
-`device_profiles` still restricts **any** category when a known exception needs
-it. App sharing means permission to reuse, not certification of every app version.
-Keep known version conditions in the body; runtime does not enforce app versions.
-Package identity alone does not transfer a skill to a clone or another package.
-Split app-owned procedures and fixed system-surface procedures into separate
-skills rather than sharing the whole mixed flow. A general instruction to inspect
-whatever dialog is actually visible need not become a system-specific recipe.
-
-Examples: `interface_scope: app` for Retro Music; `interface_scope: system` with
-`device_profiles: [androidworld_api33]` for that system's Files workflow;
-`interface_scope: generic` for search recovery. DocumentsUI core is currently
-limited to its validated API 33 environment; do not infer API 34 compatibility.
-
-Profile IDs come from `shared/app_alias_profiles.json`. Catalog, exact-ID reads,
-and role delivery use the same profile filter; unknown devices get only skills
-without profile restrictions. Device switches clear prior scoped delivery.
-Traces include interface ownership and declared/selected device profiles. Create
-and update APIs accept these fields and validate them before writing a file.
-
-For legacy files, known system-component packages default to `system`, other app
-packages to `app`, and app-independent skills to `generic`. This is not a package-
-prefix or APK-preinstalled classifier. New skills must explicitly identify their
-interface owner, especially new system components and cross-app system surfaces.
-
-Planner and Executor may load an advertised generic Skill by exact ID. Planner
-owns App workflow selection, using supplied cards rather than free-text search.
-Executor cannot replace App workflows. Referenced resources are not auto-loaded.
-
-Stages can select up to four generic/workflow IDs in total (at most two owned
-workflows). For multi-screen record lists, select `adaptive-list-traversal`
-alongside the applicable App workflow. It owns anchor-based scroll sizing and
-coverage accounting; App skills retain ordering, field comparisons and local
-controls. For visually indistinguishable, viewport-sized rows in a vertical
-single-column list, additionally select `identical-row-traversal`. Its detailed
-procedure is delivered only to Executor; Planner receives applicability and
-scope guidance. Ordinary lists and grids do not need that procedure. Mentioning
-a generic skill in an App body does not auto-load it.
+Declare `interface_scope`, provide `device_profiles` for system UI and retain known app-version conditions in prose. Separate app knowledge, workflows and system-interface procedures; exact matching rules are in the design above.
 
 ## Layout
 
@@ -202,5 +137,5 @@ verified_actions:
 ## Authoring tracks
 
 1. Hand-written teacher skills for focus apps.
-2. SkillLearner (post-task / Console “learn from this task”) → `_pending/` →
+2. Explicit SkillLearner entry (Console “Optimize my workflow”) → `_pending/` →
    human approve.

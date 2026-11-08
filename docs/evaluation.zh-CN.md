@@ -4,9 +4,9 @@
 
 可以从两条路径开始：通过 Console 验证自己的任务，或将 ClickClick 接入 AndroidWorld，使用应用状态评分。公布的 115/116 使用单独冻结的全量协议，具体条件见评测报告。
 
-## MobileWorld reproduction / MobileWorld 复现
+## MobileWorld 复现
 
-The [complete public entry](mobileworld-reproduction.md) / [中文完整运行指南](mobileworld-reproduction.zh-CN.md) freezes this evaluation configuration, runs 117 original tasks plus nine variants, and preserves results on resume. [System architecture / 系统架构](architecture.md) describes the runtime modules, structured summaries, memory/context and observations.
+[完整运行指南](mobileworld-reproduction.zh-CN.md)保存冻结配置、117 道原题与 9 道变体以及中断续跑方法。评测分层、独立评分、计量和对照原则见[评价体系详设](evaluation-design.zh-CN.md)。
 
 ## 一键全量评测
 

@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph database["SQLite task facts / Current state and versioned history"]
+        state["Current state snapshot / tasks.state_json: plan, stage and budgets / Summary, next_role and active dialogue references"]
+        records["Versioned record index / agent_records: notes, summaries and sources / steps and traces link progress, calls and events"]
+        transaction["Complete post-state commit / Atomically commit step, state, manifest, settlement / task_operations links parent_id and ordinal"]
+    end
+    subgraph files["Artifact bodies and integrity / Publish, reference and retain in order"]
+        bodies["Separate large bodies / Dialogue, model I/O, images, trees, recovery / Content hashes and refs avoid repeated copies"]
+        publication["Pin before atomic publish / Pin under lock, write temp body and fsync / Verify, rename; release pin after DB commit"]
+        retention["Reachable bodies and GC / Follow current manifests, operations and attempts / Normal actions never rescan the full history chain"]
+    end
+    subgraph runtime["Working state and device end / Working copies and durable facts"]
+        memory["Process working memory / Active sessions, skill bodies, frames and caches / Reacquire temporary state after interruption"]
+        journal["Independent Driver journal / Operation ID, digest, receipt, subaction ordinal / Deduplicate IDs; no replay after losing a body"]
+        restore["Context restoration / Rebuild roles from full DB state and manifests / Fail explicitly if required bodies cannot restore"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        referenceContract["Reference ownership / Tasks isolate records; note:key@version is exact, and file references name durable bodies"]
+        backupContract["Backup and rollback / Back up WAL-consistent DB, artifacts and journal; restoring an old DB cannot undo device effects"]
+    end
+    bodies --> publication
+    publication --> retention
+    database --> files
+    files --> runtime
+    files -->|"Write ordering: publish pinned bodies before committing database references"| database

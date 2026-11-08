@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant harness as Harness
+    participant input as Targeted input
+    participant transaction as Action / observation
+    harness->>input: replace_text target, text and O1
+    input->>input: Match attributes and resolve a unique field
+    input->>transaction: Actions and observations needed to check focus
+    transaction-->>input: Current field, focus and IME state
+    input->>input: Check same field, ancestors and unique focus
+    alt Target focus confirmed
+        input->>transaction: Clear, write and capture post-observation
+        transaction-->>input: Write receipt and current field
+        input->>input: Match field and compare readback text
+        input-->>harness: Staged result and accepted post-observation
+    else Focus unconfirmed
+        input-->>harness: Return reason without writing
+    end

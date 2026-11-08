@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant A as 角色会话 / Harness
+    participant B as HITL Broker
+    participant S as Session / DB
+    participant U as 回答入口
+    participant D as 设备
+    A->>B: ask_user，保留原调用身份
+    B->>S: 保存问题、对话与入口版本
+    B->>B: 进入 waiting_for_input，释放 worker
+    B->>U: 推送问题或提供 Console 入口
+    U->>B: 确认已呈现，不自动提交选项
+    U->>B: 用户明确回复与 response_id
+    B->>S: 核对问题、版本与幂等身份
+    S-->>B: 唯一接受结果
+    B-->>A: 作为原 tool call 的结果续接
+    A->>D: 后续 GUI 动作前刷新观测
+    D-->>A: 最新观测，沿用原预算与期限

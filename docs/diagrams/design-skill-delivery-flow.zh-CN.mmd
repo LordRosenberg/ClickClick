@@ -1,0 +1,24 @@
+flowchart TB
+    subgraph discovery["可发现的技能目录 / 文件库是正文来源"]
+        library["正式文件库 / generic · app_core · workflow 分层 / _pending 不进入普通任务活动索引"]
+        device["设备与界面过滤 / interface_scope + device_profiles / 目录、读取与交付采用同一 profile 规则"]
+        catalog["精简卡片先行 / 提供已启用 workflow 的适用条件 / 任务别名与精确前台只影响优先顺序"]
+    end
+    subgraph selection["阶段与应用作用域 / 目标身份与现场身份分开"]
+        stage["Planner 阶段选择 / 解析并验证目标应用，选择精确 ID / 总计最多 4 个，其中 workflow 最多 2 个"]
+        core["目标与前台 core / 目标 core + 精确观测到的前台 core / 离开前台撤出；不改写目标或自动选 workflow"]
+        scope["明确交付范围 / workflow 由 Planner 选择，Executor 不替换 / generic 可按精确 ID 读取，设备切换清作用域"]
+    end
+    subgraph delivery["渐进式角色交付 / 指导、资源与动作权限各自管理"]
+        roleBody["按角色投影正文 / 共享正文 + Executor notes / Decision notes 只给 Planner/Reviewer"]
+        references["按需补充资源 / 正文提及其他技能不等于加载 / references 仅在显式读取时进入上下文"]
+        recipes["受控复合配方 / 仅活动 app 技能可提供 verified_actions / 阶段目标与前台匹配；子动作保留证据"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        deliveryRecord["可核对的交付身份 / ID、版本、正文 hash、角色投影 hash、作用域和来源分别记录"]
+        knowledgeBoundary["知识与执行边界 / 正文指导不构成用户授权；加载不等于采用；不提供任意脚本或临时动作序列"]
+    end
+    library --> device
+    device --> catalog
+    discovery --> selection
+    selection --> delivery

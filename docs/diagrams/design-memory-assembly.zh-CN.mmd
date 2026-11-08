@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph records["事实与工作记忆 / 各自拥有持久来源"]
+        raw["原始执行记录 / 对话、工具结果、观测与回执 / 完整原文和图片保留为来源"]
+        notes["版本笔记 / note_key + version；正文保留旧版 / retained 摘录与 unresolved 独立维护"]
+        facts["当前任务状态 / 原需求、用户变更、有效计划与预算 / 不由历史摘要代替或改写"]
+    end
+    subgraph compaction["结构化压缩 / 有界生成、校验后提交"]
+        trigger["选择压缩范围 / 默认历史阈值 16k 估算 token / 最近两个完整步骤与回执保留原文"]
+        summary["来源摘要 / results · decisions_and_attempts / critical_context；目标 3k、上限 4k 字符"]
+        admit["校验与提交 / 检查结构、长度与来源；Jev 可选 / 故障或覆盖不足保留未验证标记"]
+    end
+    subgraph assembly["角色上下文投影 / 原状态与历史按需组合"]
+        restore["独立恢复当前状态 / 原需求、计划、预算、笔记与 Skills / 摘要不能删除或改写这些内容"]
+        project["组装当前决策 / 摘要 + 近期原文 + 最新观测 / 按角色选择完整条目并报告省略"]
+        recall["按来源回查 / summary_source 与 read_history / 已知版本直接读取，截断结果可续读"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        noteContract["笔记版本与可逆去重 / 仅当 note 版本和 retained 全文精确相同才隐藏摘要副本；存储不删除"]
+        sourceContract["来源与验证边界 / 引用追到原始记录；旧摘要不能自证。Jev 默认 off，不保证摘要无误"]
+    end
+    trigger --> summary
+    summary --> admit
+    restore --> project
+    project -->|"需要细节"| recall
+    records --> compaction
+    compaction --> assembly
+    records -->|"原任务、计划与版本笔记独立注入，不经摘要改写"| assembly
+    assembly -->|"summary_source / read_history：按原始来源取回缺失细节"| records

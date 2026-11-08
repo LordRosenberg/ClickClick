@@ -1,0 +1,81 @@
+sequenceDiagram
+    participant M as Model
+    participant H as Harness / Recovery
+    participant S as SQLite / Session
+    participant D as Driver / journal
+    participant P as Android
+    Note over M,P: 01 Normal persistence reference: an interruption executes only the prefix ending at A/B/C/D. Without interruption, continue directly to the next round and skip recovery below.
+    H->>M: Assemble original-role context and request inference
+    Note over M,S: A: waiting for inference or T1 not committed. This action has no durable dispatch intent and must not have entered Driver.
+    M-->>H: Return a normalized action call
+    H->>S: T1: save decision, state, notes, intent and reservation
+    S-->>H: Commit before allowing dispatch
+    Note over H,D: B: T1 committed, T2 absent. Dispatch may be unstarted, running, or finished without a saved receipt; never retry on intent alone.
+    H->>D: Dispatch operation ID, argument digest and fence
+    D->>D: Journal acceptance, deduplication and child stages
+    D->>P: Execute device input
+    P-->>D: Device-path result
+    D-->>H: Journal retains result; return original receipt
+    H->>S: T2: persist original receipt
+    Note over H,D: C: T2 saved, T3 absent. Execution facts are known, but post-observation or the complete step may be unfinished.
+    H->>D: Acquire post-observation
+    D-->>H: Return observation or diagnostics
+    H->>S: T3: atomic step, full post-state, manifest and settlement
+    S-->>H: Commit; allow next round
+    Note over H,S: D: T3 committed. The full step and settlement are durable; do not repeat execution or accounting.
+    Note over M,P: 02 Interrupted tasks only. H is a logical lifeline: old execution handles cleanup, then takeover installs a new owner. Old execution cannot advance after takeover.
+    alt Caught infrastructure exception
+        H->>S: Persist reason and recovering; retain committed facts
+        H->>D: Leave execution; attempt endpoint/input cleanup
+    else Ordered backend shutdown
+        H->>S: Retire old owner: increment epoch, clear token, recovering
+        H->>D: Close old endpoint within a time bound
+        H->>H: Cancel old running handle
+    else Hard kill, crash or power loss
+        Note over H,D: Handlers/finalizers may never run. Use earlier durable data, journal and bodies; never assume a final save.
+        H->>S: Restart under local exclusive lock; scan stale status and operations
+    end
+    Note over H,D: 03 Entry: the scanner skips live running handles. safe_auto may enter automatically, manual needs an explicit request, disabled never continues.
+    H->>D: Check original device availability and identity
+    D-->>H: Return resource facts
+    H->>S: Claim exclusive ownership: new epoch, worker_token and device_fence
+    Note over H,D: Missing device: waiting_for_device. Wait expired or identity mismatch: recovery_blocked. Return from this recovery attempt here.
+    H->>D: Fence/drain: reject old input and reap old input children
+    D-->>H: Return quiescence proof or isolation reason
+    Note over H,D: Without quiescence proof, retain quarantine, record recovery_blocked and return. Only successful isolation permits reconciliation.
+    H->>S: Read manifest, full state, body refs and operations
+    S-->>H: Latest post-state or later T1 state, plus durable facts
+    Note over H,D: Verify state and required bodies. Unrecoverable bodies: failed; other repairable structural errors: blocked. Return now, with bounded rechecks only after repair.
+    Note over H,D: 04 Reconcile by cut point: A/B/C/D below are alternatives matching 01. Pixels do not establish historical execution.
+    alt A: T1 not committed
+        H->>H: Use latest recoverable state; discard unfinished reasoning
+    else B: T1 intent without T2 receipt
+        H->>D: Bounded lookup of original operation receipt and child facts
+        alt Reliable original receipt found
+            D-->>H: Return original execution result
+            H->>S: Append receipt; close original attempt from known facts
+        else No reliable result or lookup fails
+            D-->>H: Outcome remains uncertain
+            H->>S: Record unknown; settle reservation as uncertain; no replay or tail resume
+        end
+    else C: T2 receipt without T3 step
+        H->>S: Adopt saved receipt; close step/accounting without replay
+    else D: T3 committed
+        H->>H: Use full post-state; no duplicate step or settlement
+    end
+    H->>S: Save closed state/manifest; keep history, budgets and deadline
+    Note over H,D: 05 Restore original role, plan, notes, prompts, dialogue and skills. Reconnect read tools and clear stale grounding.
+    alt Cancelled, terminal or pause requested
+        H->>S: Honor controls; prepare safe pause checkpoint without inference
+    else Continuation allowed
+        H->>D: Acquire current observation: recovery_current
+        D-->>H: Current view, not the original causal post-observation
+        H->>S: Recheck current controls; persist queued and manifest
+        S-->>H: Return to ordinary scheduling; changed controls stop continuation
+        H->>M: Original-role context, current view and prior known/unknown facts
+        Note over M,S: Late old-model replies cannot advance the new owner. Retain recorded requests/consumption and cumulative budgets.
+        M-->>H: Make a new decision from current state
+        H->>S: New action: new T1, new operation ID and reservation
+        H->>D: Dispatch only after the new T1 commits
+        Note over H,P: Rejoin the normal chain: Driver execution, T2 receipt, post-observation, T3 full commit. Never replay the old operation ID.
+    end

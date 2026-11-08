@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant harness as Harness
+    participant collector as Collector
+    participant android as Android 节点
+    harness->>collector: node_click 私有句柄
+    collector->>collector: 消费句柄，禁止重复使用
+    collector->>android: refresh 原节点一次
+    android-->>collector: 当前节点属性
+    collector->>collector: 复核身份、可见性与可点击状态
+    alt 节点有效且属性匹配
+        collector->>android: performAction ACTION_CLICK
+        android-->>collector: 返回值或异常
+        collector-->>harness: 节点结果与执行记录
+    else 目标失效或不可操作
+        collector-->>harness: 返回原因，不回退旧坐标
+    end

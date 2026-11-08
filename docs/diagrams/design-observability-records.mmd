@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph facts["Execution facts / Preserve distinct call identities"]
+        calls["Role and model calls / Role invocation, model round and tool call / Retain actual input, returned content and usage"]
+        effects["Action and receipt facts / Operation IDs, child actions and receipts / Separate dispatch, effects, input steps and faults"]
+        observations["Observation evidence / Observation ID, capture identity and artifacts / Capture source, age and degradation stay explicit"]
+    end
+    subgraph queries["Storage and query joins / Small indexes, on-demand bodies"]
+        storage["Record and body storage / SQLite: tasks, versions and trace / Load model I/O, images and trees by ref"]
+        joins["Join by invocation identity / Query the exact call and related evidence / Shared action position does not mean shared context"]
+        events["Events and live publication / SSE supplies saved and subsequent events / Lazy bodies; connections do not replace storage"]
+    end
+    subgraph views["Read-only views and analysis / Viewing never controls execution"]
+        details["Task and call inspection / Inspect selected role input, output, tools, views / Show exact delivered skill identity and version"]
+        preview["Preview and model events / Reuse published frames; label retained images / No second lease, additional capture or input"]
+        metrics["Separate metric units / Wall clock, role time and model latency differ / Calls, tools, submissions and subactions differ"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        traceContract["Cross-layer evidence / Link task, invocation, model/tool call, operation, observation and artifact by identity"]
+        measurementContract["Measurement limits / Missing usage is not zero; estimates are not bills and runtime completion is not business correctness"]
+    end
+    storage --> joins
+    joins --> events
+    facts --> queries
+    queries --> views
+    views -->|"Read-only inspection: expand exact bodies, images and model inputs"| queries

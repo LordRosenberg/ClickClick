@@ -65,7 +65,7 @@ This route uses login tokens rather than the API-key/base-URL fields above. `CLI
 
 ## Local device deployment
 
-The agent harness defaults to `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`: two roles with explicit on-demand review. `plan_reviewer` requires final review. Keep the default unless you are deliberately comparing policies. Context tuning is part of the harness and is documented separately in [design decisions](design-decisions.md#context-budget).
+The agent harness defaults to `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`: two roles with explicit on-demand review. `plan_reviewer` requires final review. Role protocol is in [orchestration](task-orchestration.md); history and complete-request capacity are in [context configuration](memory-and-context.md#main-configuration).
 
 For a device attached to the API host:
 

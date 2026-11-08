@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="870" viewBox="0 0 1200 870" role="img" aria-labelledby="title desc">
+<title id="title">异常恢复状态与资源等待</title><desc id="desc">上方为恢复主流程，中间为资源分支，下方为控制与终止。返回路径用条件和目标状态标注，完整保留状态转换。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="870" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449" text-anchor="start">异常恢复状态与资源等待</text>
+<text x="40" y="91" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#365D84" text-anchor="start">恢复主流程</text>
+<g data-node="running" data-label="running / 普通任务执行"><rect x="40" y="110" width="320" height="112" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="58" y="138" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">running</text>
+<text x="58" y="165" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">普通任务执行</text>
+</g>
+<g data-node="recovering" data-label="recovering / 隔离、核对与上下文恢复"><rect x="440" y="110" width="320" height="112" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="458" y="138" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">recovering</text>
+<text x="458" y="165" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">隔离、核对与上下文恢复</text>
+</g>
+<g data-node="queued" data-label="queued / 交回普通调度"><rect x="840" y="110" width="320" height="112" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="858" y="138" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">queued</text>
+<text x="858" y="165" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">交回普通调度</text>
+</g>
+<g data-from="running" data-to="recovering" data-label="中断">
+<path d="M360 166H440" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="400" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="middle">中断</text>
+</g>
+<g data-from="recovering" data-to="queued" data-label="就绪">
+<path d="M760 166H840" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="800" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="middle">就绪</text>
+</g>
+<g data-from="queued" data-to="running" data-label="正常调度">
+<text x="840" y="257" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">正常调度 → running</text>
+</g>
+<rect x="40" y="300" width="1120" height="320" rx="8" fill="white" stroke="#BDCFDF" stroke-width="1.2"/><path d="M48 300H1152Q1160 300 1160 308V366H40V308Q40 300 48 300Z" fill="#EEF7F4"/>
+<text x="62" y="328" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84" text-anchor="start">资源等待与有界重查</text>
+<text x="62" y="352" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">以下分支从 recovering 进入，后续条件直接标明目标状态</text>
+<path d="M64 496H1136" stroke="#DCE5ED" stroke-width="1"/>
+<g data-from="recovering" data-to="waiting" data-label="设备不可用">
+<text x="64" y="427" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">设备不可用</text>
+<path d="M354 438H430" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/></g>
+<g data-node="waiting" data-label="waiting_for_device / 原设备暂不可用"><rect x="430" y="390" width="340" height="96" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="448" y="418" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">waiting_for_device</text>
+<text x="448" y="445" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">原设备暂不可用</text>
+</g>
+<g data-from="waiting" data-to="recovering" data-label="设备恢复">
+<text x="810" y="420" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">设备恢复 → recovering</text>
+</g>
+<g data-from="waiting" data-to="blocked" data-label="等待到期">
+<text x="810" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">等待到期 → recovery_blocked</text>
+</g>
+<g data-from="recovering" data-to="blocked" data-label="资源或结构条件未就绪">
+<text x="64" y="547" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">资源或结构条件未就绪</text>
+<path d="M354 558H430" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/></g>
+<g data-node="blocked" data-label="recovery_blocked / 需修复资源或结构条件"><rect x="430" y="510" width="340" height="96" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="448" y="538" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">recovery_blocked</text>
+<text x="448" y="565" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">需修复资源或结构条件</text>
+</g>
+<g data-from="blocked" data-to="recovering" data-label="修复后有界重查">
+<text x="810" y="540" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">修复后有界重查 → recovering</text>
+</g>
+<text x="40" y="673" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#365D84" text-anchor="start">控制与终止</text>
+<g data-from="recovering" data-to="paused" data-label="收到暂停">
+<g data-node="paused" data-label="paused / 暂停优先，机械收尾后保持"><rect x="40" y="695" width="540" height="134" rx="8" fill="white" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="64" y="731" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#365D84" text-anchor="start">收到暂停 → paused</text>
+<text x="64" y="771" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">暂停优先，机械收尾后保持</text>
+</g></g>
+<g data-from="recovering" data-to="terminal" data-label="取消／必需正文不可恢复">
+<g data-node="terminal" data-label="终态 / 取消或明确不可恢复失败"><rect x="620" y="695" width="540" height="134" rx="8" fill="white" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="644" y="731" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#365D84" text-anchor="start">取消／必需正文不可恢复 → 终态</text>
+<text x="644" y="771" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">取消或明确不可恢复失败</text>
+</g></g>
+</svg>

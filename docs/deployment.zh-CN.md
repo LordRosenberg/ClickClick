@@ -66,7 +66,7 @@ python -m shared.chatgpt_login
 
 ## 本地设备部署
 
-Agent Harness 默认 `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`，即两角色加显式按需审核。`plan_reviewer` 要求最终审核。除非刻意比较策略，否则保留默认值。上下文调优属于 Harness，详见[设计取舍](design-decisions.zh-CN.md#context-budget)。
+Agent Harness 默认 `CLICKCLICK_AGENT_ARCHITECTURE=plan_executor`，即两角色加显式按需审核。`plan_reviewer` 要求最终审核。角色协议见[编排详设](task-orchestration.zh-CN.md)，历史预算与完整请求容量见[上下文配置](memory-and-context.zh-CN.md#主要配置)。
 
 设备连接到 API 主机时：
 

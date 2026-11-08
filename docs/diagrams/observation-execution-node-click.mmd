@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant harness as Harness
+    participant collector as Collector
+    participant android as Android node
+    harness->>collector: node_click with private handle
+    collector->>collector: Consume the single-use handle
+    collector->>android: Refresh the original node once
+    android-->>collector: Current node attributes
+    collector->>collector: Check identity, visibility and click support
+    alt Valid node and matching attributes
+        collector->>android: performAction ACTION_CLICK
+        android-->>collector: Return value or exception
+        collector-->>harness: Node result and execution record
+    else Obsolete or unavailable target
+        collector-->>harness: Return reason, no old-coordinate fallback
+    end

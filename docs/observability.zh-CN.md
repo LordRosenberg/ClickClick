@@ -4,6 +4,18 @@
 
 可观测性覆盖每个 ClickClick 任务，包括自定义应用工作流。它将模型收到和返回的内容与后续工具、设备操作及观测关联起来。AndroidWorld 等基准提供外部正确性检查，不是这些记录能力的来源。
 
+## 设计图解
+
+<!-- design-diagram:observability-records -->
+
+![可观测性：调用身份、证据索引与只读投影](assets/design-observability-records.zh-CN.svg)
+
+执行事实和大正文分别保存，查询按稳定身份关联角色、模型、工具与观测；Console 展示的是记录投影，预览复用已发布画面。
+
+[Mermaid 源码](diagrams/design-observability-records.zh-CN.mmd)
+
+<!-- /design-diagram:observability-records -->
+
 ## 从执行到 Console
 
 1. 运行时和模型网关生成角色调用、模型轮次、工具、动作及观测记录，通过稳定引用关联任务与对应调用或动作位置。
@@ -12,6 +24,12 @@
 4. Console 展示规范化角色调用及其中的模型／工具轮次。选中调用时展示其决策与观测，不借用同一设备动作位置上其他角色的内容。
 
 来源：[轨迹写入](../agent/traces.py)、[任务存储](../agent/revisable/store.py)、[查询与指标](../control_api/services.py)、[API 与 SSE](../control_api/main.py)、[调用展示](../web/src/components/AgentCallsBlock.tsx)、[所选调用检查](../web/src/components/StepInspector.tsx)。
+
+## 记录身份与查询边界
+
+任务、角色调用、模型轮次、工具调用、动作 operation 和观测使用各自身份与引用关联，不根据同一动作序号混用不同角色的输入。时间线是查询投影，大型正文和图片按需从产物读取，SSE 用于实时呈现而不取代持久记录。存储与发布协议见[Session 详设](session-storage.zh-CN.md)。
+
+模型返回的正文、公开思考摘要与工具参数分别展示，不重建隐藏内部推理。任务详情查看已保存证据；预览使用活跃任务已发布帧，缺帧和保留帧有明确状态。只读展示断开或慢读不参与调度与设备输入。独立评分和对照原则见[评价体系](evaluation-design.zh-CN.md)。
 
 ## 检查一次运行
 

@@ -1,0 +1,30 @@
+flowchart TB
+    subgraph planning["Rolling planning and review / One current stage; tentative roadmap"]
+        planner["Planner / Own global constraints and tentative roadmap / Refine one current stage from observed feedback"]
+        stage["Rolling plan / current_stage: one outcome / assumption_roadmap: tentative / No future-stage permission"]
+        reviewer["On-demand Reviewer / Planner/Executor may request independent review / Return to execute, replan or a task verdict"]
+    end
+    subgraph execution["Executor session / Continue within a valid stage"]
+        context["Decision context / Task, stage, budgets, memory and skills / Fresh observations ground GUI actions"]
+        session["Gateway and role session / Routing, protocol, usage / Messages, tools and call identity / Not the durable task Session"]
+        decision["Typed decisions / act; advance/replan return to Planner / finish seeks a verdict; review requests checking"]
+    end
+    subgraph runtime["Runtime and device / Record facts and return feedback"]
+        validate["Submission checks / Schema, stage and observation references / Check budgets and invocation eligibility"]
+        dispatch["Dispatch and receipt / Driver accepts input and returns original receipt / Capture post-view and retain actual effects"]
+        commit["Commit execution state / Retain plan, notes, history and next_role / Continue Executor or return to planning"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        identity["Invocation eligibility / Instruction revision, generation and invocation ID fence obsolete calls"]
+        budgets["Budgets and completion / Replanning retains consumption; receipts, runtime verdicts and business truth differ"]
+    end
+    planner --> stage
+    stage -->|"On demand"| reviewer
+    decision -->|"review"| reviewer
+    context --> session
+    session --> decision
+    validate --> dispatch
+    dispatch --> commit
+    planning --> execution
+    execution --> runtime
+    runtime -->|"advance / replan / finish: return facts to Planner"| planning

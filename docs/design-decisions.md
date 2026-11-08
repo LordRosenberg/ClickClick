@@ -2,86 +2,58 @@
 
 [README](../README.md) · [中文](design-decisions.zh-CN.md) · [Architecture](architecture.md) · [Technical overview](reliability-design.md)
 
-ClickClick assigns semantic choices to models and mechanical checks to the harness. The following decisions explain how that division affects reliability, latency and extensibility.
+This rationale index records why choices were made. Detailed mechanisms and configuration have one owning design linked from each section; dated experiments remain separate.
 
 ## Role policy
 
-**Default: Planner + Executor, with Reviewer on demand.** Planner owns stage goals; Executor owns local interaction. Either can request independent review for a concrete conflict. Mandatory final review remains available through `plan_reviewer`.
-
-Routine execution already produces new observations and feedback. Reviewing every stage adds calls without necessarily adding useful evidence. A [paired task study](runtime-study.md) found no consistent accuracy advantage for mandatory review, supporting the simpler default. On-demand review depends on model judgment; repeated requests with unchanged state are rejected to limit unproductive loops.
+Two roles with on-demand independent review avoid fixed review overhead while retaining escalation for disputes. Protocol: [orchestration](task-orchestration.md). Historical matched controls: [runtime study](runtime-study.md).
 
 ## Context budget
 
-**Default Executor history threshold: 16,000 estimated tokens.** This is a soft history-compaction trigger, separate from the model's context window and the total request size.
+Bounded history reduces per-round input; sources and retrieval preserve evidence beyond summaries. Larger windows can increase cumulative input. Current budgets: [memory design](memory-and-context.md). Historical comparisons: [study](runtime-study.md).
 
-Compaction groups complete execution steps and retains the newest two in full. A structured summary separates results, decisions/attempts and critical context, with per-item source references. Original artifacts and note versions remain in Session. Versioned retained-note excerpts, current state and unresolved questions are restored independently of the summary. Exact note-version/text matches permit reversible display deduplication; omissions never erase the original records. See [memory and context](memory-and-context.md).
+<a id="jev-summary-checking-original-assertion-spans-and-one-correction"></a>
 
-In four matched valid task pairs, increasing the threshold to 24k reduced compression calls from 19 to 12 and worker time by 8.1%, while total model calls stayed at 146 and estimated cumulative text input increased by 17.3%. This trade-off supports a conservative default; the [study](runtime-study.md) provides conditions and limitations.
+## Optional Jev summary checks
 
-A model-specific override can be added to its existing configuration:
-
-```json
-"context": {
-  "executor": {"history_tokens": 24000}
-}
-```
-
-`context.max_input_tokens` optionally bounds the estimated complete request. Image estimates can differ from provider accounting.
+Optional text checks can reject unfaithful summaries at additional latency and limited coverage. Current admission, degradation and caching: [memory design](memory-and-context.md#jev-text-fidelity-isolated-experiment). Environment-specific calibration/results: [historical experiments](memory-context-experiments.md).
 
 ## Prompt-cache continuity
 
-Historical messages and image blocks remain stable within the active budget. Repeatedly rewriting earlier context may reduce nominal input while losing reusable cached prefixes. History compaction remains bounded; optimization considers uncached input, cached input, output and additional calls together.
+Stable prefixes and retained messages support cache reuse. Rewriting older context may reduce text but increase uncached input. Compare cache, output and extra calls together; see [context layout](memory-and-context.md) and [measurement](observability.md).
 
 ## scrcpy, Collector and Python
 
-**scrcpy supplies pixels, Collector supplies structure, and ADB supplies fallback pixels.** The scrcpy stream serves task observation only; Console details display saved screenshots; read-only task preview reuses already published frames without acquiring or resetting that source. Accessibility data adds indexed controls, windows and interaction evidence.
-
-Acquisition checks request freshness and window state, with a bounded quiet interval and resampling. Content updates remain diagnostic rather than automatically forcing another tree traversal. This allows animated pages to remain observable. A missing tree can still yield usable image evidence when window checks pass.
-
-`snapshot` observes current state; `sequence` observes change over time; `detail` acquires a fresh native frame for a selected crop or four overlapping reading tiles. Detail attachments carry observation identity and native geometry, but actions continue to reference the fresh global view. `sleep` waits for a required duration, such as recording length, and the next decision receives a fresh observation. The validated decoding stack uses Python 3.12 and PyAV 14.0.1. See [Collector setup](accessibility-collector-setup.md) for provisioning and diagnostics.
+Separate pixels/structure reduce duplicate device work. Bounded window checks and recapture balance consistency with dynamic-page availability. Methods: [consistency design](observation-execution-consistency.md). Installation/diagnostics: [transport](scrcpy-observation.md).
 
 ## Targeted text replacement
 
-**Focus and replacement are combined only for a supported, identifiable field.** The model supplies a target and text; the harness establishes focus, verifies field identity, clears/types and checks readback. Ambiguous, password and unsupported controls do not receive the same path.
-
-This reduces model round trips while retaining input feedback. Partial execution reports the operations already performed. Readback establishes the field value; an app save still requires its own evidence.
+Combining focus, replacement and readback for supported fields reduces model round trips. Ambiguous/unsupported controls remain outside this path, and readback does not prove saving. See [targeted input](observation-execution-consistency.md#targeted-text-replacement-and-focus-consistency).
 
 ## Native node binding
 
-Supported local indexed taps preserve a reference to the observed Android node. A bounded refresh checks identity and clickability before one native action. Changed bounds can be accepted without selecting a different object at an old coordinate. An invalid or uncertain native result does not automatically retry or fall back to coordinates.
-
-This path applies to compatible Collector nodes and the in-process driver. Coordinate actions, compound helper taps and unsupported transports retain their existing paths. The [native-node technical report](native-node-click-20260920.md) specifies the identity checks and device validation.
+Retained nodes and attribute checks tolerate small layout shifts without automatic coordinate fallback after uncertain outcomes. Scope/order: [node binding](observation-execution-consistency.md#native-node-binding-and-attribute-checks). Device evidence: [technical report](native-node-click-20260920.md).
 
 ## Role-specific skills
 
-**App core, workflow and generic knowledge are maintained separately.** Device profiles and stage selection determine applicability; explicit role sections determine delivery. ID, version and content checks make the selected guidance auditable.
-
-Supported app skills may authorize closed compound recipes. An inspect-and-return operation keeps intermediate evidence, while the returned screen becomes the action basis. This reduces repeated model handoffs but expands the action space: submitted units and physical subactions must be counted separately. The interface deliberately excludes arbitrary scripts and model-generated sequences. See [skill authoring](../skills/README.md).
-
-Multi-app learning separates files by knowledge ownership and selects necessary checks in one frozen overlay. Local validity is reviewed per file: whole-task failure does not refute independently supported knowledge, while failed dependencies and known regression block affected candidates. Approval rechecks exact body, base-library and runtime bindings. Full records remain accessible by source reference instead of repeatedly entering review context. See [Skill self-improvement](skill-evolution.md).
+Catalog-first selection and role projection reduce unrelated bodies, but delivery and adoption still require separate checks. File knowledge is not execution permission. See [delivery](skill-delivery.md) and [self-learning](skill-evolution.md).
 
 ## Budgets and metrics
 
-An over-budget device action retains its original rejection feedback, so the model can still report established results or finish through the normal protocol without dispatching an extra action. Ordinary tasks default to 200 Executor decisions and 1,000 model requests; explicit task limits take precedence. Budget exhaustion keeps the failed verdict and a safe checkpoint for explicit cumulative renewal, preserving prior attempts and usage. The reported AndroidWorld experiment uses complexity-derived action and model-call limits plus a 900-second deadline. Compression counts toward model calls; non-action stage handoffs do not count as device actions.
+Cumulative limits bound execution; explicit extensions retain failed attempts. Roles, requests, submitted actions and physical subactions remain distinct. Limits: [orchestration](task-orchestration.md). Measurement/scoring: [evaluation](evaluation-design.md).
 
-Report elapsed time, provider calls, submitted actions, physical subactions and token/cache usage separately. The [evaluation report](androidworld-results-20260921.md) defines the benchmark action space. Missing provider usage remains unavailable; estimated input volume is not a monetary bill.
+## Retired text-tree experiments
+
+Reader-specific and other unadopted representations remain historical experiments rather than current capabilities or configuration switches. Original outcomes and rollback decisions are in the [memory experiment record](memory-context-experiments.md#reader-and-text-tree-experiments).
 
 ## HITL questions and active intervention
 
-HITL is frozen at task creation: assistant-guided first installations default on, other installations off, and saved choices take precedence. Models use `ask_user` for necessary questions; users can independently send task changes through `steer_task`. Original intent and ordered updates remain recorded, Planner interprets current intent, and disabled tasks retain the original model input and scheduling path.
-
-**Separate plan revision from execution eligibility.** Changes are persisted before reception is acknowledged. Undispatched obsolete invocations lose eligibility; instruction revisions and execution generations prevent late replies from committing plans, actions or completion. Already dispatched actions record actual results and are not automatically reversed. Planner can retain a valid stage and Executor history. Material choices use existing question handling, paused tasks stay paused, and completed-task changes create linked follow-ups.
-
-**Retain facts and consumption.** Changes do not clear receipts, budgets or earlier outcomes. Exhaustion stays failed, with explicit budget extension from a safe checkpoint and immutable earlier attempts; benchmark episodes and recorded scores are not rewritten. Models own semantic choices while the runtime checks identity, invocation eligibility and dispatch order.
+Models retain intent judgment while runtime handles durable waits and concurrent eligibility. Changes do not undo executed effects. See [HITL design](hitl-design.md) for reply ownership, late responses and replanning.
 
 ## Generic assistant screen preview
 
-The task preview reuses local Android frames and existing model events instead of creating another device-capture or input path. Hosts select their own browser from returned preview/details links and reuse pages by task ID. Read-only viewing is independent of execution; disconnects, slow readers and missing frames do not change task outcomes. The UI labels frame age and retained images, while task details keeps full outputs and saved evidence. See [usage](hitl.md).
+Browser presentation is decoupled from execution and reuses existing frames without a second capture/input path. Host presentation capabilities do not control backend execution; see [observability](observability.md).
 
 ## Recovery and execution idempotency
 
-**Persist intent, execution facts and task state without treating a database transaction as a device transaction.** T1 records the decision and budget reservation before dispatch; an independent Driver journal deduplicates operation IDs, T2 retains the original receipt, and T3 atomically commits the step and complete post-state. This distinguishes undispatched, known and unknown operations while preventing lost committed state or repeated accounting. ADB side effects still cannot atomically commit with SQLite.
-
-**Let the model interpret unknown results using current state.** Takeover isolates old workers and input processes. If no reliable receipt is found, recovery closes the original call as unknown, restores its role, notes, plan and tool dialogue, then captures a fresh observation. Runtime does not infer historical execution from screenshots or automatically replay a call. A model-chosen repeat is a new decision with a new ID. Unknown alone enables no approval gate, read-only mode or HITL switch.
-
-**Separate crash recovery from a clean pause.** A pause resumes from a safe checkpoint; crash recovery first handles unresolved dispatch and the old input chain, then returns to ordinary scheduling. Cumulative budgets and deadlines survive, late receipts do not duplicate steps or charges, and cancellation/terminal state take priority. Blocking is limited to structural requirements such as device identity, ownership and required context integrity, with bounded rechecks when device or authorization resources recover. See [states and configuration](architecture.md#recovery-after-an-unexpected-interruption).
+Transactions retain intent, receipts and complete state; Driver IDs deduplicate execution. SQLite commit is not an atomic phone-effect commit. Unknowns return to the original role with fresh observations rather than guessed replay; see [recovery](crash-recovery.md).

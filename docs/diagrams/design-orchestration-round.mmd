@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant P as Planner
+    participant E as Executor
+    participant H as Harness / Session
+    participant D as Device tools
+    Note over P,D: Rolling refinement: keep global requirements and a tentative roadmap; concretize only the current stage and choose actions from observations.
+    P->>H: Save one current_stage and optional assumption_roadmap
+    H->>E: Stage, skills, memory, observation and tentative roadmap
+    Note over E,D: The roadmap explains dependencies, not future-action permission. Executor may change local routes while the stage goal remains valid.
+    E->>H: Submit act with current observation ID
+    H->>D: Dispatch after validation
+    D-->>H: Return receipt and post-observation
+    H->>H: Commit step, state and consumption
+    H-->>E: Provide feedback; continue stage
+    alt Stage complete with remaining work: rolling refinement
+    E->>H: advance with completed stage_id
+    H->>P: Actual results, current observation and cross-stage notes
+    P->>H: Check future assumptions; refine next stage; revision +1
+    H->>E: Supply new stage; retain useful history and consumption
+    else Invalid premise or stage scope: online replanning
+    E->>H: replan with concrete mismatch and evidence
+    H->>P: Invalid premise and still-valid progress
+    P->>H: Revise affected stage, order or roadmap assumptions
+    H->>E: Supply revised stage; continue the existing task
+    else Task completion requested
+    E->>H: finish; request task verdict
+    H->>P: Request task-level judgment
+    P->>H: complete or request review
+    end

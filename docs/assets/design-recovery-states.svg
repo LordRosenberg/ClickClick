@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="870" viewBox="0 0 1200 870" role="img" aria-labelledby="title desc">
+<title id="title">Crash recovery states and resource waits</title><desc id="desc">Main recovery flow above, resource branches in the middle, control and termination below. Return paths use condition and destination labels; all transitions are retained.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="870" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449" text-anchor="start">Crash recovery states and resource waits</text>
+<text x="40" y="91" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#365D84" text-anchor="start">Main recovery flow</text>
+<g data-node="running" data-label="running / Ordinary task execution"><rect x="40" y="110" width="320" height="112" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="58" y="138" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">running</text>
+<text x="58" y="165" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Ordinary task execution</text>
+</g>
+<g data-node="recovering" data-label="recovering / Fence, reconcile, restore"><rect x="440" y="110" width="320" height="112" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="458" y="138" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">recovering</text>
+<text x="458" y="165" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Fence, reconcile, restore</text>
+</g>
+<g data-node="queued" data-label="queued / Return to normal scheduling"><rect x="840" y="110" width="320" height="112" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="858" y="138" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">queued</text>
+<text x="858" y="165" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Return to normal scheduling</text>
+</g>
+<g data-from="running" data-to="recovering" data-label="Fault">
+<path d="M360 166H440" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="400" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="middle">Fault</text>
+</g>
+<g data-from="recovering" data-to="queued" data-label="Ready">
+<path d="M760 166H840" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="800" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="middle">Ready</text>
+</g>
+<g data-from="queued" data-to="running" data-label="Normal scheduling">
+<text x="840" y="257" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">Normal scheduling → running</text>
+</g>
+<rect x="40" y="300" width="1120" height="320" rx="8" fill="white" stroke="#BDCFDF" stroke-width="1.2"/><path d="M48 300H1152Q1160 300 1160 308V366H40V308Q40 300 48 300Z" fill="#EEF7F4"/>
+<text x="62" y="328" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84" text-anchor="start">Resource waits and bounded rechecks</text>
+<text x="62" y="352" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">Branches enter from recovering; follow-up conditions name their destination state</text>
+<path d="M64 496H1136" stroke="#DCE5ED" stroke-width="1"/>
+<g data-from="recovering" data-to="waiting" data-label="Device unavailable">
+<text x="64" y="427" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Device unavailable</text>
+<path d="M354 438H430" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/></g>
+<g data-node="waiting" data-label="waiting_for_device / Original device unavailable"><rect x="430" y="390" width="340" height="96" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="448" y="418" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">waiting_for_device</text>
+<text x="448" y="445" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Original device unavailable</text>
+</g>
+<g data-from="waiting" data-to="recovering" data-label="Device available">
+<text x="810" y="420" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">Device available → recovering</text>
+</g>
+<g data-from="waiting" data-to="blocked" data-label="Wait expires">
+<text x="810" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">Wait expires → recovery_blocked</text>
+</g>
+<g data-from="recovering" data-to="blocked" data-label="Resource or structural issue">
+<text x="64" y="547" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Resource or structural issue</text>
+<path d="M354 558H430" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/></g>
+<g data-node="blocked" data-label="recovery_blocked / Repair resource or structure"><rect x="430" y="510" width="340" height="96" rx="7" fill="#EDF3FA" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="448" y="538" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449" text-anchor="start">recovery_blocked</text>
+<text x="448" y="565" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Repair resource or structure</text>
+</g>
+<g data-from="blocked" data-to="recovering" data-label="Bounded recheck after repair">
+<text x="810" y="540" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">Bounded recheck after repair →</text>
+<text x="810" y="562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start">recovering</text>
+</g>
+<text x="40" y="673" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#365D84" text-anchor="start">Control and termination</text>
+<g data-from="recovering" data-to="paused" data-label="Pause requested">
+<g data-node="paused" data-label="paused / Pause wins after cleanup"><rect x="40" y="695" width="540" height="134" rx="8" fill="white" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="64" y="731" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#365D84" text-anchor="start">Pause requested → paused</text>
+<text x="64" y="771" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Pause wins after cleanup</text>
+</g></g>
+<g data-from="recovering" data-to="terminal" data-label="Cancel / unrecoverable required body">
+<g data-node="terminal" data-label="Terminal / Cancel or unrecoverable failure"><rect x="620" y="695" width="540" height="134" rx="8" fill="white" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="644" y="731" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#365D84" text-anchor="start">Cancel / unrecoverable required body → Terminal</text>
+<text x="644" y="771" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start">Cancel or unrecoverable failure</text>
+</g></g>
+</svg>

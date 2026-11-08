@@ -1,0 +1,30 @@
+flowchart TB
+    subgraph research["轨迹与连续研究 / 显式入口，按证据推进"]
+        source["原任务来源 / 指令、动作顺序、截图和回执按引用读取 / 成功绕路与失败都可研究，允许 skip"]
+        learner["Learner 连续会话 / 当前目标、假设、已知事实、失败与预算 / propose/explore/skip，避免重复研究"]
+        candidate["条件化候选 / 适用条件、决策改进与来源绑定 / 多文件按应用归属，局部编辑绑定精确基础"]
+    end
+    subgraph review["独立 Skill Reviewer / 不继承 Learner 整段对话"]
+        independent["独立读取证据 / 按需读取原始来源与冻结指南 / 评审结论绑定实际候选和角色正文"]
+        criteria["六项审查 / 根因、迁移性、冲突 / 退化风险、简洁性、边际价值"]
+        admission["区分准入声明 / source_evidence 支持局部知识 / measured_utility 需要相应执行收益证据"]
+    end
+    subgraph validation["按需验证与发布 / 普通执行与独立结果核验"]
+        selective["选择必要验证 / 已有证据可复用；缺事实才探索或试跑 / 冻结 overlay，核对交付、采用与结果"]
+        utility["局部与整任务分开 / 文件可局部成立，任务仍可能未恢复 / 保留退化、环境故障、未评分和未知成本"]
+        publish["pending 与人工确认 / 保存候选、审查、验证和基础库绑定 / 用户复核结果与 diff，逐文件重查后入库"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        binding["精确绑定与结果复用 / 候选 hash、基础库、任务、模型、初始化与运行合同一致才复用旧验证"]
+        cost["成本与闭环 / 研究共享累计预算；无后续的成功周期直接结束；普通任务不自动付费学习"]
+    end
+    source --> learner
+    learner -->|"propose"| candidate
+    independent --> criteria
+    criteria --> admission
+    admission -->|"证据复用"| publish
+    selective --> utility
+    utility --> publish
+    research --> review
+    review --> validation
+    validation -->|"失败或争议：保留已接纳知识，在原会话继续调查剩余障碍"| research

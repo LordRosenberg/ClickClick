@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph database["SQLite 持久任务事实 / 当前状态与版本历史互补"]
+        state["当前状态快照 / tasks.state_json 保存计划、阶段、预算 / 摘要、next_role 与活跃对话引用"]
+        records["版本记录与执行索引 / agent_records 保存笔记、摘要和来源 / steps / traces 关联步骤、调用与事件"]
+        transaction["完整 post-state 提交 / 步骤、任务状态、清单和结算原子保存 / task_operations 用 parent_id/ordinal 组织子动作"]
+    end
+    subgraph files["产物正文与完整性 / 发布、引用、保留各有顺序"]
+        bodies["大正文独立保存 / 对话、模型 I/O、图片、树与恢复正文 / 内容 hash 与持久引用避免重复搬运"]
+        publication["先 pin，再原子发布 / 发布锁内建立 pin，临时写入并 fsync / 校验、rename；DB 提交后释放相应 pin"]
+        retention["可达正文与清理 / GC 跟随当前清单、操作、回执和历史 attempt / 正常动作不扫描整条历史文件链"]
+    end
+    subgraph runtime["工作副本与执行端 / 可重建状态与去重事实分开"]
+        memory["进程内存工作副本 / 活跃角色会话、技能正文、解码帧与缓存 / 临时状态重取，不当作永久恢复依据"]
+        journal["独立 Driver journal / operation ID、摘要、回执与子动作 ordinal / 同 ID 去重，丢失正文也不重执行旧操作"]
+        restore["引用重建与读取投影 / 从完整 DB 状态与保留清单重建角色 / 必需正文不能恢复则明确报错"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        referenceContract["引用语义与所有权 / task 隔离记录；note:key@version 指确切版本，文件引用指持久正文而非最新可变副本"]
+        backupContract["备份与回滚边界 / WAL 一致数据库 + 产物 + Driver journal；恢复旧库不能撤销手机副作用"]
+    end
+    bodies --> publication
+    publication --> retention
+    database --> files
+    files --> runtime
+    files -->|"写入顺序：正文与 pin 先发布，数据库事务随后提交引用"| database

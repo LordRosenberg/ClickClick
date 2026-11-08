@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1170" viewBox="0 0 1200 1170" role="img" aria-labelledby="title desc">
+<title id="title">Exception handling and recovery: persist, isolate, continue</title><desc id="desc">Groups express responsibilities and ownership; arrows between groups express overall interaction or flow. See the text for timing.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
+<rect width="1200" height="1170" fill="white"/>
+<text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">Exception handling and recovery: persist, isolate, continue</text>
+<g data-group="durable" data-label="Persist during execution / Do not wait for a crash to save"><defs><clipPath id="clip-durable"><rect x="40" y="120" width="350" height="740" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="740" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-durable)"/><rect x="40" y="120" width="350" height="740" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Persist during execution</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Do not wait for a crash to save</text>
+</g>
+<g data-group="takeover" data-label="Detect, record and isolate / Caught faults vs. hard crashes"><defs><clipPath id="clip-takeover"><rect x="425" y="120" width="350" height="740" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="740" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-takeover)"/><rect x="425" y="120" width="350" height="740" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Detect, record and isolate</text>
+<text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Caught faults vs. hard crashes</text>
+</g>
+<g data-group="continuation" data-label="Reconcile and continue / Check resources, then decide again"><defs><clipPath id="clip-continuation"><rect x="810" y="120" width="350" height="740" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="740" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-continuation)"/><rect x="810" y="120" width="350" height="740" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Reconcile and continue</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Check resources, then decide again</text>
+</g>
+<g data-group="shared" data-label="Contracts and boundaries / Cross-stage constraints and traceability"><defs><clipPath id="clip-shared"><rect x="40" y="945" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="945" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="945" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="945" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="973" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">Contracts and boundaries</text>
+<text x="62" y="996" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">Cross-stage constraints and traceability</text>
+<path d="M600 1020L600 1116" stroke="#DCE5ED" stroke-width="1"/>
+</g>
+<path data-from="intent" data-to="receipt" data-label="" d="M215 394 L215 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="receipt" data-to="postState" data-label="" d="M215 614 L215 650" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="detect" data-to="owner" data-label="" d="M600 394 L600 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="owner" data-to="fence" data-label="" d="M600 614 L600 650" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="reconcile" data-to="context" data-label="" d="M985 394 L985 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="context" data-to="fresh" data-label="" d="M985 614 L985 650" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="durable" data-to="takeover" data-label="" d="M390 490 L425 490" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<path data-from="takeover" data-to="continuation" data-label="" d="M775 490 L810 490" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
+<g data-node="intent" data-label="T1: save before dispatch / Decision, state, paired notes, dialogue refs / Operation ID, digest, budget reservation / Commit before any dispatch">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">T1: save before dispatch</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Decision, state, paired notes,</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">dialogue refs</text>
+<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Operation ID, digest, budget</text>
+<text x="82" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">reservation</text>
+<text x="82" y="358" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Commit before any dispatch</text>
+</g>
+<g data-node="receipt" data-label="T2: persist original receipt / Driver journal retains independent facts / Harness stores returned receipt in task DB / The full step is not yet committed">
+<text x="82" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">T2: persist original receipt</text>
+<text x="82" y="482" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Driver journal retains</text>
+<text x="82" y="506" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">independent facts</text>
+<text x="82" y="530" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Harness stores returned</text>
+<text x="82" y="554" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">receipt in task DB</text>
+<text x="82" y="578" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">The full step is not yet</text>
+<text x="82" y="602" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">committed</text>
+</g>
+<g data-node="postState" data-label="T3: commit the full step / After post-view: step and full post-state / Atomic manifest and accounting settlement / Next round uses consistent task progress">
+<text x="82" y="676" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">T3: commit the full step</text>
+<text x="82" y="702" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">After post-view: step and full</text>
+<text x="82" y="726" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">post-state</text>
+<text x="82" y="750" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Atomic manifest and</text>
+<text x="82" y="774" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">accounting settlement</text>
+<text x="82" y="798" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Next round uses consistent</text>
+<text x="82" y="822" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">task progress</text>
+</g>
+<g data-node="detect" data-label="Detect interruption / Caught fault: reason + recovering / Hard kill or power loss: no final save / Restart scans status and open operations">
+<text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Detect interruption</text>
+<text x="467" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Caught fault: reason +</text>
+<text x="467" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">recovering</text>
+<text x="467" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Hard kill or power loss: no</text>
+<text x="467" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">final save</text>
+<text x="467" y="358" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Restart scans status and</text>
+<text x="467" y="382" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">open operations</text>
+</g>
+<g data-node="owner" data-label="Take over task writes / execution_epoch + worker_token / Ordered shutdown retires old ownership / Old replies and finalizers cannot advance">
+<text x="467" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Take over task writes</text>
+<text x="467" y="482" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">execution_epoch +</text>
+<text x="467" y="506" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">worker_token</text>
+<text x="467" y="530" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Ordered shutdown retires old</text>
+<text x="467" y="554" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">ownership</text>
+<text x="467" y="578" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Old replies and finalizers</text>
+<text x="467" y="602" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">cannot advance</text>
+</g>
+<g data-node="fence" data-label="Stop old device input / Monotonic device_fence and fence/drain / Bounded cleanup of task input children / Retain quarantine unless quiescent">
+<text x="467" y="676" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Stop old device input</text>
+<text x="467" y="702" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Monotonic device_fence and</text>
+<text x="467" y="726" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">fence/drain</text>
+<text x="467" y="750" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Bounded cleanup of task input</text>
+<text x="467" y="774" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">children</text>
+<text x="467" y="798" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Retain quarantine unless</text>
+<text x="467" y="822" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">quiescent</text>
+</g>
+<g data-node="reconcile" data-label="Reconcile the attempt / Query receipt and child facts / Unknown: settled_uncertain reservation / No replay or tail resume">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Reconcile the attempt</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Query receipt and child facts</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Unknown: settled_uncertain</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">reservation</text>
+<text x="852" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">No replay or tail resume</text>
+</g>
+<g data-node="context" data-label="Restore state and context / Full post-state or later T1 plus durable facts / Original role, plan, notes, dialogue and skills / Check required bodies, device, model access">
+<text x="852" y="456" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Restore state and context</text>
+<text x="852" y="482" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Full post-state or later T1</text>
+<text x="852" y="506" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">plus durable facts</text>
+<text x="852" y="530" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Original role, plan, notes,</text>
+<text x="852" y="554" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">dialogue and skills</text>
+<text x="852" y="578" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Check required bodies, device,</text>
+<text x="852" y="602" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">model access</text>
+</g>
+<g data-node="fresh" data-label="Fresh view and new decision / recovery_current plus known/unknown facts / Never replay; a new action uses a new operation ID">
+<text x="852" y="676" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Fresh view and new decision</text>
+<text x="852" y="702" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">recovery_current plus</text>
+<text x="852" y="726" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">known/unknown facts</text>
+<text x="852" y="750" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Never replay; a new action</text>
+<text x="852" y="774" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">uses a new operation ID</text>
+</g>
+<g data-node="dispatchContract" data-label="Resume from durable facts / No receipt: query or unknown; receipt: close step. / Full step committed: continue without replay.">
+<text x="82" y="1046" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Resume from durable facts</text>
+<text x="82" y="1072" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">No receipt: query or unknown; receipt: close step.</text>
+<text x="82" y="1096" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Full step committed: continue without replay.</text>
+</g>
+<g data-node="accountingContract" data-label="Accounting and late facts / Keep budgets and deadline; append late facts once without duplicate charges or terminal revival">
+<text x="642" y="1046" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Accounting and late facts</text>
+<text x="642" y="1072" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">Keep budgets and deadline; append late facts once</text>
+<text x="642" y="1096" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">without duplicate charges or terminal revival</text>
+</g>
+</svg>

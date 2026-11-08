@@ -33,15 +33,11 @@ Through **MCP**, you can delegate Android tasks from your PC assistant, revise r
 
 ### MobileWorld demos
 
-Six successful cross-app tasks. Click a preview to watch the **complete video at 3× speed**.
+Three complex cross-app tasks. Click a preview to watch the **complete video at 3× speed**.
 
 | Project risk matrix | Resource conflicts | Research to shopping plan |
 | --- | --- | --- |
 | [![Project risk matrix](docs/assets/demos/mobileworld/project-risk-matrix.gif)](docs/assets/demos/mobileworld/project-risk-matrix.mp4) | [![Resource conflicts](docs/assets/demos/mobileworld/resource-conflicts.gif)](docs/assets/demos/mobileworld/resource-conflicts.mp4) | [![Research to shopping plan](docs/assets/demos/mobileworld/thanksgiving-preparation.gif)](docs/assets/demos/mobileworld/thanksgiving-preparation.mp4) |
-
-| Lectures to calendar | Archive files and email record | Photos by travel location |
-| --- | --- | --- |
-| [![Lectures to calendar](docs/assets/demos/mobileworld/lectures-to-calendar.gif)](docs/assets/demos/mobileworld/lectures-to-calendar.mp4) | [![Archive files and email record](docs/assets/demos/mobileworld/archive-old-files.gif)](docs/assets/demos/mobileworld/archive-old-files.mp4) | [![Photos by travel location](docs/assets/demos/mobileworld/photos-by-travel-location.gif)](docs/assets/demos/mobileworld/photos-by-travel-location.mp4) |
 
 [Video details](docs/demos.md#mobileworld-recordings--mobileworld-录屏) · [Latest screenshots and execution traces](https://lordrosenberg.github.io/ClickClick/mobileworld/)
 
@@ -53,11 +49,7 @@ Real recordings of successful tasks. Click a preview to open the complete video 
 | --- | --- | --- |
 | [![Transfer recipes from Markor to Broccoli](docs/assets/demos/notes-to-recipes.gif)](docs/assets/demos/notes-to-recipes.mp4) | [![Read expenses from an image and enter them in Pro Expense](docs/assets/demos/image-to-expenses.gif)](docs/assets/demos/image-to-expenses.mp4) | [![Create a recurring calendar event](docs/assets/demos/recurring-calendar-event.gif)](docs/assets/demos/recurring-calendar-event.mp4) |
 
-| Deduplicate expenses | Create an ordered playlist | Summarize weekly activity |
-| --- | --- | --- |
-| [![Remove exact duplicate expenses while preserving distinct records](docs/assets/demos/deduplicate-expenses.gif)](docs/assets/demos/deduplicate-expenses.mp4) | [![Find songs and create a playlist in the requested order](docs/assets/demos/ordered-playlist.gif)](docs/assets/demos/ordered-playlist.mp4) | [![Find this week's swimming activities and total their duration](docs/assets/demos/weekly-activity-summary.gif)](docs/assets/demos/weekly-activity-summary.mp4) |
-
-[Task instructions and recording details](docs/demos.md)
+[All demos, task instructions and recording details](docs/demos.md)
 
 ## Core capabilities
 
@@ -69,9 +61,9 @@ Real recordings of successful tasks. Click a preview to open the complete video 
 
 ## Architecture
 
-![ClickClick architecture](docs/assets/clickclick-architecture.svg)
+![ClickClick architecture: Harness, reliable observation, Session and skill self-improvement](docs/assets/clickclick-architecture.svg)
 
-**Planner → Executor → observation → continue or replan**, with Reviewer on demand. The harness manages context, skills and execution; a persistent Session retains task evidence; Console exposes the run.
+**Planner → Executor → observation → continue or replan**, with Reviewer on demand. The harness organizes context, skills and execution; Session retains evidence and supports interruption recovery; Console exposes the run. HITL supports questions and active steering, while skill self-improvement extracts reusable knowledge from traces.
 
 [Architecture](docs/architecture.md) · [Technical overview](docs/reliability-design.md) · [Design decisions](docs/design-decisions.md)
 
@@ -112,15 +104,14 @@ Source installation requires Python 3.12, Node.js/npm, Android SDK Platform-Tool
 | --- | --- | --- |
 | [PC assistant MCP integration](docs/local-mcp.md) | Setup, nine task tools, progress and pause/resume. | [中文](docs/local-mcp.zh-CN.md) |
 | [Desktop setup quickstart](docs/local-mcp.md#desktop-setup) | Installers, subscription/API configuration, Wi-Fi/USB and registration. | [中文](docs/desktop-setup.zh-CN.md) |
-| [Technical overview](docs/reliability-design.md) | Design goals and the reasoning behind the core mechanisms. | [中文](docs/reliability-design.zh-CN.md) |
-| [Architecture](docs/architecture.md) | Modules, interfaces, execution flow and detailed subsystem designs. | [中文](docs/architecture.zh-CN.md) |
-| [Design decisions](docs/design-decisions.md) | Trade-offs in review, context, capture and input. | [中文](docs/design-decisions.zh-CN.md) |
+| [Technical overview](docs/reliability-design.md) | Core capabilities, design challenges, tradeoffs and engineering support. | [中文](docs/reliability-design.zh-CN.md) |
+| [Architecture](docs/architecture.md) | Module relationships, execution flow and the index of detailed core-capability designs. | [中文](docs/architecture.zh-CN.md) |
 | [Deployment](docs/deployment.md) | Models, devices, installation and remote operation. | [中文](docs/deployment.zh-CN.md) |
 | [Observability](docs/observability.md) | Console navigation, traces and performance analysis. | [中文](docs/observability.zh-CN.md) |
 | [Task examples](docs/task-examples.md) | Natural-language task examples and result verification. | [中文](docs/task-examples.zh-CN.md) |
 | [Evaluation](docs/evaluation.md) | Benchmark setup, scoring and reproduction. | [中文](docs/evaluation.zh-CN.md) |
 | [Skills](skills/README.md) | App knowledge, operating guidance and skill authoring. | [中文](skills/README.zh-CN.md) |
-| [Human-in-the-loop](docs/hitl.md) | Questions, confirmations and reply routing. | [中文](docs/hitl.zh-CN.md) |
+| [Human-in-the-loop](docs/hitl.md) | Questions, confirmations, reply routing and live task changes. | [中文](docs/hitl.zh-CN.md) |
 
 Licensed under [Apache 2.0](LICENSE).
 

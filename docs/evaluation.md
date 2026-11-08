@@ -4,9 +4,9 @@
 
 There are two useful starting points: run your own task through Console, or connect ClickClick to AndroidWorld for state-based scoring. The published 115/116 result uses a separately frozen full-suite protocol described in the result report.
 
-## MobileWorld reproduction / MobileWorld 复现
+## MobileWorld reproduction
 
-The [complete public entry](mobileworld-reproduction.md) / [中文完整运行指南](mobileworld-reproduction.zh-CN.md) freezes this evaluation configuration, runs 117 original tasks plus nine variants, and preserves results on resume. [System architecture / 系统架构](architecture.md) describes the runtime modules, structured summaries, memory/context and observations.
+The [complete run guide](mobileworld-reproduction.md) retains frozen configuration, 117 original tasks plus nine variants, and resume procedures. Evaluation layers, independent scoring, counting units and controls are defined in [evaluation design](evaluation-design.md).
 
 ## Run the full suite
 

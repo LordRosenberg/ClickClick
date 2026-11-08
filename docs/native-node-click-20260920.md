@@ -1,5 +1,7 @@
 # Observation-bound native node clicks
 
+[Design guide](observation-execution-consistency.md#native-node-binding-and-attribute-checks) · [中文详设](observation-execution-consistency.zh-CN.md#原生节点绑定与属性复核)
+
 For controls advertising `ACTION_CLICK`, an indexed tap preserves a reference
 to the observed Android node. This avoids redirecting a valid selection to a
 different control if its layout changes while the model is reasoning.

@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph questions["A Agent questions / Ask for needed intent or permission"]
+        ask["Intermediate ask_user / Planner/Executor can ask; Reviewer cannot / Managed: 1–3 questions or explicit confirmation"]
+        broker["Durable question broker / Private host binding/SSE; fall back to Console / Owner version and reply identity reject stale writes"]
+        continuation["Original-call continuation / Save role session, invocation and tool call / Yield worker, retain device; refresh after reply"]
+    end
+    subgraph steering["B User-initiated changes / Ordered changes to the same task"]
+        inbox["Durable control inbox / Append idempotently by request_key / Persist before ACK; accepted is not applied"]
+        revision["Revision and eligibility / New changes update revision and generation / Undispatched old calls lose commit eligibility"]
+        planner["Planner interprets changes / continue retains valid stage and history / Replan affected work while preserving facts"]
+    end
+    subgraph runtime["C Shared execution boundary / Fence obsolete work"]
+        eligibility["Late-response handling / Check revision, generation and call identity / Stale replies cannot dispatch or complete work"]
+        inflight["Order in-flight actions / Persist actual receipts and effects first / Then apply changes; no automatic device undo"]
+        lifecycle["Preserve task lifecycle / Pause stays paused; terminal changes follow up / Keep history, budgets and the original deadline"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        replyContract["Question and reply identity / interaction_id · owner_version · response_id; identical replies are accepted once"]
+        policyContract["Frozen task policy / HITL off stays off; existing consent is retained and displaying a question never grants consent"]
+    end
+    ask --> broker
+    broker --> continuation
+    inbox --> revision
+    revision --> planner
+    eligibility --> inflight
+    inflight --> lifecycle
+    questions -->|"Continue the answered call under current eligibility"| runtime
+    steering --> runtime

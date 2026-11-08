@@ -35,136 +35,66 @@
 
 ## 角色与转换
 
-`Settings.agent_architecture` 选择策略。默认 `plan_executor`；`plan_reviewer` 要求最终审核。
-
-| 角色／提交 | 默认 `plan_executor` 行为 |
-| --- | --- |
-| Planner `continue` | 评估用户修改后保留当前阶段及 Executor 会话。 |
-| Planner `execute` | 保存修订后的当前阶段并调用 Executor。 |
-| Planner `complete` | 提交校验和任务限制允许时完成任务。 |
-| Planner `review` | 携带明确冲突与证据调用 Reviewer。 |
-| Executor `act` | 校验并派发类型化动作，记录反馈后继续。 |
-| Executor `advance` | 完成指定阶段并返回 Planner。 |
-| Executor `replan` | 将观测到的不匹配返回 Planner。 |
-| Executor `finish` | 请求 Planner 给出任务级结论。 |
-| Executor `review` | 即使处于两角色模式，也可调用 Reviewer。 |
-| Reviewer `complete` | 完成任务。 |
-| Reviewer `execute` / `replan` | 根据结论和当前阶段返回执行或规划。 |
-| Planner 或 Reviewer `inconclusive` | 结束任务，不声称成功。 |
-
-在 `plan_reviewer` 中，Planner 的完成提交和 Executor 的 `finish` 会转给 Reviewer，并不意味着每个设备动作都被审核。两种模式都支持显式 `review`。
-
-按需审核由已有模型决策选择，不额外调用一个审核选择模型。提示词区分“已知还缺一次设备检查”与“需要独立判断的争议”。观测、计划版本、执行次数和笔记版本均未变化时，重复审核会明确失败，避免无限循环。
-
-来源：[运行时选择](../agent/runtime.py)、[编排](../agent/revisable/orchestrator.py)、[Planner／Reviewer schema](../shared/revisable.py)、[Executor 提交](../agent/revisable/session.py)。
+Planner 采用滚动细化：只具体化一个当前阶段，未来结果保留为假设路线图。Executor 执行当前阶段并返回结果或偏差，Planner 核对假设后再选择下一阶段；Reviewer 按需处理争议。默认 `plan_executor`，`plan_reviewer` 要求最终审核。规划粒度、角色提交、循环控制、会话和预算统一见[长任务编排详设](task-orchestration.zh-CN.md)。
 
 ## 一次设备交互
 
-观测包将捕获身份、全局像素、标准化 UI 结构、原生／模型图片几何与采集元数据绑定在一起。`accepted`、`actionable`、`index_actionable` 分别表示观测被接受、坐标操作可用、索引目标可用。Executor 操作时必须引用当前观测；读取历史图片不会替换当前动作依据。
-
-对于支持的本地索引点击，私有句柄将索引绑定到被观察的原生节点。Driver 刷新并检查保留的节点，然后执行一次原生点击。失效或结果不确定时返回反馈，不静默使用旧坐标。其他动作保留各自的坐标执行路径。
-
-支持的定向文本替换依次解析字段、建立并检查焦点、写入文本和验证读回。回执区分派发、输入与可见效果；字段内容正确并不单独证明应用已经保存记录。
-
-技能授权复合动作通过相同的原语事务执行闭集序列。中间观察保存为历史证据，最后的观察提供下一步可操作状态。物理子动作与提交动作单位分别记录。
+模型基于当前观测提交动作，Harness 校验调用、目标和预算，Driver 执行并返回回执，后观测进入下一轮。支持的本地索引点击刷新并复核保留节点；定向输入核对字段、焦点并读回。完整时序与配置见[观测与执行一致性](observation-execution-consistency.zh-CN.md)。
 
 ## 观测通路
 
-driver 管理 scrcpy 流供 Agent 获取画面；Console 详情展示已保存截图；只读投屏页可读取运行中任务已发布的画面。PyAV 解码帧，Accessibility Collector 返回节点、窗口及可用事件，感知层构造规范化 UI 与 Set-of-Mark 视图。ADB screencap 提供回退画面。
-
-新鲜度检查使用采集请求边界和窗口代数。有界重采处理窗口转换；结构缺失时仍可提供可用画面。像素与无障碍状态是异步来源，因此不构成动态界面的原子快照。参见[采集设计](design-decisions.zh-CN.md#scrcpycollector-与-python)。
-
-`observe_screen` 通过同一采集边界提供三种视图：
-
-| 模式 | 模型获得的内容 | 动作依据 |
-| --- | --- | --- |
-| `snapshot` | 当前全局画面与可用 UI 结构 | 被接受的新鲜全局观测 |
-| `sequence` | 有界连续采样，展示界面变化 | 最新被接受的全局观测 |
-| `detail` | 新鲜原生像素、定位缩略图，以及指定裁剪或四块重叠分片 | 配套的新鲜全局观测；阅读分片不作为动作坐标依据 |
-
-细节附件保留观测身份、原生帧几何与裁剪边界，不沿用旧 UI 树标注，也不将低分辨率像素放大冒充细节。参见[原生细节获取](../agent/screen_detail.py)与 [ObservationPackage](../perception/observation.py)。
+Driver 使用 scrcpy 像素与 Accessibility Collector 结构构建观测包，ADB 提供回退像素；snapshot 看当前状态，sequence 看动态变化，detail 提供原生细节。请求／动作帧边界和窗口检查减少旧画面与图树错配；采集通路、动作绑定及后观测复用统一见[观测与执行一致性](observation-execution-consistency.zh-CN.md)。连接与性能诊断见[scrcpy 通路说明](scrcpy-observation.md)。
 
 ## 上下文、记忆与技能
 
-记忆分三层：原始记录保留来源，版本化笔记保存后续所需信息，结构化摘要衔接较早的执行历史。原始任务、当前阶段、预算、新鲜观测、历史摘要、近期完整步骤、短保留笔记和适用技能分别组装，形成各角色需要的有界上下文。
+原始记录、版本笔记与来源摘要分层保存，各角色独立组装当前需求、计划、预算、观测和记忆。详见[记忆与上下文](memory-and-context.zh-CN.md)；数据库、文件与进程内存的分工见[Session 与存储](session-storage.zh-CN.md)。
 
-![记忆分层与上下文流向](assets/memory-overview.zh-CN.svg)
-
-压缩保留最近两个完整执行步骤。`clickclick.summary.v2` 将历史分为 `results`、`decisions_and_attempts`、`critical_context`，每条摘要绑定持久来源引用；目标长度为 3,000 字符，硬上限为 4,000 字符。结构、长度与引用校验确认摘要在机械层面有效，不代表语义自动正确。
-
-每条笔记保存版本化全文及最多 600 字符的可选 `retained` 短正文。自动恢复包最多 3,000 字符，并提供完整笔记目录；未解决问题和测量独立恢复。只有笔记版本与短正文完整匹配时才允许可逆展示去重。缺失细节可通过 `summary_source`、`read_history` 沿来源回查。摘要不能改写笔记或删除原始记录。字段、生命周期与限额见[记忆与上下文详设](memory-and-context.zh-CN.md)。
-
-Planner 从目录选择阶段技能。设备 profile 过滤系统专属指引，目标应用与实际前台身份决定适用的应用知识。角色分区调整正文交付范围，技能 ID、版本和内容哈希随调用记录。应用声明的复合动作还需满足当前阶段及前台作用域。参见[技能编写指南](../skills/README.zh-CN.md)。
-
-显式研究入口可以从真实任务的失败和绕路提炼技能修订。Learner 连续分析，独立 Skill Reviewer 审查并选择必要验证，同一作业支持多应用文件、联合验证与逐文件局部验收，候选进入 pending 而非热写正式库；普通任务结束不自动启动付费学习。闭环、证据边界和当前能力见[Skills 自进化](skill-evolution.zh-CN.md)。
+Planner 从目录选阶段技能，再按应用、设备与角色渐进式交付正文，详见[技能交付](skill-delivery.zh-CN.md)。独立学习入口将已有轨迹转为候选，经审查、按需验证与人工确认后入库，详见[Skills 自学习](skill-evolution.zh-CN.md)。普通任务结束不自动启动付费学习。
 
 ## HITL 主动介入与计划更新
 
-用户要求通过 MCP `steer_task` 或对应 Control API 进入持久化控制收件箱。每个任务按幂等键保存有序修改，原始指令保持不变；Planner 判断当前阶段是否仍有效，可保留阶段及 Executor 会话，或修订计划。所有角色从独立的动态上下文读取修改，历史压缩不会删除用户要求，也不改写稳定提示前缀。
-
-模型调用绑定指令版本和执行代次。修改到达时，尚未派发的旧调用失效，运行时可以立即处理新要求；迟到响应只作诊断。动作派发与修改接收有确定顺序，已派发的事务先保存真实回执，再规划后续工作。完成先提交时创建关联后续任务，修改先接收时先处理修改再允许完成。暂停、取消和问答继续使用既有生命周期边界。
-
-HITL 开关在任务创建时固定。助手引导首次安装默认开启，其他安装默认关闭，已有设置优先。关闭的任务不增加介入规则、模型工具或等待协程；MCP 工具仍可发现，但返回设置指引。详见 [HITL 使用与接入](hitl.zh-CN.md)。
-
-普通任务默认累计 200 次 Executor 决策、1000 次模型请求；显式评测预算优先。预算耗尽保持失败，安全检查点允许明确追加预算后续跑；原执行尝试、记录与累计用量保留，时限仅在显式追加时间时延长，普通失败不开放原地续跑。
+Agent 可提问后续接原调用，用户也可通过助手或 API 主动调整要求。持久收件箱区分接收与生效，指令版本／执行代次使未派发旧调用失效；已派发操作保留真实结果，再处理新要求。开关、单一回复入口与并发时序见[双向 HITL 详设](hitl-design.zh-CN.md)，操作见[使用指南](hitl.zh-CN.md)。
 
 ## 助手侧只读投屏预览
 
-成功派发返回任务投屏链接、详情链接及通用宿主展示提示。支持内置浏览器的助手优先打开投屏页，按任务 ID 复用标签；不支持投屏时回退详情，浏览器不可用时提供链接。该约定不绑定某种助手产品或侧栏接口。
-
-投屏页从本机正在运行的 Android 任务读取已发布画面，并通过既有 SSE 与响应产物追加模型输出。它校验任务、设备与运行代次，保留最后画面时明确标记，不获取独立设备租约、不补采集或派发输入。详情与预览双向导航，预览故障不改变任务状态。[Console 指南](observability.zh-CN.md)
+任务返回 preview/details 链接，宿主可打开并复用任务页面。预览使用已有画面和模型事件，不取得第二份设备 lease，也不创建额外采集或输入通路。断开、慢读或缺帧不改变执行；展示设计见[可观测性](observability.zh-CN.md)，助手注册和使用见[MCP 指南](local-mcp.zh-CN.md)。
 
 ## 异常中断恢复
 
-独立后台持有任务，MCP/API 客户端负责提交和控制；客户端断开不等于后台崩溃。后台异常退出时，持久调度扫描查找失去 owner 的非终态任务，在独占接管后恢复。新任务创建时冻结 `safe_auto`（默认自动恢复）、`manual` 或 `disabled`；旧任务缺少恢复元数据时不会被强行续跑。
+客户端断开与后台崩溃分别处理。干净暂停从安全检查点续跑；异常接管须隔离旧输入、核对回执并恢复原角色。缺少可靠回执保留 unknown，取得最新观测后重新决策，不回放旧动作。状态机、T1/T2/T3、幂等、正文清单和恢复配置统一见[暂停与异常恢复详设](crash-recovery.zh-CN.md)。
 
-### 持久化与动作时序
-
-**模型返回调用 → T1 派发前事务 → Driver journal 接受并执行 → T2 保存回执 → 后观测 → T3 提交步骤和完整状态。** T1 保存标准化决策、笔记及预算预留；T3 原子更新步骤、AgentState、恢复清单及计量。数据库事务不跨越 ADB 或模型请求，不能与手机副作用组成分布式原子事务。
-
-- `execution_epoch / worker_token` 限制任务写入；跨任务递增的 `device_fence` 限制设备输入。接管前先 fence/drain 旧输入链，无法确认静止时隔离设备，取消与设备清理分别处理。
-- Driver journal 以 operation ID 和参数摘要去重、保存回执；重用旧 ID 不再次输入。组合动作保留子动作序号，恢复不从头执行或自动续尾。
-- 恢复有界查询原回执；缺失时将原尝试闭合为 `unknown`，不凭截图断言历史动作执行过与否。旧观测动作绑定失效，最新观测标记为 `recovery_current`，由保存的原角色判断后续；新操作使用新 ID。
-- 未知动作预留结为 `settled_uncertain`，不会当作未执行退款。迟到事实只补记一次，不重复工具结果、步骤或计量，不复活终态；模型用量缺失同样保持未知。
-
-### 恢复状态与上下文
-
-`recovering → queued → running` 是恢复成功后的普通调度路径；设备不可用进入 `waiting_for_device`，等待超时或结构问题进入 `recovery_blocked`，修复资源后可显式重查。终态不重开，暂停和取消优先于继续执行。单纯存在 unknown 不增加审批、只读限制或自动 HITL 提问。
-
-恢复清单保留原需求、有效计划、摘要、当前笔记、下一角色、角色提示词、实际加载的 Skill 正文、保留对话及 HITL/用户修改记录。正文以完整性引用存储，文件先原子发布再提交引用；必要时从完整 DB post-state 与保留清单重建，无法恢复的必需正文会明确报错。重新连接读取工具并取得最新观测，不将旧截图用作新的动作依据。预算、deadline 和任务创建时的 HITL 设置沿用原值，干净暂停仍使用原检查点流程。
-
-### 入口与主要配置
-
-Console 展示恢复阶段、阻塞原因、设备隔离及最近未知操作。MCP `resume_task` 和既有 `/resume` 支持符合条件的异常任务；`POST /api/tasks/{task_id}/recover` 接收唯一 `request_key`，相同请求幂等接受。接受只表示恢复意图已保存，需继续查询任务确认实际进展。只读状态查询不会触发模型或设备动作。
-
-| 环境变量 | 默认 | 作用 |
-| --- | --- | --- |
-| `CLICKCLICK_TASK_RECOVERY_POLICY` | `safe_auto` | 新任务恢复策略，创建后冻结 |
-| `CLICKCLICK_TASK_RECOVERY_MAX_AUTO_ATTEMPTS` | `3` | 单故障周期自动尝试上限 |
-| `CLICKCLICK_TASK_RECOVERY_SCAN_INTERVAL_S` | `5` | 持久调度扫描周期 |
-| `CLICKCLICK_TASK_RECOVERY_BACKOFF_S` | `[1,5,15]` | 有界重试退避 |
-| `CLICKCLICK_TASK_RECOVERY_ATTEMPT_TIMEOUT_S` | `60` | 单次恢复时限 |
-| `CLICKCLICK_TASK_RECOVERY_DEVICE_WAIT_S` | `300` | 跨重启保留的设备等待窗口 |
+<a id="持久化与动作时序"></a>
+<a id="恢复状态与上下文"></a>
+<a id="入口与主要配置"></a>
 
 ## 运行边界
 
-取消和任务预算在运行时边界阻止后续工作。动作回执记录设备通路的返回情况，语义成功由模型和外部评测判断。异常恢复要求兼容 Driver、可用原设备与完整持久状态，不提供设备操作回滚或恰好一次业务效果保证。已在 MobileWorld 验证硬退出、设备故障和并发恢复边界；物理手机断连/重启与 macOS 输入进程行为仍需单独验收。部署访问和 Android 授权独立于工具有效性检查。
+模型负责语义选择，运行时负责结构、引用、执行资格与预算检查。SQLite 事务不覆盖手机副作用；观测不是严格原子快照，回执和输入读回不单独证明业务完成。基准评分独立于完成报告，验证条件见[评价体系](evaluation-design.zh-CN.md)。
+
+<a id="hitl-评测"></a>
 
 ## 模块设计文档
 
-| 模块 | 设计与说明 | 主要内容 |
+| 核心能力／共享模块 | 独立详设 | 负责的内容 |
 | --- | --- | --- |
-| 任务编排与角色 | [角色与转换](#角色与转换)、[角色策略](design-decisions.zh-CN.md#角色策略) | 阶段推进、重规划、按需审核与完成判定 |
-| 异常中断恢复 | [恢复状态、时序与配置](#异常中断恢复)、[恢复取舍](design-decisions.zh-CN.md#异常恢复与执行幂等) | 持久执行事实、旧输入隔离、unknown 与上下文重建 |
-| 记忆与上下文 | [记忆与上下文详设](memory-and-context.zh-CN.md) | 笔记、结构化摘要、来源回查与存储 |
-| 技能管理 | [Skills 指南](../skills/README.zh-CN.md)、[按角色交付](design-decisions.zh-CN.md#按角色交付-skills) | 技能组织、应用与设备作用域、角色交付 |
-| 技能自进化 | [Skills 自进化](skill-evolution.zh-CN.md) | 轨迹提炼、连续探索、独立审查、选择性验证与待审产物 |
-| 任务观测 | [scrcpy 观测通路](scrcpy-observation.md)、[Collector 接入](accessibility-collector-setup.zh-CN.md) | 观测视频流、帧新鲜度、UI 结构采集与回退 |
-| 动作与输入 | [原生节点绑定](design-decisions.zh-CN.md#原生节点绑定)、[定向文本替换](design-decisions.zh-CN.md#定向文本替换) | 动作目标校验、聚焦、替换与读回 |
-| 模型接入 | [模型路由](deployment.zh-CN.md#model-routing)、[Prompt cache 连续性](design-decisions.zh-CN.md#prompt-cache-连续性) | 模型配置、角色路由与请求上下文复用 |
-| Console 与可观测性 | [可观测性设计](observability.zh-CN.md) | 事件记录、时间线、模型调用与产物查看 |
-| 进程与设备部署 | [进程拓扑](processes.zh-CN.md)、[部署指南](deployment.zh-CN.md) | 本地与远程 Driver、服务关系及启动配置 |
-| 评测接入 | [评测与复现](evaluation.zh-CN.md)、[AndroidWorld 适配器](androidworld-benchmark.md) | 任务初始化、动作计数与独立评分 |
+| 长任务编排 | [详设](task-orchestration.zh-CN.md) | 阶段计划、角色转换、工具会话与预算 |
+| 上下文与记忆 | [详设](memory-and-context.zh-CN.md) | 角色上下文、笔记、来源摘要、压缩与回查 |
+| 观测与执行一致性 | [详设](observation-execution-consistency.zh-CN.md) | 异步图树、动态序列、目标／输入校验与回执时序 |
+| 技能复用 | [详设](skill-delivery.zh-CN.md) | 目录、应用／设备作用域与按角色渐进交付 |
+| Skills 自学习 | [详设](skill-evolution.zh-CN.md) | 轨迹提炼、独立审查、按需验证与人工发布 |
+| 双向 HITL | [详设](hitl-design.zh-CN.md) | 提问续接、回复桥接、用户介入与在途并发 |
+| 暂停与异常恢复 | [详设](crash-recovery.zh-CN.md) | 安全检查点、T1/T2/T3、输入隔离、unknown 与上下文重建 |
+| 可观测性 | [详设](observability.zh-CN.md) | Trace 关联、Console、只读预览与指标定义 |
+| 评价体系 | [详设](evaluation-design.zh-CN.md) | 独立评分、基准接入、对照与成本／收益口径 |
+| Session 与存储 | [详设](session-storage.zh-CN.md) | SQLite、文件、内存、版本引用、原子发布与清理 |
+
+支撑模块与操作指南：
+
+- 助手接入：[MCP 安装与控制](local-mcp.zh-CN.md)；模型路由：[部署配置](deployment.zh-CN.md#model-routing)。
+- 采集连接：[scrcpy 通路](scrcpy-observation.md)、[Collector 安装](accessibility-collector-setup.zh-CN.md)。
+- 进程部署：[进程拓扑](processes.zh-CN.md)、[部署指南](deployment.zh-CN.md)。
+- 操作与复现：[HITL 使用](hitl.zh-CN.md)、[技能编写](../skills/README.zh-CN.md)、[评测运行](evaluation.zh-CN.md)。
+- 方案理由：[设计取舍索引](design-decisions.zh-CN.md)；历史证据从各详设进入，不重复维护当前设计。
 
 ## 代码映射
 
@@ -180,8 +110,3 @@ Console 展示恢复阶段、阻塞原因、设备隔离及最近未知操作。
 | Harness：模型路由 | [llm_gateway.py](../shared/llm_gateway.py)、[model_router.py](../shared/model_router.py) |
 | Session：记录与产物 | [store.py](../agent/revisable/store.py)、[db.py](../shared/db.py)、[artifacts.py](../shared/artifacts.py) |
 | Console 与运行时承载 | [control_api/](../control_api/)、[web/](../web/) |
-
-
-## HITL 评测
-
-MobileWorld 交互原题 **34/44（77.27%）**，GPT‑5.6‑Sol（high），Jev 关闭；见[使用与接口](hitl.zh-CN.md)、[评测方法与边界](mobileworld-hitl-results-20261015.md)。

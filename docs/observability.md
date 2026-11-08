@@ -4,6 +4,18 @@
 
 Observability is part of every ClickClick task, including custom app workflows. It connects what a model received and returned to the tools, device operations and observations that followed. A benchmark such as AndroidWorld supplies an external correctness check; it is not the source of this instrumentation.
 
+## Design diagrams
+
+<!-- design-diagram:observability-records -->
+
+![Observability: identities, evidence indexes and read-only views](assets/design-observability-records.svg)
+
+Facts and large bodies are stored separately. Stable identities join roles, models, tools and observations; Console projects records and preview reuses published frames.
+
+[Mermaid source](diagrams/design-observability-records.mmd)
+
+<!-- /design-diagram:observability-records -->
+
 ## From execution to Console
 
 1. The runtime and model gateway produce role-call, model-round, tool, action and observation records. Stable references associate them with a task and the relevant call or action position.
@@ -12,6 +24,12 @@ Observability is part of every ClickClick task, including custom app workflows. 
 4. Console displays canonical role invocations and their model/tool rounds. Selecting a call selects its decision and observation instead of borrowing another role's content at the same device-action position.
 
 Source: [trace writer](../agent/traces.py), [task store](../agent/revisable/store.py), [queries and metrics](../control_api/services.py), [API and SSE](../control_api/main.py), [call presentation](../web/src/components/AgentCallsBlock.tsx), [selected-call inspector](../web/src/components/StepInspector.tsx).
+
+## Record identities and query boundaries
+
+Tasks, role invocations, model rounds, tool calls, operations and observations link through distinct identities rather than mixing role inputs at a shared action position. Timelines are query projections; large bodies/images load from artifacts on demand. SSE presents updates without replacing durable records. Storage/publication: [Session design](session-storage.md).
+
+Returned text, public reasoning summaries and tool arguments are distinct; hidden internal reasoning cannot be reconstructed. Details reads saved evidence, while preview reads frames already published by active tasks and labels missing/retained frames. Disconnects and slow readers do not participate in scheduling or input. Independent scoring/controls: [evaluation design](evaluation-design.md).
 
 ## Inspect a run
 

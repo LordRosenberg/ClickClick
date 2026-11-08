@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="593" viewBox="0 0 1600 593" role="img" aria-labelledby="title desc">
+<title id="title">Body publication: files before transactional references</title>
+<desc id="desc">Time runs downward. Solid arrows are calls; dashed arrows are returns. Frames identify parallel and alternative branches.</desc>
+<defs>
+<marker id="request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
+<marker id="response" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#287568"/></marker>
+</defs>
+<rect width="1600" height="593" fill="white"/>
+<text x="40" y="39" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449" text-anchor="start"><tspan x="40" dy="0">Body publication: files before transactional references</tspan></text>
+<text x="40" y="65" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="40" dy="0">Time runs downward · solid calls / dashed returns</tspan></text>
+<path d="M220 130V565" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="100" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="220" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="220" dy="0">Harness / artifacts</tspan></text>
+<path d="M800 130V565" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="680" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="800" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Artifact files</tspan></text>
+<path d="M1380 130V565" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="1260" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="1380" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="1380" dy="0">SQLite / manifest</tspan></text>
+<g data-message="1" data-from="H" data-to="H" data-label="Establish pin under publication lock">
+<text x="281" y="173" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="start"><tspan x="281" dy="0">Establish pin under publication lock</tspan></text>
+<path d="M220 186h43v23h-43" fill="none" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="2" data-from="H" data-to="F" data-label="Write same-directory temporary body">
+<text x="510" y="246" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="510" dy="0">Write same-directory temporary body</tspan></text>
+<path d="M220 259H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="3" data-from="H" data-to="F" data-label="fsync, integrity check, atomic publish">
+<text x="510" y="301" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="510" dy="0">fsync, integrity check, atomic publish</tspan></text>
+<path d="M220 314H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="4" data-from="F" data-to="H" data-label="Durable readable body reference">
+<text x="510" y="356" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="510" dy="0">Durable readable body reference</tspan></text>
+<path d="M800 369H220" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="5" data-from="H" data-to="S" data-label="Commit manifest references and post-state">
+<text x="800" y="411" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">Commit manifest references and post-state</tspan></text>
+<path d="M220 424H1380" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="6" data-from="S" data-to="H" data-label="Release temporary pin after commit">
+<text x="800" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">Release temporary pin after commit</tspan></text>
+<path d="M1380 479H220" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="7" data-from="H" data-to="F" data-label="GC retains current and historical reachable bodies">
+<text x="510" y="521" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="510" dy="0">GC retains current and historical reachable bodies</tspan></text>
+<path d="M220 534H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+</svg>

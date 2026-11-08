@@ -1,8 +1,11 @@
 # scrcpy observation provider
 
+[Observation and execution consistency](observation-execution-consistency.md) · [中文详设](observation-execution-consistency.zh-CN.md)
+
 Task observation consumers own a single per-device scrcpy source through
-explicit leases in `driver/scrcpy_stream.py`. Console reads saved artifacts
-without acquiring or resetting this source. The source parses Annex-B H.264 and new/slow consumers begin
+explicit leases in `driver/scrcpy_stream.py`. Console details reads saved artifacts;
+read-only preview reads already-published frames without acquiring or resetting
+this source. The source parses Annex-B H.264 and new/slow consumers begin
 only at SPS/PPS + IDR boundaries.  A source restart increments its generation;
 temporal queries never silently cross generations.
 
@@ -20,21 +23,24 @@ If PyAV is unavailable, diagnostics report the provider unavailable and pixel
 requests use the bounded ADB path. Console can still display saved screenshots.
 
 The pinned scrcpy server (3.3.1) supports the official `RESET_VIDEO` control
-message (type 17) on the control socket, which restarts capture/encoding and
-forces a fresh keyframe. Before each real pixel capture the provider issues
-`RESET_VIDEO` under its decoder-consumption lock. On success it clears retained
-observation pixels, resets decoder prediction state, and waits up to 800 ms
-(`SCRCPY_ROUND_REFRESH_TIMEOUT_MS`) for a later monotonic `frame_id`. Queued
-predictive frames cannot cross this decode barrier; publication resumes from a
-subsequent decodable keyframe. A reset does not reconnect the source, so it does
-not fabricate a new source generation. Temporal history frames are captured
-without per-frame resets. When a relayed hub connection has no control socket,
-or reset fails, existing generation/frame-id validation remains in force and
-the bounded caller may fall back to ADB.
+message (type 17), which requests capture/encoding restart and a new keyframe.
+An explicit pixel request first records the current decoded-frame position and
+waits up to approximately 100 ms for natural stream progress. A later
+same-generation frame can satisfy that request without a reset. Otherwise,
+after decoder initialization, the provider attempts `RESET_VIDEO` under its
+decoder-consumption lock. On success it clears the retained observation ring
+and resets decoder prediction state, then waits within the remaining 800 ms
+round refresh budget (`SCRCPY_ROUND_REFRESH_TIMEOUT_MS`) for a later `frame_id`.
+A reset does not reconnect the source or fabricate a new generation. Temporal
+history samples do not reset the encoder per image. If an eligible frame remains
+unavailable, the caller may use sequential bounded ADB fallback.
 
-The stream-backed path completes the ending UI Tree before selecting pixels.
-After an action, decoded frame identity—not selection time or pixel content—is
-the causal boundary.
+Tree and pixel acquisition may overlap. When the ending Tree is ready, the
+Driver may select a newer healthy frame already decoded from the same stream
+without an additional capture or reset. Frame IDs and timestamps describe
+client-side decoded/publication updates; they support selection and action
+boundary checks rather than proving an application outcome. The combined
+methods and interaction diagrams are in the [consistency guide](observation-execution-consistency.md).
 
 ## Reliability and diagnostics
 
@@ -57,11 +63,12 @@ then becomes static is selectable.
 Immediately before the actual ADB command, Android snapshots the provider
 generation and latest decoded `frame_id`; it commits that boundary only when
 dispatch succeeds. The next selection requires a greater frame id in the same
-generation and labels it `post_action_frame`. If Tree collection finishes
-before such a frame exists, current capture awaits the existing decoder ring.
-A healthy stream that does not advance returns bounded unknown/timeout evidence
-rather than relabeling an old frame or using ADB as a synchronization step.
-Failed or non-dispatched actions do not commit a boundary.
+generation and labels it `post_action_frame`. Current capture waits within its
+refresh budget and may request video reset when natural progress is absent.
+If no eligible pixels can be obtained, the Driver may try the sequential ADB
+fallback within the outer deadline. It does not relabel an old frame as newer.
+Failed or non-dispatched actions do not commit an action boundary. Recording
+that boundary does not take an extra pre-action screenshot.
 
 The host decoder receives every ordered H.264 access unit. Its FPS cap applies
 only when publishing complete decoded images into the ring; dropping compressed
@@ -88,8 +95,9 @@ cross a recovery boundary.
 Current requests use a fixed 12000 ms end-to-end deadline; temporal requests
 use 8000 ms (`CURRENT_DEADLINE_MS` / `TEMPORAL_DEADLINE_MS` in
 `driver/observation_deadline.py`). The collector primary attempt has its own
-2500 ms cap (`TREE_PRIMARY_ATTEMPT_TIMEOUT_MS`), and the post-`RESET_VIDEO`
-ring refresh waits at most 800 ms (`SCRCPY_ROUND_REFRESH_TIMEOUT_MS`). UI dump,
+2500 ms cap (`TREE_PRIMARY_ATTEMPT_TIMEOUT_MS`), and the frame-refresh route,
+including natural-update waiting and optional reset, has an 800 ms cap
+(`SCRCPY_ROUND_REFRESH_TIMEOUT_MS`). UI dump,
 screencap, provider wait, decode/alignment admission, and ADB process cleanup
 share the enclosing monotonic deadline. The headroom over the measured
 collector p95 (≈1.1–1.34 s) absorbs slow first-capture and bounded-resample
@@ -167,7 +175,8 @@ screenshot requests select the newest valid ring frame; temporal requests
 sample only genuinely captured ordered frames and never clone static reuse.
 Missing initial frames, source/consumer death, decoder errors, or generation
 mismatch cross an explicit fallback edge to the calibrated bounded ADB path.
-The absence of a later post-action frame while scrcpy remains healthy stays on
-the bounded scrcpy wait and never falls back solely to force alignment.
+An explicit request that cannot obtain an eligible later frame can use bounded
+sequential ADB fallback even if the stream is still alive. Visual age alone is
+not a reason to start that fallback.
 Changing provider order requires a code change rather than another persistent
 policy switch.

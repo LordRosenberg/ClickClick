@@ -1,0 +1,27 @@
+flowchart TB
+    subgraph freeze["Freeze comparable conditions / Avoid implicit experiment drift"]
+        code["Code and model identity / Freeze source, role models, config and flags / Do not mix models or baseline rounds"]
+        fixture["Tasks and initial state / Freeze task matrix, fixture, seed and environment / Retain initial-state differences and unknowns"]
+        limits["Skills and runtime contract / Exact library, delivery, budgets and deadline / Freeze HITL simulator and recovery separately"]
+    end
+    subgraph execution["Ordinary Harness execution / Trace setup, actions and evidence"]
+        initialize["Official initialization / AndroidWorld, MobileWorld fixtures / Keep setup faults separate from task outcomes"]
+        harness["Ordinary role/action path / Models plan, observe and act normally / Scoring answers never enter model context"]
+        evidence["Retain every attempt / Calls, actions, receipts, final state and usage / Separate faults, cancel, exhaustion, missing usage"]
+    end
+    subgraph judgment["Independent score and control / Separate outcome, cost and causality"]
+        oracle["Independent outcome check / Official scorer or external business checks / Model completion is not correctness ground truth"]
+        cleanup["Environment cleanup / Retain teardown and scorer faults separately / Preserve unscored reasons and unfavorable trials"]
+        comparison["Matched utility checks / Bind exact guidance, adoption and final score / Local validity does not prove stable task benefit"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        verdictContract["Separate result fields / Keep runtime verdict, official score and environment status separate; never overwrite prior scores"]
+        costContract["Comparable measurement / Declare denominators/timing; separate requests, submissions, subactions and input/cache/output"]
+    end
+    initialize --> harness
+    harness --> evidence
+    oracle --> cleanup
+    cleanup --> comparison
+    freeze --> execution
+    execution --> judgment
+    judgment -->|"Next control: reset initial conditions and retain earlier attempts and valid results"| execution

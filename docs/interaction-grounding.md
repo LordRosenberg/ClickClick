@@ -1,5 +1,9 @@
 # Interaction and visual grounding
 
+[Current consistency design](observation-execution-consistency.md) · [当前中文详设](observation-execution-consistency.zh-CN.md)
+
+This report preserves the September 2026 device probes, evidence definitions and rollback notes from that phase. Current capture/receipt behavior and supported configuration are maintained in the design above. In particular, current role feedback exposes confirmed interaction evidence; the old `CLICKCLICK_INTERACTION_ACK_MODEL_VISIBLE` name below is not an active model-visibility switch in the current path.
+
 ## Evidence boundaries
 
 The Android collector keeps at most 256 safe interaction-event records and
@@ -91,7 +95,9 @@ are excluded. This avoids activating any CV small-region proposal path.
   and submission returned `Success!`. The workflow now forbids choosing an
   unmeasured exact-match swatch after a candidate batch misses.
 
-## Independent rollback switches
+<a id="independent-rollback-switches"></a>
+
+## Historical rollback switches
 
 - `CLICKCLICK_INTERACTION_EVENT_READS_ENABLED=0` disables host cursor/read and
   correlation while leaving snapshot capture intact.

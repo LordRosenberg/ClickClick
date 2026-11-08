@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant P as Planner
+    participant E as Executor
+    participant H as Harness / Session
+    participant D as 设备工具
+    Note over P,D: 滚动细化：保留全局要求与未来假设路线；只具体化当前阶段，实际动作随观测逐步决定。
+    P->>H: 保存一个 current_stage 和可选 assumption_roadmap
+    H->>E: 当前阶段、技能、记忆、观测和未来假设
+    Note over E,D: 路线图仅供理解依赖，不授权未来动作；当前目标不变时，Executor 自行调整局部路径。
+    E->>H: 提交 act 与当前观测 ID
+    H->>D: 校验后派发动作
+    D-->>H: 返回回执与后观测
+    H->>H: 提交步骤、状态与累计消耗
+    H-->>E: 提供反馈，继续当前阶段
+    alt 当前结果完成且仍有后续工作：滚动细化
+    E->>H: advance，标识已完成的 stage_id
+    H->>P: 转交实际结果、当前观测与跨阶段笔记
+    P->>H: 核对未来假设，细化下一阶段；revision +1
+    H->>E: 交付新阶段，保留有效历史与累计消耗
+    else 前提失效或阶段范围有误：在线重规划
+    E->>H: replan，报告具体偏差与证据
+    H->>P: 转交失效前提与仍有效的进展
+    P->>H: 修订受影响的阶段、顺序或未来假设
+    H->>E: 交付修订阶段，继续已有任务
+    else 请求任务完成
+    E->>H: finish，交回任务级判断
+    H->>P: 请求任务级结论
+    P->>H: complete 或请求独立审核
+    end

@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph records["Facts and working memory / Independent durable sources"]
+        raw["Original records / Dialogue, tools, observations and receipts / Keep full text and images as evidence"]
+        notes["Versioned notes / note_key + version; retain earlier bodies / Maintain retained and unresolved separately"]
+        facts["Current task state / Request, changes, effective plan and budgets / History summaries do not replace this state"]
+    end
+    subgraph compaction["Structured compaction / Bounded generation and admission"]
+        trigger["Select history span / Default history trigger: 16k estimated tokens / Keep the latest two complete steps verbatim"]
+        summary["Sourced summary / results · decisions_and_attempts / critical_context; target 3k, cap 4k characters"]
+        admit["Validate and commit / Check schema, length and sources; optional Jev / Faults or coverage gaps remain unvalidated"]
+    end
+    subgraph assembly["Role context projection / Combine state and needed history"]
+        restore["Restore current state / Request, plan, budgets, notes and skills / A summary cannot erase or rewrite them"]
+        project["Assemble the decision / Summary + recent history + fresh observation / Select whole items per role; disclose omissions"]
+        recall["Retrieve by source / summary_source and read_history / Read exact versions; continue truncated results"]
+    end
+    subgraph shared["Contracts and boundaries / Cross-stage constraints and traceability"]
+        noteContract["Versioning and reversible dedup / Hide only exact note-version and retained-text matches; never delete stored evidence"]
+        sourceContract["Source and validation limits / Cite original records, not prior summaries. Jev defaults off and cannot guarantee truth"]
+    end
+    trigger --> summary
+    summary --> admit
+    restore --> project
+    project -->|"Need detail"| recall
+    records --> compaction
+    compaction --> assembly
+    records -->|"Request, plan and versioned notes bypass summary rewriting"| assembly
+    assembly -->|"summary_source / read_history: retrieve missing original detail"| records

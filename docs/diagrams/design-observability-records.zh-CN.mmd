@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph facts["执行事实产生 / 保留各类调用自己的身份"]
+        calls["角色与模型调用 / role invocation → model round → tool call / 保存实际输入、返回内容和提供方用量"]
+        effects["动作与回执事实 / operation ID、子动作与 Driver 回执 / 分离派发、效果、输入步骤和执行异常"]
+        observations["观测与诊断证据 / observation ID、采集身份与产物引用 / 记录采集来源、时间和降级，不冒充当前屏幕"]
+    end
+    subgraph queries["存储与关联查询 / 小索引与大正文分开读取"]
+        storage["持久记录与产物 / SQLite 保留任务、版本记录与 Trace / 请求／响应、图片和 UI 树按引用读取"]
+        joins["按身份组装时间线 / ObservabilityQueries 关联确切调用 / 同一动作位置不能借用另一角色的输入"]
+        events["事件与实时发布 / SSE 提供已存储及后续事件 / 正文延迟加载，事件连接不代替持久记录"]
+    end
+    subgraph views["只读展示与分析 / 查看不改变手机执行"]
+        details["任务详情与调用检查 / 展开所选角色的输入、输出、工具与观测 / 显示实际交付的 Skill 身份和版本"]
+        preview["投屏与模型事件 / 复用任务已发布帧；标注最后画面与时效 / 不占第二份 lease，不额外截图或输入"]
+        metrics["分别计算指标 / 墙钟、角色耗时、模型延迟各有边界 / 调用、工具、提交动作和物理子动作分开"]
+    end
+    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
+        traceContract["跨层证据链 / task → invocation → model/tool call → operation → observation/artifact，按身份关联"]
+        measurementContract["计量与解释边界 / 缺失 usage 不按零计费；本地 token 估算不等于账单；运行时完成不证明业务正确"]
+    end
+    storage --> joins
+    joins --> events
+    facts --> queries
+    queries --> views
+    views -->|"只读回查：按来源展开当时的正文、图片和实际模型输入"| queries

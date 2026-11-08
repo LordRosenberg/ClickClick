@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-labelledby="title desc">
+<title id="title">评测生命周期：执行与独立评分</title>
+<desc id="desc">时间从上到下，实线为调用，虚线为返回；并行与条件分支标注在框内。</desc>
+<defs>
+<marker id="request" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
+<marker id="response" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#287568"/></marker>
+</defs>
+<rect width="1600" height="850" fill="white"/>
+<text x="40" y="39" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449" text-anchor="start"><tspan x="40" dy="0">评测生命周期：执行与独立评分</tspan></text>
+<text x="40" y="65" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="40" dy="0">时间从上到下 · 实线调用 / 虚线返回</tspan></text>
+<path d="M160 130V822" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="40" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="160" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="160" dy="0">评测控制器</tspan></text>
+<path d="M480 130V822" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="360" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="480" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="480" dy="0">官方环境 / 设备</tspan></text>
+<path d="M800 130V822" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="680" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="800" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">普通 Harness</tspan></text>
+<path d="M1120 130V822" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="1000" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="1120" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="1120" dy="0">独立评分器</tspan></text>
+<path d="M1440 130V822" stroke="#B3BFCC" stroke-width="1.1" stroke-dasharray="5 5"/>
+<rect x="1320" y="86" width="240" height="45" rx="5" fill="#EDF3FA" stroke="#456B96" stroke-width="1.3"/>
+<text x="1440" y="114" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="500" fill="#263449" text-anchor="middle"><tspan x="1440" dy="0">结果与证据记录</tspan></text>
+<g data-message="1" data-from="C" data-to="R" data-label="冻结代码、任务、模型、技能与预算">
+<text x="800" y="173" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">冻结代码、任务、模型、技能与预算</tspan></text>
+<path d="M160 186H1440" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="2" data-from="C" data-to="E" data-label="初始化官方任务与起始状态">
+<text x="320" y="228" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="320" dy="0">初始化官方任务与起始状态</tspan></text>
+<path d="M160 241H480" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="3" data-from="E" data-to="C" data-label="返回初始化结果或环境故障">
+<text x="320" y="283" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="320" dy="0">返回初始化结果或环境故障</tspan></text>
+<path d="M480 296H160" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="4" data-from="C" data-to="H" data-label="提交普通执行，不注入评分答案">
+<text x="480" y="338" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="480" dy="0">提交普通执行，不注入评分答案</tspan></text>
+<path d="M160 351H800" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="5" data-from="H" data-to="E" data-label="观测、动作与现场反馈">
+<text x="640" y="393" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">观测、动作与现场反馈</tspan></text>
+<path d="M800 406H480" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="6" data-from="H" data-to="R" data-label="保存角色、回执、计量与轨迹">
+<text x="1120" y="448" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="1120" dy="0">保存角色、回执、计量与轨迹</tspan></text>
+<path d="M800 461H1440" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="7" data-from="H" data-to="C" data-label="返回运行时结论">
+<text x="480" y="503" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="480" dy="0">返回运行时结论</tspan></text>
+<path d="M800 516H160" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="8" data-from="C" data-to="S" data-label="请求独立任务正确性检查">
+<text x="640" y="558" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="640" dy="0">请求独立任务正确性检查</tspan></text>
+<path d="M160 571H1120" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="9" data-from="S" data-to="E" data-label="读取评分协议要求的最终状态">
+<text x="800" y="613" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="800" dy="0">读取评分协议要求的最终状态</tspan></text>
+<path d="M1120 626H480" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="10" data-from="E" data-to="S" data-label="返回应用状态与评分证据">
+<text x="800" y="668" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#287568" text-anchor="middle"><tspan x="800" dy="0">返回应用状态与评分证据</tspan></text>
+<path d="M480 681H1120" stroke="#287568" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#response)"/>
+</g>
+<g data-message="11" data-from="S" data-to="R" data-label="保存官方分数或未评分原因">
+<text x="1280" y="723" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="1280" dy="0">保存官方分数或未评分原因</tspan></text>
+<path d="M1120 736H1440" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+<g data-message="12" data-from="C" data-to="E" data-label="清理环境，单独记录 teardown">
+<text x="320" y="778" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="400" fill="#263449" text-anchor="middle"><tspan x="320" dy="0">清理环境，单独记录 teardown</tspan></text>
+<path d="M160 791H480" stroke="#263449" stroke-width="1.5" marker-end="url(#request)"/>
+</g>
+</svg>

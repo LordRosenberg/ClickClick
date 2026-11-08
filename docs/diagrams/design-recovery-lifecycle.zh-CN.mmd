@@ -1,0 +1,81 @@
+sequenceDiagram
+    participant M as 模型
+    participant H as Harness / 恢复协调器
+    participant S as SQLite / Session
+    participant D as Driver / journal
+    participant P as Android
+    Note over M,P: 01 正常保存参考链：中断只执行到 A/B/C/D 对应位置；无中断直接进入下一轮，不经过后续恢复段。
+    H->>M: 组装原角色上下文，发起模型请求
+    Note over M,S: A：模型等待中或 T1 未提交；本次动作尚无持久派发意图，不应进入 Driver。
+    M-->>H: 返回标准化动作调用
+    H->>S: T1：保存决策、状态、笔记、意图及预算预留
+    S-->>H: 提交成功，才允许派发
+    Note over H,D: B：T1 已提交但 T2 未保存；可能未派发、执行中或已执行而回执丢失，不能直接重试。
+    H->>D: 派发 operation ID、参数摘要及 fence
+    D->>D: journal 接受并去重，记录子动作阶段
+    D->>P: 实际设备输入
+    P-->>D: 设备通路结果
+    D-->>H: journal 保留结果，返回原始回执
+    H->>S: T2：持久保存原始回执
+    Note over H,D: C：T2 已保存但 T3 未提交；执行事实已知，后观测或完整步骤仍可能缺失。
+    H->>D: 获取动作后观测
+    D-->>H: 返回观测或诊断
+    H->>S: T3：原子提交步骤、完整 post-state、清单与结算
+    S-->>H: 提交成功，允许下一轮
+    Note over H,S: D：T3 已提交；完整步骤与结算已保存，恢复不得重复执行或重复记账。
+    Note over M,P: 02 中断处理：以下仅针对中断任务。H 为逻辑职责线；异常收尾属于旧执行，接管后由新 owner 续接，旧执行不能再推进。
+    alt 可捕获的基础设施异常
+        H->>S: 持久记录原因与 recovering，保留已有提交
+        H->>D: 退出当前执行，尝试关闭和清理旧输入链
+    else 有序关闭后台
+        H->>S: 撤销旧所有权：epoch 递增、token 清空、recovering
+        H->>D: 有界关闭旧执行端
+        H->>H: 取消旧运行句柄
+    else 强杀、崩溃或掉电
+        Note over H,D: 处理器与 finally 可能不执行；只使用此前落盘的数据、journal 和正文，不假设有最后一次保存。
+        H->>S: 重启取得本地独占锁后，扫描遗留运行状态和操作
+    end
+    Note over H,D: 03 恢复入口：扫描器跳过活跃运行句柄；safe_auto 可自动进入，manual 需显式请求，disabled 不续跑。
+    H->>D: 检查原设备可用性与身份
+    D-->>H: 返回资源事实
+    H->>S: 独占接管：更新 execution_epoch、worker_token 和 device_fence
+    Note over H,D: 原设备缺席则 waiting_for_device，等待到期或身份不匹配则 recovery_blocked；本次恢复在此返回。
+    H->>D: fence/drain：拒绝旧输入，清理旧输入子进程
+    D-->>H: 返回静止证明或隔离原因
+    Note over H,D: 未证明旧输入静止则保留 quarantine，记 recovery_blocked 并返回；只有隔离成功才进入后续核对。
+    H->>S: 读取恢复清单、完整状态、正文引用与操作记录
+    S-->>H: 最近 post-state 或更晚 T1 状态，以及持久执行事实
+    Note over H,D: 校验状态与必需正文；正文不可恢复则 failed，其他可修复结构问题则 blocked，本次返回。资源修复后才有界重查。
+    Note over H,D: 04 按中断位置核对：下面 A/B/C/D 互斥，对应 01 的中断点，不把截图当成历史执行证明。
+    alt A：T1 未提交
+        H->>H: 使用最近可恢复状态，不采纳未完成模型思考
+    else B：T1 有意图，T2 无回执
+        H->>D: 按原 operation ID 有界查询回执与子动作事实
+        alt 取得可信原回执
+            D-->>H: 返回原始执行结果
+            H->>S: 追加原回执，按已知事实闭合原尝试
+        else 没有可靠结果或查询失败
+            D-->>H: 结果仍不确定
+            H->>S: 记录 unknown；预留结为 settled_uncertain，不重放或续尾
+        end
+    else C：T2 有回执，T3 无完整步骤
+        H->>S: 采纳已存回执，闭合原步骤与计量；不重放动作
+    else D：T3 已提交
+        H->>H: 沿用完整 post-state，不重复步骤或预算结算
+    end
+    H->>S: 保存闭合后的状态与清单，保留历史、累计预算和 deadline
+    Note over H,D: 05 重建与续跑：恢复原角色、计划、笔记、提示词、对话和 Skills；重建读取通道，清除旧 grounding。
+    alt 已取消、已终态，或要求暂停
+        H->>S: 按控制状态收尾；暂停生成安全检查点，不再调用模型
+    else 允许继续执行
+        H->>D: 获取最新观测 recovery_current
+        D-->>H: 返回当前观测，不冒充原动作的因果后观测
+        H->>S: 复核最新控制意图，保存 queued 与恢复清单
+        S-->>H: 普通调度重新接入；控制变化则停止续跑
+        H->>M: 原角色上下文 + 当前观测 + 上一步已知／unknown 事实
+        Note over M,S: 迟到的旧模型响应不再具备推进资格；恢复保留已记请求与消耗，不清零预算。
+        M-->>H: 根据当前状态产生新决定
+        H->>S: 新动作走新 T1，生成新 operation ID 并预留预算
+        H->>D: 仅在新 T1 成功后派发新动作
+        Note over H,P: 后续回到正常链：Driver 执行 → T2 保存回执 → 后观测 → T3 完整提交；不重放旧 operation ID。
+    end

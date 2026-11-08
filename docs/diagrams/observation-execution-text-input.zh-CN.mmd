@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant harness as Harness
+    participant input as 定向输入协调器
+    participant transaction as 动作 / 观测事务
+    harness->>input: replace_text 目标、文本和 O1
+    input->>input: 属性匹配，解析唯一字段
+    input->>transaction: 执行确认焦点所需的动作与观测
+    transaction-->>input: 当前字段、焦点与输入法状态
+    input->>input: 复核同一字段、祖先路径和唯一焦点
+    alt 已确认目标焦点
+        input->>transaction: 清空、输入并取得后观测
+        transaction-->>input: 写入回执与当前字段
+        input->>input: 匹配字段并比较读回文本
+        input-->>harness: 分阶段结果与有效后观测
+    else 焦点未确认
+        input-->>harness: 返回原因，不执行写入
+    end

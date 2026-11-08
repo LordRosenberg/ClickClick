@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant model as 角色模型
+    participant harness as Harness
+    participant driver as Driver / 观测事务
+    participant collector as Collector
+    participant android as Android
+    harness->>driver: 采集当前观测 O1
+    par 视频画面
+        driver->>android: 获取画面（scrcpy / ADB）
+        android-->>driver: 像素、帧位置与几何
+    and UI 结构
+        driver->>collector: 获取树和窗口信息
+        collector-->>driver: UI 树、窗口代次、节点句柄
+    end
+    driver-->>harness: 校验后交付 O1
+    harness->>model: 任务、上下文和 O1
+    model-->>harness: 动作与 O1 的观测 ID
+    harness->>driver: 校验 O1、索引或坐标后派发
+    driver->>driver: 记录帧位置（不额外截图）
+    driver->>android: 执行动作（具体路径见分图）
+    android-->>driver: 派发结果
+    driver->>driver: 成功时提交边界，再采集 O2
+    driver-->>harness: 回执与有效后观测 O2
+    harness->>model: 保存并交付 O2，进入下一轮
