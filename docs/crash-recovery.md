@@ -52,9 +52,50 @@ The task database uses SQLite WAL with `synchronous=FULL`. Complete-step commits
 | **T2: persist the original receipt** | Original Driver result and deduplication identity, appended to task-database receipt records | Separate known results from operations requiring lookup; retain returned facts even if post-observation or step commit fails. |
 | **T3: commit the complete step** | Step report, full post-state, recovery manifest, budget settlement and operation closure in one transaction | Keep the step, latest task state and accounting consistent before the next round. |
 
-The **independent Driver journal** also retains acceptance, child execution stages and original receipts, covering the gap between device execution and Harness T2 persistence. Reusing an operation ID does not execute a new action. If the journal still has no reliable result, the outcome remains unknown; this is not an exactly-once guarantee for phone effects.
-
 The recovery manifest links state to required bodies: original role, plan, notes, prompts, loaded skills, dialogue and human interaction records. Temporary writes, fsync, verification, atomic publication and reference pins protect bodies against dangling database references. These are saved during execution rather than assembled as an emergency in-memory snapshot by an exception handler.
+
+### Why checkpoints alone cannot replace phased persistence
+
+Here, checkpoints alone means saving only complete-step snapshots, not defining checkpoints as pause-only functionality. Complete T3 post-state and newer T1 state/context references can both serve as recovery checkpoints in the broader sense. Database commits and phone actions cannot share an atomic transaction. Without T1, recovery may not even identify the intended operation. If the phone executes before its receipt is saved, retrying from an old snapshot can send another email or create another record.
+
+T1 therefore records intent before dispatch so recovery can identify open operations; T2 records known execution facts; T3 commits complete progress and consumption together. The Driver journal supplies execution-side acceptance and result facts. Recovery isolates old input, reconciles reliable receipts, retains unknown outcomes and acquires current observations for the saved role without automatically replaying actions. This supports eligible recovery, not exactly-once arbitrary business effects.
+
+### How T3 keeps steps, current state and accounting consistent
+
+One task-database transaction saves the **step report** describing the action and feedback, **full post-state** identifying committed progress and the continuation point, and **budget settlement/operation closure** accounting for consumption and reservations. Required bodies are published first, with recovery references committed in the transaction.
+
+Separate commits could leave a completed step with stale task state, or saved progress without its consumption. T3 commits all these internal records or none. Uncommitted progress is reconciled using T1/T2 and journal facts rather than phone-action replay. Atomicity covers task-database progress and accounting; physical effects remain outside that transaction.
+
+### Why T2 and T3 commit separately
+
+They could be combined, but that would delay task-side receipt persistence and enlarge the failure window. After Driver returns, full-step handling still needs post-observation, report/post-state assembly and accounting; these can time out or fail. Waiting for all of them would also lose the received receipt from the uncommitted transaction, requiring another Driver journal lookup during recovery.
+
+The current design commits the minimal original receipt at T2 before atomically saving complete progress at T3. It retains task-side execution evidence even if subsequent observation or step commit fails, at the cost of another database commit. A committed T2 is neither a complete step commit nor proof of business completion.
+
+<a id="driver-journal"></a>
+
+### Driver journal: contents and storage location
+
+The Driver journal is a **durable execution-side ledger**, implemented as a separate SQLite file, `execution.db`, with WAL and `synchronous=FULL`. It records:
+
+- `operations`: operation ID, task/device, argument digest, accepted/returned state and original receipt, supporting deduplication and result lookup.
+- `guards`: each device's current fence, task, epoch and closed status, rejecting obsolete input.
+- `subactions` / `children`: execution subphases, return codes, and supervised input PIDs/creation times for progress reconciliation and old-input cleanup.
+
+Its location follows the actual execution path:
+
+- **Local Driver:** `<task-database directory>/driver-execution/execution.db`, created by `journal_for()`.
+- **Remote Driver:** `<remote Driver Settings.data_dir>/driver-execution/execution.db`, created by the RPC service on the remote Driver host.
+
+`CLICKCLICK_DATA_DIR` can override the data root, default `./data`; relative paths resolve against the corresponding process's working directory. The journal resides on the computer hosting the execution path, while the phone performs UI actions. T2 writes `operation_receipts` in the task database, normally `clickclick.db`; these are separate database files. Local mode may place both in one process and on one disk, so logical separation does not imply physical fault isolation.
+
+An existing operation ID never authorizes another execution; missing reliable journal outcomes remain unknown. Acceptance or an operation record alone does not prove business completion. Implementation: [journal database and deduplication](../driver/execution_journal.py), [local creation](../shared/recovery_runtime.py), [remote creation](../driver/rpc_server.py).
+
+### Why T2 persists a receipt already saved in the journal
+
+The journal owns execution-side deduplication and lookup facts. T2 incorporates the same receipt into durable task records for step closure, budget settlement and audit. Receipts already in the task database need not depend on Driver connectivity and journal access on every recovery; the journal primarily covers execution before task-side T2 persistence.
+
+Two copies are not theoretically mandatory. A task could reference only the journal, provided it guarantees long-term lookup and handles cross-component reads, lifecycle and task-state associations. The current design trades another write for fewer recovery dependencies. It provides neither cross-database atomicity nor always-synchronized copies. If the journal has a result but T2 is absent, recovery queries the original operation ID and adopts a reliable receipt; otherwise it records unknown.
 
 ### What happens when an interruption occurs
 
@@ -89,11 +130,162 @@ Implementation: [dispatch persistence and receipts](../shared/recovery_context.p
 
 All return to ordinary scheduling under the same task identity. This does not make every ordinary failure resumable. Crash recovery grants no extra budget or time; pause, cancellation and terminal controls take precedence.
 
+<a id="checkpoint"></a>
+
+## Checkpoints: contents, JSON structure and persistence timing
+
+### Checkpoints, sessions and model context
+
+A checkpoint is **durable recovery state and references to its required content**, regardless of whether the task is paused. A session holds the whole task's persistent records: dialogue, versioned notes, plans, operations and receipts. A checkpoint establishes a recoverable position within those records. Model context is assembled for a particular role and decision; it is neither the full session nor the serialized checkpoint unchanged.
+
+Snapshots directly retain the instruction, current plan/stage, next role, summary, progress and budgets. References retrieve complete dialogue and other bodies. Relevant business facts, memory, budgets and current observations enter model input; earlier evidence remains available on demand. Ownership credentials and database deduplication indexes belong to runtime control and usually need not reach the model. Recovery reconstructs context and acquires current observations rather than using historical screens to ground actions.
+
+### Physical storage and JSON shape
+
+No single `checkpoint.json` contains every fact. `AgentState` serializes into `tasks.state_json`. A recovery manifest packages state and required versioned records into `artifacts/recovery/<content-hash>.json`, referenced by `tasks.active_manifest_id`. T1 separately stores complete state and decision-context references in `task_operations.intent_json`; operations, receipts, steps and budgets have their own tables.
+
+This simplified manifest retains actual field names, omits other state/records and uses illustrative references:
+
+```json
+{
+  "version": 1,
+  "state_version": 42,
+  "control_revision": 3,
+  "state": {
+    "instruction": "Create a meeting and send notifications",
+    "step_number": 17,
+    "role_invocation_count": 25,
+    "revisable": {
+      "revision": 3,
+      "plan": {
+        "current_stage": {
+          "goal": "Send the meeting notification to attendees",
+          "target_app": "Email",
+          "skill_ids": []
+        },
+        "assumption_roadmap": []
+      },
+      "next_role": "executor",
+      "summary": "Meeting created; notification delivery not confirmed.",
+      "execution_count": 12,
+      "dialogue_refs": ["d1"],
+      "limits": {"device_actions": 100, "model_calls": 200},
+      "checkpoint_version": 0,
+      "checkpoint_resumable": false
+    },
+    "recovery": {}
+  },
+  "records": [
+    {
+      "task_id": "A",
+      "kind": "dialogue",
+      "record_key": "d1",
+      "version": 1,
+      "payload_json": "{\"step\":16,\"ref\":\"dialogue/example.json\"}"
+    }
+  ],
+  "dependencies": {}
+}
+```
+
+`state` is a structured object, persisted as JSON text in a SQLite TEXT column rather than an assembled prompt. Fields are strings, numbers, Booleans, arrays or nested objects. The manifest's `records` collect current required notes, role prompts, skill bodies, HITL/steering and dialogue versions. Only one dialogue record is shown; its `payload_json` is the original record's JSON string, with `ref` locating the body. This is not a copy of all historical records.
+
+The example can have a complete T3 recovery snapshot even with `checkpoint_version=0`: that field counts the safe-continuation preparation below, not every saved state. `limits` retains caps and optional absolute `deadline_at`; consumed calls/actions remain in state and budget records and are not reset on recovery.
+
+### What each persistence point saves
+
+T1/T2/T3 are action-processing commit points, not the full task-state set or every persistence entry point.
+
+| Point | Durable content and location | Snapshot/version behavior |
+| --- | --- | --- |
+| Task creation and recovery enablement | Initial state, frozen policy and manifest | Establishes recovery without a preexisting pause checkpoint |
+| Planning updates and role handoff | AgentState plan revision, next role and feedback; runtime persistence updates state/manifest | Can save recovery state without a device action; does not by itself increment `checkpoint_version` |
+| HITL wait/reply and steering | Pending question, originating invocation continuation, answers/adjustments and related task state | Interaction records also support recovery without sharing device T3; requirements and answers remain recoverable |
+| **T1: before dispatch** | Action/arguments and invocation/observation identity in `task_operations`; complete state/context references in `intent_json`; reservation in `budget_ledger`, with a published manifest | Captures state near dispatch. T1 itself increments neither `state_version` nor `checkpoint_version`, although manifest content may change |
+| **Driver acceptance/execution** | Independent journal acceptance, subphases and any original receipt | Supplies execution-side facts without incrementing task checkpoint counts |
+| **T2: persist receipt** | Append to `operation_receipts`, update operation result and `operation_version` | Adds facts rather than a complete snapshot; no `checkpoint_version` increment |
+| **T3: commit complete step** | Atomically commit `steps`, `tasks.state_json`, operation closure, budget settlement and manifest reference | Establishes complete post-state; increments `state_version`, preserving `checkpoint_version` |
+| **Safe pause** | Retain closed dialogue, verify bodies, clear reconstructible context, save `pausing`; save `paused` after cleanup | `_prepare_checkpoint()` increments `checkpoint_version` in preparation; caller state commit makes it durable |
+| **Budget exhaustion** | Prepare a safe checkpoint with budget dimension, stop reason and cumulative consumption | Calls `_prepare_checkpoint()`; budget type determines final eligibility, rather than making every budget failure resumable |
+| **Caught exception/ordered shutdown** | Record exception/control state, retire ownership and attempt cleanup while retaining committed facts | Does not universally prepare a safe checkpoint; logging an exception does not capture a complete new memory image |
+| **Hard kill/power loss** | Only earlier committed records and published bodies survive | Handlers/finalizers may not run; no final save is guaranteed |
+| **Recovery takeover** | Reconcile manifest/state and receipts/unknowns, close attempts, persist `state.recovery`, current observations and reconstructed state/manifest | Can establish another recovery snapshot without incrementing `checkpoint_version`; an ensuing pause invokes safe preparation |
+
+Snapshot persistence, operation closure and safe-continuation preparation are different events. Recovery consumes existing snapshots/facts before saving handoff state; persistence does not first begin at crash or takeover time.
+
+### Which version changes when
+
+| Field | Meaning and update rule |
+| --- | --- |
+| Manifest `version` | Recovery protocol/format version, currently 1; not a snapshot ordinal |
+| `tasks.state_version` / manifest `state_version` | Persistent state-write version. `update_task(state=...)` and complete T3 state commits increment it; status-only updates do not. T1 can publish nearer state under the existing version, so it does not enumerate every manifest |
+| `state.revisable.checkpoint_version` | Incremented by `_prepare_checkpoint()` after history/reference checks. Call sites are normal pause, budget exhaustion and recovery that must pause. Caller state commit is still required. This is not a universal recovery-snapshot version |
+| `checkpoint_resumable` | Eligibility for the relevant safe continuation. Execution, terminal outcomes and particular budget types can clear it; a nonzero version does not guarantee current resumability |
+| `tasks.active_manifest_id` | Content-hash reference to a published manifest. Changed content may create another file; identical content can reuse one. It is not the checkpoint counter |
+| `operation_version` / `agent_records.version` / plan `revision` | Operation-fact changes, per-kind/key record versions and plan revisions respectively; none is a universal checkpoint number |
+
+Current code has no universal `checkpoint_version` increment on every recovery snapshot. Each T3 can establish valid recovery state while the named field increments only at safe-continuation preparation; field naming alone does not define persistence timing.
+
+### Task status, operation status and recovery progress
+
+| Category | Storage and purpose | Relation to checkpoints |
+| --- | --- | --- |
+| **Task lifecycle** | `tasks.status`: `queued / running / pausing / paused / waiting_for_input / recovering / waiting_for_device / recovery_blocked / succeeded / failed / cancelled` | Stored alongside `tasks.state_json` for scheduling/termination; the status label is not snapshot content |
+| **Operation lifecycle** | Main `task_operations.status` path: `dispatching → result_recorded → committed`; the enum also defines `prepared / superseded`. Known/unknown outcomes use `result_state` and receipts | Tracks one operation's recording progress. Its `intent_json.state` can contain a T1 snapshot, but status itself is not a snapshot. Unknowns may close as committed without proving business success |
+| **Recovery procedure progress** | `tasks.recovery_json.phase` and `agent_records(kind=recovery_event)`: detected, verifying_owner, validating_state, collecting_results, recording_results, restoring_context, refreshing_device, waiting_for_device, blocked, unrecoverable, ready | Tracks recovery steps outside the manifest's `state.recovery`. Appending a recovery event alone neither creates a state snapshot nor increments the checkpoint counter |
+| **Recovery handoff facts** | `AgentState.recovery`, appearing as manifest `state.recovery` | Snapshot content describing interruption gaps, original known/unknown operations and old/current observation references for the saved role |
+
+For example, `tasks.recovery_json` may contain `{"phase":"collecting_results","attempt_no":1,"reason":null}`, meaning receipt lookup is in progress. Reconciled `state.recovery` may include `{"interruption_gap":true,"operations":[{"previous_operation_id":"P1","execution_result":"unknown"}],"observation_source":"recovery_current","current_observation_id":"O2"}`. This second example omits action/original-result fields to illustrate handoff shape. Both associate with the same task but are different stored fields.
+
+Implementation: [AgentState and status enums](../shared/schemas.py), [plan/budget/checkpoint fields](../shared/revisable.py), [manifests and operations](../shared/recovery_store.py), [state/step commits](../shared/db.py), [snapshot loading and handoff](../shared/recovery_runtime.py), [role-state persistence](../agent/revisable/orchestrator.py).
+
 ### Safe checkpoints
 
 Normal pause responds at runtime control boundaries. Checkpoint preparation closes tool records, retains dialogue references only for closed steps, verifies those bodies, clears reconstructible delivered context, increments `checkpoint_version` and sets `checkpoint_resumable`. It first stores `pausing` with complete state; only completed execution cleanup publishes `paused`, preventing concurrent rescheduling while the old execution is still finishing.
 
 `resume` checks cleanup and checkpoint validity before ordinary scheduling with current observations. Budget continuation additionally deduplicates explicit extensions by `request_key`, preserving earlier attempts, counters and failures. Pause is not rollback and cannot resume an arbitrary unfinished model request. Implementation: [checkpoints](../agent/orchestrator.py), [resume entry](../control_api/main.py).
+
+## Idempotency design
+
+The design separates **duplicate requests, stale execution owners and duplicate operations**. Request deduplication prevents repeated submission or control admission; ownership checks prevent obsolete workers from advancing state or sending input; operation deduplication binds an operation to its original receipt. A task ID alone cannot solve all three, and these mechanisms do not guarantee exactly-once GUI business effects.
+
+### Key identities and validation sequence
+
+<!-- design-diagram:recovery-identities -->
+
+![Idempotency and execution identity: submission, actions and takeover](assets/design-recovery-identities.svg)
+
+Values are illustrative, using a single-device task. Harness is a logical lifeline spanning different workers before and after takeover. P1 is fully committed; the next operation P2 is interrupted after T1 and before T2. Recovery queries P2 without executing it again. Rejecting a late old action means it has not crossed the input boundary; effects that already occurred must still be retained and reconciled.
+
+[Mermaid source](diagrams/design-recovery-identities.mmd)
+
+<!-- /design-diagram:recovery-identities -->
+
+| Identity | Scope and changes | Validation and purpose |
+| --- | --- | --- |
+| `request_key` | One submission/control request; retries retain the key | The relevant API compares key and payload, returning the existing admission result; conflicting payloads are rejected. Submission, recovery and budget extension have their own endpoint contracts, separate from device operations. |
+| `task_id` | The whole task, retained across pause, takeover and continuation | Links state, history, notes, operations and budgets; identifies the task without establishing current authority. |
+| `execution_epoch` | Per-task execution generation; incremented at claim, takeover and revocation boundaries | Checked with the token in task storage to reject old-generation progress. Epochs from different tasks are not comparable. |
+| `worker_token` | Random credential of the current owner; replaced on claim/takeover and cleared on release | Matched with the epoch. In the current implementation they overlap in rejecting stale owners, rather than forming two irreplaceable idempotency layers. |
+| `device_fence` | Monotonic per device across tasks; release may also increment it | Driver checks `fence + task_id + epoch` for the device. Takeover also requires fence/drain to establish old-input quiescence. |
+| `stage_id` | Current plan stage; changed by plan revision | Orchestration rejects old-stage advancement; this is not a device-operation deduplication key. |
+| `invocation_id` | Trace identity of a role invocation | Links role decisions, tool calls and operation intents without granting authority. Invocation leases separately invalidate calls after user changes. |
+| `observation_id` | One registered observation; renewed for new observations | Action resolution validates the active basis and its UI indices/geometry. Historical observations do not authorize current actions. |
+| `operation_id` | One concrete operation; generated before T1 and retained for receipt lookup | Task storage and Driver journal bind it to the argument digest. Same ID/payload returns a prior result or unknown without execution; conflicting payloads are rejected. A new model-chosen operation gets a new ID. |
+
+### Why task and device authority are separate
+
+`execution_epoch / worker_token` protect task state; `device_fence` protects physical input. Task A at epoch 5 and task B at epoch 1 may use the same device in succession, so task-local epochs alone do not order device ownership. The device fence increases across tasks. The current Driver matches fence, task and epoch, validating even requests that have already left Harness.
+
+The current claim path replaces epoch and token together, expressing generation and current credential respectively. This field combination is not the only possible design. The required invariant is atomic authority updates with validation at write/dispatch boundaries, making old identities stale after release or takeover. Fencing task writes without isolating old input is insufficient for safe takeover.
+
+### Receipt and settlement deduplication
+
+T1 commits the operation ID, argument digest and budget reservation together. T2 deduplicates original receipts by `operation_id + source + source_generation + source_seq`. T3 atomically commits the step, full state, operation closure and settlement. Repeated recovery neither recreates the original operation nor duplicates its receipt or completed settlement; control-request admission alone does not establish successful recovery.
+
+Revoking an old worker's authority does not discard execution facts: trusted late receipts may still append for the current owner to reconcile, without permitting old-worker plan progress, duplicate settlement or terminal revival. Missing reliable receipts close the original ID as unknown. Recovery does not evade deduplication by automatically retrying under a new ID. Only a new model decision based on current observations creates a new operation, which can have new business effects.
+
+Implementation: [request deduplication](../control_api/main.py), [ownership/receipts/settlement](../shared/recovery_store.py), [intent and dispatch](../shared/recovery_context.py), [Driver fencing and deduplication](../driver/execution_journal.py), [invocation authority](../shared/task_control.py).
 
 ## Execution and recovery boundaries
 

@@ -1,0 +1,42 @@
+sequenceDiagram
+    participant U as Assistant / Console
+    participant H as Harness / Worker
+    participant S as Task store
+    participant D as Driver / journal
+    Note over U,D: 01 Submission and ownership: values are illustrative; Harness spans different workers before and after takeover.
+    U->>H: Submit request_key=R1
+    H->>S: Deduplicate request key and payload
+    S-->>H: Return task_id=TaskA
+    H->>S: Claim TaskA
+    S-->>H: execution_epoch=1, worker_token=A, device_fence=40
+    H->>D: Fence/drain: set device fence=40 and isolate old input
+    D-->>H: Require old-input quiescence before execution
+    Note over H,S: Epoch expresses the task generation; token identifies the current owner. Both validate task progress.
+    Note over H,D: Device fences increase across tasks without reset. Driver checks fence, task_id and epoch together.
+    Note over U,D: 02 Planning, observation and actions: stages, invocations, observations and operations have distinct identities.
+    H->>H: Current stage_id=S1; validate advancement identity
+    H->>D: Acquire current observation
+    D-->>H: observation_id=O1 with UI and pixels
+    H->>H: Role invocation_id=I1 decides an action from O1
+    H->>S: Check epoch/token; T1 saves operation_id=P1, arguments and reservation
+    H->>D: Dispatch P1 with task_id, epoch and fence=40
+    D->>D: Check input authority; deduplicate operation ID and arguments
+    D-->>H: Journal retains and returns P1 receipt
+    H->>S: T2 persists receipt; T3 commits step and settlement
+    Note over H,D: Operation IDs link intent, receipt and lookup. Repeated IDs do not execute again; conflicting payloads fail.
+    H->>S: Next operation P2: T1 saves intent and reservation
+    H->>D: Dispatch P2, fence=40; possibly in flight or already executed
+    Note over H,D: 03 Interrupted before P2 reaches T2. Intent alone cannot establish whether execution occurred.
+    H->>S: New worker claims TaskA for takeover
+    S-->>H: Same task_id; epoch=2, token=B, fence=41
+    H->>D: Fence/drain: set 41 and isolate old input
+    D-->>H: Confirm quiescence or retain quarantine
+    H->>S: Old worker submits progress with epoch=1 and token=A
+    S-->>H: Reject stale progress; trusted late receipts may still append
+    H->>D: Unexecuted old P2 arrives late with fence=40
+    D-->>H: Reject stale input; prior effects cannot be undone
+    H->>D: Bounded lookup of original operation_id=P2
+    D-->>H: Return reliable receipt or no reliable result
+    H->>S: Close P2 as known or unknown without duplicate settlement
+    H->>D: Acquire current observation for the saved role
+    Note over H,D: Never replay P2 automatically. A new model-chosen operation gets a new ID and separate accounting.

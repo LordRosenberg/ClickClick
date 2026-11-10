@@ -101,13 +101,59 @@ A dialogue file reference such as `dialogue/<hash>.json` is instead a disk path.
 
 Default `CLICKCLICK_JEV_MODE=off`; optional `shadow` records judgments and `enforce` participates in summary admission. Jev checks fidelity to original text, not image pixels or business truth. Inherited citations resolve to original records; old summaries cannot prove themselves.
 
-The current `facets` path first checks whole/contiguous assertions, then relation/error diagnostics and applicable detail questions. Identical complete evidence sets batch together, with at most two concurrent batches sharing an eight-second deadline. Oversized evidence is explicitly unverified, never truncated into a purported pass. Rejection thresholds are 0.88 for components, 0.95 for multi-component wholes and 0.74 for targeted details. Complete fidelity judgments must all reach 0.60 for validated support; gray results retain `validated=false`.
+### Integration point and source evidence
+
+Checking occurs after the compaction model submits a candidate and before Harness accepts it to replace active history. Runtime resolves each item's durable references and supplies the assertion with complete original text. For example, an intention to send email, or successful dispatch with unknown effect, cannot support a summary asserting that the email was sent.
+
+Sources include observation text/UI structure, attributed model reports, tool calls/results and cited note versions, plans, events and measurements. Requirements establish intended work, not completed outcomes. A model report establishes that report rather than becoming an independent observation. Full text retains pronouns, negation, attribution and scope. Oversized evidence is explicitly unverified, never truncated into a purported pass.
+
+### Probability outputs and their roles
+
+The current `facets` path checks whole/contiguous assertions before relation/error diagnostics and applicable detail questions.
+
+| Output | Question and score meaning | Current role |
+| --- | --- | --- |
+| Fidelity Noul | Probability score for a Boolean question: is the whole assertion, component or explicit target detail supported? Denote it `p_faithful`, with error score `1 - p_faithful` | Primary input to admission and correction |
+| Relation Choice | Relation probabilities and confidence for `supports / contradicts / says_nothing` | Diagnostic support, contradiction or lack of evidence; does not independently trigger correction in the current facets policy |
+| Error-type Noul | Separate questions for unsupported facts, expanded scope, changed attribution, upgraded certainty and attempts presented as success. Higher scores indicate errors, opposite to fidelity Noul | Explains failures and correction feedback. Types may overlap; a high type score alone does not override fidelity decisions |
+
+Relation classes are exclusive; multiple error types may coexist. Scores retain their question-specific meanings rather than being multiplied as statistically independent events. Target extraction currently covers limited member-selection, English/ISO absolute-date and confirmed-effect expressions. It does not provide a dedicated detail question for every count, date or Chinese expression; other assertions remain covered by whole/component checks.
+
+### How scores decide admission or correction
+
+Harness applies the following priority in `SummaryVerifier.policy()` for each item; Jev does not rewrite the summary:
+
+1. **Check coverage and availability.** Missing sources/answers/required detail scores and service/capacity failures are uncheckable outcomes, handled by the degradation policy below rather than recorded as semantic validation.
+2. **Check correction conditions.** Any component error score at least 0.88, whole-score error at least 0.95 for a multi-component item, or applicable targeted-detail error at least 0.74 triggers `repair`. A single assertion uses the component threshold. Multiple failures combine their spans. A narrowly defined contradictory integer sum can also trigger correction; this mechanical check does not replace general factual or mathematical verification.
+3. **Check validated support if no correction fired.** All whole/component fidelity scores, including any detail score, must reach 0.60 for `pass / validated=true`.
+4. **Otherwise retain a semantic gray result.** Complete checks that meet neither correction nor all-support conditions become `uncertain_bypass / validated=false`; they may be admitted without another correction call. An erroneous gray admission still counts as a miss in evaluation.
+
+A failing component cannot be canceled by other high support scores. Choice confidence and error-type scores explain issues rather than contributing an average or an independent veto. Legacy `relation` confidence/type thresholds and historical isolated long-source conjunction rules belong to different strategies, not the current facets decision rule.
+
+### Threshold selection and freezing
+
+Calibration selects **application decision rules**, without fitting scores to empirical correctness probabilities. Development search and specific error corrections jointly produced the thresholds; one joint grid search did not optimize all four.
+
+- **Samples and labels.** Development records combine historical summaries with complete bound sources and controlled errors. Labels/reasons are checked against source text and withheld from Jev. Once inspected for strategy changes, a held-out set becomes development regression. Historical labels were agent-reviewed without independent human adjudication; corrections preserve original reports.
+- **Component threshold 0.88.** The historical search enumerates 0.50 through 0.98 in 0.02 steps, plus 0.99, comparing whole/component aggregation. It first maximizes the minimum of precision, recall and accuracy, then F1, accuracy and other criteria; ties prefer proximity to a predeclared 0.90 reference. Under the contemporary labels, 128 scorable calibration items yielded 15 detections, zero false corrections and one miss at both 0.86 and 0.88; 0.90 missed four. The tie rule selected 0.88, retained for current components rather than established as uniquely optimal.
+- **Multi-component whole threshold 0.95.** A correct date-interval assertion received a 0.91 whole-error score without a component reaching rejection. A higher whole threshold conservatively avoids weak whole-level rejection overriding component evidence; this is an error-driven choice, not proof of a global optimum.
+- **Target-detail threshold 0.74.** Among 17 member/date development items, the largest correct-item error score was 0.68 and the smallest incorrect-item score was 0.79. Their midpoint, 0.735, became 0.74. That separation describes only those development items.
+- **Support threshold 0.60.** Early relation experiments had a minimum correct-item Choice confidence of 0.63: grid value 0.60 covered those items, while 0.65 made some gray. The current policy retains that support threshold without claiming a fresh joint optimization of all present Noul judgments.
+- **Post-freeze acceptance.** Freeze labels, sources and thresholds before subsequent requests; tuning on their outcomes would invalidate an independent-test claim. In the 20-item parameter-frozen acceptance, all four controlled errors triggered correction and none of sixteen correct items was falsely corrected, but four correct items remained unvalidated gray. Mechanical capacity/cache fixes occurred during acceptance, so this was not a strict blind test of fully frozen code.
+
+Report cohorts separately: the historical facets development pool has 170 items, with subsequent opened 32- and 26-item sets used for development/regression. Core parameter-frozen acceptance has 20 items. The later 44-item long-source combination is known regression and includes earlier items. A separate early relation stage has 248 opened development items with different provenance and policy. These rounds do not sum to a single 250-item independent real-trajectory benchmark, and repeated checks do not enlarge independent sample size.
+
+Grid-search scripts, quality metrics, phase-specific calibration and final acceptance records remain in the development repository; this section documents the current decision rules, threshold rationale and sample limitations. Limited regression scores establish neither production reliability nor task-success gains from summary detection alone.
+
+### Correction, degradation and reuse boundaries
 
 Feedback supplies rejected spans, sources and reasons. Format and semantic issues share one correction; accepted items retain text and sources. Failed correction keeps accepted/unassessed items from the last mechanically valid candidate, omits known rejections and retains an audit. This can produce incomplete or empty memory while originals and recent steps survive.
 
-Default `CLICKCLICK_JEV_FAILURE_POLICY=bypass` admits mechanically valid but unvalidated candidates on service, capacity or coverage failures. Service errors open a provider/credential-scoped 60-second cooldown without spending a correction. Compaction has a 90-second deadline when a candidate exists. No mechanically valid candidate, primary-model authorization/quota, storage failures and cancellation retain their established handling. Experimental `rollback` can still exceed raw-context capacity.
+Identical complete evidence sets batch together, with at most two concurrent batches sharing an eight-second checking deadline. Default `CLICKCLICK_JEV_FAILURE_POLICY=bypass` admits mechanically valid but unvalidated candidates on service, capacity or coverage failures. Service errors open a provider/credential-scoped 60-second cooldown without spending a correction. Compaction has a 90-second deadline when a candidate exists. No mechanically valid candidate, primary-model authorization/quota, storage failures and cancellation retain their established handling. Experimental `rollback` can still exceed raw-context capacity.
 
 Complete judgments cache by task, assertion, original evidence/context and model/question identity; thresholds are reapplied and faults never cache as passes. Source caps and profile settings are in [Settings](../shared/config.py); calibration and natural/controlled-error results remain in [historical experiments](memory-context-experiments.md). This optional check does not guarantee error-free summaries.
+
+Implementation: [probability questions and error types](../agent/revisable/summary_check.py), [component/detail questions](../agent/revisable/jev_facets.py), [compaction admission and correction](../agent/revisable/summary.py), [Jev gateway](../shared/jev_gateway.py).
 
 ## Retrieval: read the source when detail matters
 

@@ -17,6 +17,7 @@ export const diagrams = [
   {"id":"hitl-question","doc":"hitl-design","kind":"sequence"},
   {"id":"hitl-steering","doc":"hitl-design","kind":"sequence"},
   {"id":"recovery-lifecycle","doc":"crash-recovery","kind":"sequence"},
+  {"id":"recovery-identities","doc":"crash-recovery","kind":"sequence"},
   {"id":"recovery-states","doc":"crash-recovery","kind":"state-lanes","height":870},
   {"id":"evaluation-lifecycle","doc":"evaluation-design","kind":"sequence"},
   {"id":"session-publish","doc":"session-storage","kind":"sequence"},

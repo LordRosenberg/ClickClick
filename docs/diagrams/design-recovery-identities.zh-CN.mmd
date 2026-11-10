@@ -1,0 +1,42 @@
+sequenceDiagram
+    participant U as 助手 / 控制台
+    participant H as Harness / Worker
+    participant S as 任务存储
+    participant D as Driver / journal
+    Note over U,D: 01 创建任务与领取执行权：编号仅作示意，Harness 在接管前后代表不同 worker。
+    U->>H: 提交 request_key=R1
+    H->>S: 按 request_key 与请求内容去重
+    S-->>H: 返回 task_id=任务A
+    H->>S: 领取任务A
+    S-->>H: execution_epoch=1，worker_token=甲，device_fence=40
+    H->>D: fence/drain：设备 fence 更新为40，隔离旧输入
+    D-->>H: 确认旧输入静止，才允许执行
+    Note over H,S: epoch 表达任务内执行代次，token 表达当前执行者凭证；两者共同校验任务推进资格。
+    Note over H,D: device_fence 按设备跨任务递增，换任务不重置；Driver 同时检查 fence、task_id 和 epoch。
+    Note over U,D: 02 规划、观察与操作：阶段、调用、观测和操作分别具有身份。
+    H->>H: 当前阶段 stage_id=S1；推进时校验阶段身份
+    H->>D: 获取当前观测
+    D-->>H: observation_id=O1，返回图树
+    H->>H: 角色调用 invocation_id=I1，根据O1决定动作
+    H->>S: 校验epoch与token；T1保存 operation_id=P1、参数及预算预留
+    H->>D: 派发P1，携带 task_id、epoch 和 fence=40
+    D->>D: 校验设备执行权，按 operation_id 与参数去重
+    D-->>H: journal 保留并返回P1原回执
+    H->>S: T2保存回执；T3提交完整步骤与预算结算
+    Note over H,D: operation_id 关联意图、回执和恢复查询；重复同一ID不再执行，异参冲突。
+    H->>S: 下一操作P2：T1保存意图与预算预留
+    H->>D: 派发P2，fence=40；可能在途或已经执行
+    Note over H,D: 03 此处中断：P2尚无T2回执记录。不能仅凭意图判断它是否已经执行。
+    H->>S: 新worker申请接管任务A
+    S-->>H: task_id不变；epoch=2，token=乙，fence=41
+    H->>D: fence/drain：更新为41并隔离旧输入
+    D-->>H: 确认旧输入静止；否则保持隔离
+    H->>S: 旧worker迟到提交进度：epoch=1、token=甲
+    S-->>H: 拒绝旧执行者推进；可信迟到回执仍可追加
+    H->>D: 尚未执行的旧P2请求迟到，fence=40
+    D-->>H: 拒绝过期输入；不能撤销已经发生的效果
+    H->>D: 按原 operation_id=P2 有界查询
+    D-->>H: 返回可信原结果，或缺少可靠结果
+    H->>S: 闭合P2为已知或unknown，不重复步骤和结算
+    H->>D: 取得新观测，供原角色继续决策
+    Note over H,D: 不自动重放P2；模型明确决定后续操作时生成新ID，并单独计量。

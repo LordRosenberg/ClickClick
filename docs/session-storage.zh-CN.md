@@ -4,6 +4,8 @@
 
 Session 是任务的持久事实与当前状态，不等于模型窗口或某次角色会话。任务切换角色、等待用户、暂停或重启后台时，读取同一任务记录；角色上下文只是其中面向当前决策的投影。
 
+Checkpoint 是 Session 中用于恢复的状态及引用快照，正常 T3、派发前 T1 和恢复接管都可能保存相关状态，不限定为暂停存档。当前 `checkpoint_version` 只统计安全续跑准备，不是全部快照的统一编号。JSON 形态、各时间点提交内容，以及任务状态／操作状态／恢复进度的区别，统一见[Checkpoint 专章](crash-recovery.zh-CN.md#checkpoint)。
+
 ## 设计图解
 
 <!-- design-diagram:session-storage-map -->
@@ -37,7 +39,7 @@ pin 保护正在提交的引用，GC 按可达关系保留正文；正常动作�
 | Driver journal | operation ID、参数摘要、派发身份及原始回执 | 独立执行端保存去重和结果查询事实 |
 | 进程内存 | 活跃角色会话、已加载正文、解码帧、缓存与当前状态副本 | 支撑实时执行；持久部分按清单重建，临时状态重新获取 |
 
-数据根目录由 `Settings.data_dir` / `CLICKCLICK_DATA_DIR` 指定，默认 `./data`，数据库为 `clickclick.db`。产物包括 `artifacts/dialogue/`、`history_images/`、`trees/`、`som/`、`llm/` 等；恢复正文与 journal 的实际定位由对应存储实现管理，不能只复制数据库就视为完整备份。
+数据根目录由 `Settings.data_dir` / `CLICKCLICK_DATA_DIR` 指定，默认 `./data`，数据库为 `clickclick.db`。产物包括 `artifacts/dialogue/`、`history_images/`、`trees/`、`som/`、`llm/` 等。本地 Driver journal 为任务数据库同级目录下的 `driver-execution/execution.db`；远程 journal 位于远程 Driver 数据目录下的同名路径。两者与任务库中的 T2 回执分开存储，具体内容与职责见[Driver journal 详解](crash-recovery.zh-CN.md#driver-journal)。不能只复制任务数据库就视为完整备份。
 
 ## 身份、版本与来源引用
 

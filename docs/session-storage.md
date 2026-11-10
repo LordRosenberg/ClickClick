@@ -4,6 +4,8 @@
 
 Session holds durable task facts and current state, rather than being a model window or one role invocation. Role changes, user waits, pauses and backend restarts access the same task record. Role context is a decision-specific projection of those records.
 
+A checkpoint is recovery state and references within the session, not limited to pause saves: normal T3, pre-dispatch T1 and takeover can persist recovery state. Current `checkpoint_version` counts safe-continuation preparation rather than all snapshots. See the [checkpoint chapter](crash-recovery.md#checkpoint) for JSON shape, persistence points and the distinction between task status, operation status and recovery progress.
+
 ## Design diagrams
 
 <!-- design-diagram:session-storage-map -->
@@ -37,7 +39,7 @@ Pins protect pending references and GC retains reachable bodies; ordinary action
 | Driver journal | Operation IDs, argument digests, dispatch identities and original receipts | Independent execution-end deduplication and result-query facts |
 | Process memory | Active role sessions, loaded bodies, decoded frames, caches and working state | Live execution; durable content reconstructs from manifests while temporary state is reacquired |
 
-`Settings.data_dir` / `CLICKCLICK_DATA_DIR` selects the root, default `./data`; the database is `clickclick.db`. Artifacts include `artifacts/dialogue/`, `history_images/`, `trees/`, `som/` and `llm/`. Recovery bodies and journals follow their owning storage implementations. Copying only the database is not a complete backup.
+`Settings.data_dir` / `CLICKCLICK_DATA_DIR` selects the root, default `./data`; the database is `clickclick.db`. Artifacts include `artifacts/dialogue/`, `history_images/`, `trees/`, `som/` and `llm/`. The local Driver journal is `driver-execution/execution.db` under the task-database directory; a remote journal uses that path under the remote Driver data root. Both are separate from task-side T2 receipts; see [Driver journal details](crash-recovery.md#driver-journal) for contents and responsibilities. Copying only the task database is not a complete backup.
 
 ## Identity, versions and source references
 
