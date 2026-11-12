@@ -2,7 +2,7 @@
   "assets": {
     "622873100": {
       "name": "ClickClick-0.2.2-macos-aarch64.zip",
-      "downloads": 0
+      "downloads": 1
     },
     "622873072": {
       "name": "ClickClick-0.2.2-macos-x86_64.zip",
@@ -217,8 +217,8 @@
     },
     {
       "date": "2026-11-12",
-      "downloads": 18
+      "downloads": 19
     }
   ],
-  "sampled_at": "2026-11-12T03:55:29Z"
+  "sampled_at": "2026-11-12T12:57:18Z"
 }
