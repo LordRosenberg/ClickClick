@@ -30,7 +30,7 @@
     },
     "621858610": {
       "name": "ClickClick-0.2.0-macos-x86_64.zip",
-      "downloads": 0
+      "downloads": 1
     },
     "621858646": {
       "name": "ClickClick-0.2.0-windows-x86_64.exe",
@@ -222,7 +222,11 @@
     {
       "date": "2026-11-13",
       "downloads": 23
+    },
+    {
+      "date": "2026-11-14",
+      "downloads": 24
     }
   ],
-  "sampled_at": "2026-11-13T23:42:47Z"
+  "sampled_at": "2026-11-14T06:44:44Z"
 }
