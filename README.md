@@ -46,9 +46,14 @@ Click a preview to watch the complete task. [More recordings and task instructio
 
 ## Documentation
 
-- **How it works** · [Architecture and design index](docs/architecture.md) · [Technical overview](docs/reliability-design.md) · [Design decisions](docs/design-decisions.md)
-- **Detailed designs** · [Skills self-learning](docs/skill-evolution.md) · [GUI scripts](docs/gui-script-design.md) · [Evaluation design](docs/evaluation-design.md)
-- **Use and reproduce** · [Setup and MCP](docs/local-mcp.md) · [Observability](docs/observability.md) · [Benchmark reproduction](docs/evaluation.md) · [Skill authoring](skills/README.md)
+| Topic | Guides |
+| --- | --- |
+| System design | [Architecture and design index](docs/architecture.md) · [Technical overview](docs/reliability-design.md) · [Design decisions](docs/design-decisions.md) |
+| Skills self-learning | [Learning, regression and publication](docs/skill-evolution.md) |
+| GUI script replay | [Recording, replay and recovery](docs/gui-script-design.md) |
+| Setup and troubleshooting | [Setup and MCP](docs/local-mcp.md) · [Observability](docs/observability.md) |
+| Evaluation | [Evaluation design](docs/evaluation-design.md) · [Benchmark reproduction](docs/evaluation.md) |
+| Skill authoring | [Skill authoring guide](skills/README.md) |
 
 [Apache 2.0](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 

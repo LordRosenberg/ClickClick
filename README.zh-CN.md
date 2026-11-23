@@ -46,9 +46,14 @@
 
 ## 文档导航
 
-- **设计总览** · [系统架构与详设索引](docs/architecture.zh-CN.md) · [技术概览](docs/reliability-design.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md)
-- **功能详设** · [Skills 自学习](docs/skill-evolution.zh-CN.md) · [GUI 脚本](docs/gui-script-design.zh-CN.md) · [评价体系](docs/evaluation-design.zh-CN.md)
-- **使用与复现** · [MCP 接入](docs/local-mcp.zh-CN.md) · [可观测性](docs/observability.zh-CN.md) · [评测复现](docs/evaluation.zh-CN.md) · [Skill 编写](skills/README.zh-CN.md)
+| 主题 | 文档 |
+| --- | --- |
+| 系统设计 | [架构与详设索引](docs/architecture.zh-CN.md) · [技术概览](docs/reliability-design.zh-CN.md) · [设计取舍](docs/design-decisions.zh-CN.md) |
+| Skills 自学习 | [学习、回归与发布](docs/skill-evolution.zh-CN.md) |
+| GUI 脚本 | [录制、回放与接管](docs/gui-script-design.zh-CN.md) |
+| 接入与排查 | [MCP 接入](docs/local-mcp.zh-CN.md) · [可观测性](docs/observability.zh-CN.md) |
+| 评测与复现 | [评价体系](docs/evaluation-design.zh-CN.md) · [评测复现](docs/evaluation.zh-CN.md) |
+| 编写 Skill | [Skill 编写指南](skills/README.zh-CN.md) |
 
 [Apache 2.0](LICENSE) · [第三方许可证](THIRD_PARTY_NOTICES.md)
 
