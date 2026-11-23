@@ -179,6 +179,8 @@ def register_memory_tools(
         if parsed.view == "image" and not parsed.source:
             raise ValueError("Use a known observation source for an image; keyword searches return text.")
         if parsed.source == "plan":
+            if getattr(store, "canonical_history_only", False):
+                raise ValueError("Copy a versioned source from this build's verified history")
             return ReadResult(data={"plan_revision": state.revisable.revision,
                                     "plan": state.revisable.plan.model_dump() if state.revisable.plan else None})
         ctx.state["history_reads"] = ctx.state.get("history_reads", 0) + 1

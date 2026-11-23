@@ -56,7 +56,7 @@ App core/workflow `verified_actions` can declare supported closed compound recip
 
 ## Configuration, tradeoffs and implementation
 
-`CLICKCLICK_SKILLS_DIR` selects the skill root, defaulting to the repository's `skills/`; device configuration selects applicable profiles. The four-skill/two-workflow limits, role sections and scopes belong to the delivery protocol. Learned candidates enter the canonical library only after independent review, applicable validation and human approval; ordinary completion does not trigger automatic learning.
+`CLICKCLICK_SKILLS_DIR` selects the skill root, defaulting to the repository's `skills/`. Device configuration selects applicable profiles. The four-skill/two-workflow limits, role sections and scopes belong to the delivery protocol. Learned candidates must pass independent review and the applicable validation before publication. Eligible low-impact changes to one App workflow can publish automatically through paired regression. Other eligible changes follow the pending approval process. [Skills self-learning design](skill-evolution.md) · [Learning entry points and policy](skill-learning-policy.md)
 
 Exact app matching reduces irrelevant guidance but requires maintained aliases, profiles and conditions. Progressive delivery lowers repeated context, while models can still miss a skill or ignore valid guidance. Inspect delivery and action adoption separately.
 

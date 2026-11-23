@@ -208,6 +208,7 @@ function SubmitForm() {
   const navigate = useNavigate();
   const [instruction, setInstruction] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [recordScript, setRecordScript] = useState(false);
   const [decisionModel, setDecisionModel] = useState("");
   const [executorModel, setExecutorModel] = useState("");
   const devices = useQuery({
@@ -259,22 +260,26 @@ function SubmitForm() {
       text,
       serials,
       skill_learn,
+      generate_test_script,
       decision_model,
       executor_model,
     }: {
       text: string;
       serials: string[];
       skill_learn: boolean;
+      generate_test_script: boolean;
       decision_model?: string;
       executor_model?: string;
     }) =>
       createTask(text, serials, {
         skill_learn,
+        generate_test_script,
         decision_model,
         executor_model,
       }),
     onSuccess: (data) => {
       setInstruction("");
+      setRecordScript(false);
       qc.invalidateQueries({ queryKey: ["tasks"] });
       qc.invalidateQueries({ queryKey: ["devices"] });
       const tasks = data.tasks ?? [];
@@ -329,6 +334,7 @@ function SubmitForm() {
                 text,
                 serials: selected,
                 skill_learn: false,
+                generate_test_script: recordScript,
                 decision_model: decisionModel || undefined,
                 executor_model: executorModel || undefined,
               });
@@ -415,7 +421,27 @@ function SubmitForm() {
             )}
           </div>
           <p className="font-mono text-[11px] text-text-mute">
-            {t("任务结束仅保留本地学习线索，不额外调用模型或操作设备。可在任务详情关闭记录。")}</p>
+            {t("任务结束后在本机保留 Skill 学习线索，不额外调用模型或操作设备。可在任务详情关闭学习线索记录。")}
+          </p>
+          <div className="flex items-start gap-2 font-mono text-[11px]">
+            <input
+              id="task-record-script"
+              type="checkbox"
+              className="mt-0.5"
+              checked={recordScript}
+              disabled={mutation.isPending}
+              onChange={(e) => setRecordScript(e.target.checked)}
+              aria-describedby="task-record-script-help"
+            />
+            <div>
+              <label htmlFor="task-record-script" className="text-text">
+                {t("录制脚本")}
+              </label>
+              <p id="task-record-script-help" className="text-text-mute">
+                {t("任务成功后生成脚本。配置专用模拟器后会自动复验。")}
+              </p>
+            </div>
+          </div>
           <div className="space-y-1.5">
             <div className="font-mono text-[10px] uppercase tracking-wide text-text-mute">
               devices {selected.length > 0 ? `(${selected.length})` : ""}

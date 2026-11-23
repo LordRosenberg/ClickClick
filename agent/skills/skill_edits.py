@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -26,6 +27,36 @@ class TextEdit(BaseModel):
 class LocalizedCandidate(CandidateSummary):
     base_hash: str = Field(pattern=r"^[0-9a-f]{64}$", description="SHA256 of the complete literal base file or supplied current draft.")
     edits: list[TextEdit] = Field(min_length=1, max_length=12)
+
+
+class DeleteCandidate(CandidateSummary):
+    operation: Literal["delete"] = Field(description="Remove an entire active skill only when evidence covers all its applicable guidance. Use a scoped revision for a stale rule.")
+    base_hash: str = Field(pattern=r"^[0-9a-f]{64}$", description="Raw file hash from read_official_skill.")
+
+
+def deletion_base(candidate: DeleteCandidate, library):
+    """Resolve the exact reviewed active file, including its original bytes."""
+    from agent.skills.library import parse_skill_markdown
+
+    relative = Path(candidate.target)
+    if (relative.is_absolute() or relative.name != "SKILL.md" or relative.parts[0] not in {"apps", "generic"}
+            or any(part.startswith(("_", ".")) for part in relative.parts)):
+        raise ValueError("invalid canonical deletion target")
+    root = library.root.resolve()
+    target = (root / relative).resolve()
+    if target.relative_to(root).as_posix() != candidate.target or not target.is_file():
+        raise ValueError("deletion requires an existing canonical skill")
+    raw = target.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != candidate.base_hash:
+        raise ValueError("deletion base changed since it was read")
+    text = raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    pack = parse_skill_markdown(text, path=target)
+    active = library.get(pack.id)
+    if not pack.active or active is None or active.path.resolve() != target:
+        raise ValueError("deletion target is not the active canonical skill")
+    if pack.frontmatter.get("verified_actions"):
+        raise ValueError("deletion changes existing verified action contracts")
+    return pack, text
 
 
 def materialize_candidate(value, library, *, drafts=()):

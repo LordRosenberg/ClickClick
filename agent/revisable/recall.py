@@ -44,6 +44,8 @@ def resolve_source(store, source):
         kind, key, version, offset = canonical.groups()
         row = store.get(kind, unquote(key), int(version))
         return kind, human_evidence_record(row) if kind == "human_input" else row, int(offset or 0)
+    if getattr(store, "canonical_history_only", False):
+        raise ValueError("Copy a versioned source from this build's verified history")
     observation = store.db.get_agent_record(store.task_id, "observation", source)
     if observation is not None:
         return "observation", observation, 0
@@ -76,6 +78,8 @@ def resolve_source(store, source):
 
 def read_history(store, args, ctx, initial_records):
     """Return bounded useful text or one historical image; never change action basis."""
+    if not args.source and getattr(store, "canonical_history_only", False):
+        raise ValueError("Copy a versioned source from this build's verified history")
     supplied = ctx.state.setdefault("history_supplied", set(initial_records))
     seen = ctx.state.setdefault("history_results", set())
     if args.source:
@@ -133,6 +137,9 @@ def read_history(store, args, ctx, initial_records):
             if kind != "observation" or not row["payload"].get("image_ref"):
                 raise ValueError("Source has no image; request its text instead")
             data = store.artifacts.read_bytes(row["payload"]["image_ref"])
+            image_limit = getattr(store, "history_image_max_bytes", None)
+            if image_limit is not None and len(data) > image_limit:
+                raise ValueError("Historical image exceeds the size limit; request its text instead")
             signature = (source, "image", hashlib.sha256(data).hexdigest())
             if signature in seen:
                 item["already_supplied"] = True

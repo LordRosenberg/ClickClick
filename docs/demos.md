@@ -8,9 +8,9 @@ Latest [MobileWorld results](mobileworld-results-20261007.md): original **106/11
 
 ## MobileWorld recordings / MobileWorld 录屏
 
-The six README videos retain their October 2 recordings; the latest October 7 results and task trajectories are linked above. Click an animated preview in the README to watch the complete recording at **3× speed**. Shown accounts and records are synthetic benchmark fixtures.
+The six videos below are recordings from the October 2 showcase. The project risk matrix recording uses the clarified task instructions. The October 7 results and trajectories linked above come from a separate run. Click an animated preview in the README to watch the complete recording at **3× speed**. The accounts and records are synthetic benchmark data.
 
-README 中的六个视频保留自 10 月 2 日的成功任务录屏；上方链接提供最新成绩与任务轨迹。点击动图预览可观看 **3 倍速完整视频**，展示账号与记录均为合成测试数据。
+下列六个视频来自 10 月 2 日的演示场次，项目风险任务采用澄清后的指令。上方的 10 月 7 日成绩和轨迹来自另一轮运行。点击 README 中的动图可观看 **3 倍速完整视频**，展示的账号与记录均为合成测试数据。
 
 | Task / 任务 | Workflow / 工作流 | Video / 完整视频 |
 | --- | --- | --- |

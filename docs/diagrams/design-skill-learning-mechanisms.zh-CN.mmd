@@ -1,30 +1,29 @@
 flowchart TB
-    subgraph research["轨迹与连续研究 / 显式入口，按证据推进"]
-        source["原任务来源 / 指令、动作顺序、截图和回执按引用读取 / 成功绕路与失败都可研究，允许 skip"]
-        learner["Learner 连续会话 / 当前目标、假设、已知事实、失败与预算 / propose/explore/skip，避免重复研究"]
-        candidate["条件化候选 / 适用条件、决策改进与来源绑定 / 多文件按应用归属，局部编辑绑定精确基础"]
+    subgraph research["轨迹与研究 / 从已结束的任务开始"]
+        source["原任务证据 / 先看步骤顺序和决策 / 按需回查原始证据"]
+        learner["Learner / 结合轨迹与已核验的接管线索 / 有依据时提出改动，也可以跳过"]
+        candidate["条件化候选 / 绑定应用、适用条件和来源证据 / 修订绑定基础版本的确切正文"]
     end
     subgraph review["独立 Skill Reviewer / 不继承 Learner 整段对话"]
         independent["独立读取证据 / 按需读取原始来源与冻结指南 / 评审结论绑定实际候选和角色正文"]
         criteria["六项审查 / 根因、迁移性、冲突 / 退化风险、简洁性、边际价值"]
-        admission["区分准入声明 / source_evidence 支持局部知识 / measured_utility 需要相应执行收益证据"]
+        admission["区分证据范围 / 来源证据支撑局部经验 / 整任务收益需要实测证据"]
     end
-    subgraph validation["按需验证与发布 / 普通执行与独立结果核验"]
-        selective["选择必要验证 / 已有证据可复用；缺事实才探索或试跑 / 冻结 overlay，核对交付、采用与结果"]
-        utility["局部与整任务分开 / 文件可局部成立，任务仍可能未恢复 / 保留退化、环境故障、未评分和未知成本"]
-        publish["pending 与人工确认 / 保存候选、审查、验证和基础库绑定 / 用户复核结果与 diff，逐文件重查后入库"]
+    subgraph validation["配对回归与发布 / 独立 Android 测试环境"]
+        selective["选用例并验证 / 复用已登记用例，或补录准备脚本 / 独立核对初态"]
+        utility["新旧 Skill 各跑一轮 / 同一 App 构建与初态 / 核对业务结果、Skill 使用和成本"]
+        publish["版本化发布 / 符合条件的低影响改动自动发布 / 高影响改动待人工审核"]
     end
-    subgraph shared["关键契约与边界 / 贯穿各阶段的约束与可追溯记录"]
-        binding["精确绑定与结果复用 / 候选 hash、基础库、任务、模型、初始化与运行合同一致才复用旧验证"]
-        cost["成本与闭环 / 研究共享累计预算；无后续的成功周期直接结束；普通任务不自动付费学习"]
+    subgraph shared["关键契约与边界 / 证据追溯与独立运行"]
+        binding["证据绑定 / 绑定候选、基础库、实际交付的 Skill 和测试环境"]
+        cost["预算与停止条件 / 作业共享累计预算。证据不足时保留当前版本。"]
     end
     source --> learner
     learner -->|"propose"| candidate
     independent --> criteria
     criteria --> admission
-    admission -->|"证据复用"| publish
     selective --> utility
     utility --> publish
     research --> review
     review --> validation
-    validation -->|"失败或争议：保留已接纳知识，在原会话继续调查剩余障碍"| research
+    validation -->|"保留结果，供后续研究"| research

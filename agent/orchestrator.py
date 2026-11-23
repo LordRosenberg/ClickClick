@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import contextvars
+import logging
 import time
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -29,6 +30,7 @@ from shared.schemas import AgentState, ExecutorStep, LogLevel, ObservationMode, 
 if TYPE_CHECKING:
     from driver.pool import DriverPool
 
+logger = logging.getLogger(__name__)
 
 _current_driver: contextvars.ContextVar[DeviceDriver | None] = contextvars.ContextVar(
     "orch_current_driver", default=None,
@@ -94,6 +96,7 @@ class Orchestrator:
         self.cancel_registry = CancelRegistry()
         self._device_lock = asyncio.Lock()
         self._learning_jobs: set[str] = set()
+        self._skill_version_audits: set[asyncio.Task[None]] = set()
         self._pause_requested: set[str] = set()
         self.steering_controls = {}
 
@@ -356,6 +359,14 @@ class Orchestrator:
                 role.driver = driver
 
         warm_task: asyncio.Task[Any] | None = None
+        app_build_reads = None
+        if getattr(self.settings, "skill_version_audit_enabled", False) and callable(getattr(driver, "read_app_build", None)):
+            from agent.skills.policy import preferences
+            try:
+                if preferences(self.db).local_recording:
+                    app_build_reads = {}
+            except Exception as exc:
+                logger.warning("Could not read Skill learning preference: %s", type(exc).__name__)
         try:
             if self.is_pause_requested(task_id):
                 raise TaskPauseRequested
@@ -396,6 +407,7 @@ class Orchestrator:
                 provider_warm_task=warm_task,
                 max_device_actions=max_device_actions,
                 max_action_attempts=max_action_attempts,
+                app_build_reads=app_build_reads,
             )
         except TaskPauseRequested:
             return self._pause(task_id, state)
@@ -464,6 +476,11 @@ class Orchestrator:
                     await role.aclose()
                 except Exception:  # noqa: BLE001
                     pass
+            if app_build_reads:
+                try:
+                    self._finish_app_build_reads(task_id, app_build_reads, cleanup_allowed)
+                except Exception as exc:  # Optional evidence cannot change the task result.
+                    logger.warning("Could not record Skill App build: %s", type(exc).__name__)
             _current_driver.reset(token)
             if cleanup_allowed:
                 self.steering_controls.pop(task_id, None)
@@ -665,6 +682,7 @@ class Orchestrator:
                 "basis_observation_id": step.basis_observation_id,
                 "evidence_refs": list(step.evidence_refs),
                 "observation_id": package.observation_id,
+                "observation_accepted": package.accepted,
                 "observation_mode": mode.value,
                 "app_id": getattr(ui, "app_id", ""),
                 "som_ref": package.som_ref,
@@ -776,6 +794,51 @@ class Orchestrator:
         except Exception as exc:  # Recording must not change the task outcome.
             self.traces.write(task_id, kind="skill", level=LogLevel.WARN,
                 message=f"local_learning_clue_error: {type(exc).__name__}")
+
+    def _finish_app_build_reads(self, task_id, reads, cleanup_allowed):
+        app_builds = {}
+        for package, read in reads.items():
+            if not read.done():
+                read.cancel()
+            elif cleanup_allowed and not read.cancelled():
+                snapshot = read.result()
+                self.db.append_agent_record(task_id, "skill_app_build", package, snapshot)
+                if snapshot.get("version_code") is not None:
+                    app_builds[package] = snapshot
+        if not app_builds:
+            return
+        task = self.db.get_task(task_id)
+        if task is None or task.status not in {TaskStatus.SUCCEEDED, TaskStatus.FAILED}:
+            return
+        audit = asyncio.create_task(self._audit_app_builds(task, app_builds),
+                                    name=f"skill-version-audit-{task_id}", context=contextvars.Context())
+        self._skill_version_audits.add(audit)
+        audit.add_done_callback(self._skill_version_audits.discard)
+
+    async def _audit_app_builds(self, task, app_builds):
+        from agent.revisable.store import TaskStore
+        from agent.skills.policy import preferences
+        from agent.skills.version_audit import audit_task_versions
+
+        if task.id in self._learning_jobs:
+            return
+        self._learning_jobs.add(task.id)
+        try:
+            if not preferences(self.db).local_recording:
+                return
+            await audit_task_versions(task, TaskStore(self.db, self.artifacts, task.id),
+                                      self.settings, app_builds)
+        except Exception as exc:  # Detached audit failure leaves the task terminal.
+            logger.warning("Skill version audit failed for %s: %s", task.id, type(exc).__name__)
+        finally:
+            self._learning_jobs.discard(task.id)
+
+    async def stop_skill_version_audits(self) -> None:
+        audits = tuple(self._skill_version_audits)
+        for audit in audits:
+            audit.cancel()
+        if audits:
+            await asyncio.gather(*audits, return_exceptions=True)
 
     async def learn_from_task(self, task_id: str, *, force: bool = False, request=None) -> dict:
         """Explicit personal optimization owns the device after source completion."""

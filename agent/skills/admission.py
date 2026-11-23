@@ -63,6 +63,11 @@ def source_validation(candidate, old, *, review, evidence, source_id, contracts,
            if ordinary_validation is not None else {})}
 
 
+def has_native_observation(evidence):
+    return any(isinstance(row, dict) and "/observation:" in row.get("source", "") and row.get("text")
+               for row in evidence)
+
+
 def source_gate(candidate, validation, review, contracts_hash):
     from agent.skills.learning import digest, review_gate
     if validation.get("version") != 1:
@@ -84,8 +89,7 @@ def source_gate(candidate, validation, review, contracts_hash):
             or validation.get("evidence_hash") != digest(evidence)):
         return False, "missing_source_evidence"
     # A report/note or model approval alone is never an observed app fact.
-    if not any(isinstance(row, dict) and "/observation:" in row.get("source", "")
-               and row.get("text") for row in evidence):
+    if not has_native_observation(evidence):
         return False, "missing_native_observation"
     ordinary = validation.get("ordinary_validation")
     if ordinary is not None:

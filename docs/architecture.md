@@ -48,7 +48,15 @@ Driver combines scrcpy pixels and Accessibility Collector structure, with ADB fa
 
 Original records, versioned notes and sourced summaries are stored separately. Each role assembles current requirements, plan, budget, observations and memory; see [memory/context](memory-and-context.md). [Session/storage](session-storage.md) owns database, file and process-memory responsibilities.
 
-Planner selects stage skills from a catalog; app/device/role scope controls progressive delivery, as specified in [skill delivery](skill-delivery.md). An explicit learning entry turns traces into candidates, independently reviewed and selectively validated before human publication; see [self-learning](skill-evolution.md). Ordinary completion never starts paid learning automatically.
+Planner selects stage skills from a catalog. App, device and role scope control progressive delivery. The task record captures the skill revision actually delivered so later learning and tests can check which guidance reached the agent. [Skill delivery](skill-delivery.md)
+
+## GUI scripts and Skill self-learning
+
+The task's **Record script** option keeps available original frames for accepted actions and queues a separate generation job. The Learner turns these observations into a declarative script whose steps can use the UI tree or screenshots. The script runner checks local state before and after actions, with bounded Agent takeover for eligible interruptions. Replayed setup scripts can also prepare a known initial state for Skill regression. [GUI script design](gui-script-design.md)
+
+**Skills self-learning** in task details starts a separate job. The Learner reads task evidence and any verified script-recovery hints, and an independent Skill Reviewer reviews the candidate. The test worker reuses verified cases or records and verifies the initial state, then compares the baseline and candidate on a dedicated Android fixture. Eligible low-impact changes can publish automatically. Higher-impact changes await review. [Skill self-learning](skill-evolution.md)
+
+Script recording and the task-detail learning job are opt-in. The ordinary Planner and Executor keep their existing decision path. A separately enabled App-build audit can inspect a task after completion when it observes version drift. [Learning policy](skill-learning-policy.md)
 
 ## HITL intervention and plan updates
 
@@ -82,7 +90,8 @@ Models own semantic choices; runtime checks structure, references, eligibility a
 | Context and memory | [Design](memory-and-context.md) | Role context, notes, sourced summaries, compaction and retrieval |
 | Observation/execution consistency | [Design](observation-execution-consistency.md) | Asynchronous capture, dynamic sequences, target/input checks and receipts |
 | Skill reuse | [Design](skill-delivery.md) | Catalog, app/device scope and progressive role delivery |
-| Skill self-learning | [Design](skill-evolution.md) | Extraction, independent review, selective validation and publication |
+| Skill self-learning | [Design](skill-evolution.md) | Trajectory evidence, candidate review, paired regression and versioned publication |
+| GUI scripts | [Design](gui-script-design.md) | Recording, mixed targeting, verified replay and bounded takeover |
 | Bidirectional HITL | [Design](hitl-design.md) | Question continuation, reply bridging, steering and concurrency |
 | Pause and crash recovery | [Design](crash-recovery.md) | Checkpoints, T1/T2/T3, input fencing, unknowns and context restoration |
 | Observability | [Design](observability.md) | Trace relationships, Console, read-only preview and metrics |
@@ -105,7 +114,8 @@ Supporting modules and user guides:
 | Harness: tools and decisions | [session.py](../agent/session.py), [revisable/session.py](../agent/revisable/session.py), [revisable/tools.py](../agent/revisable/tools.py) |
 | Harness: context and retrieval | [recall.py](../agent/revisable/recall.py), [context_projection.py](../agent/context_projection.py) |
 | Harness: skill management | [agent/skills/](../agent/skills/), [pending.py](../agent/skills/pending.py); content in [skills/](../skills/) |
-| Research: skill learning and review | [learning.py](../agent/skills/learning.py), [analysis_session.py](../agent/skills/analysis_session.py), [exploration.py](../agent/skills/exploration.py), [admission.py](../agent/skills/admission.py), [verification.py](../agent/skills/verification.py), [candidate_group.py](../agent/skills/candidate_group.py) |
+| Skills: learning, review and regression jobs | [learning.py](../agent/skills/learning.py), [analysis_session.py](../agent/skills/analysis_session.py), [version_audit.py](../agent/skills/version_audit.py), [skill_loop_jobs.py](../control_api/skill_loop_jobs.py) |
+| GUI scripts: generation and replay | [script_generation_jobs.py](../agent/skills/script_generation_jobs.py), [script_schema.py](../agent/skills/script_schema.py), [script_runner.py](../agent/skills/script_runner.py) |
 | Harness: action and input control | [action_observation.py](../agent/action_observation.py), [targeted_input.py](../agent/targeted_input.py) |
 | Device tools: capture and device access | [scrcpy_stream.py](../driver/scrcpy_stream.py), [scrcpy_observation.py](../driver/scrcpy_observation.py), [accessibility.py](../driver/accessibility.py), [perception/](../perception/) |
 | Harness: model routing | [llm_gateway.py](../shared/llm_gateway.py), [model_router.py](../shared/model_router.py) |

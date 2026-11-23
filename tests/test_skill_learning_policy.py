@@ -210,7 +210,8 @@ async def test_api_consent_export_and_budget_boundaries(local, monkeypatch):
             assert (await client.post(url, json={**body, "max_calls": 1000})).status_code == 422
             assert not received
             assert (await client.post(url, json=body)).status_code == 200
-            assert received[0].model_dump() == body
+            assert received[0].model_dump(exclude_unset=True) == body
+            assert received[0].run_regression is False
             report_url = f"/api/tasks/{task.id}/learning-contribution"
             assert (await client.get(report_url)).status_code == 403
             assert (await client.put("/api/learning/preferences", json={"local_recording": True, "contribution_enabled": True})).status_code == 200

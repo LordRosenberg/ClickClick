@@ -96,6 +96,13 @@ export interface RevisablePlan {
     next_role: "planner" | "executor" | "reviewer";
     feedback: string;
 }
+export interface ScriptGeneration {
+    status: "waiting" | "queued" | "running" | "verifying" | "draft" | "blocked" | "error";
+    reason?: string;
+    bundle_ref?: string;
+    verification_status?: string;
+    verification_reason?: string | null;
+}
 export interface Task {
     recovery?: { phase?: string; reason?: string | null; policy?: string; attempt_no?: number;
         quarantined?: boolean; available_actions?: string[];
@@ -106,6 +113,7 @@ export interface Task {
     id: string;
     instruction: string;
     status: TaskStatus;
+    generate_test_script?: boolean;
     device_serial?: string | null;
     current_node_id?: string | null;
     current_subgoal?: string;
@@ -420,6 +428,7 @@ export interface PendingSkill {
     gist: string;
     target: string;
     status: string;
+    operation?: "add" | "update" | "delete";
     source_task_id?: string;
     outcome?: string;
     app?: string;

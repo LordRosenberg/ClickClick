@@ -52,6 +52,7 @@ from perception.normalizer import (
 from perception.observation import has_model_visible_tree_content
 from perception.uiautomator import extract_package, parse_uiautomator_xml
 from shared.app_resolver import NameResolver
+from shared.protocol import AppBuild
 from shared.schemas import Action, ActionResult, CanonicalUI
 
 # Keep in sync with perception.observation.FRAME_GATE_DEGRADED_KEY.
@@ -1425,6 +1426,12 @@ class AndroidDriver:
         if self._resolver is None:
             return package in set(await adb.list_packages_async(self._serial))
         return await self._resolver.validate_installed(package, self._serial)
+
+    async def read_app_build(self, package: str) -> AppBuild | None:
+        """Observe a package build on this driver's bound device."""
+        if not self._serial:
+            return None
+        return await adb.read_app_build(self._serial, package)
 
     async def record_installed_app_selection(self, display_name: str, package: str) -> bool:
         if self._resolver is None:

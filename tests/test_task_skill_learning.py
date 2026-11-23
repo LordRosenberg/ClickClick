@@ -1,6 +1,7 @@
 """Learning acceptance boundaries; no provider/device required."""
 import json
 import asyncio
+import hashlib
 from types import SimpleNamespace
 
 import pytest
@@ -9,7 +10,7 @@ from agent.revisable.store import TaskStore
 from agent.skills.learning import (CRITERIA, Candidate, LearningBudget, LearningStopped,
     build_packet, digest, review_gate, run_task_learning, validate_candidate, validation_gate)
 from agent.skills.library import SkillLibrary, serialize_skill_markdown
-from agent.skills.pending import approve_pending, get_pending, stage_pending_patch
+from agent.skills.pending import approve_pending, get_pending, pending_diff, stage_pending_patch
 from shared.artifacts import ArtifactStore
 from shared.config import Settings
 from shared.db import Database
@@ -122,6 +123,103 @@ class Backend:
     def resolve_evidence(self, ref): return True
     def review_contracts(self, c): return {"prompt": "test"}
     def review_evidence(self, c): return []
+
+
+def _installed_workflow(library):
+    target = "apps/com.demo/workflows/search-notes/SKILL.md"
+    path = library.root / target
+    path.parent.mkdir(parents=True)
+    path.write_text(serialize_skill_markdown(
+        name="search-notes", description="Search saved notes", version="1.0.0", app="com.demo",
+        kind="workflow", capability="search_notes", body="## Procedure\nOpen Search.\n\n## Verification\nVerify matching notes.\n",
+    ), encoding="utf-8")
+    return target, path, library.get("search-notes")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("state", ["revise", "stale", "requires_device", "foreign_evidence"])
+async def test_upgrade_uses_same_learner_and_preserves_manual_publish(context, tmp_path, state):
+    from agent.skills.snapshot import LibrarySnapshot
+    from agent.tool_registry import stable_hash
+
+    settings, db, task, store, library = context
+    db.update_task(task.id, status=TaskStatus.SUCCEEDED)
+    task = db.get_task(task.id)
+    target, path, pack = _installed_workflow(library)
+    old_text = path.read_text(encoding="utf-8")
+    change = {"skill_id": pack.id, "skill_version": pack.version, "package": pack.app,
+              "projection_hash": stable_hash(pack.section_for("executor")),
+              "snapshot_hash": digest({"relative_path": target, "frontmatter": pack.frontmatter,
+                                       "body": pack.body, "version": pack.version}),
+              "previous_build": {"version_code": "1"}, "build": {"version_code": "2"},
+              "evidence": ["observation:screen@1"]}
+    if state == "stale":
+        change["snapshot_hash"] = "stale"
+    backend = Backend([])
+    backend.freeze_library = lambda: LibrarySnapshot.freeze(library.root, tmp_path / "frozen-upgrade")
+    backend.claim_admission = True
+    backend.review_evidence = lambda _: [{"source": "source/observation:screen@1", "text": "Search"}]
+    draft = {**candidate().model_dump(), "target": target, "new_text": old_text.replace("1.0.0", "1.0.1")
+             .replace("Open Search.", "On build 2, open Search from the notes list.")}
+    if state == "foreign_evidence":
+        draft["evidence"] = ["observation:other-app@1"]
+    calls = []
+
+    async def diagnose(model, system, payload, budget):
+        calls.append("diagnosis")
+        assert payload["live_exploration_disabled"] is True
+        assert "app_build_changed" in payload["source"]["signals"]
+        assert payload["source"]["app_version_changes"][0]["build"]["version_code"] == "2"
+        return {"decision": "explore"} if state == "requires_device" else {"decision": "propose", "candidate": draft}
+
+    async def independent_review(*args):
+        calls.append("review")
+        return {**review(), "acceptance": "source_evidence"}
+
+    backend.diagnose = diagnose
+    backend.review_preflight = independent_review
+    result = await run_task_learning(task, settings=settings, library=library, store=store, backend=backend,
+                                     budget=LearningBudget(max_actions=0), version_changes=[change])
+    assert path.read_text(encoding="utf-8") == old_text and not backend.explored
+    if state == "stale":
+        assert result["skipped"] and result["reason"] == "delivered_skill_already_changed" and not calls
+    elif state == "requires_device":
+        assert result["reason"] == "requires_authorized_device_exploration" and calls == ["diagnosis"]
+    elif state == "foreign_evidence":
+        assert "native evidence from the changed app" in result["reason"] and calls == ["diagnosis", "diagnosis"]
+    else:
+        assert result["eligible"] and calls == ["diagnosis", "review"]
+        pending = get_pending(result["pending_id"], root=library.root)
+        assert pending.meta["old_text"] == old_text and pending.target_rel == target
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("coverage", ["entire_skill", "insufficient", "requires_verification"])
+async def test_unified_learner_stages_whole_skill_deletion_only_after_review(context, tmp_path, coverage):
+    from agent.skills.snapshot import LibrarySnapshot
+
+    settings, _, task, store, library = context
+    target, path, _ = _installed_workflow(library)
+    old_bytes = path.read_bytes()
+    removal = {k: v for k, v in candidate().model_dump().items() if k != "new_text"}
+    removal.update(operation="delete", target=target, base_hash=hashlib.sha256(old_bytes).hexdigest())
+    backend = Backend([{"decision": "propose", "candidate": removal}])
+    backend.freeze_library = lambda: LibrarySnapshot.freeze(library.root, tmp_path / "frozen-deletion")
+    backend.review_evidence = lambda _: [{"source": "source/observation:screen@1", "text": "Search"}]
+
+    async def independent_review(model, system, payload, budget):
+        assert payload["phase"] == "skill_deletion" and payload["original_skill"]
+        if coverage == "requires_verification":
+            return {**review(), "acceptance": "source_evidence", "removal_coverage": "entire_skill",
+                    "verification": {"checks": ["related_normal"], "reason": "Check other tasks that use this workflow"}}
+        return {**review(), "acceptance": "source_evidence", "removal_coverage": coverage}
+
+    backend.review = independent_review
+    result = await run_task_learning(task, settings=settings, library=library, store=store, backend=backend, manual=True)
+    assert result["operation"] == "delete" and result["eligible"] == (coverage == "entire_skill")
+    assert path.read_bytes() == old_bytes
+    diff = pending_diff(result["pending_id"], root=library.root)
+    assert diff["new_text"] == "" and diff["old_text"] and diff["operation"] == "delete"
 
 
 @pytest.mark.asyncio

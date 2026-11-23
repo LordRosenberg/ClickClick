@@ -8,9 +8,10 @@ from typing import Any
 from agent.revisable.history import note_directory, page, stage_directory
 from agent.revisable.recall import source_id
 from agent.revisable.summary import project_summary
-from perception.observation import ObservationPackage
-from shared.artifacts import ArtifactStore
+from perception.observation import ObservationPackage, decoded_image_size
+from shared.artifacts import ArtifactStore, image_suffix
 from shared.db import Database
+from shared.file_lock import FileLockBusy
 from shared.schemas import AgentState
 
 
@@ -85,6 +86,8 @@ class TaskStore:
                 if visit["stage_id"] not in payload["stage_ids"]:
                     payload["stage_ids"].append(visit["stage_id"])
                 self.put("observation", package.observation_id, payload)
+            if state.generate_test_script:
+                self._retain_script_frame(package)
             return
         image = package.image_for_llm or package.clean_png or package.annotated_png
         try:
@@ -105,6 +108,49 @@ class TaskStore:
                 "image_ref": image_ref,
             },
         )
+        if state.generate_test_script:
+            self._retain_script_frame(package)
+
+    def _retain_script_frame(self, package: ObservationPackage) -> None:
+        """Keep the original bytes and coordinate metadata for a recorded observation."""
+        kind = "script_recording_frame"
+        existing = self.db.get_agent_record(self.task_id, kind, package.observation_id)
+        if existing and existing["payload"].get("image_ref"):
+            return
+
+        payload = {
+            "status": "unavailable",
+            "image_ref": None,
+            "mode": package.mode.value,
+            "accepted": package.accepted,
+            "index_actionable": package.index_actionable,
+            "captured_monotonic_ms": package.captured_monotonic_ms,
+            "coordinate_space_id": package.coordinate_space_id,
+            "frame_size": [package.frame_width, package.frame_height],
+            "rotation_degrees": package.rotation_degrees,
+            "crop_box": list(package.crop_box) if package.crop_box is not None else None,
+            "pixel_provider": package.capture_meta.get("pixel_provider"),
+        }
+        if not package.accepted:
+            payload["reason"] = "observation_not_accepted"
+        elif not package.clean_png:
+            payload["reason"] = "original_pixels_unavailable"
+        else:
+            size = decoded_image_size(package.clean_png)
+            if min(size) <= 0:
+                payload["reason"] = "invalid_original_pixels"
+            else:
+                payload["image_size"] = list(size)
+                try:
+                    ref = self.artifacts.save_content_addressed_bytes(
+                        "script_recording_frames", package.clean_png, suffix=image_suffix(package.clean_png)
+                    )
+                except (OSError, FileLockBusy):
+                    payload["reason"] = "original_image_write_failed"
+                else:
+                    payload.update(status="saved", image_ref=ref)
+        if existing is None or existing["payload"] != payload:
+            self.put(kind, package.observation_id, payload)
 
     def record_stage(self, state: AgentState) -> None:
         runtime = state.revisable

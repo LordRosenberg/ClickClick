@@ -42,6 +42,7 @@ class CreateTaskBody(BaseModel):
     instruction: str = Field(min_length=1)
     device_serials: list[str] = Field(min_length=1)
     skill_learn: bool = Field(default=False, description="Deprecated: never authorizes post-task model/device research")
+    generate_test_script: bool = Field(default=False, strict=True, description="Retain clean screenshots for script recording")
     manager_model: str | None = Field(
         default=None,
         description=(
@@ -161,11 +162,19 @@ def create_app(
         settings=settings,
     )
     app.state.orchestrator = orch
+    from control_api.skill_loop_jobs import SkillLoopJobs, fixture_config
+    from control_api.script_fixture_verification import ScriptFixtureVerification
+    from agent.skills.script_generation_jobs import ScriptGenerationJobs
     from shared.recovery_store import RECOVERING, RecoveryStore, RecoveryConflict
     from shared.recovery_runtime import RecoveryCoordinator
     recovery_store = RecoveryStore(db,artifacts)
     recovery = RecoveryCoordinator(orch,settings)
+    skill_loop_jobs = SkillLoopJobs(db, settings, pool)
+    script_verification = ScriptFixtureVerification(settings, pool, skill_loop_jobs.fixture_slot) if fixture_config(settings) else None
+    script_jobs = ScriptGenerationJobs(db, artifacts, settings, verification=script_verification)
     app.state.recovery = recovery
+    app.state.script_generation_jobs = script_jobs
+    app.state.skill_loop_jobs = skill_loop_jobs
     _recovery_scan_task = None
     _backend_lock = None
 
@@ -185,9 +194,14 @@ def create_app(
         TaskStatus.CANCELLED,
     )
 
-    async def _run(task_id: str) -> None:
+    async def _run(task_id: str, *, generate_test_script: bool = False) -> None:
         try:
-            await orch.run_task(task_id)
+            result = await orch.run_task(task_id)
+            if generate_test_script and result == TaskStatus.SUCCEEDED:
+                try:
+                    script_jobs.enqueue(task_id)
+                except Exception as exc:
+                    logger.warning("Script generation enqueue failed for %s: %s", task_id, type(exc).__name__)
         except asyncio.CancelledError:
             latest = db.get_task(task_id)
             if asyncio.current_task() not in _retiring and _running.get(task_id) is asyncio.current_task() and latest is not None and latest.status not in _TERMINAL:
@@ -221,7 +235,7 @@ def create_app(
         existing = _running.get(task_id)
         if existing is not None and not existing.done():
             return
-        handle = asyncio.create_task(_run(task_id))
+        handle = asyncio.create_task(_run(task_id, generate_test_script=task.generate_test_script))
         _running[task_id] = handle
 
     app.state.schedule_task = _schedule_run
@@ -281,6 +295,10 @@ def create_app(
         from shared.recovery_runtime import instance_id
         instance_id(orch)
         artifacts.reconcile_pins()
+        try:
+            script_jobs.resume_pending()
+        except Exception as exc:
+            logger.warning("Script generation resume failed: %s", type(exc).__name__)
         _recovery_scan_task = asyncio.create_task(_scan_recovery(),name="task-recovery-scanner")
 
     async def _hard_cancel_after(task_id: str) -> None:
@@ -468,8 +486,14 @@ def create_app(
         if not requested:
             raise HTTPException(400, "device_serials must be non-empty")
 
+        excluded = {"request_key", "device_serials"}
+        if body.hitl_enabled is None:
+            excluded.add("hitl_enabled")
+        if not body.generate_test_script:
+            # Omitted and false preserve existing submission fingerprints.
+            excluded.add("generate_test_script")
         fingerprint = hashlib.sha256(json.dumps({
-            **body.model_dump(exclude={"request_key", "device_serials"} | ({"hitl_enabled"} if body.hitl_enabled is None else set())),
+            **body.model_dump(exclude=excluded),
             "device_serials": sorted(requested),
         }, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         if body.request_key and (submission := db.get_submission(body.request_key)):
@@ -518,6 +542,7 @@ def create_app(
                     AgentState(
                         instruction=body.instruction,
                         skill_learn=bool(body.skill_learn),
+                        generate_test_script=body.generate_test_script,
                         manager_model=manager_model,
                         executor_model=executor_model,
                         revisable={"limits": {
@@ -536,6 +561,8 @@ def create_app(
                     max_queries=settings.hitl_max_queries, timeout_seconds=settings.hitl_timeout_seconds),
                     origin=origin, binding=binding)
                 recovery_store.enable(record.id,body.recovery_policy or settings.task_recovery_policy)
+                if body.generate_test_script:
+                    script_jobs.request(record.id)
                 created.append(record.model_dump())
             if body.request_key:
                 db.save_submission(body.request_key, fingerprint, [t["id"] for t in created])
@@ -960,6 +987,32 @@ def create_app(
             raise HTTPException(404, "artifact not found")
         return FileResponse(path)
 
+    @app.get("/api/tasks/{task_id}/script-generation")
+    async def get_script_generation(task_id: str) -> dict[str, Any] | None:
+        if db.get_task(task_id) is None:
+            raise HTTPException(404, "task not found")
+        return script_jobs.status(task_id)
+
+    @app.get("/api/tasks/{task_id}/script-generation/download")
+    async def download_generated_script(task_id: str) -> FileResponse:
+        result = script_jobs.status(task_id)
+        ref = result.get("bundle_ref") if result and result.get("status") in {"draft", "verifying"} else None
+        if not ref:
+            raise HTTPException(404, "script draft not available")
+        path = artifacts.resolve(ref)
+        if not path.is_file():
+            raise HTTPException(404, "script draft unavailable")
+        return FileResponse(path, media_type="application/zip", filename=f"clickclick-{task_id}-script.zip")
+
+    @app.post("/api/tasks/{task_id}/script-generation/approve")
+    async def approve_generated_script(task_id: str) -> dict[str, Any]:
+        if db.get_task(task_id) is None:
+            raise HTTPException(404, "task not found")
+        try:
+            return script_jobs.approve(task_id)
+        except (ValueError, OSError) as exc:
+            raise HTTPException(409, "script publication not available") from exc
+
     # ------------------------------------------------------------------
     # Skills filesystem API (canonical CRUD + pending-patch review)
     # ------------------------------------------------------------------
@@ -1045,6 +1098,7 @@ def create_app(
                 "gist": p.gist,
                 "target": p.target_rel,
                 "status": p.status,
+                "operation": p.operation,
                 "source_task_id": p.meta.get("source_task_id") or "",
                 "outcome": p.meta.get("outcome") or "",
                 "app": p.meta.get("app") or "",
@@ -1065,15 +1119,21 @@ def create_app(
     @app.post("/api/skills/pending/{pending_id}/approve")
     async def approve_pending_skill(pending_id: str) -> dict[str, Any]:
         from agent.skills.library import SkillNotFoundError, SkillPathJailError
-        from agent.skills.pending import approve_pending
+        from agent.skills.pending import approve_pending, get_pending
+        from shared.file_lock import FileLockBusy
 
+        root = _skills_lib().root
         try:
-            dest = approve_pending(pending_id, root=_skills_lib().root)
+            dest = approve_pending(pending_id, root=root)
         except SkillNotFoundError as exc:
             raise HTTPException(404, str(exc)) from exc
+        except FileLockBusy as exc:
+            raise HTTPException(409, "another Skill publication is in progress") from exc
         except (SkillPathJailError, ValueError) as exc:
             raise HTTPException(400, str(exc)) from exc
-        return {"ok": True, "path": str(dest), "id": pending_id}
+        item = get_pending(pending_id, root=root)
+        return {"ok": True, "path": str(dest), "id": pending_id,
+                **({"operation": item.operation} if item else {})}
 
     @app.post("/api/skills/pending/{pending_id}/reject")
     async def reject_pending_skill(
@@ -1087,6 +1147,8 @@ def create_app(
             reject_pending(pending_id, reason=body.reason, root=_skills_lib().root)
         except SkillNotFoundError as exc:
             raise HTTPException(404, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
         return {"ok": True, "id": pending_id, "status": "rejected"}
 
     @app.post("/api/tasks/{task_id}/learn")
@@ -1099,6 +1161,9 @@ def create_app(
             raise HTTPException(404, "task not found")
         if not body.authorized:
             raise HTTPException(400, "personal_cost_and_device_consent_required")
+        if body.run_regression:
+            closure = skill_loop_jobs.start(task, body)
+            return {"ok": closure["status"] not in {"blocked", "error"}, "closure": closure}
         result = await orch.learn_from_task(task_id, request=body)
         # Keep skipped and rejected runs observable even when no pending skill exists.
         from agent.skills.telemetry import safe_payload
@@ -1110,6 +1175,18 @@ def create_app(
         except (OSError, ValueError):
             logging.getLogger(__name__).exception("Could not persist learning Console outcome")
         return result
+
+    @app.get("/api/tasks/{task_id}/skill-loop")
+    async def get_skill_loop(task_id: str) -> dict[str, Any]:
+        if db.get_task(task_id) is None:
+            raise HTTPException(404, "task not found")
+        return {"closure": skill_loop_jobs.status(task_id)}
+
+    @app.post("/api/tasks/{task_id}/skill-loop/cancel")
+    async def cancel_skill_loop(task_id: str) -> dict[str, Any]:
+        if db.get_task(task_id) is None:
+            raise HTTPException(404, "task not found")
+        return {"closure": skill_loop_jobs.cancel(task_id)}
 
     @app.get("/api/learning/preferences")
     async def learning_preferences() -> dict[str, Any]:
@@ -1245,6 +1322,7 @@ def create_app(
                 "gist": item.gist,
                 "target": item.target_rel,
                 "status": item.status,
+                "operation": item.operation,
                 "source_task_id": item.meta.get("source_task_id") or "",
                 "outcome": item.meta.get("outcome") or "",
                 "app": item.meta.get("app") or "",
@@ -1252,9 +1330,14 @@ def create_app(
             for item in list_pending(root=_skills_lib().root, status="")
             if str(item.meta.get("source_task_id") or "") == task_id
         ]
-        return data_sources.decorate(
-            {"task_id": task_id, "skill_ids": used, "pending": pending}, source,
-        )
+        response = {"task_id": task_id, "skill_ids": used, "pending": pending}
+        audits = source.db.list_agent_records(task_id, "skill_version_audit")
+        if audits:
+            response["version_audits"] = [row["payload"] for row in audits]
+        audit_run = source.db.get_agent_record(task_id, "skill_version_audit_run", "task")
+        if audit_run:
+            response["version_audit_run"] = audit_run["payload"]
+        return data_sources.decorate(response, source)
 
     # Release process-owned task observation resources on normal shutdown.
     @app.on_event("shutdown")
@@ -1291,6 +1374,9 @@ def create_app(
             handle.cancel()
         if _running:
             await asyncio.wait(tuple(_running.values()),timeout=5)
+        await skill_loop_jobs.close()
+        await script_jobs.close()
+        await orch.stop_skill_version_audits()
         nonlocal _environment_reconcile_task
         reconcile_task, _environment_reconcile_task = _environment_reconcile_task, None
         if reconcile_task is not None:

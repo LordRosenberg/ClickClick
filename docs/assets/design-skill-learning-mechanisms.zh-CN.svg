@@ -3,21 +3,21 @@
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9Z" fill="#6686A8"/></marker></defs>
 <rect width="1200" height="1050" fill="white"/>
 <text x="40" y="43" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="500" fill="#263449">Skills 自学习：证据研究、独立审查与精确发布</text>
-<g data-group="research" data-label="轨迹与连续研究 / 显式入口，按证据推进"><defs><clipPath id="clip-research"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-research)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
-<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">轨迹与连续研究</text>
-<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">显式入口，按证据推进</text>
+<g data-group="research" data-label="轨迹与研究 / 从已结束的任务开始"><defs><clipPath id="clip-research"><rect x="40" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="40" y="120" width="350" height="620" rx="8" fill="white"/><rect x="40" y="120" width="350" height="66" fill="#EEF7F4" clip-path="url(#clip-research)"/><rect x="40" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="62" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">轨迹与研究</text>
+<text x="62" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">从已结束的任务开始</text>
 </g>
 <g data-group="review" data-label="独立 Skill Reviewer / 不继承 Learner 整段对话"><defs><clipPath id="clip-review"><rect x="425" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="425" y="120" width="350" height="620" rx="8" fill="white"/><rect x="425" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-review)"/><rect x="425" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
 <text x="447" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">独立 Skill Reviewer</text>
 <text x="447" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">不继承 Learner 整段对话</text>
 </g>
-<g data-group="validation" data-label="按需验证与发布 / 普通执行与独立结果核验"><defs><clipPath id="clip-validation"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-validation)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
-<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">按需验证与发布</text>
-<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">普通执行与独立结果核验</text>
+<g data-group="validation" data-label="配对回归与发布 / 独立 Android 测试环境"><defs><clipPath id="clip-validation"><rect x="810" y="120" width="350" height="620" rx="8"/></clipPath></defs><rect x="810" y="120" width="350" height="620" rx="8" fill="white"/><rect x="810" y="120" width="350" height="66" fill="#EDF3FA" clip-path="url(#clip-validation)"/><rect x="810" y="120" width="350" height="620" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<text x="832" y="148" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">配对回归与发布</text>
+<text x="832" y="171" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">独立 Android 测试环境</text>
 </g>
-<g data-group="shared" data-label="关键契约与边界 / 贯穿各阶段的约束与可追溯记录"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
+<g data-group="shared" data-label="关键契约与边界 / 证据追溯与独立运行"><defs><clipPath id="clip-shared"><rect x="40" y="825" width="1120" height="190" rx="8"/></clipPath></defs><rect x="40" y="825" width="1120" height="190" rx="8" fill="white"/><rect x="40" y="825" width="1120" height="66" fill="#EEF7F4" clip-path="url(#clip-shared)"/><rect x="40" y="825" width="1120" height="190" rx="8" fill="none" stroke="#BDCFDF" stroke-width="1.2"/>
 <text x="62" y="853" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#365D84">关键契约与边界</text>
-<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">贯穿各阶段的约束与可追溯记录</text>
+<text x="62" y="876" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">证据追溯与独立运行</text>
 <path d="M600 900L600 996" stroke="#DCE5ED" stroke-width="1"/>
 </g>
 <path data-from="source" data-to="learner" data-label="" d="M215 354 L215 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
@@ -25,35 +25,27 @@
 <text x="229" y="556" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="400" fill="#586575">propose</text>
 <path data-from="independent" data-to="criteria" data-label="" d="M600 354 L600 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
 <path data-from="criteria" data-to="admission" data-label="" d="M600 534 L600 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
-<path data-from="admission" data-to="publish" data-label="证据复用" d="M751 642 L834 642" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
-<rect x="754.5" y="610" width="76" height="28" fill="white"/>
-<text x="764.5" y="630" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="400" fill="#586575">证据复用</text>
 <path data-from="selective" data-to="utility" data-label="" d="M985 354 L985 390" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
 <path data-from="utility" data-to="publish" data-label="" d="M985 534 L985 570" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
 <path data-from="research" data-to="review" data-label="" d="M390 430 L425 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
 <path data-from="review" data-to="validation" data-label="" d="M775 430 L810 430" fill="none" stroke="#6686A8" stroke-width="1.6" marker-end="url(#arrow)"/>
-<path data-from="validation" data-to="research" data-label="失败或争议：保留已接纳知识，在原会话继续调查剩余障碍" d="M985 740 L985 780 L215 780 L215 740" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
-<rect x="382" y="755" width="436" height="28" fill="white"/>
-<text x="392" y="775" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">失败或争议：保留已接纳知识，在原会话继续调查剩余障碍</text>
-<g data-node="source" data-label="原任务来源 / 指令、动作顺序、截图和回执按引用读取 / 成功绕路与失败都可研究，允许 skip">
-<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">原任务来源</text>
-<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">指令、动作顺序、截图和回执按</text>
-<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">引用读取</text>
-<text x="82" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">成功绕路与失败都可研究，允许</text>
-<text x="82" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">skip</text>
+<path data-from="validation" data-to="research" data-label="保留结果，供后续研究" d="M985 740 L985 780 L215 780 L215 740" fill="none" stroke="#6686A8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+<rect x="510" y="755" width="180" height="28" fill="white"/>
+<text x="520" y="775" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575">保留结果，供后续研究</text>
+<g data-node="source" data-label="原任务证据 / 先看步骤顺序和决策 / 按需回查原始证据">
+<text x="82" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">原任务证据</text>
+<text x="82" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">先看步骤顺序和决策</text>
+<text x="82" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">按需回查原始证据</text>
 </g>
-<g data-node="learner" data-label="Learner 连续会话 / 当前目标、假设、已知事实、失败与预算 / propose/explore/skip，避免重复研究">
-<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Learner 连续会话</text>
-<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">当前目标、假设、已知事实、失</text>
-<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">败与预算</text>
-<text x="82" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">propose/explore/skip，避免重</text>
-<text x="82" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">复研究</text>
+<g data-node="learner" data-label="Learner / 结合轨迹与已核验的接管线索 / 有依据时提出改动，也可以跳过">
+<text x="82" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">Learner</text>
+<text x="82" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">结合轨迹与已核验的接管线索</text>
+<text x="82" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">有依据时提出改动，也可以跳过</text>
 </g>
-<g data-node="candidate" data-label="条件化候选 / 适用条件、决策改进与来源绑定 / 多文件按应用归属，局部编辑绑定精确基础">
+<g data-node="candidate" data-label="条件化候选 / 绑定应用、适用条件和来源证据 / 修订绑定基础版本的确切正文">
 <text x="82" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">条件化候选</text>
-<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">适用条件、决策改进与来源绑定</text>
-<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">多文件按应用归属，局部编辑绑</text>
-<text x="82" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">定精确基础</text>
+<text x="82" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">绑定应用、适用条件和来源证据</text>
+<text x="82" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">修订绑定基础版本的确切正文</text>
 </g>
 <g data-node="independent" data-label="独立读取证据 / 按需读取原始来源与冻结指南 / 评审结论绑定实际候选和角色正文">
 <text x="467" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">独立读取证据</text>
@@ -66,41 +58,33 @@
 <text x="467" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">根因、迁移性、冲突</text>
 <text x="467" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">退化风险、简洁性、边际价值</text>
 </g>
-<g data-node="admission" data-label="区分准入声明 / source_evidence 支持局部知识 / measured_utility 需要相应执行收益证据">
-<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">区分准入声明</text>
-<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">source_evidence 支持局部知识</text>
-<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">measured_utility 需要相应执行</text>
-<text x="467" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">收益证据</text>
+<g data-node="admission" data-label="区分证据范围 / 来源证据支撑局部经验 / 整任务收益需要实测证据">
+<text x="467" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">区分证据范围</text>
+<text x="467" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">来源证据支撑局部经验</text>
+<text x="467" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">整任务收益需要实测证据</text>
 </g>
-<g data-node="selective" data-label="选择必要验证 / 已有证据可复用；缺事实才探索或试跑 / 冻结 overlay，核对交付、采用与结果">
-<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">选择必要验证</text>
-<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">已有证据可复用；缺事实才探索</text>
-<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">或试跑</text>
-<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">冻结 overlay，核对交付、采用</text>
-<text x="852" y="334" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">与结果</text>
+<g data-node="selective" data-label="选用例并验证 / 复用已登记用例，或补录准备脚本 / 独立核对初态">
+<text x="852" y="236" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">选用例并验证</text>
+<text x="852" y="262" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">复用已登记用例，或补录准备脚</text>
+<text x="852" y="286" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">本</text>
+<text x="852" y="310" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">独立核对初态</text>
 </g>
-<g data-node="utility" data-label="局部与整任务分开 / 文件可局部成立，任务仍可能未恢复 / 保留退化、环境故障、未评分和未知成本">
-<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">局部与整任务分开</text>
-<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">文件可局部成立，任务仍可能未</text>
-<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">恢复</text>
-<text x="852" y="490" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">保留退化、环境故障、未评分和</text>
-<text x="852" y="514" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">未知成本</text>
+<g data-node="utility" data-label="新旧 Skill 各跑一轮 / 同一 App 构建与初态 / 核对业务结果、Skill 使用和成本">
+<text x="852" y="416" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">新旧 Skill 各跑一轮</text>
+<text x="852" y="442" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">同一 App 构建与初态</text>
+<text x="852" y="466" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">核对业务结果、Skill 使用和成本</text>
 </g>
-<g data-node="publish" data-label="pending 与人工确认 / 保存候选、审查、验证和基础库绑定 / 用户复核结果与 diff，逐文件重查后入库">
-<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">pending 与人工确认</text>
-<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">保存候选、审查、验证和基础库</text>
-<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">绑定</text>
-<text x="852" y="670" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">用户复核结果与 diff，逐文件重</text>
-<text x="852" y="694" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">查后入库</text>
+<g data-node="publish" data-label="版本化发布 / 符合条件的低影响改动自动发布 / 高影响改动待人工审核">
+<text x="852" y="596" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">版本化发布</text>
+<text x="852" y="622" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">符合条件的低影响改动自动发布</text>
+<text x="852" y="646" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">高影响改动待人工审核</text>
 </g>
-<g data-node="binding" data-label="精确绑定与结果复用 / 候选 hash、基础库、任务、模型、初始化与运行合同一致才复用旧验证">
-<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">精确绑定与结果复用</text>
-<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">候选 hash、基础库、任务、模型、初始化与运行合同一致</text>
-<text x="82" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">才复用旧验证</text>
+<g data-node="binding" data-label="证据绑定 / 绑定候选、基础库、实际交付的 Skill 和测试环境">
+<text x="82" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">证据绑定</text>
+<text x="82" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">绑定候选、基础库、实际交付的 Skill 和测试环境</text>
 </g>
-<g data-node="cost" data-label="成本与闭环 / 研究共享累计预算；无后续的成功周期直接结束；普通任务不自动付费学习">
-<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">成本与闭环</text>
-<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">研究共享累计预算；无后续的成功周期直接结束；普通任务</text>
-<text x="642" y="976" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">不自动付费学习</text>
+<g data-node="cost" data-label="预算与停止条件 / 作业共享累计预算。证据不足时保留当前版本。">
+<text x="642" y="926" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="19" font-weight="500" fill="#263449">预算与停止条件</text>
+<text x="642" y="952" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575">作业共享累计预算。证据不足时保留当前版本。</text>
 </g>
 </svg>

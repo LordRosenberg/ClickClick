@@ -241,7 +241,7 @@ export function CoreSettingsPanel({ request, section = "models" }: { request: Se
         <label className="text-sm">{t("任务流程")}<select className={input} value={runtime.agent_architecture} onChange={e => setRuntime({ ...runtime, agent_architecture: e.target.value as RuntimeSettings["agent_architecture"] })}><option value="plan_executor">{t("Planner + Executor（默认）")}</option><option value="plan_reviewer">Planner + Executor + Reviewer</option></select></label>
         <label className="text-sm"><input type="checkbox" checked={runtime.hitl_enabled ?? false} onChange={e => setRuntime({ ...runtime, hitl_enabled: e.target.checked })} /> {t("必要时向我提问或确认（HITL）")}<p className="mt-2 text-xs text-text-mute">{t("仅用于新任务。遇到必要疑问或未授权高危操作时先询问；关闭时沿用原执行行为。")}</p></label>
         {numbers.map(({ key, label, min, max, optional }) => <label key={key} className="text-sm">{t(label)}<input className={input} type="number" required={!optional} min={min} max={max} value={runtime[key] ?? ""} onChange={e => setRuntime({ ...runtime, [key]: e.target.value === "" ? null : Number(e.target.value) })} /></label>)}
-      </div><p className="mt-3 text-sm text-text-mute">{t("时限从创建任务开始计算，暂停不会延长。Skill 学习仍需每次确认模型开销和设备操作；结果需评审与验证，不会自动发布。")}</p></details>}
+      </div><p className="mt-3 text-sm text-text-mute">{t("时限从创建任务开始计算，暂停不会延长。Skill 学习仍需每次确认模型开销和设备操作。通过发布检查的低影响修订可自动发布。")}</p></details>}
       <JevSettingsPanel value={jev} onChange={setJev} />
       </div>
       <div className="flex items-center justify-between gap-4 border-t border-border pt-5">

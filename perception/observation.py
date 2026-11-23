@@ -51,9 +51,9 @@ class ObservationPackage:
     image_for_llm: bytes | None
     annotated_png: bytes | None
     gap_reasons: list[str]
-    # Current unannotated pixels retained only in the active in-memory
-    # package. Decision roles and Executor derive their model images from
-    # this same frame so pixels, indices, and coordinate transforms align.
+    # Current unannotated capture. Decision roles and Executor derive their
+    # model images from this same frame so pixels and transforms align.
+    # The task store retains these bytes separately for recording tasks.
     clean_png: bytes | None = None
     estimated_tokens: int = 0
     # Artifact refs populated by the Orchestrator when it persists the frame.

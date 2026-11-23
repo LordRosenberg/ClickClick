@@ -39,10 +39,8 @@ class ArtifactStore:
         if not create:
             return
         self.root.mkdir(parents=True, exist_ok=True)
-        # `shots/` is intentionally NOT created: raw screenshots are not
-        # persisted (only the SoM annotated frame under `som/`). The `trees/`
-        # kind stores rendered semantic-tree JSON, `som/` stores annotated
-        # PNGs, and `llm/` stores LLM input/output payloads.
+        # Recording tasks create script_recording_frames/ on demand. The
+        # default directories contain semantic trees, SoM images and LLM traces.
         for sub in ("trees", "som", "llm"):
             (self.root / sub).mkdir(parents=True, exist_ok=True)
 

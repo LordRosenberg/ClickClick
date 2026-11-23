@@ -20,6 +20,18 @@ from shared.steering import SteeringInbox
 
 
 class PlanOrchestrator(Orchestrator):
+    @staticmethod
+    async def _read_app_build(driver, app, step_seq, observation_id):
+        try:
+            build = await asyncio.wait_for(driver.read_app_build(app), timeout=3)
+        except Exception:  # Optional device metadata may be unavailable.
+            build = None
+        if not isinstance(build, dict) or build.get("package") != app:
+            build = {}
+        return {"package": app, "version_code": build.get("version_code"),
+                "version_name": build.get("version_name"), "first_step": step_seq,
+                "observation_id": observation_id}
+
     def decision_limit(self, state):
         task_limit = state.revisable.limits.executor_decisions
         if self.max_steps != DEFAULT_MAX_STEPS:
@@ -191,6 +203,7 @@ class PlanOrchestrator(Orchestrator):
         provider_warm_task=None,
         max_device_actions=None,
         max_action_attempts=None,
+        app_build_reads=None,
     ):
         if provider_warm_task is not None:
             await asyncio.gather(provider_warm_task, return_exceptions=True)
@@ -207,6 +220,8 @@ class PlanOrchestrator(Orchestrator):
         store.human_provider_budget = lambda: (None if self._model_call_limit(state) is None else
                                                self._model_call_limit(state) - state.role_invocation_count)
         executor.store = store
+        if app_build_reads is not None:
+            executor._session.audit_snapshot_store = store
         executor_driver = executor.driver
         enabled = HumanInputBroker(self.db).config(task_id)["enabled"]
         control = self.steering_controls.setdefault(task_id, SteeringControl()) if enabled else None
@@ -448,6 +463,17 @@ class PlanOrchestrator(Orchestrator):
                 if durable is not None:
                     state.recovery = {}
                 self._trace_executor_step(task_id, state, step, result, ui, mode, refs, package)
+                if app_build_reads is not None and package.accepted:
+                    app = package.ui.app_id
+                    if app and app not in app_build_reads and len(app_build_reads) < 4 and any(
+                        isinstance(skill, dict) and skill.get("scope") == f"apps/{app}"
+                        and skill.get("activation_source") in {"selected_workflow", "selected_stage_skill"}
+                        for skill in refs.get("active_skills") or ()
+                    ):
+                        app_build_reads[app] = asyncio.create_task(
+                            self._read_app_build(executor.driver, app, state.step_number, package.observation_id),
+                            name=f"skill-app-build-{task_id}-{app}",
+                        )
                 if step.decision == ExecutorDecisionKind.ACT:
                     device_actions += result.detail.get("device_action_units", 1)
                     action_attempts += 1

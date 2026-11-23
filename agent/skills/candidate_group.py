@@ -7,7 +7,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from agent.skills.learning import Candidate, digest
-from agent.skills.skill_edits import LocalizedCandidate, materialize_candidate
+from agent.skills.skill_edits import DeleteCandidate, LocalizedCandidate, materialize_candidate
 from shared.llm_gateway import GatewayError
 
 
@@ -24,7 +24,7 @@ class CandidateGroupDraft(BaseModel):
 
 
 def candidate_schema():
-    schema = TypeAdapter(Candidate | LocalizedCandidate | CandidateGroupDraft).json_schema()
+    schema = TypeAdapter(Candidate | LocalizedCandidate | DeleteCandidate | CandidateGroupDraft).json_schema()
     def strip_titles(node):
         if isinstance(node, dict):
             node.pop("title", None)
@@ -38,6 +38,8 @@ def candidate_schema():
 
 
 def materialize_proposal(value, library, *, drafts=()):
+    if isinstance(value, dict) and value.get("operation") == "delete":
+        return DeleteCandidate.model_validate(value)
     if isinstance(value, dict) and "patches" in value:
         proposal = CandidateGroupDraft.model_validate(value)
         return CandidateGroup(patches=[materialize_candidate(p.model_dump(), library, drafts=drafts)

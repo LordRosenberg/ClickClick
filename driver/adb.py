@@ -18,6 +18,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import os
+import re
 import secrets
 import shlex
 import shutil
@@ -31,6 +32,7 @@ from xml.etree import ElementTree
 from zipfile import ZipFile
 
 from driver.processes import background_process_kwargs
+from shared.protocol import AppBuild
 
 # uiautomator dump writes to a path on the device, then we pull it.
 # This is a prefix only; each attempt gets an isolated, unguessable path.
@@ -248,6 +250,40 @@ async def package_version_async(serial: str | None, package: str) -> str | None:
         if line.startswith("versionName="):
             return line.split("=", 1)[1].strip()
     return "installed"
+
+
+async def read_app_build(serial: str, package: str) -> AppBuild | None:
+    """Read the exact active Android package build, with unknowns left unknown."""
+    if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)*", package):
+        return None
+    try:
+        output = await shell_async(serial, ["dumpsys", "package", package], timeout=2.0)
+    except (AdbError, OSError):
+        return None
+    in_packages = False
+    in_target_package = False
+    version_code = ""
+    version_name = None
+    for raw_line in output.decode("utf-8", "replace").splitlines():
+        line = raw_line.strip()
+        if line and not raw_line[0].isspace():
+            if in_target_package:
+                break
+            in_packages = line == "Packages:"
+        elif in_packages and line.startswith("Package ["):
+            if in_target_package:
+                break
+            in_target_package = line.startswith(f"Package [{package}]")
+        elif in_target_package:
+            code = re.fullmatch(r"versionCode=([0-9]{1,20})(?:\s.*)?", line)
+            if code:
+                version_code = code[1].lstrip("0") or "0"
+            elif line.startswith("versionName="):
+                name = line.removeprefix("versionName=").strip()
+                version_name = name if name and name != "null" else None
+    if not version_code:
+        return None
+    return {"package": package, "version_code": version_code, "version_name": version_name}
 
 
 async def package_apk_sha256_async(serial: str | None, package: str) -> str | None:

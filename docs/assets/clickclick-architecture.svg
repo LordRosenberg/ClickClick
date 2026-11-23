@@ -1,15 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1450" viewBox="0 0 1600 1450" role="img" aria-labelledby="title desc">
-<title id="title">ClickClick core architecture: harness, observation, session and skill learning</title>
-<desc id="desc">Lightweight MCP and Console interfaces connect to task management. The core is the Agent Harness, reliable device observation, durable Session and skill self-improvement. Skill Reviewer and selected execution checks establish quality; users inspect review and validation results and confirm publication. Published versions feed runtime skill delivery.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1582" viewBox="0 0 1600 1582" role="img" aria-labelledby="title desc">
+<title id="title">ClickClick system architecture</title>
+<desc id="desc">MCP and Console connect to task management, the agent harness and device execution. Durable task records feed optional Skill learning and GUI script generation. Verified setup scripts support paired Skill regression.</desc>
 <defs>
 <marker id="control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
 <marker id="evidence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#287568"/></marker>
 <marker id="optional" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#80618E"/></marker>
 <marker id="support" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
 </defs>
-<rect width="1600" height="1450" fill="white"/>
+<rect width="1600" height="1582" fill="white"/>
 <text x="40" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="29" font-weight="700" fill="#263449" text-anchor="start"><tspan x="40" dy="0">CLICKCLICK</tspan></text>
-<text x="255" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="400" fill="#586575" text-anchor="start"><tspan x="255" dy="0">Agent harness, reliable observation, persistent session and skill learning</tspan></text>
+<text x="255" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="400" fill="#586575" text-anchor="start"><tspan x="255" dy="0">Agent harness, durable Session and workflow improvement</tspan></text>
 <text x="40" y="78" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="40" dy="0">Task execution, durable evidence and reusable knowledge form a continuous loop</tspan></text>
 <rect x="40" y="100" width="220" height="70" rx="6" fill="#F5F8FC" stroke="#263449" stroke-width="1.3"/>
 <text x="56" y="126" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#263449" text-anchor="start"><tspan x="56" dy="0">User</tspan></text>
@@ -125,29 +125,46 @@
 <path d="M800 1135V1160" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)" marker-start="url(#evidence)"/>
 <rect x="40" y="1240" width="1520" height="145" rx="6" fill="#F7FAFE" stroke="#456B96" stroke-width="1.3"/>
 <text x="65" y="1270" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="23" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="65" dy="0">Skills self-improvement</tspan></text>
-<text x="395" y="1270" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="395" dy="0">Session traces → review and execution checks → skill library → Harness delivery</tspan></text>
+<text x="395" y="1270" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="395" dy="0">Session trace → independent review → paired regression → Skill library</tspan></text>
 <rect x="65" y="1284" width="280" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
 <text x="81" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="81" dy="0">Learner</tspan></text>
-<text x="81" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="81" dy="0">Failures / detours → revisions</tspan></text>
+<text x="81" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="81" dy="0">Evidence → Skill candidate</tspan></text>
 <rect x="395" y="1284" width="320" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
 <text x="411" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="411" dy="0">Independent Skill Reviewer</tspan></text>
 <text x="411" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="411" dy="0">Independent context · six review criteria</tspan></text>
 <rect x="765" y="1284" width="310" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
-<text x="781" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="781" dy="0">Exploration and validation</tspan></text>
-<text x="781" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="781" dy="0">Isolated candidates · outcomes / cost</tspan></text>
+<text x="781" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="781" dy="0">Cases and paired regression</tspan></text>
+<text x="781" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="781" dy="0">Verify setup · compare Skill versions</tspan></text>
 <rect x="1125" y="1284" width="410" height="69" rx="6" fill="#EEF7F3" stroke="#287568" stroke-width="1.3"/>
 <text x="1141" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#287568" text-anchor="start"><tspan x="1141" dy="0">Skills library / versions</tspan></text>
-<text x="1141" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1141" dy="0">Confirm results · publish versioned skills</tspan></text>
+<text x="1141" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1141" dy="0">Low impact can auto-publish · review high impact</tspan></text>
 <path d="M345 1318H395" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
-<path d="M715 1318H765" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
+<path d="M715 1318H765" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
 <path d="M1075 1318H1125" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
-<path d="M555 1353V1365H205V1353" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
-<text x="600" y="1375" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="600" dy="0">Revise from review / tests; human review focuses on results and candidate changes</tspan></text>
-<path d="M44 1422H95" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
-<text x="108" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#263449" text-anchor="start"><tspan x="108" dy="0">Task control / actions</tspan></text>
-<path d="M365 1422H416" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
-<text x="430" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="430" dy="0">State / evidence</tspan></text>
-<path d="M650 1422H701" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
-<text x="715" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#80618E" text-anchor="start"><tspan x="715" dy="0">Optional / host-dependent</tspan></text>
-<text x="1560" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="end"><tspan x="1560" dy="0">Logical modules, not deployment units</tspan></text>
+<text x="765" y="1375" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="765" dy="0">Reuse cases or generate and verify a setup script</tspan></text>
+<rect x="40" y="1400" width="1520" height="133" rx="6" fill="#F7FCFA" stroke="#287568" stroke-width="1.3"/>
+<text x="65" y="1430" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="23" font-weight="500" fill="#287568" text-anchor="start"><tspan x="65" dy="0">GUI scripts</tspan></text>
+<text x="395" y="1430" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="395" dy="0">Setup scripts serve regression · recovery evidence can inform learning</tspan></text>
+<rect x="65" y="1444" width="280" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
+<text x="81" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="81" dy="0">Opt-in recording</tspan></text>
+<text x="81" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="81" dy="0">Actions, receipts and original frames</tspan></text>
+<rect x="395" y="1444" width="320" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
+<text x="411" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="411" dy="0">Generate and review</tspan></text>
+<text x="411" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="411" dy="0">Tree and image steps · separate checks</tspan></text>
+<rect x="765" y="1444" width="310" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
+<text x="781" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="781" dy="0">Replay and check</tspan></text>
+<text x="781" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="781" dy="0">Pre/post checks · bounded takeover</tspan></text>
+<rect x="1125" y="1444" width="410" height="69" rx="6" fill="#EEF7F3" stroke="#287568" stroke-width="1.3"/>
+<text x="1141" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#287568" text-anchor="start"><tspan x="1141" dy="0">Verify and register versions</tspan></text>
+<text x="1141" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1141" dy="0">Auto-register eligible low-impact revisions</tspan></text>
+<path d="M345 1478H395" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
+<path d="M715 1478H765" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
+<path d="M1075 1478H1125" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<path d="M44 1556H95" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
+<text x="108" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#263449" text-anchor="start"><tspan x="108" dy="0">Task control / actions</tspan></text>
+<path d="M365 1556H416" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="430" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="430" dy="0">State / evidence</tspan></text>
+<path d="M650 1556H701" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
+<text x="715" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#80618E" text-anchor="start"><tspan x="715" dy="0">Optional / host-dependent</tspan></text>
+<text x="1560" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="end"><tspan x="1560" dy="0">Logical modules, not deployment units</tspan></text>
 </svg>

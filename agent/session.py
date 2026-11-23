@@ -1050,6 +1050,17 @@ class AgentSession:
             else:
                 # bind_device_skills already restored this exact body into the library.
                 pack = self.library.frozen_packs.get(pack.id,pack)
+        elif pack.kind == "workflow" and pack.interface_scope == "app":
+            audit_store = getattr(self, "audit_snapshot_store", None)
+            if audit_store is not None and pack.id not in self._skill_activation_metadata:
+                try:
+                    if not audit_store.db.get_agent_record(audit_store.task_id, "skill_snapshot", pack.id):
+                        audit_store.put("skill_snapshot", pack.id, {
+                            "relative_path": pack.path.resolve().relative_to(self.library.root).as_posix(),
+                            "frontmatter": pack.frontmatter, "body": pack.body, "version": pack.version,
+                        })
+                except Exception:  # The optional audit can skip an unavailable snapshot.
+                    pass
         sid = pack.name
         body = pack.section_for(self._skill_projection_role())
         previous = self._skill_activation_metadata.get(sid, {})

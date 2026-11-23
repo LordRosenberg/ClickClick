@@ -421,8 +421,11 @@ class RecoveryStore:
                 refs.update(self._file_refs(json.loads(self.artifacts.verify(row[0]))))
             if row[1]:
                 refs.update(self._file_refs(json.loads(row[1])))
-        for row in self.db._conn.execute("SELECT payload_json FROM agent_records WHERE kind IN "
-                                        "('dialogue','skill_snapshot','prompt_policy','execution_attempt','recovery_manifest')"):
+        for row in self.db._conn.execute(
+            "SELECT payload_json FROM agent_records WHERE kind IN "
+            "('dialogue','skill_snapshot','prompt_policy','execution_attempt','recovery_manifest',"
+            "'script_recording_frame','script_generation')"
+        ):
             refs.update(self._file_refs(json.loads(row[0])))
         for row in self.db._conn.execute("SELECT intent_json,result_json FROM task_operations"):
             refs.update(self._file_refs(json.loads(row[0])))

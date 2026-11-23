@@ -56,6 +56,12 @@ Freeze code, model, configuration, task matrix, initial state and skill library.
 
 Validation receipts bind candidate hash, base library, task, model and initialization contract. Catalog presence, body delivery, action adoption and task success require separate checks. Whole-task failure need not refute independently supported local knowledge, while local validity cannot establish stable aggregate utility. Choose exploration/ordinary trials by evidence gaps rather than mandating a full matrix for every candidate. See [self-learning](skill-evolution.md).
 
+### Paired GUI regression for Skills
+
+A regression case binds a Skill target, Android package, App build, setup script, task goal and independent checks. The task-details flow reuses verified cases in that scope. When a required case is missing, it can record a setup script and register the case after independent replay verifies the initial conditions.
+
+Each arm restores the same dedicated emulator snapshot, runs the same setup script and verifies the resulting state. Ordinary ClickClick execution then uses a frozen baseline library or that library with the candidate applied. Both arms keep the App build, model, goal and limits fixed. The evaluator independently checks the result, branch conditions and preservation guards, and records cleanup, actions, requests and time. The worker checks that each applicable arm received the expected Skill text. [Skills self-learning design](skill-evolution.md) · [GUI script design](gui-script-design.md)
+
 ## Configuration and reports
 
 Ordinary budgets are defined in [orchestration](task-orchestration.md). Explicit benchmark settings take precedence; reports retain action space, model-call limits and deadline. HITL simulators and recovery policy are frozen independently rather than silently inheriting installation defaults.

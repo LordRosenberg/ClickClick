@@ -97,6 +97,8 @@ class Settings(BaseSettings):
     learning_default_calls: int = Field(default=24, ge=12, le=64)
     learning_default_actions: int = Field(default=30, ge=1, le=100)
     learning_default_seconds: int = Field(default=900, ge=30, le=1800)
+    # An isolated, operator-configured Android emulator for Console Skill regression.
+    skill_loop_fixture_json: str = ""
 
     # Storage and process bindings.
     data_dir: Path = Path("./data")
@@ -125,6 +127,7 @@ class Settings(BaseSettings):
     skill_learner_model: str = ""
     skill_reviewer_model: str = ""
     skill_learning_mode: Literal["legacy", "task_explore"] = "legacy"
+    skill_version_audit_enabled: bool = False
     models_json: str = ""
     gateway_user_agent: str = ""
     # Empty → LiteLLM default (~/.config/litellm/chatgpt). When set, exported

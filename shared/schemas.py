@@ -627,6 +627,8 @@ class AgentState(BaseModel):
     active_workflow_ids: list[str] = Field(default_factory=list, max_length=2)
     # Explicit opt-in: ordinary and evaluation tasks never run a hidden learner call.
     skill_learn: bool = False
+    # Retain clean task observations for script recording when requested at creation.
+    generate_test_script: bool = False
     recovery: dict[str, Any] = Field(default_factory=dict)
     # Optional per-task model overrides (must be keys in MODELS_JSON when set).
     manager_model: str | None = None
@@ -715,4 +717,5 @@ class TaskRecord(BaseModel):
     state: AgentState | None = None
     device_serial: str | None = None
     skill_learn: bool = False
+    generate_test_script: bool = False
     recovery: dict[str, Any] = Field(default_factory=dict)

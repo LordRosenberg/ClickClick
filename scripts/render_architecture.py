@@ -1,4 +1,4 @@
-"""Regenerate the bilingual README architecture diagrams with no dependencies."""
+"""Regenerate the bilingual system architecture diagrams."""
 from html import escape
 from pathlib import Path
 import re
@@ -20,8 +20,7 @@ ENGLISH = {'用户': 'User',
  '任务控制 / 动作': 'Task control / actions',
  '可选 / 依宿主支持': 'Optional / host-dependent',
  '逻辑模块示意，非进程部署图': 'Logical modules, not deployment units',
- 'Agent Harness、可靠观测、持久 Session 与 Skills 自学习': 'Agent harness, reliable observation, persistent '
-                                               'session and skill learning',
+ 'Agent Harness、持久 Session 与工作流改进': 'Agent harness, durable Session and workflow improvement',
  '任务执行、证据持久化与知识改进形成闭环': 'Task execution, durable evidence and reusable knowledge form a continuous '
                         'loop',
  '目标 · 修改 · 回复': 'Goals · changes · replies',
@@ -44,7 +43,7 @@ ENGLISH = {'用户': 'User',
                                             'tokens / trace analysis',
  'Skills 自学习': 'Skills self-improvement',
  '独立 Skill Reviewer': 'Independent Skill Reviewer',
- '按需探索与实测': 'Exploration and validation',
+ '用例与配对回归': 'Cases and paired regression',
  'Skills 库 / 版本管理': 'Skills library / versions',
  '在线任务控制': 'Live task control',
  '上下文组装': 'Context assembly',
@@ -60,12 +59,21 @@ ENGLISH = {'用户': 'User',
  'ADB / IME · 目标 / 焦点 / 输入读回': 'ADB / IME · target / focus / input readback',
  'operation ID 去重 · journal / 回执': 'Operation ID dedup · journal / receipts',
  '本机或远程 Driver': 'Local or remote Driver',
- '失败 / 绕路 → 条件化修订': 'Failures / detours → revisions',
+ '轨迹证据 → 条件化候选': 'Evidence → Skill candidate',
  '独立上下文 · 六维审核': 'Independent context · six review criteria',
- '隔离候选库 · 结果 / 成本': 'Isolated candidates · outcomes / cost',
- '确认结果后入库 · 版本化交付': 'Confirm results · publish versioned skills',
- '审查 / 实测反馈修订；人工主要复核结果与候选差异': 'Revise from review / tests; human review focuses on results and '
-                              'candidate changes',
+ '验证初态 · 比较新旧 Skill': 'Verify setup · compare Skill versions',
+ '低影响可自动发布 · 高影响人工审核': 'Low impact can auto-publish · review high impact',
+ '复用用例，缺用例时生成并验证初态准备脚本': 'Reuse cases or generate and verify a setup script',
+ 'GUI 脚本': 'GUI scripts',
+ '准备脚本给回归复用，接管证据可供 Learner 查证': 'Setup scripts serve regression · recovery evidence can inform learning',
+ '按需录制': 'Opt-in recording',
+ '动作、回执和原始帧': 'Actions, receipts and original frames',
+ '生成并审查': 'Generate and review',
+ '图树混合步骤 · 独立结果': 'Tree and image steps · separate checks',
+ '回放与校验': 'Replay and check',
+ '动作前后核对 · 有界接管': 'Pre/post checks · bounded takeover',
+ '复验与版本登记': 'Verify and register versions',
+ '通过复验的低影响改动可自动登记': 'Auto-register eligible low-impact revisions',
  '状态查询 · 任务委托 · 进度与历史': 'Readiness · task delegation · progress and history',
  '任务控制 · HITL 介入 · 可视化链接': 'Task control · HITL steering · viewing links',
  '角色编排与重规划': 'Role orchestration and replanning',
@@ -109,22 +117,31 @@ ENGLISH = {'用户': 'User',
  'Skills / 提示词 / 临时数据': 'skills / prompts / transient caches',
  '任务、投屏、模型输出与学习结果': 'Tasks, screen, model output and learning results',
  '宿主桥接 / Console 问答 · 只读投屏': 'Reply bridge / Console answers · read-only screen',
- 'Session 轨迹 → 独立审查与实测 → Skills 库 → Harness 按需交付': 'Session traces → review and execution checks → '
-                                                   'skill library → Harness delivery',
+ 'Session 轨迹 → 独立审查 → 配对回归 → Skills 库': 'Session trace → independent review → paired regression → Skill library',
  '观测 / 动作 / 回执': 'Observation / actions / receipts',
  '读写': 'R/W'}
 
 
 def render_figure(language="en"):
+    title, description = (
+        ("ClickClick system architecture",
+         "MCP and Console connect to task management, the agent harness and device execution. "
+         "Durable task records feed optional Skill learning and GUI script generation. "
+         "Verified setup scripts support paired Skill regression.")
+        if language == "en" else
+        ("ClickClick 系统架构",
+         "MCP 与 Console 接入任务管理、Agent Harness 和设备执行。"
+         "持久任务记录供按需 Skills 自学习和 GUI 脚本生成使用，已验证的准备脚本用于配对回归。")
+    )
     parts = [
-      '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1450" viewBox="0 0 1600 1450" role="img" aria-labelledby="title desc">',
-      '<title id="title">ClickClick core architecture: harness, observation, session and skill learning</title>',
-      '<desc id="desc">Lightweight MCP and Console interfaces connect to task management. The core is the Agent Harness, reliable device observation, durable Session and skill self-improvement. Skill Reviewer and selected execution checks establish quality; users inspect review and validation results and confirm publication. Published versions feed runtime skill delivery.</desc>',
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1582" viewBox="0 0 1600 1582" role="img" aria-labelledby="title desc">',
+      f'<title id="title">{escape(title)}</title>',
+      f'<desc id="desc">{escape(description)}</desc>',
       '<defs>',
     ]
     for name, color in [('control', INK), ('evidence', GREEN), ('optional', PURPLE), ('support', INK)]:
         parts.append(f'<marker id="{name}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="{color}"/></marker>')
-    parts += ['</defs>', '<rect width="1600" height="1450" fill="white"/>']
+    parts += ['</defs>', '<rect width="1600" height="1582" fill="white"/>']
     def tr(value):
         if language == 'en' and re.search('[\u4e00-\u9fff]', value):
             return ENGLISH[value]
@@ -160,7 +177,7 @@ def render_figure(language="en"):
         parts.append(f'<text x="1121" y="{y+56}" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400">'+''.join(rows)+'</text>')
 
     text(40,44,'CLICKCLICK',29,INK,700)
-    text(255,44,'Agent Harness、可靠观测、持久 Session 与 Skills 自学习',25,MUTED)
+    text(255,44,'Agent Harness、持久 Session 与工作流改进',25,MUTED)
     text(40,78,'任务执行、证据持久化与知识改进形成闭环',18,MUTED)
 
     support(40,100,220,70,'用户',['目标 · 修改 · 回复'],INK,'#F5F8FC')
@@ -290,28 +307,38 @@ def render_figure(language="en"):
     text(310,1189,'官方初始化与评分 · 成功率 / P50-P95 / Token / 轨迹分析',17,MUTED)
     arrow('M800 1135V1160','evidence',both=True)
 
-    # A short learning lane retains the full improvement loop and result review.
+    # Keep learning and script replay in separate lanes outside ordinary execution.
     rect(40,1240,1520,145,'#F7FAFE',BLUE)
     text(65,1270,'Skills 自学习',23,BLUE,500)
-    text(395,1270,'Session 轨迹 → 独立审查与实测 → Skills 库 → Harness 按需交付',16,MUTED)
-    core_node(65,1284,280,69,'Learner',['失败 / 绕路 → 条件化修订'],INK)
+    text(395,1270,'Session 轨迹 → 独立审查 → 配对回归 → Skills 库',16,MUTED)
+    core_node(65,1284,280,69,'Learner',['轨迹证据 → 条件化候选'],INK)
     core_node(395,1284,320,69,'独立 Skill Reviewer',['独立上下文 · 六维审核'],INK)
-    core_node(765,1284,310,69,'按需探索与实测',['隔离候选库 · 结果 / 成本'],INK)
+    core_node(765,1284,310,69,'用例与配对回归',['验证初态 · 比较新旧 Skill'],INK)
     core_node(1125,1284,410,69,'Skills 库 / 版本管理',[
-      '确认结果后入库 · 版本化交付'],GREEN,'#EEF7F3')
+      '低影响可自动发布 · 高影响人工审核'],GREEN,'#EEF7F3')
     arrow('M345 1318H395')
-    arrow('M715 1318H765','optional',dash=True)
+    arrow('M715 1318H765')
     arrow('M1075 1318H1125','evidence')
-    arrow('M555 1353V1365H205V1353','optional',dash=True)
-    text(600,1375,'审查 / 实测反馈修订；人工主要复核结果与候选差异',15,MUTED)
+    text(765,1375,'复用用例，缺用例时生成并验证初态准备脚本',15,MUTED)
 
-    arrow('M44 1422H95')
-    text(108,1428,'任务控制 / 动作',16)
-    arrow('M365 1422H416','evidence')
-    text(430,1428,'状态 / 证据',16,GREEN)
-    arrow('M650 1422H701','optional',dash=True)
-    text(715,1428,'可选 / 依宿主支持',16,PURPLE)
-    text(1560,1428,'逻辑模块示意，非进程部署图',16,MUTED,anchor='end')
+    rect(40,1400,1520,133,'#F7FCFA',GREEN)
+    text(65,1430,'GUI 脚本',23,GREEN,500)
+    text(395,1430,'准备脚本给回归复用，接管证据可供 Learner 查证',16,MUTED)
+    core_node(65,1444,280,69,'按需录制',['动作、回执和原始帧'],INK)
+    core_node(395,1444,320,69,'生成并审查',['图树混合步骤 · 独立结果'],INK)
+    core_node(765,1444,310,69,'回放与校验',['动作前后核对 · 有界接管'],INK)
+    core_node(1125,1444,410,69,'复验与版本登记',['通过复验的低影响改动可自动登记'],GREEN,'#EEF7F3')
+    arrow('M345 1478H395')
+    arrow('M715 1478H765')
+    arrow('M1075 1478H1125','evidence')
+
+    arrow('M44 1556H95')
+    text(108,1562,'任务控制 / 动作',16)
+    arrow('M365 1556H416','evidence')
+    text(430,1562,'状态 / 证据',16,GREEN)
+    arrow('M650 1556H701','optional',dash=True)
+    text(715,1562,'可选 / 依宿主支持',16,PURPLE)
+    text(1560,1562,'逻辑模块示意，非进程部署图',16,MUTED,anchor='end')
     return '\n'.join(parts+['</svg>'])+'\n'
 
 

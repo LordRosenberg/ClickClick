@@ -2,9 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, TypedDict, runtime_checkable
 
 from shared.schemas import Action, ActionResult, CanonicalUI
+
+
+class AppBuild(TypedDict):
+    """Observed Android package build. Version name is display metadata only."""
+
+    package: str
+    version_code: str
+    version_name: str | None
 
 
 class UnsupportedPlatformError(Exception):
@@ -96,7 +104,7 @@ RPC_METHODS = frozenset({
     "current_activity", "current_foreground_identity",
     "get_input_diagnostics",
     "skill_profile_ids",
-    "resolve_installed_app", "search_installed_apps", "validate_installed_app",
+    "resolve_installed_app", "search_installed_apps", "validate_installed_app", "read_app_build",
     "record_installed_app_selection",
     "initialize_environment", "reconcile_environment", "readiness",
     # multi-device-concurrent: inventory behind CLICKCLICK_DRIVER_URL

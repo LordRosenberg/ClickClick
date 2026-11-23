@@ -1252,6 +1252,14 @@ class ExplorationBackend:
     async def diagnose(self, model, system, payload, budget):
         from agent.skills.learner import _extract_json
         from agent.skills.analysis_session import LearnerConversation, TRAJECTORY_FORMAT, validate_decision_analysis
+
+        def parse_decision(content):
+            decision = _extract_json(content)
+            if (decision is not None and decision.get("decision") == "propose" and "candidate" not in decision
+                    and isinstance(decision.get("candidate_json"), dict)):
+                decision["candidate"] = decision.pop("candidate_json")
+            return decision
+
         if self._conversation_budget is not budget:
             self._conversation_budget = budget
             self.learner_conversation = LearnerConversation(self.artifacts, {
@@ -1522,7 +1530,7 @@ class ExplorationBackend:
             budget.record_usage(getattr(response, "usage", None))
             unseen_images = 0  # All attachments in this request have now been delivered.
             if not response.tool_calls:
-                parsed = _extract_json(response.content)
+                parsed = parse_decision(response.content)
                 if parsed is None:
                     raise ValueError("invalid learner JSON")
                 messages.append({"role": "assistant", "content": response.content})
@@ -1554,7 +1562,7 @@ class ExplorationBackend:
                     session.save(messages)
                     self._record_research("learner", "analysis_output_repair", {"conversation_ref": session.ref,
                         "invalid_reason": str(exc)[:1800], "messages": messages}, budget, model=model)
-                    corrected = _extract_json(repaired.content)
+                    corrected = parse_decision(repaired.content)
                     analysis_fields = {"trajectory_analysis", "trajectory_analysis_update"}
                     if repaired.tool_calls or not isinstance(corrected, dict) or not analysis_fields.intersection(corrected):
                         raise ValueError("invalid repaired learner analysis output")
@@ -1579,6 +1587,8 @@ class ExplorationBackend:
             # Read-only batches share the text/result and total call budgets below.
             # A ninth read must not abort analysis when its bounded results fit.
             round_result_chars = 0
+            batch_context = []
+            omissions_reported = False
             for call_index, call in enumerate(response.tool_calls):
                 try:
                     # Space for all remaining tool results (including deferrals) and
@@ -1586,7 +1596,7 @@ class ExplorationBackend:
                     pending_result_reserve = 1500 + 600 * (len(response.tool_calls) - call_index - 1)
                     if call.name == "read_diagnostic_context":
                         args = json.loads(call.arguments)
-                        capacity = min(4000, max(0, (context_limit - size() - pending_result_reserve) // 2),
+                        capacity = min(4000, max(0, (context_limit - size([*messages, *batch_context]) - pending_result_reserve) // 2),
                             max(0, (16000 - round_result_chars - 800) // 2))
                         # Validate even deferred requests; only this call's frozen refs exist.
                         data = read_diagnostic_context(diagnostic_directories, **args)
@@ -1608,7 +1618,8 @@ class ExplorationBackend:
                             raise ValueError("invalid official read arguments")
                         data = self.official_skill_page(args["path"], args.get("offset",0), args.get("length",4000))
                         wire = json.dumps(data, ensure_ascii=False)
-                        if round_result_chars + len(wire) > 16000 or size() + len(wire) + pending_result_reserve > context_limit:
+                        if (round_result_chars + len(wire) > 16000
+                                or size([*messages, *batch_context]) + len(wire) + pending_result_reserve > context_limit):
                             wire = json.dumps({"status":"deferred","reason":"official page exceeds shared result budget"})
                             queue_read(call)
                         round_result_chars += len(wire)
@@ -1633,13 +1644,15 @@ class ExplorationBackend:
                             continue
                     # Never compact or discard a partially answered tool batch.
                     # Defer pages that do not fit; checkpoint at the next round boundary.
-                    messages.append({"role":"user", "content":json.dumps({"omitted_history_rounds":omitted_rounds,
-                        "policy":"Omitted records remain readable; missing means unknown."})})
+                    if not omissions_reported:
+                        batch_context.append({"role":"user", "content":json.dumps({"omitted_history_rounds":omitted_rounds,
+                            "policy":"Omitted records remain readable; missing means unknown."})})
+                        omissions_reported = True
                     # Reserve real serialized exchange space, including escaping and
                     # deferred-result metadata. Native reads page at the supplied
                     # limit, preserving exact continuation offsets.
                     text_capacity = max(0, min(4000,
-                        (context_limit - size() - max(2000, pending_result_reserve)) // 2,
+                        (context_limit - size([*messages, *batch_context]) - max(2000, pending_result_reserve)) // 2,
                         (16000 - round_result_chars - 2000) // 2))
                     # Page to the actual remaining batch space; a maximum-size estimate
                     # must not defer a short second record that would fit.
@@ -1681,7 +1694,8 @@ class ExplorationBackend:
                         data, attachments = scoped_history_data(result.data, namespace), result.attachments
                         wire = json.dumps(result.model_copy(update={"data":data}).model_metadata(call.name), ensure_ascii=False)
                     projected = [*messages, {"role":"tool", "tool_call_id":call.id,"content":wire}]
-                    if round_result_chars + len(wire) > 16000 or size(projected) + pending_result_reserve > context_limit:
+                    if (round_result_chars + len(wire) > 16000
+                            or size([*projected, *batch_context]) + pending_result_reserve > context_limit):
                         queue_read(call)
                         messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps({
                             "status": "deferred", "reason": "native metadata exceeds remaining diagnostic response budget",
@@ -1702,7 +1716,7 @@ class ExplorationBackend:
                     for attachment in attachments:
                         if isinstance(attachment.content, bytes):
                             image = base64.b64encode(attachment.content).decode()
-                            messages.append({"role": "user", "content": [
+                            batch_context.append({"role": "user", "content": [
                                 {"type": "text", "text": "Historical read-only evidence: " + attachment.label + "; cannot ground current actions."},
                                 {"type": "image_url", "image_url": {
                                     "url": f"data:{attachment.mime_type};base64,{image}"}}]})
@@ -1719,6 +1733,8 @@ class ExplorationBackend:
                         "content": json.dumps({"status": "failed",
                             "reason": "Invalid historical read: " + str(exc)[:700],
                             "policy": "No evidence supplied by this call; repair arguments or preserve the gap as unknown."}, ensure_ascii=False)})
+            # Providers pair an assistant's entire tool batch before user context or images.
+            messages.extend(batch_context)
             # Progress is fresh supplied evidence, not another identical read.
             fresh = False
             for message in messages:
@@ -2124,16 +2140,16 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
         supplied_images = {}
         read_log = []
         pending_reads = []  # Review-local; no extra model rounds or device work.
-        def text_size():
+        def text_size(extra=()):
             projected = [{**m, "content":([p for p in m["content"] if p.get("type") != "image_url"]
-                if isinstance(m.get("content"),list) else m.get("content"))} for m in messages]
+                if isinstance(m.get("content"),list) else m.get("content"))} for m in (*messages, *extra)]
             return len(json.dumps(projected,ensure_ascii=False))
-        def append_image(item, image_data):
+        def append_image(destination, item, image_data):
             nonlocal image_count
             if image_data is None:
                 return
             mime = "image/jpeg" if image_data[:2] == b"\xff\xd8" else "image/png"
-            messages.append({"role":"user", "content":[
+            destination.append({"role":"user", "content":[
                 {"type":"text", "text":"Historical read-only observation: " + item["source"] + "; visible content only, not current grounding or private fixture truth."},
                 {"type":"image_url", "image_url":{"url":"data:"+mime+";base64,"+base64.b64encode(image_data).decode("ascii")}}]})
             image_count += 1
@@ -2162,7 +2178,7 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
                 if delivered_chars + len(wire) > 16000 or text_size() + len(wire) + 1500 > 250000:
                     break
                 messages.append({"role":"user", "content":wire})
-                append_image(item, image_data)
+                append_image(messages, item, image_data)
                 delivered_chars += len(wire)
                 log_read(item, call_id)
                 pending_reads.remove((call_id, args))
@@ -2234,21 +2250,22 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
             messages.append({"role":"assistant", "content":response.content or None,
                 "tool_calls":[{"id":c.id,"type":"function","function":{"name":c.name,"arguments":c.arguments}} for c in response.tool_calls]})
             result_chars = 0
+            batch_images = []
             for call in response.tool_calls:
                 if call.name == "read_official_skill" and self.snapshot:
                     capacity = max(1, min(4000, (16000-result_chars-1500)//2,
-                        (250000-text_size()-1500)//2))
+                        (250000-text_size(batch_images)-1500)//2))
                     try:
                         item, _ = await self._queued_diagnostic_read(call, {}, {}, capacity)
                         item.update(status="success", source_kind="official_skill")
                     except (ValueError, KeyError, TypeError) as exc:
                         item = {"status":"failed", "reason":str(exc)[:700]}
                     wire = json.dumps(item, ensure_ascii=False)
-                    if result_chars+len(wire) > 16000 or text_size()+len(wire)+1500 > 250000:
+                    if result_chars+len(wire) > 16000 or text_size(batch_images)+len(wire)+1500 > 250000:
                         item = {"status":"deferred", "reason":"review result budget; no guidance supplied",
                             "policy":"Request this exact frozen page in a later available round; missing guidance stays unknown."}
                         wire = json.dumps(item, ensure_ascii=False)
-                    if result_chars+len(wire) > 16000 or text_size()+len(wire)+500 > 250000:
+                    if result_chars+len(wire) > 16000 or text_size(batch_images)+len(wire)+500 > 250000:
                         raise LearningStopped("review_context_budget")
                     messages.append({"role":"tool", "tool_call_id":call.id, "content":wire})
                     result_chars += len(wire)
@@ -2261,7 +2278,7 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
                     item = {"status":"failed", "reason":reason[:700],
                         "policy":"No evidence supplied. Copy a returned native reference to repair this read within the existing round budget; missing facts stay unknown."}
                     wire = json.dumps(item, ensure_ascii=False)
-                    if result_chars + len(wire) > 16000 or text_size() + len(wire) + 500 > 250000:
+                    if result_chars + len(wire) > 16000 or text_size(batch_images) + len(wire) + 500 > 250000:
                         raise LearningStopped("review_context_budget")
                     messages.append({"role":"tool", "tool_call_id":call.id, "content":wire})
                     result_chars += len(wire)
@@ -2296,14 +2313,15 @@ or scope repair. Keep unclaimed measured benefit unknown, not an automatic block
                     item = {"requested_source":ref,"status":"deferred","reason":"review result budget; not supplied"}
                     wire = json.dumps(item,ensure_ascii=False);image_data = None
                 # Images are bounded separately; text never drops the full quality input.
-                if text_size() + len(wire) + 500 > 250000:
+                if text_size(batch_images) + len(wire) + 500 > 250000:
                     raise LearningStopped("review_context_budget")
                 messages.append({"role":"tool","tool_call_id":call.id,"content":wire})
                 result_chars += len(wire)
                 log_read(item, call.id)
-                append_image(item, image_data)
+                append_image(batch_images, item, image_data)
                 if item["status"] == "deferred" and not any(queued_args == args for _, queued_args in pending_reads):
                     pending_reads.append((call.id, args))
+            messages.extend(batch_images)
             self._record_research("reviewer", "evidence_reads", {"messages": messages,
                 "evidence_reads": read_log}, budget, model=model)
         raise LearningStopped("review_read_budget")

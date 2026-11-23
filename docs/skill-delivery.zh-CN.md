@@ -56,7 +56,7 @@ App core/workflow 中的 `verified_actions` 可声明受支持的封闭复合配
 
 ## 配置、取舍与实现
 
-`CLICKCLICK_SKILLS_DIR` 指定技能根目录，默认仓库 `skills/`；设备配置选择适用 profile。单阶段四个技能／两个 workflow、角色分段和作用域属于交付协议。学习候选须经独立审查、相应验证及人工批准后才进入正式目录；普通任务结束不自动学习。
+`CLICKCLICK_SKILLS_DIR` 指定技能根目录，默认使用仓库的 `skills/`。设备配置选择适用的 profile。单阶段四个技能、其中最多两个 workflow，以及角色分段和作用域均属于交付协议。学习候选需要经过独立审查和相应验证。通过配对回归与发布校验的单 App 工作流低影响改动可自动入库，其他符合准入要求的改动进入待审批流程。 [Skills 自学习详设](skill-evolution.zh-CN.md) · [学习入口与策略](skill-learning-policy.zh-CN.md)
 
 精确应用匹配减少无关指导，代价是别名、设备 profile 和适用条件需要维护。渐进式交付降低重复上下文，但模型仍可能漏选或未采用正确规则，需通过加载记录与动作证据分别检查。
 

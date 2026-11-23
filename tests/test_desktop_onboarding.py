@@ -286,14 +286,23 @@ def test_application_allowlist_excludes_private_and_internal(tmp_path):
     assert "agent/prompts/revisable_executor.md" in files
     assert "docs/desktop-setup.zh-CN.md" in files
     assert "web/dist/index.html" in files
+    assert "evaluation/gui_skill_console_worker.py" in files
+    assert {"evaluation/gui_scripts.py", "evaluation/gui_script_auto_repair.py",
+            "evaluation/gui_skill_replay_evidence.py", "control_api/script_fixture_verification.py"} <= files
+    assert "evaluation/gui_skill_auto_plan.py" in files
+    assert "evaluation/mobileworld/run_single.py" in files
+    assert all(p.endswith(".py") and len(Path(p).parts) <= 3 for p in files if p.startswith("evaluation/"))
+    assert not any(p.startswith("evaluation/mobileworld/reproduction/") for p in files)
     assert {p for p in files if p.startswith("desktop/assets/")} == {"desktop/assets/clickclick-app.png"}
     import tomllib
     metadata = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
     assert "assets/*.png" in metadata["tool"]["setuptools"]["package-data"]["desktop"]
     # Every configurable desktop feature must work without a user-side pip install.
     assert set(metadata["project"]["optional-dependencies"]["jev"]) <= set(metadata["project"]["optional-dependencies"]["desktop"])
-    assert not any(p.startswith(("data/", "evaluation/", "tests/", "openspec/", ".git/", ".agents/")) for p in files)
-    assert {p for p in files if p.startswith("docs/")} == {"docs/local-mcp.zh-CN.md", "docs/desktop-setup.zh-CN.md"}
+    assert not any(p.startswith(("data/", "tests/", "openspec/", ".git/", ".agents/")) for p in files)
+    assert {p for p in files if p.startswith("docs/")} == {
+        "docs/local-mcp.zh-CN.md", "docs/desktop-setup.zh-CN.md",
+    }
     assert not any(".env" in p or "__pycache__" in p or "integrations/android_world" in p for p in files)
     assert not any(p.startswith("skills/") and ("mobileworld" in p or "androidworld" in p) for p in files)
 

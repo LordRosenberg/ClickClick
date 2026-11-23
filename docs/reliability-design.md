@@ -18,7 +18,8 @@ The agent harness supplies context, tools and feedback for sustained execution. 
 | Context and memory | Role-specific context assembled from raw records, versioned notes, sourced summaries and retrieval | [Context design](memory-and-context.md) |
 | Reliable observation and execution | Current screens, temporal sequences and native detail; target binding, input checks and action receipts | [Observation/execution](observation-execution-consistency.md) |
 | Skill reuse | Skills selected by app, device, stage and role, with progressive disclosure | [Skill delivery](skill-delivery.md) |
-| Skill self-improvement | Candidates extracted from task traces, independently reviewed, tested when needed and published after human confirmation | [Self-learning](skill-evolution.md) |
+| Skill self-improvement | Learn from task evidence, run paired regression on verified cases, and publish eligible low-impact revisions automatically | [Self-learning](skill-evolution.md) |
+| GUI scripts | Optional recording, tree and screenshot steps, checked replay and bounded Agent takeover | [GUI script design](gui-script-design.md) |
 | Bidirectional HITL | Resume the original session after agent questions; accept user changes and replan during execution | [HITL design](hitl-design.md) |
 | Pause and interruption recovery | Continue from safe checkpoints; take over eligible interrupted tasks and rebuild their context | [Pause/recovery](crash-recovery.md) |
 | Observability and evaluation | Link role, model, tool and observation records, analyze latency and usage, and obtain independent scoring in benchmark environments | [Observability](observability.md) · [Evaluation](evaluation-design.md) |
@@ -63,9 +64,9 @@ The execution loop is **choose a stage → act and observe → update memory →
 
 **Challenge:** A single success can depend on a particular state, and a failure can come from the environment. Turning a whole trace into a rule can overgeneralize, while rerunning every candidate in full inflates learning cost.
 
-**Design:** Learner proposes candidates with explicit conditions. An independent Skill Reviewer checks root cause, transferability, conflicts, regression risk, conciseness and marginal value, selecting exploration or ordinary execution checks according to evidence gaps. Bind candidate content, base versions and validation records; users inspect results and changes before confirming publication per file.
+The Learner starts from a compact trajectory and opens detailed evidence as needed. An independent Skill Reviewer checks the candidate. Paired regression reuses verified cases or prepares a reproducible initial state with a setup script. The same task, App build and initial state are used to compare the baseline and candidate. Exact revision and evidence checks govern publication, with automatic release available for eligible low-impact changes and review for higher-impact changes.
 
-**Tradeoff:** Record local validity, task-level utility and transfer separately. A failed task does not erase independently supported local knowledge, and local validity does not establish task utility; select validation when needed. Learning updates skill files rather than model weights, and ordinary task completion does not automatically start paid learning. See [skill self-improvement](skill-evolution.md).
+Evidence can establish that a path works in one branch. Claims about task-level benefit and transfer require appropriate cases. Learning updates versioned Skill files. The task-detail job starts by request and uses a separate test environment. [Skills self-learning](skill-evolution.md)
 
 ## Engineering support
 

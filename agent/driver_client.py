@@ -12,12 +12,14 @@ every RPC includes that serial so the remote hub routes to the right phone.
 
 from __future__ import annotations
 
+import asyncio
 import base64
 from typing import Any
 
 import httpx
 
 from driver.observation_deadline import ObservationDeadline, ObservationStageError
+from shared.protocol import AppBuild
 from shared.schemas import Action, ActionResult, CanonicalUI
 
 
@@ -227,6 +229,25 @@ class DriverClient:
     async def validate_installed_app(self, package: str) -> bool:
         result = await self._rpc("validate_installed_app", {"package": package})
         return bool(result.get("installed")) if isinstance(result, dict) else False
+
+    async def read_app_build(self, package: str) -> AppBuild | None:
+        """Read a build over the optional Driver RPC supported by newer Android drivers."""
+        try:
+            async with asyncio.timeout(3.0):
+                result = await self._rpc("read_app_build", {"package": package})
+        except (RuntimeError, ValueError, TimeoutError, httpx.HTTPError):
+            return None
+        if not isinstance(result, dict) or result.get("package") != package:
+            return None
+        code = result.get("version_code")
+        name = result.get("version_name")
+        if not isinstance(code, str) or not code.isascii() or not code.isdecimal():
+            return None
+        return {
+            "package": package,
+            "version_code": code.lstrip("0") or "0",
+            "version_name": name if isinstance(name, str) and name else None,
+        }
 
     async def record_installed_app_selection(self, display_name: str, package: str) -> bool:
         result = await self._rpc("record_installed_app_selection", {

@@ -1,15 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1450" viewBox="0 0 1600 1450" role="img" aria-labelledby="title desc">
-<title id="title">ClickClick core architecture: harness, observation, session and skill learning</title>
-<desc id="desc">Lightweight MCP and Console interfaces connect to task management. The core is the Agent Harness, reliable device observation, durable Session and skill self-improvement. Skill Reviewer and selected execution checks establish quality; users inspect review and validation results and confirm publication. Published versions feed runtime skill delivery.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1582" viewBox="0 0 1600 1582" role="img" aria-labelledby="title desc">
+<title id="title">ClickClick 系统架构</title>
+<desc id="desc">MCP 与 Console 接入任务管理、Agent Harness 和设备执行。持久任务记录供按需 Skills 自学习和 GUI 脚本生成使用，已验证的准备脚本用于配对回归。</desc>
 <defs>
 <marker id="control" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
 <marker id="evidence" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#287568"/></marker>
 <marker id="optional" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#80618E"/></marker>
 <marker id="support" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 1L9 5L0 9Z" fill="#263449"/></marker>
 </defs>
-<rect width="1600" height="1450" fill="white"/>
+<rect width="1600" height="1582" fill="white"/>
 <text x="40" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="29" font-weight="700" fill="#263449" text-anchor="start"><tspan x="40" dy="0">CLICKCLICK</tspan></text>
-<text x="255" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="400" fill="#586575" text-anchor="start"><tspan x="255" dy="0">Agent Harness、可靠观测、持久 Session 与 Skills 自学习</tspan></text>
+<text x="255" y="44" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="400" fill="#586575" text-anchor="start"><tspan x="255" dy="0">Agent Harness、持久 Session 与工作流改进</tspan></text>
 <text x="40" y="78" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="400" fill="#586575" text-anchor="start"><tspan x="40" dy="0">任务执行、证据持久化与知识改进形成闭环</tspan></text>
 <rect x="40" y="100" width="220" height="70" rx="6" fill="#F5F8FC" stroke="#263449" stroke-width="1.3"/>
 <text x="56" y="126" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="500" fill="#263449" text-anchor="start"><tspan x="56" dy="0">用户</tspan></text>
@@ -125,29 +125,46 @@
 <path d="M800 1135V1160" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)" marker-start="url(#evidence)"/>
 <rect x="40" y="1240" width="1520" height="145" rx="6" fill="#F7FAFE" stroke="#456B96" stroke-width="1.3"/>
 <text x="65" y="1270" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="23" font-weight="500" fill="#456B96" text-anchor="start"><tspan x="65" dy="0">Skills 自学习</tspan></text>
-<text x="395" y="1270" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="395" dy="0">Session 轨迹 → 独立审查与实测 → Skills 库 → Harness 按需交付</tspan></text>
+<text x="395" y="1270" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="395" dy="0">Session 轨迹 → 独立审查 → 配对回归 → Skills 库</tspan></text>
 <rect x="65" y="1284" width="280" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
 <text x="81" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="81" dy="0">Learner</tspan></text>
-<text x="81" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="81" dy="0">失败 / 绕路 → 条件化修订</tspan></text>
+<text x="81" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="81" dy="0">轨迹证据 → 条件化候选</tspan></text>
 <rect x="395" y="1284" width="320" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
 <text x="411" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="411" dy="0">独立 Skill Reviewer</tspan></text>
 <text x="411" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="411" dy="0">独立上下文 · 六维审核</tspan></text>
 <rect x="765" y="1284" width="310" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
-<text x="781" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="781" dy="0">按需探索与实测</tspan></text>
-<text x="781" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="781" dy="0">隔离候选库 · 结果 / 成本</tspan></text>
+<text x="781" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="781" dy="0">用例与配对回归</tspan></text>
+<text x="781" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="781" dy="0">验证初态 · 比较新旧 Skill</tspan></text>
 <rect x="1125" y="1284" width="410" height="69" rx="6" fill="#EEF7F3" stroke="#287568" stroke-width="1.3"/>
 <text x="1141" y="1313" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#287568" text-anchor="start"><tspan x="1141" dy="0">Skills 库 / 版本管理</tspan></text>
-<text x="1141" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1141" dy="0">确认结果后入库 · 版本化交付</tspan></text>
+<text x="1141" y="1340" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1141" dy="0">低影响可自动发布 · 高影响人工审核</tspan></text>
 <path d="M345 1318H395" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
-<path d="M715 1318H765" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
+<path d="M715 1318H765" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
 <path d="M1075 1318H1125" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
-<path d="M555 1353V1365H205V1353" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
-<text x="600" y="1375" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="600" dy="0">审查 / 实测反馈修订；人工主要复核结果与候选差异</tspan></text>
-<path d="M44 1422H95" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
-<text x="108" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#263449" text-anchor="start"><tspan x="108" dy="0">任务控制 / 动作</tspan></text>
-<path d="M365 1422H416" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
-<text x="430" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="430" dy="0">状态 / 证据</tspan></text>
-<path d="M650 1422H701" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
-<text x="715" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#80618E" text-anchor="start"><tspan x="715" dy="0">可选 / 依宿主支持</tspan></text>
-<text x="1560" y="1428" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="end"><tspan x="1560" dy="0">逻辑模块示意，非进程部署图</tspan></text>
+<text x="765" y="1375" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="400" fill="#586575" text-anchor="start"><tspan x="765" dy="0">复用用例，缺用例时生成并验证初态准备脚本</tspan></text>
+<rect x="40" y="1400" width="1520" height="133" rx="6" fill="#F7FCFA" stroke="#287568" stroke-width="1.3"/>
+<text x="65" y="1430" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="23" font-weight="500" fill="#287568" text-anchor="start"><tspan x="65" dy="0">GUI 脚本</tspan></text>
+<text x="395" y="1430" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="395" dy="0">准备脚本给回归复用，接管证据可供 Learner 查证</tspan></text>
+<rect x="65" y="1444" width="280" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
+<text x="81" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="81" dy="0">按需录制</tspan></text>
+<text x="81" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="81" dy="0">动作、回执和原始帧</tspan></text>
+<rect x="395" y="1444" width="320" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
+<text x="411" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="411" dy="0">生成并审查</tspan></text>
+<text x="411" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="411" dy="0">图树混合步骤 · 独立结果</tspan></text>
+<rect x="765" y="1444" width="310" height="69" rx="6" fill="white" stroke="#263449" stroke-width="1.3"/>
+<text x="781" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#263449" text-anchor="start"><tspan x="781" dy="0">回放与校验</tspan></text>
+<text x="781" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="781" dy="0">动作前后核对 · 有界接管</tspan></text>
+<rect x="1125" y="1444" width="410" height="69" rx="6" fill="#EEF7F3" stroke="#287568" stroke-width="1.3"/>
+<text x="1141" y="1473" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="21" font-weight="500" fill="#287568" text-anchor="start"><tspan x="1141" dy="0">复验与版本登记</tspan></text>
+<text x="1141" y="1500" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="start"><tspan x="1141" dy="0">通过复验的低影响改动可自动登记</tspan></text>
+<path d="M345 1478H395" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
+<path d="M715 1478H765" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
+<path d="M1075 1478H1125" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<path d="M44 1556H95" fill="none" stroke="#263449" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#control)"/>
+<text x="108" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#263449" text-anchor="start"><tspan x="108" dy="0">任务控制 / 动作</tspan></text>
+<path d="M365 1556H416" fill="none" stroke="#287568" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#evidence)"/>
+<text x="430" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#287568" text-anchor="start"><tspan x="430" dy="0">状态 / 证据</tspan></text>
+<path d="M650 1556H701" fill="none" stroke="#80618E" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#optional)" stroke-dasharray="6 5"/>
+<text x="715" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#80618E" text-anchor="start"><tspan x="715" dy="0">可选 / 依宿主支持</tspan></text>
+<text x="1560" y="1562" font-family="Segoe UI, Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="400" fill="#586575" text-anchor="end"><tspan x="1560" dy="0">逻辑模块示意，非进程部署图</tspan></text>
 </svg>

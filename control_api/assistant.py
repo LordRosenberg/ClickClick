@@ -39,6 +39,7 @@ class AssistantTaskBody(BaseModel):
     reply_binding: str | None = Field(default=None, min_length=32, max_length=128)
     submission_origin: str = Field(default="assistant", pattern="^(assistant|cli)$")
     hitl_enabled: bool | None = None
+    generate_test_script: bool = Field(default=False, strict=True)
 
 
 def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task_body,
@@ -64,6 +65,7 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             "recovery": task.recovery,
             "task_id": task.id, "status": task.status.value,
             "instruction": task.instruction[:2000], "device_id": task.device_serial,
+            "generate_test_script": task.generate_test_script,
             "created_at": task.created_at, "updated_at": task.updated_at,
             "elapsed_seconds": max(0, (task.updated_at if task.status in TERMINAL else time.time()) - task.created_at),
             "current_stage": runtime.stage.goal[:2000] if runtime and runtime.stage else None,
@@ -188,7 +190,8 @@ def mount_assistant_api(app, *, db, artifacts, pool, settings, create_task, task
             devices = available
         result = await create_task(task_body(instruction=body.instruction,
                                             device_serials=devices, request_key=body.request_key,
-                                            hitl_enabled=body.hitl_enabled),
+                                            hitl_enabled=body.hitl_enabled,
+                                            generate_test_script=body.generate_test_script),
                                    background_tasks, origin=body.submission_origin, binding=body.reply_binding)
         tasks = [compact(db.get_task(t["id"])) for t in result["tasks"]]
         return {"tasks": tasks, "assistant_ui": task_page_presentation(tasks),

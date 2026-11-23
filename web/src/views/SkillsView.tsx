@@ -149,6 +149,7 @@ export function SkillsView() {
   );
   const pending = pendingQ.data ?? [];
   const pendingCount = pending.length;
+  const pendingDeletion = pendingDetailQ.data?.operation === "delete";
 
   const saveMut = useMutation({
     mutationFn: async () => {
@@ -333,6 +334,7 @@ export function SkillsView() {
                       >
                         <span className="block truncate">{r.gist || r.id}</span>
                         <span className="block truncate text-[10px] text-text-mute">
+                          {r.operation === "delete" && `${t("删除候选")} · `}
                           {r.target}
                           {r.outcome ? ` · ${r.outcome}` : ""}
                         </span>
@@ -533,12 +535,12 @@ export function SkillsView() {
                     <div className="flex flex-wrap gap-2 pt-2">
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant={pendingDeletion ? "destructive" : "outline"}
                         disabled={approveMut.isPending}
                         onClick={() => approveMut.mutate()}
-                        className="font-mono text-[10px] border-neon/40 text-neon"
+                        className={cn("font-mono text-[10px]", !pendingDeletion && "border-neon/40 text-neon")}
                       >
-                        <Check className="mr-1 h-3 w-3" /> {t("批准")}</Button>
+                        <Check className="mr-1 h-3 w-3" /> {t(pendingDeletion ? "批准删除" : "批准")}</Button>
                       <Button
                         size="sm"
                         variant="outline"

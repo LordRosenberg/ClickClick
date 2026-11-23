@@ -49,7 +49,15 @@ Driver 使用 scrcpy 像素与 Accessibility Collector 结构构建观测包，A
 
 原始记录、版本笔记与来源摘要分层保存，各角色独立组装当前需求、计划、预算、观测和记忆。详见[记忆与上下文](memory-and-context.zh-CN.md)；数据库、文件与进程内存的分工见[Session 与存储](session-storage.zh-CN.md)。
 
-Planner 从目录选阶段技能，再按应用、设备与角色渐进式交付正文，详见[技能交付](skill-delivery.zh-CN.md)。独立学习入口将已有轨迹转为候选，经审查、按需验证与人工确认后入库，详见[Skills 自学习](skill-evolution.zh-CN.md)。普通任务结束不自动启动付费学习。
+Planner 从目录选择阶段技能，再按应用、设备与角色渐进式交付正文。任务记录保存实际交付的 Skill 版本，供后续学习和回归核对 Agent 当时拿到了什么指导。 [技能交付详设](skill-delivery.zh-CN.md)
+
+## GUI 脚本与 Skills 自学习
+
+勾选「录制脚本」后，任务会为已接受的动作保留可用原图，并另起生成作业。Learner 根据实际观测生成声明式脚本，同一份脚本可以包含控件树步骤和截图步骤。回放前后核对局部状态，符合条件的异常可由 Agent 接管。经验证的初态准备脚本也可用于 Skills 回归。 [GUI 脚本详设](gui-script-design.zh-CN.md)
+
+任务详情的「Skills 自学习」启动单独作业。Learner 从任务轨迹和已核验的脚本接管线索学习，独立 Skill Reviewer 审查候选。回归在专用 Android 测试环境中复用已核验用例，缺用例时补录并验证初态，再比较旧版和候选。满足条件的低影响改动可自动发布，高影响改动待审核。 [Skills 自学习详设](skill-evolution.zh-CN.md)
+
+脚本录制和任务详情学习需要显式开启，普通任务沿用既有 Planner 和 Executor 决策链路。另有独立开启的 App 构建版本审查，可在观测到版本变化后分析已结束任务。 [学习策略](skill-learning-policy.zh-CN.md)
 
 ## HITL 主动介入与计划更新
 
@@ -81,7 +89,8 @@ Agent 可提问后续接原调用，用户也可通过助手或 API 主动调整
 | 上下文与记忆 | [详设](memory-and-context.zh-CN.md) | 角色上下文、笔记、来源摘要、压缩与回查 |
 | 观测与执行一致性 | [详设](observation-execution-consistency.zh-CN.md) | 异步图树、动态序列、目标／输入校验与回执时序 |
 | 技能复用 | [详设](skill-delivery.zh-CN.md) | 目录、应用／设备作用域与按角色渐进交付 |
-| Skills 自学习 | [详设](skill-evolution.zh-CN.md) | 轨迹提炼、独立审查、按需验证与人工发布 |
+| Skills 自学习 | [详设](skill-evolution.zh-CN.md) | 轨迹取证、候选审查、配对回归与版本发布 |
+| GUI 脚本 | [详设](gui-script-design.zh-CN.md) | 录制、图树混合定位、校验回放和有界接管 |
 | 双向 HITL | [详设](hitl-design.zh-CN.md) | 提问续接、回复桥接、用户介入与在途并发 |
 | 暂停与异常恢复 | [详设](crash-recovery.zh-CN.md) | 安全检查点、T1/T2/T3、输入隔离、unknown 与上下文重建 |
 | 可观测性 | [详设](observability.zh-CN.md) | Trace 关联、Console、只读预览与指标定义 |
@@ -104,7 +113,8 @@ Agent 可提问后续接原调用，用户也可通过助手或 API 主动调整
 | Harness：工具与决策 | [session.py](../agent/session.py)、[revisable/session.py](../agent/revisable/session.py)、[revisable/tools.py](../agent/revisable/tools.py) |
 | Harness：上下文与检索 | [recall.py](../agent/revisable/recall.py)、[context_projection.py](../agent/context_projection.py) |
 | Harness：技能管理 | [agent/skills/](../agent/skills/)、[pending.py](../agent/skills/pending.py)；内容位于 [skills/](../skills/) |
-| 研究：技能学习与审查 | [learning.py](../agent/skills/learning.py)、[analysis_session.py](../agent/skills/analysis_session.py)、[exploration.py](../agent/skills/exploration.py)、[admission.py](../agent/skills/admission.py)、[verification.py](../agent/skills/verification.py), [candidate_group.py](../agent/skills/candidate_group.py) |
+| Skills 学习、审查与回归作业 | [learning.py](../agent/skills/learning.py)、[analysis_session.py](../agent/skills/analysis_session.py)、[version_audit.py](../agent/skills/version_audit.py)、[skill_loop_jobs.py](../control_api/skill_loop_jobs.py) |
+| GUI 脚本生成与回放 | [script_generation_jobs.py](../agent/skills/script_generation_jobs.py)、[script_schema.py](../agent/skills/script_schema.py)、[script_runner.py](../agent/skills/script_runner.py) |
 | Harness：动作与输入控制 | [action_observation.py](../agent/action_observation.py)、[targeted_input.py](../agent/targeted_input.py) |
 | 设备工具：采集与设备访问 | [scrcpy_stream.py](../driver/scrcpy_stream.py)、[scrcpy_observation.py](../driver/scrcpy_observation.py)、[accessibility.py](../driver/accessibility.py)、[perception/](../perception/) |
 | Harness：模型路由 | [llm_gateway.py](../shared/llm_gateway.py)、[model_router.py](../shared/model_router.py) |

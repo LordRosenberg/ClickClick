@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS traces (
 CREATE INDEX IF NOT EXISTS idx_traces_task_level ON traces(task_id, level);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_device_serial ON tasks(device_serial);
+CREATE INDEX IF NOT EXISTS idx_agent_records_kind_key ON agent_records(kind, record_key);
 
 CREATE TABLE IF NOT EXISTS task_submissions (
   request_key TEXT PRIMARY KEY,
@@ -219,7 +220,8 @@ class Database:
                            if key in AgentState.model_fields}
                 if not include_state:
                     raw = {key: raw[key] for key in (
-                        "instruction", "revisable", "current_subgoal", "step_number", "skill_learn"
+                        "instruction", "revisable", "current_subgoal", "step_number",
+                        "skill_learn", "generate_test_script",
                     ) if key in raw}
                 state = AgentState.model_validate(raw)
             except Exception:  # noqa: BLE001
@@ -249,6 +251,7 @@ class Database:
             state=state if include_state else None,
             device_serial=device_serial,
             skill_learn=skill_learn,
+            generate_test_script=state.generate_test_script if state is not None else False,
             recovery=self._recovery_projection(row),
         )
 
@@ -548,6 +551,23 @@ class Database:
             (task_id, kind, task_id, kind),
         ).fetchall()
         return [self._agent_record(row) for row in rows]
+
+    def find_agent_records(self, kind: str, keys: list[str]) -> list[dict]:
+        """Read the latest record per task for a bounded set of exact keys."""
+        if not keys:
+            return []
+        placeholders = ",".join("?" for _ in keys)
+        rows = self._conn.execute(
+            "SELECT r.task_id, r.record_key, r.version, r.payload_json "
+            "FROM agent_records r WHERE r.kind=? "
+            f"AND r.record_key IN ({placeholders}) AND NOT EXISTS ("
+            "SELECT 1 FROM agent_records newer WHERE newer.task_id=r.task_id "
+            "AND newer.kind=r.kind AND newer.record_key=r.record_key AND newer.version>r.version) "
+            "ORDER BY r.rowid",
+            (kind, *keys),
+        ).fetchall()
+        return [{"task_id": row[0], "key": row[1], "version": row[2], "payload": json.loads(row[3])}
+                for row in rows]
 
     @staticmethod
     def _agent_record(row) -> dict:

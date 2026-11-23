@@ -25,6 +25,7 @@ class PersonalLearningRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     accept_model_cost: StrictBool = False
     allow_device_operations: StrictBool = False
+    run_regression: StrictBool = False
     max_calls: int = Field(default=24, ge=12, le=64, strict=True)
     max_actions: int = Field(default=30, ge=1, le=100, strict=True)
     max_seconds: int = Field(default=900, ge=30, le=1800, strict=True)

@@ -330,6 +330,10 @@ class Experiment:
         finally:
             self.validation_budget = None
 
+    def _validation_cases(self):
+        return [("source", self.args.source), ("variant", self.args.variant),
+                ("near_miss", self.args.near_miss), ("related_normal", self.args.related_normal)]
+
     async def _validate(self, candidate, old, *, checks=None):
         from agent.skills.candidate_group import candidate_files, candidate_hash
         patches = candidate_files(candidate)
@@ -357,8 +361,7 @@ class Experiment:
         run_number = self.validation_runs.get(candidate_key, 0)
         self.validation_runs[candidate_key] = run_number + 1
         suffix = "" if not run_number else "-repeat-" + str(run_number)
-        cases = [("source", self.args.source), ("variant", self.args.variant),
-                 ("near_miss", self.args.near_miss), ("related_normal", self.args.related_normal)]
+        cases = self._validation_cases()
         if checks is not None:
             cases = [(kind, task) for kind, task in cases if kind in checks]
         for kind, task in cases:

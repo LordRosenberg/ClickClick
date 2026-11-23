@@ -237,6 +237,64 @@ def test_checkpoint_defer_initial_outline_preserves_current_constraints():
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("phase", ["diagnose", "review"])
+async def test_parallel_history_tool_results_are_contiguous_before_user_content(context, monkeypatch, phase):
+    import base64
+
+    b = backend(context)
+    png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=")
+    ref = b.artifacts.save_bytes("history_images", png, ".png")
+    b.source_store.put("observation", "parallel-image", {"app": "com.demo", "text": "Saved image", "image_ref": ref})
+    b.source_store.put("observation", "parallel-text", {"app": "com.demo", "text": "Saved evidence text"})
+    tool = "read_history" if phase == "diagnose" else "read_review_evidence"
+    calls = []
+
+    async def complete(model, messages, **kwargs):
+        kwargs["attempt_meter"]("model_call_started", {})
+        calls.append(copy.deepcopy(messages))
+        if len(calls) == 1:
+            image = {"view": "image"} if phase == "diagnose" else {"include_image": True}
+            return GatewayResponse(model=model, content="", tool_calls=[
+                ToolCall(id="read-image", name=tool, arguments=json.dumps({
+                    "source": "source/observation:parallel-image@1", **image,
+                })),
+                ToolCall(id="read-text", name=tool, arguments=json.dumps({
+                    "source": "source/observation:parallel-text@1",
+                })),
+            ])
+        index, = [i for i, message in enumerate(messages) if message.get("tool_calls")]
+        expected_ids = [call["id"] for call in messages[index]["tool_calls"]]
+        assert expected_ids == ["read-image", "read-text"]
+        replies = messages[index + 1:index + 1 + len(expected_ids)]
+        assert [(message["role"], message.get("tool_call_id")) for message in replies] == [
+            ("tool", call_id) for call_id in expected_ids
+        ]
+        expected_status = "succeeded" if phase == "diagnose" else "success"
+        assert [json.loads(message["content"])["status"] for message in replies] == [expected_status] * 2
+        following = messages[index + 1 + len(expected_ids):]
+        assert all(message["role"] == "user" for message in following)
+        assert any(isinstance(message["content"], list) and any(part.get("type") == "image_url"
+                   for part in message["content"]) for message in following)
+        if phase == "diagnose":
+            assert any(isinstance(message["content"], str) and "omitted_history_rounds" in message["content"]
+                       for message in following)
+        result = {"decision": "skip", "reason": "No new evidence"} if phase == "diagnose" else review()
+        return GatewayResponse(model=model, content=json.dumps(result))
+
+    monkeypatch.setattr("agent.skills.exploration.complete", complete)
+    try:
+        budget = LearningBudget(max_calls=12, reserve_calls=3)
+        result = await getattr(b, phase)("test", "Check saved evidence", {}, budget)
+        if phase == "diagnose":
+            assert result["decision"] == "skip"
+        else:
+            assert result["verdict"] == "pass"
+        assert budget.calls == 2 and budget.actions == 0
+    finally:
+        b.close()
+
+
+@pytest.mark.asyncio
 async def test_screenshot_batch_delivers_unseen_images_before_evicting(context, monkeypatch):
     b = backend(context)
     store = context[3]

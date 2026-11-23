@@ -2,7 +2,7 @@
 // origin (dev: proxied by Vite; prod: served by the same process via
 // StaticFiles). Artifact refs are fetched as raw text/JSON for the LLM
 // input/output viewers and the semantic-tree renderer.
-import type { DeviceInfo, FailedTask, SkillLinks, SkillSummary, Task, TaskTimeline, TraceEvent, TreeRefPayload, ModelCatalog } from "./types";
+import type { DeviceInfo, FailedTask, ScriptGeneration, SkillLinks, SkillSummary, Task, TaskTimeline, TraceEvent, TreeRefPayload, ModelCatalog } from "./types";
 export const DEFAULT_SKILL_LEARN = false;
 async function getJson<T>(path: string): Promise<T> {
     const res = await fetch(path, { headers: { Accept: "application/json" } });
@@ -41,6 +41,12 @@ export async function getTaskPage(page: number, pageSize: 10 | 20, status?: "fai
 }
 export async function getTask(id: string): Promise<Task> {
     return getJson<Task>(`/api/tasks/${id}`);
+}
+export async function getScriptGeneration(id: string): Promise<ScriptGeneration | null> {
+    return getJson(`/api/tasks/${encodeURIComponent(id)}/script-generation`);
+}
+export function approveScriptGeneration(id: string): Promise<ScriptGeneration> {
+    return sendJson(`/api/tasks/${encodeURIComponent(id)}/script-generation/approve`, "POST");
 }
 export interface JevCheckEntry {
     kind: string;
@@ -90,6 +96,7 @@ export function createTaskModelOverrides(opts?: {
 }
 export async function createTask(instruction: string, deviceSerials: string[], opts?: {
     skill_learn?: boolean;
+    generate_test_script?: boolean;
     decision_model?: string | null;
     executor_model?: string | null;
 }): Promise<{
@@ -99,6 +106,7 @@ export async function createTask(instruction: string, deviceSerials: string[], o
         instruction,
         device_serials: deviceSerials,
         skill_learn: opts?.skill_learn ?? DEFAULT_SKILL_LEARN,
+        ...(opts?.generate_test_script ? { generate_test_script: true } : {}),
         ...createTaskModelOverrides(opts),
     };
     const res = await fetch("/api/tasks", {
@@ -233,6 +241,7 @@ export async function getPendingSkill(id: string): Promise<{
     id: string;
     gist: string;
     target: string;
+    operation?: import("./types").PendingSkill["operation"];
     diff: string;
     new_text: string;
     old_text: string;
@@ -258,7 +267,18 @@ export type PersonalLearningRequest = {
     max_calls: number;
     max_actions: number;
     max_seconds: number;
+    run_regression?: boolean;
 };
+export interface SkillLoopState {
+    status: "queued" | "running" | "awaiting_publication_review" | "regression_passed" | "published" | "blocked" | "error" | "cancelled";
+    phase?: "learning" | "planning" | "recording" | "replaying" | "regression" | "publication" | "cancelling" | "completed" | null;
+    reason?: string | null;
+    pending_id?: string | null;
+    case_origin?: "reused" | "recorded" | "existing" | null;
+}
+export interface SkillLoopResponse {
+    closure: SkillLoopState | null;
+}
 export type LearningPreferences = {
     local_recording: boolean;
     contribution_enabled: boolean;
@@ -277,6 +297,7 @@ export function getLearningContribution(taskId: string): Promise<Record<string, 
 }
 export async function learnFromTask(taskId: string, request: PersonalLearningRequest): Promise<{
     ok: boolean;
+    closure?: SkillLoopState | null;
     skipped?: boolean;
     pending_id?: string;
     gist?: string;
@@ -284,6 +305,12 @@ export async function learnFromTask(taskId: string, request: PersonalLearningReq
     reason?: string;
 }> {
     return sendJson(`/api/tasks/${encodeURIComponent(taskId)}/learn`, "POST", request);
+}
+export function getTaskSkillLoop(taskId: string): Promise<SkillLoopResponse> {
+    return getJson(`/api/tasks/${encodeURIComponent(taskId)}/skill-loop`);
+}
+export function cancelTaskSkillLoop(taskId: string): Promise<SkillLoopResponse> {
+    return sendJson(`/api/tasks/${encodeURIComponent(taskId)}/skill-loop/cancel`, "POST");
 }
 
 export interface LearningTraceEntry {

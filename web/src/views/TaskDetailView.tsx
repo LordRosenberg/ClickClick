@@ -1,9 +1,9 @@
 import { t } from "@/lib/locale";
 import { useLocale } from "@/lib/useLocale";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Smartphone, Square } from "lucide-react";
+import { ChevronLeft, Download, Smartphone, Square } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import { TaskSkillLinks } from "@/components/TaskSkillLinks";
 import { SkillLearningPanel } from "@/components/SkillLearningPanel";
 import { LearningControls } from "@/components/LearningControls";
 import { JevChecksPanel } from "@/components/JevChecksPanel";
-import { cancelTask, pauseTask, resumeTask } from "@/api/client";
+import { approveScriptGeneration, cancelTask, getScriptGeneration, pauseTask, resumeTask } from "@/api/client";
 import { taskCanPause, taskCanResume, taskIsActive, taskIsNonterminal, taskStatusLabel } from "@/lib/taskLifecycle";
 import { useTaskTimeline } from "@/state/useTaskTimeline";
 import {
@@ -32,6 +32,26 @@ import type { RoleCall } from "@/api/types";
 
 type SelectedConversationVisual = ConversationVisual & {
   callKey: string | null;
+};
+
+const scriptMessages = {
+  waiting: "等待生成脚本",
+  queued: "等待生成脚本",
+  running: "正在生成录制脚本…",
+  verifying: "正在专用模拟器独立回放脚本…",
+  draft: "脚本草稿已生成，等待回放验证",
+  blocked: "未能从轨迹生成完整脚本",
+  error: "脚本生成失败",
+};
+
+const scriptVerificationMessages: Record<string, string> = {
+  automatically_registered: "两次独立回放通过，脚本已自动登记",
+  approved: "脚本已批准登记",
+  verified_pending_review: "两次独立回放通过，脚本待发布审批",
+  validation_incomplete: "脚本草稿已生成，独立复验未通过",
+  automatic_enrollment_deferred: "脚本草稿已生成，登记条件未满足",
+  blocked: "脚本草稿已生成，暂不能复验",
+  error: "脚本草稿已生成，复验失败",
 };
 
 export function TaskDetailView() {
@@ -57,6 +77,20 @@ export function TaskDetailView() {
     return resolveRoleCalls(tl?.steps ?? [], tl?.calls);
   }, [tl]);
   const readOnly = Boolean(tk?.read_only || tl?.read_only);
+  const showScript = Boolean(id && !readOnly && tk?.generate_test_script && tk.status === "succeeded");
+  const script = useQuery({
+    queryKey: ["script-generation", id],
+    queryFn: () => getScriptGeneration(id!),
+    enabled: showScript,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === "waiting" || status === "queued" || status === "running" || status === "verifying" ? 1500 : false;
+    },
+  });
+  const scriptApproval = useMutation({
+    mutationFn: () => approveScriptGeneration(id!),
+    onSuccess: (result) => qc.setQueryData(["script-generation", id], result),
+  });
   const running =
     !readOnly && taskIsActive(tk?.status);
   const canStop = !readOnly && taskIsNonterminal(tk?.status);
@@ -279,8 +313,35 @@ export function TaskDetailView() {
         liveTask={tk}
       />
 
+      {showScript && (
+        <div className="flex flex-wrap items-center gap-3 rounded-md border border-border px-3 py-2 text-xs">
+          <span className="text-text-mute" role="status">
+            {t(script.isError ? "无法读取录制脚本状态" : script.data
+              ? scriptVerificationMessages[script.data.verification_status ?? ""] ?? scriptMessages[script.data.status]
+              : script.isPending ? "正在读取录制脚本状态…" : "此任务暂无脚本草稿")}
+            {script.data?.reason && (script.data.status === "blocked" || script.data.status === "error") && (
+              <span className="ml-2 font-mono">{script.data.reason}</span>
+            )}
+          </span>
+          {script.data?.bundle_ref && (
+            <Button asChild variant="outline" size="sm">
+              <a href={`/api/tasks/${encodeURIComponent(id!)}/script-generation/download`}>
+                <Download className="mr-1.5 h-4 w-4" aria-hidden />
+                {t("下载脚本草稿")}
+              </a>
+            </Button>
+          )}
+          {script.data?.verification_status === "verified_pending_review" && (
+            <Button variant="outline" size="sm" onClick={() => scriptApproval.mutate()} disabled={scriptApproval.isPending}>
+              {t("批准登记脚本")}
+            </Button>
+          )}
+          {scriptApproval.isError && <span role="alert">{t("脚本登记失败，请核对复验结果")}</span>}
+        </div>
+      )}
+
       {id ? <TaskSkillLinks taskId={id} /> : null}
-      {id && !canStop && !readOnly ? <LearningControls taskId={id} /> : null}
+      {id && !canStop && !readOnly ? <LearningControls key={id} taskId={id} /> : null}
 
       <Tabs defaultValue="timeline">
         <TabsList>

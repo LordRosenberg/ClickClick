@@ -56,6 +56,5 @@ export const mechanismLayouts=definitions.map(([id,doc,columns,contracts,options
   if(options.bypass){const[from,to]=options.bypass,a=groups[from],b=groups[to];
     routes[`${from}-${to}`]={from:'top',to:'top',via:[[a.x+175,84],[b.x+175,84]],labelAt:[(a.x+b.x)/2+175,77],dash:true};}
   if(id==='orchestration-modules')routes['decision-reviewer']={labelAt:[407.5,626]};
-  if(id==='skill-learning-mechanisms')routes['admission-publish']={labelAt:[792.5,626],labelSize:14};
   return {id,doc,kind:'mechanisms',height:id==='recovery-mechanisms'?1170:1050,groups,boxes,routes};
 });

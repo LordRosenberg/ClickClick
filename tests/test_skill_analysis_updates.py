@@ -5,7 +5,7 @@ import json
 import pytest
 
 from agent.skills.analysis_session import validate_analysis, validate_decision_analysis
-from agent.skills.learning import LearningBudget
+from agent.skills.learning import Candidate, LearningBudget
 from shared.llm_gateway import GatewayResponse
 from test_task_skill_learning import context
 from test_learner_conversation import backend
@@ -112,6 +112,47 @@ async def test_actual_diagnosis_materializes_update_and_new_job_cannot_inherit_i
     assert 'Calibration is required' in compacted[2]['content']
     await b.diagnose('test', 'new job', {'diagnostic_read_rounds': 0}, LearningBudget(max_calls=12))
     assert b.learner_conversation.id != session.id and b.learner_conversation.analysis is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('decision_kind,wrapper,canonical', [
+    ('propose', 'object', False),
+    ('propose', 'object', True),
+    ('propose', 'string', False),
+    ('skip', 'object', False),
+])
+async def test_diagnosis_normalizes_candidate_json_before_structured_recording(
+        context, monkeypatch, decision_kind, wrapper, canonical):
+    b, _ = base_analysis(context)
+    alias = Candidate(target='apps/com.example.notes/workflows/open-link/SKILL.md', gist='Open the link dialog',
+                      new_text='## Procedure\nOpen the visible Insert Link control.\n',
+                      evidence=['source/note:dependency@1'], scope='Visible toolbar', benefit='Direct dialog access',
+                      risks='Leave the note untouched').model_dump()
+    emitted = {'decision': decision_kind, 'candidate_json': alias if wrapper == 'object' else json.dumps(alias)}
+    if canonical:
+        emitted['candidate'] = {**alias, 'gist': 'Use the explicitly chosen visible control'}
+
+    async def complete(model, messages, **kwargs):
+        kwargs['attempt_meter']('model_call_started', {})
+        return GatewayResponse(model=model, content=json.dumps(emitted))
+
+    records = []
+    original = b._record_research
+
+    def record(role, phase, payload, *args, **kwargs):
+        if phase == 'diagnosis' and 'decision' in payload:
+            records.append(payload['decision'])
+        return original(role, phase, payload, *args, **kwargs)
+
+    monkeypatch.setattr('agent.skills.exploration.complete', complete)
+    monkeypatch.setattr(b, '_record_research', record)
+    result = await b.diagnose('test', 'learn', {'diagnostic_read_rounds': 0}, LearningBudget(max_calls=12))
+
+    expected = {'decision': 'propose', 'candidate': alias} if (
+        decision_kind == 'propose' and wrapper == 'object' and not canonical) else emitted
+    assert result == expected and records == [expected, expected]
+    archived = json.loads(b.artifacts.read_text(b.learner_conversation.ref))
+    assert json.loads(archived['history'][-1]['content']) == emitted
 
 
 @pytest.mark.asyncio

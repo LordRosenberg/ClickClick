@@ -268,6 +268,10 @@ def create_driver_app(
                 fn = getattr(drv, "validate_installed_app", None)
                 installed = await fn(str(body.params.get("package") or "")) if callable(fn) else False
                 result = {"installed": bool(installed)}
+            elif body.method == "read_app_build":
+                read_build = getattr(drv, "read_app_build", None)
+                package = body.params.get("package")
+                result = await read_build(package) if callable(read_build) and isinstance(package, str) else None
             elif body.method == "record_installed_app_selection":
                 fn = getattr(drv, "record_installed_app_selection", None)
                 recorded = await fn(

@@ -502,6 +502,7 @@ class ObservabilityQueries:
             "updated_at": task.updated_at,
             "execution_elapsed_ms": task_execution_elapsed_ms(task),
             "device_serial": task.device_serial,
+            "generate_test_script": task.generate_test_script,
             "state": task.state.model_dump() if task.state else None,
         }
 
