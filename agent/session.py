@@ -1539,7 +1539,10 @@ class AgentSession:
 
                 return meter
 
+            progress_text = ""
+
             async def stream_update(update: dict[str, Any]) -> None:
+                nonlocal progress_text
                 text = _scrub_sensitive_values(
                     redact_value(update.get("text", ""), max_string=None, max_items=None),
                     context,
@@ -1549,6 +1552,11 @@ class AgentSession:
                     context,
                 )
                 tool_count = int(update.get("tool_call_count") or 0)
+                public_summary = _scrub_sensitive_values(
+                    redact_value(update.get("public_summary", ""), max_string=4000),
+                    context,
+                )
+                progress_text = (text or public_summary or "")[:4000]
                 display_text = text or summary
                 if not display_text and tool_count:
                     display_text = (
@@ -1565,6 +1573,7 @@ class AgentSession:
                     "sequence": int(update.get("sequence") or 0),
                     "status": str(update.get("status") or "streaming"),
                     "text": display_text,
+                    "progress_text": progress_text,
                     "tool_call_count": tool_count,
                 })
 
@@ -1756,6 +1765,7 @@ class AgentSession:
                 reasoning_effort=resp.reasoning.effort,
                 reasoning_summary_preference=resp.reasoning.summary_preference,
                 reasoning_summary=_scrub_sensitive_values(resp.reasoning.summary, context),
+                progress_text=progress_text or None,
             )
             llm_rounds.append(round_record)
             await _emit(event_sink, "agent_llm_round_finished", round_record.model_dump())

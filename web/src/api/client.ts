@@ -42,6 +42,31 @@ export async function getTaskPage(page: number, pageSize: 10 | 20, status?: "fai
 export async function getTask(id: string): Promise<Task> {
     return getJson<Task>(`/api/tasks/${id}`);
 }
+export interface TaskAdjustment {
+    revision: number;
+    instruction: string;
+    status: "accepted" | "applied" | "cancelled" | "follow_up";
+    created_at: number;
+    feedback?: string;
+    followup_task_id?: string;
+}
+export interface WorkbenchTask extends Task {
+    hitl_enabled: boolean;
+    result: string | null;
+    adjustments: TaskAdjustment[];
+    models: { decision: string | null; executor: string | null };
+    preview_supported: boolean;
+    screenshot: { ref: string; recorded_at?: number } | null;
+}
+export function getWorkbenchTask(id: string): Promise<WorkbenchTask> {
+    return getJson(`/api/tasks/${encodeURIComponent(id)}/workbench`);
+}
+export function listWorkbenchTasks(): Promise<Pick<Task, "id" | "instruction" | "status">[]> {
+    return getJson("/api/workbench/tasks");
+}
+export function steerTask(id: string, instruction: string, request_key: string): Promise<TaskAdjustment | { status: "disabled"; message: string }> {
+    return sendJson(`/api/assistant/tasks/${encodeURIComponent(id)}/steer`, "POST", { instruction, request_key });
+}
 export async function getScriptGeneration(id: string): Promise<ScriptGeneration | null> {
     return getJson(`/api/tasks/${encodeURIComponent(id)}/script-generation`);
 }
@@ -99,6 +124,8 @@ export async function createTask(instruction: string, deviceSerials: string[], o
     generate_test_script?: boolean;
     decision_model?: string | null;
     executor_model?: string | null;
+    hitl_enabled?: boolean;
+    request_key?: string;
 }): Promise<{
     tasks: Task[];
 }> {
@@ -107,6 +134,8 @@ export async function createTask(instruction: string, deviceSerials: string[], o
         device_serials: deviceSerials,
         skill_learn: opts?.skill_learn ?? DEFAULT_SKILL_LEARN,
         ...(opts?.generate_test_script ? { generate_test_script: true } : {}),
+        ...(opts?.hitl_enabled === undefined ? {} : { hitl_enabled: opts.hitl_enabled }),
+        ...(opts?.request_key ? { request_key: opts.request_key } : {}),
         ...createTaskModelOverrides(opts),
     };
     const res = await fetch("/api/tasks", {

@@ -134,6 +134,7 @@ export interface Task {
     } | null;
 }
 export interface DeviceInfo {
+    platform?: string;
     /** Binding key for create/busy (``lab-a/SERIAL`` on remote hubs; bare serial locally). */
     key: string;
     /** Remote hub id, ``local``, or ``fixture``. */

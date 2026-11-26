@@ -6,7 +6,8 @@ import type { TraceEvent } from "./types";
 
 export interface SseHandlers {
   onEvent: (event: TraceEvent) => void;
-  onError?: (err: Event) => void;
+  onOpen?: () => void;
+  onError?: (err: Event) => boolean | void;
 }
 
 const RECONNECT_DELAYS = [500, 1000, 2000, 5000];
@@ -19,7 +20,7 @@ export interface SseSubscription {
  * Open an SSE stream for a task. Reconnects with backoff on error. Returns a
  * handle to close the stream (cancels any pending reconnect timer).
  */
-export function openTaskStream(taskId: string, handlers: SseHandlers): SseSubscription {
+export function openTaskStream(taskId: string, handlers: SseHandlers, view?: "workbench"): SseSubscription {
   let es: EventSource | null = null;
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   let attempt = 0;
@@ -27,7 +28,8 @@ export function openTaskStream(taskId: string, handlers: SseHandlers): SseSubscr
 
   const connect = () => {
     if (closed) return;
-    es = new EventSource(`/api/tasks/${taskId}/stream`);
+    const query = view ? `?view=${view}` : "";
+    es = new EventSource(`/api/tasks/${encodeURIComponent(taskId)}/stream${query}`);
 
     es.onmessage = (msg) => {
       // The backend emits each event as a single `data:` JSON line.
@@ -40,10 +42,10 @@ export function openTaskStream(taskId: string, handlers: SseHandlers): SseSubscr
     };
 
     es.onerror = (err) => {
-      handlers.onError?.(err);
+      const retry = handlers.onError?.(err);
       es?.close();
       es = null;
-      if (closed) return;
+      if (closed || retry === false) return;
       const delay = RECONNECT_DELAYS[Math.min(attempt, RECONNECT_DELAYS.length - 1)];
       attempt += 1;
       reconnectTimer = setTimeout(connect, delay);
@@ -51,6 +53,7 @@ export function openTaskStream(taskId: string, handlers: SseHandlers): SseSubscr
 
     es.onopen = () => {
       attempt = 0;
+      handlers.onOpen?.();
     };
   };
 

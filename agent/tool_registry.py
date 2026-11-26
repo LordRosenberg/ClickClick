@@ -347,6 +347,7 @@ class LLMRoundRecord(BaseModel):
     reasoning_effort: str | None = None
     reasoning_summary_preference: str | None = None
     reasoning_summary: str | None = None
+    progress_text: str | None = None
 
 
 class ToolCallRecord(BaseModel):

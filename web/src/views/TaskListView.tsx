@@ -133,7 +133,7 @@ function TaskRow({
   return (
     <button
       type="button"
-      onClick={() => navigate(`/tasks/${task.id}`)}
+      onClick={() => navigate(`${canStop ? "/workbench" : "/tasks"}/${encodeURIComponent(task.id)}`)}
       className={cn(
         "group w-full rounded border bg-bg-1 p-3 text-left transition-colors",
         statusAccent(task.status),

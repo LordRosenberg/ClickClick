@@ -846,6 +846,7 @@ async def _aggregate_stream(
 
     content_parts: list[str] = []
     summary_parts: list[str] = []
+    public_summary_parts: list[str] = []
     tools: dict[int, dict[str, str]] = {}
     finish_reason: Any = None
     usage: Any = None
@@ -870,6 +871,8 @@ async def _aggregate_stream(
         summary = _stream_text(_value(delta, "reasoning_summary"))
         if not summary:
             summary = _stream_text(_value(delta, "summary"))
+        if summary:
+            public_summary_parts.append(summary)
         if not summary and allow_reasoning_content:
             summary = _stream_text(_value(delta, "reasoning_content"))
         if summary:
@@ -899,6 +902,7 @@ async def _aggregate_stream(
                 "status": "streaming",
                 "text": "".join(content_parts),
                 "summary": "".join(summary_parts),
+                "public_summary": "".join(public_summary_parts),
                 "tool_call_count": len(tools),
             })
 
@@ -942,6 +946,7 @@ async def _aggregate_stream(
         "status": "completed",
         "text": message["content"],
         "summary": message.get("reasoning_summary", ""),
+        "public_summary": "".join(public_summary_parts),
         "tool_call_count": len(message["tool_calls"]),
     })
     return aggregate

@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useMatch } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { DesktopUpdateNotice } from "@/components/DesktopUpdateNotice";
 import { HumanInputInbox } from "@/components/HumanInputInbox";
@@ -6,6 +6,7 @@ import { t, type Locale } from "@/lib/locale";
 import { useLocale } from "@/lib/useLocale";
 
 const navItems = [
+  { to: "/workbench", label: "任务工作台", end: false },
   { to: "/", label: "任务", end: true },
   { to: "/device", label: "设备", end: false },
   { to: "/skills", label: "技能", end: false },
@@ -14,10 +15,11 @@ const navItems = [
 
 export function RootLayout() {
   const { locale, setLocale } = useLocale();
+  const workbench = Boolean(useMatch("/workbench/*"));
   return (
-    <div className="min-h-screen bg-bg-base text-text">
-      <header className="sticky top-0 z-20 border-b border-border bg-bg-base/80 backdrop-blur">
-        <div className="mx-auto flex min-h-14 max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2">
+    <div className={cn("bg-bg-base text-text", workbench ? "flex h-dvh flex-col" : "min-h-screen")}>
+      <header className="sticky top-0 z-20 shrink-0 border-b border-border bg-bg-base/80 backdrop-blur">
+        <div className={cn("mx-auto flex min-h-14 flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2", !workbench && "max-w-7xl")}>
           <span className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight">
             <span className="inline-block h-2 w-2 animate-pulse-neon rounded-full bg-neon shadow-neon" />
             <span className="text-text">CLICK</span>
@@ -49,9 +51,9 @@ export function RootLayout() {
           </select>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className={workbench ? "flex min-h-0 min-w-0 flex-1 flex-col" : "mx-auto max-w-7xl px-4 py-6"}>
         <DesktopUpdateNotice />
-        <HumanInputInbox />
+        {!workbench && <HumanInputInbox />}
         <Outlet />
       </main>
     </div>

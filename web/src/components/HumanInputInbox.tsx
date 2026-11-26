@@ -23,7 +23,7 @@ export async function humanRequest<T>(path: string, body?: unknown): Promise<T> 
   return response.json();
 }
 
-export function HumanInputInbox() {
+export function HumanInputInbox({ taskId, onAdjust }: { taskId?: string; onAdjust?: () => void } = {}) {
   useLocale();
   const location = useLocation();
   const qc = useQueryClient();
@@ -34,22 +34,24 @@ export function HumanInputInbox() {
   const [error, setError] = useState("");
   const seen = useRef(new Set<string>());
   const responseRetry = useRef<{ signature: string; response_id: string }>();
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialog = useRef<HTMLDialogElement | null>(null);
   const interactions = pending.data?.interactions ?? [];
-  const current = interactions.find(item => item.interaction_id === openId);
+  const current = interactions.find(item => taskId ? item.task_id === taskId : item.interaction_id === openId);
+  const currentId = current?.interaction_id;
   const currentVersion = current?.owner_version;
   useEffect(() => {
     if (current && dialog.current && !dialog.current.open) dialog.current.showModal();
   }, [current?.interaction_id]);
   useEffect(() => {
+    if (taskId) return;
     const next = interactions.find(item => item.can_answer && location.pathname === `/tasks/${item.task_id}` &&
       !seen.current.has(`${item.interaction_id}:${item.owner_version}`));
     if (next && !openId) {
       seen.current.add(`${next.interaction_id}:${next.owner_version}`);
       setOpenId(next.interaction_id);
     }
-  }, [interactions, location.pathname, openId]);
-  useEffect(() => { setAnswers({}); setError(""); responseRetry.current = undefined; }, [openId, currentVersion]);
+  }, [interactions, location.pathname, openId, taskId]);
+  useEffect(() => { setAnswers({}); setError(""); responseRetry.current = undefined; }, [currentId, currentVersion]);
   useEffect(() => {
     if (current?.can_answer) humanRequest(`tasks/${current.task_id}/present`, {
       interaction_id: current.interaction_id, owner_version: current.owner_version,
@@ -66,24 +68,29 @@ export function HumanInputInbox() {
     try {
       await humanRequest(`tasks/${current.task_id}/reply`, { ...body, response_id: responseRetry.current.response_id });
       setOpenId(null);
-      for (const key of ["human-input", "tasks", "task", "timeline", "devices"]) qc.invalidateQueries({ queryKey: [key] });
+      for (const key of ["human-input", "tasks", "task", "timeline", "devices", "workbench-task", "workbench-tasks"]) qc.invalidateQueries({ queryKey: [key] });
     } catch (e) { setError(String(e)); await pending.refetch(); }
     finally { setBusy(false); }
   }
   if (!interactions.length) return null;
+  const Surface = taskId ? "div" : "dialog";
   return <>
-    <aside aria-label={t("待回答的问题")} className="human-input mb-4 rounded-xl border border-neon/30 bg-bg-2 p-4">
+    {!taskId && <aside aria-label={t("待回答的问题")} className="human-input mb-4 rounded-xl border border-neon/30 bg-bg-2 p-4">
       <p className="text-sm">{t("有 {value0} 个任务等待回答", { value0: interactions.length })}</p>
       <div className="mt-2 flex flex-wrap gap-3">{interactions.map(item => <div key={item.interaction_id} className="flex items-center gap-2 text-xs">
         <Link to={`/tasks/${item.task_id}`} className="text-cyan">{t("查看任务")} {item.task_id.slice(0, 8)}</Link>
         <button className="setup-button" onClick={() => setOpenId(item.interaction_id)}>{item.can_answer ? t("回答") : t("查看回答入口")}</button>
       </div>)}</div>
-    </aside>
-    {current && <dialog ref={dialog} aria-modal="true" aria-labelledby="human-input-title" onCancel={e => { e.preventDefault(); if (!busy) setOpenId(null); }} className="human-input fixed inset-0 z-50 m-auto w-full max-w-xl border-0 bg-transparent p-4 text-text backdrop:bg-black/65">
-      <section className="max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-xl border border-border bg-bg-base p-6 shadow-xl">
+    </aside>}
+    {current && <Surface ref={(node: HTMLElement | null) => { dialog.current = node instanceof HTMLDialogElement ? node : null; }}
+      aria-modal={taskId ? undefined : true} aria-labelledby="human-input-title"
+      onCancel={e => { e.preventDefault(); if (!busy) setOpenId(null); }}
+      className={taskId ? "human-input" : "human-input fixed inset-0 z-50 m-auto w-full max-w-xl border-0 bg-transparent p-4 text-text backdrop:bg-black/65"}>
+      <section className={taskId ? "rounded-xl border border-amber/30 bg-bg-1 p-4" :
+        "max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-xl border border-border bg-bg-base p-6 shadow-xl"}>
         <div className="flex items-center justify-between gap-3"><h2 id="human-input-title" className="text-lg">{t(current.purpose === "confirmation" ? "请确认这次操作" : "需要你的选择")}</h2>
-          <button disabled={busy} className="setup-button" onClick={() => setOpenId(null)}>{t("稍后回答")}</button></div>
-        <Link className="mt-2 block text-xs text-cyan" to={`/tasks/${current.task_id}`}>{t("查看任务")} {current.task_id.slice(0, 8)}</Link>
+          <button disabled={busy} className="setup-button" onClick={taskId ? onAdjust : () => setOpenId(null)}>{t(taskId ? "修改任务" : "稍后回答")}</button></div>
+        {!taskId && <Link className="mt-2 block text-xs text-cyan" to={`/tasks/${current.task_id}`}>{t("查看任务")} {current.task_id.slice(0, 8)}</Link>}
         {!current.can_answer ? <div className="mt-5 space-y-4"><p>{t("当前回答入口：{value0}", { value0: current.owner })}</p>
           <button className="setup-button" disabled={busy} onClick={async () => { setBusy(true); try {
             await humanRequest(`tasks/${current.task_id}/takeover`, { interaction_id: current.interaction_id, owner_version: current.owner_version }); await pending.refetch();
@@ -109,6 +116,6 @@ export function HumanInputInbox() {
         <p className="mt-4 text-xs text-text-mute">{t("稍后回答不会取消任务。等待不会延长任务时限。")}</p>
         {error && <p role="alert" className="mt-3 break-words text-sm text-err">{error}</p>}
       </section>
-    </dialog>}
+    </Surface>}
   </>;
 }

@@ -269,6 +269,11 @@ export function TaskDetailView() {
         )}
         {!readOnly && (
           <Button asChild variant="outline" size="sm">
+            <Link to={`/workbench/${encodeURIComponent(tl.task_id)}`}>{t("任务工作台")}</Link>
+          </Button>
+        )}
+        {!readOnly && (
+          <Button asChild variant="outline" size="sm">
             <Link to={`/tasks/${encodeURIComponent(tl.task_id)}/preview`} title={t("查看任务投屏与模型输出")}>
               <Smartphone className="mr-1.5 h-4 w-4" aria-hidden />
               {t("投屏预览")}

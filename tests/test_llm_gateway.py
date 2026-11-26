@@ -838,6 +838,7 @@ async def test_relay_openai_keeps_ua_and_credentials_alongside_chatgpt(monkeypat
 async def test_streaming_aggregates_text_reasoning_usage_and_progress(monkeypatch):
     stream = _FakeStream([
         {"choices": [{"delta": {"reasoning_content": "Checking "}}]},
+        {"choices": [{"delta": {"reasoning_summary": "dates"}}]},
         {"choices": [{"delta": {"content": "hel"}}]},
         {"choices": [{"delta": {"content": "lo"}, "finish_reason": "stop"}]},
         {"choices": [], "usage": {"prompt_tokens": 7, "completion_tokens": 3}},
@@ -856,11 +857,12 @@ async def test_streaming_aggregates_text_reasoning_usage_and_progress(monkeypatc
     )
     assert calls[0]["stream"] is True
     assert result.content == "hello"
-    assert result.reasoning.summary == "Checking"
+    assert result.reasoning.summary == "Checking dates"
     assert result.usage["input_tokens"] == 7
     assert updates[0]["status"] == "started"
     assert updates[-1]["status"] == "completed"
     assert updates[-1]["text"] == "hello"
+    assert updates[-1]["public_summary"] == "dates"
 
 
 @pytest.mark.asyncio

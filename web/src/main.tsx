@@ -28,6 +28,7 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <TaskListView /> },
+      { path: "workbench/:id?", lazy: async () => ({ Component: (await import("@/views/WorkbenchView")).WorkbenchView }) },
       { path: "tasks/:id", element: <TaskDetailView /> },
       { path: "device", element: <DeviceView /> },
       { path: "skills", element: <SkillsView /> },

@@ -24,6 +24,7 @@ from agent.traces import TraceWriter
 from control_api.data_sources import ConsoleDataSources
 from control_api.services import ObservabilityQueries, task_execution_elapsed_ms
 from control_api.sse import EventBus, TooManySubscribers
+from control_api.workbench import workbench_event, workbench_task
 from driver.pool import DriverPool
 from driver.scrcpy_stream import REGISTRY as OBSERVATION_STREAMS
 from shared.artifacts import ArtifactStore
@@ -866,6 +867,36 @@ def create_app(
         except KeyError:
             raise HTTPException(404, "task not found") from None
 
+    @app.get("/api/workbench/tasks")
+    async def workbench_tasks():
+        active = [
+            task
+            for status in (
+                TaskStatus.QUEUED, TaskStatus.RUNNING, TaskStatus.PAUSING,
+                TaskStatus.PAUSED, TaskStatus.WAITING_FOR_INPUT,
+                TaskStatus.RECOVERING, TaskStatus.WAITING_FOR_DEVICE, TaskStatus.RECOVERY_BLOCKED,
+            )
+            for task in db.list_tasks(status, include_state=False)
+        ]
+        active.sort(key=lambda task: task.updated_at, reverse=True)
+        return [{"id": task.id, "instruction": task.instruction,
+                 "status": task.status.value} for task in active[:24]]
+
+    @app.get("/api/tasks/{task_id}/workbench")
+    async def task_workbench(task_id: str):
+        located = data_sources.locate(task_id)
+        if located is None:
+            raise HTTPException(404, "task not found")
+        task, source = located
+        preview_supported = False
+        if not source.read_only and app.state.task_preview is not None:
+            from control_api.preview import safe_preview_projection
+            preview_supported = safe_preview_projection(
+                task, settings=settings, pool=pool, enabled=True, base_url="",
+            )["preview_support"]["status"] == "supported"
+        return workbench_task(task, source.db, read_only=source.read_only,
+                              preview_supported=preview_supported)
+
     @app.get("/api/tasks/{task_id}/jev-checks")
     async def jev_checks(task_id: str) -> dict[str, Any]:
         located = data_sources.locate(task_id)
@@ -898,7 +929,7 @@ def create_app(
         return source.queries.traces(task_id, level)
 
     @app.get("/api/tasks/{task_id}/stream")
-    async def task_stream(task_id: str):
+    async def task_stream(task_id: str, view: Literal["trace", "workbench"] = "trace"):
         """SSE stream of trace events for a task.
 
         Replays already-persisted ticks from the DB first, then switches to
@@ -912,10 +943,21 @@ def create_app(
             raise HTTPException(404, "task not found")
         task, source = located
         source_db = source.db
+
+        def event_frame(event):
+            if view == "workbench":
+                event = workbench_event(event)
+            return _sse_format(event) if event is not None else None
+
+        def replay_frames():
+            for ev in source_db.list_traces(task_id):
+                if frame := event_frame(ev.model_dump()):
+                    yield frame
+
         if source.read_only:
             async def external_event_gen():
-                for ev in source_db.list_traces(task_id):
-                    yield _sse_format(ev.model_dump())
+                for frame in replay_frames():
+                    yield frame
 
             return StreamingResponse(
                 external_event_gen(),
@@ -930,8 +972,8 @@ def create_app(
         async def event_gen():
             try:
                 # 1) Replay already-persisted ticks.
-                for ev in source_db.list_traces(task_id):
-                    yield _sse_format(ev.model_dump())
+                for frame in replay_frames():
+                    yield frame
                 # 2) A terminal task won't produce more events; close so the
                 #    client can finalize without waiting on a keepalive.
                 if task.status in _TERMINAL:
@@ -940,7 +982,8 @@ def create_app(
                 while True:
                     try:
                         ev = await asyncio.wait_for(queue.get(), timeout=15.0)
-                        yield _sse_format(ev)
+                        if frame := event_frame(ev):
+                            yield frame
                     except asyncio.TimeoutError:
                         # Keepalive comment frame keeps idle connections open.
                         yield ": keepalive\n\n"
@@ -951,7 +994,8 @@ def create_app(
                     latest = source_db.get_task(task_id)
                     if latest and latest.status in _TERMINAL:
                         while not queue.empty():
-                            yield _sse_format(queue.get_nowait())
+                            if frame := event_frame(queue.get_nowait()):
+                                yield frame
                         return
             finally:
                 unsubscribe()
