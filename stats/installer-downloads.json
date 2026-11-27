@@ -2,87 +2,87 @@
   "assets": {
     "622873100": {
       "name": "ClickClick-0.2.2-macos-aarch64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "622873072": {
       "name": "ClickClick-0.2.2-macos-x86_64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "622873095": {
       "name": "ClickClick-0.2.2-windows-x86_64.exe",
-      "downloads": 3
+      "downloads": 4
     },
     "622173159": {
       "name": "ClickClick-0.2.1-macos-aarch64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "622173130": {
       "name": "ClickClick-0.2.1-macos-x86_64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "622173150": {
       "name": "ClickClick-0.2.1-windows-x86_64.exe",
-      "downloads": 4
+      "downloads": 5
     },
     "621858658": {
       "name": "ClickClick-0.2.0-macos-aarch64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "621858610": {
       "name": "ClickClick-0.2.0-macos-x86_64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "621858646": {
       "name": "ClickClick-0.2.0-windows-x86_64.exe",
-      "downloads": 3
+      "downloads": 4
     },
     "646244734": {
       "name": "ClickClick-0.3.0-macos-aarch64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "646244679": {
       "name": "ClickClick-0.3.0-macos-x86_64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "646244709": {
       "name": "ClickClick-0.3.0-windows-x86_64.exe",
-      "downloads": 1
+      "downloads": 2
     },
     "662056853": {
       "name": "ClickClick-0.3.1-macos-aarch64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "662056817": {
       "name": "ClickClick-0.3.1-macos-x86_64.zip",
-      "downloads": 1
+      "downloads": 2
     },
     "662056816": {
       "name": "ClickClick-0.3.1-windows-x86_64.exe",
-      "downloads": 2
+      "downloads": 3
     },
     "678218970": {
       "name": "ClickClick-0.3.2-macos-aarch64.zip",
-      "downloads": 2
+      "downloads": 3
     },
     "678218927": {
       "name": "ClickClick-0.3.2-macos-x86_64.zip",
-      "downloads": 2
+      "downloads": 3
     },
     "678218960": {
       "name": "ClickClick-0.3.2-windows-x86_64.exe",
-      "downloads": 2
+      "downloads": 3
     },
     "798681763": {
       "name": "ClickClick-0.3.3-macos-aarch64.zip",
-      "downloads": 0
+      "downloads": 1
     },
     "798681806": {
       "name": "ClickClick-0.3.3-macos-x86_64.zip",
-      "downloads": 0
+      "downloads": 1
     },
     "798681805": {
       "name": "ClickClick-0.3.3-windows-x86_64.exe",
-      "downloads": 0
+      "downloads": 1
     }
   },
   "schema": 1,
@@ -289,8 +289,8 @@
     },
     {
       "date": "2026-11-27",
-      "downloads": 29
+      "downloads": 50
     }
   ],
-  "sampled_at": "2026-11-27T02:57:49Z"
+  "sampled_at": "2026-11-27T12:47:37Z"
 }
