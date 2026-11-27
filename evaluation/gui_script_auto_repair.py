@@ -182,7 +182,7 @@ def _dismiss_step(ctx, sample):
 
 def contracted_recovery(*, driver, transaction, evidence, asset_root=None, ocr=None):
     """Run at most one proven action, then let the replay host verify handoff."""
-    used = False
+    used = bool(getattr(evidence, "limited_attempts", 0))
 
     async def recover(ctx):
         nonlocal used
@@ -230,6 +230,8 @@ def contracted_recovery(*, driver, transaction, evidence, asset_root=None, ocr=N
                                           native_node_click=getattr(driver, "supports_native_node_click", False) is True)
                 if bound._node_handle != native_handle:
                     raise _GuardChanged("stock_dialog_native_dispatch_unavailable")
+            if ctx.bind_observation is not None:
+                ctx.bind_observation(last)
 
         def record(recovery_step, before, action, result, after):
             evidence.action(recovery_step, before, action, result, after, origin="takeover", parent_step_id=ctx.step.id)
@@ -248,6 +250,8 @@ def contracted_recovery(*, driver, transaction, evidence, asset_root=None, ocr=N
                         for row in windows) or any(row.get("window_id") == dismissed[1] for row in windows)
                     or resolve_semantic_target(sample, ctx.step.action.target, ctx.parameters) is None):
                 return TakeoverDecision.STOP
+            if ctx.resolve_limited is not None:
+                ctx.resolve_limited(result)
             return (TakeoverDecision.RETRY_CURRENT if TakeoverDecision.RETRY_CURRENT in await ctx.resume_status()
                     else TakeoverDecision.STOP)
         allowed = await ctx.resume_status()

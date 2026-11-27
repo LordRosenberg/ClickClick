@@ -204,6 +204,8 @@ class PlanOrchestrator(Orchestrator):
         max_device_actions=None,
         max_action_attempts=None,
         app_build_reads=None,
+        task_store=None,
+        stop_before_turn=None,
     ):
         if provider_warm_task is not None:
             await asyncio.gather(provider_warm_task, return_exceptions=True)
@@ -214,7 +216,7 @@ class PlanOrchestrator(Orchestrator):
         # Resolve system scope before inspecting Planner-selected skill IDs.
         # Executor.act_once binds too late for the handoff below.
         await executor._session.bind_device_skills(executor.driver)
-        store = TaskStore(self.db, self.artifacts, task_id)
+        store = task_store if task_store is not None else TaskStore(self.db, self.artifacts, task_id)
         store.jev_status_context = self.settings.jev_status_context and self.settings.jev_mode == "enforce"
         store.budget_snapshot = partial(self._remaining_budget, state)
         store.human_provider_budget = lambda: (None if self._model_call_limit(state) is None else
@@ -242,6 +244,8 @@ class PlanOrchestrator(Orchestrator):
                 return cancelled
             if self.is_pause_requested(task_id):
                 return self._pause(task_id, state)
+            if stop_before_turn is not None and await stop_before_turn():
+                return TaskStatus.RUNNING
             if (runtime.limits.prediction_rounds is not None
                     and runtime.prediction_round_count >= runtime.limits.prediction_rounds):
                 return TaskStatus.RUNNING

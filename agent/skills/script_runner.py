@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict
 
 from agent.action_observation import ActionObservationTransaction, ObservationStageError
 from agent.executor import _target_snapshot, resolve_long_press_index, resolve_tap_index
+from agent.skills.script_checkpoint import ScriptDispatchBlocked
 from agent.skills.script_schema import (
     ActivityCondition, AppCondition, GuiScript, SemanticSelector, ScriptStep, SelectorFields, TapAction,
     VisualCondition, VisualObjectCondition, VisualTapAction, script_fingerprint,
@@ -27,6 +28,7 @@ from perception.observation import ObservationBuilder, ObservationPackage, decod
 from shared.recovery_context import current_execution
 from shared.recovery_runtime import InfrastructureInterrupted
 from shared.schemas import Action, ActionReceipt, EffectOutcome, ObservationMode, UIElement
+from shared.task_budgets import TaskBudgetExhausted
 from shared.task_control import begin_dispatch
 
 
@@ -49,7 +51,7 @@ class ScriptRunResult(BaseModel):
     script_hash: str
     script_id: str
     revision: int
-    status: Literal["succeeded", "failed", "cancelled"]
+    status: Literal["succeeded", "failed", "cancelled", "paused"]
     assisted: bool = False
     steps: tuple[ScriptStepReceipt, ...] = ()
     failed_step_id: str | None = None
@@ -76,6 +78,9 @@ class TakeoverContext:
     observation: ObservationPackage | None
     observe: Callable[[], Awaitable[ObservationPackage | None]]
     resume_status: Callable[[], Awaitable[frozenset[TakeoverDecision]]]
+    deadline: float | None = None
+    resolve_limited: Callable[[ScriptRunResult], None] | None = None
+    bind_observation: Callable[[ObservationPackage | None], None] | None = None
 
 
 class _ReplayCancelled(Exception):
@@ -145,6 +150,11 @@ def _tree_ready(package: ObservationPackage) -> bool:
 
 def _observation_id(package: ObservationPackage | None) -> str | None:
     return package.observation_id if package is not None and package.accepted else None
+
+
+def _dispatch_unknown(detail):
+    return (detail.get("execution_result") == "unknown" or detail.get("dispatch_unknown") is True
+            or detail.get("device_dispatch") == "unknown" or detail.get("node_click_status") == "outcome_unknown")
 
 
 def _disambiguate(package, selector: SemanticSelector, values, matches):
@@ -262,7 +272,8 @@ def observed_condition_facts(script, conditions, package, *, parameters=None, as
 
 class _Replay:
     def __init__(self, script, values, driver, transaction, *, cancelled, takeover, takeover_seconds,
-                 poll_seconds, on_observation, on_action, before_dispatch, final_oracle, asset_root, ocr=None):
+                 formal_takeover, checkpoint, poll_seconds, on_observation, on_action, before_dispatch, final_oracle,
+                 asset_root, ocr=None):
         self.script = script
         self.script_hash = script_fingerprint(script)
         self.values = MappingProxyType(values)
@@ -270,6 +281,8 @@ class _Replay:
         self.transaction = transaction
         self.cancelled = cancelled
         self.takeover = takeover
+        self.formal_takeover = formal_takeover
+        self.checkpoint = checkpoint
         self.takeover_seconds = takeover_seconds
         self.poll_seconds = poll_seconds
         self.on_observation = on_observation
@@ -280,9 +293,11 @@ class _Replay:
         self.ocr = ocr
         self.visual_frame_id = None
         self.visual_matches = {}
-        self.receipts = []
+        self.receipts = ([ScriptStepReceipt.model_validate(receipt) for receipt in checkpoint.receipts]
+                         if checkpoint is not None else [])
+        self.same_turn_operations: set[str] = set()
         self.assisted = False
-        self.takeover_used = 0.0
+        self.takeover_used = checkpoint.takeover_used if checkpoint is not None else 0.0
         self.initial_id = None
         self.failed_step_id = None
 
@@ -295,6 +310,86 @@ class _Replay:
 
     def _holds(self, conditions, package):
         return check_conditions(self.script, conditions, package, parameters=self.values, visual_lookup=self._visual)
+
+    def _business_ids(self, step, package):
+        confirmation = step.confirmation
+        if (confirmation is None or _observation_id(package) is None or not _tree_ready(package)
+                or package.ui.platform != self.script.platform or package.ui.app_id != self.script.app_id):
+            return None
+        tree = package.ui.semantic_tree
+        windows = _app_window_ids(package)
+        scopes = [node for node in tree if node.window_id in windows
+                  and _matches_fields(node, confirmation.scope, self.values)]
+        if len(scopes) != 1:
+            return None
+        scope, = scopes
+        remaining = list(scope.children)
+        visited = set()
+        identifiers = set()
+        while remaining:
+            index = remaining.pop()
+            if index in visited or not 0 <= index < len(tree):
+                return None
+            visited.add(index)
+            node = tree[index]
+            if node.window_id != scope.window_id:
+                return None
+            remaining.extend(node.children)
+            if not _matches_fields(node, confirmation.target, self.values):
+                continue
+            if node.states.get("password") or not node.text.startswith(confirmation.identifier_prefix):
+                return None
+            identifier = node.text[len(confirmation.identifier_prefix):].strip()
+            if not identifier or len(identifier) > 128 or any(character.isspace() for character in identifier):
+                return None
+            identifiers.add(identifier)
+        return sorted(identifiers)
+
+    def _pending(self, index):
+        return self.checkpoint.pending(index) if self.checkpoint is not None else None
+
+    def _accept_same_turn(self, index):
+        pending = self._pending(index)
+        if pending is None or pending["result_state"] != "known":
+            return
+        result = pending["result"] or {}
+        detail = result.get("detail") or {}
+        native = result.get("receipt")
+        if (not result.get("success") or _dispatch_unknown(detail) or detail.get("device_action_units") == 0
+                or detail.get("device_dispatch") == "not_dispatched" or native and not native.get("dispatch_succeeded")):
+            return
+        self.same_turn_operations.add(pending["operation_id"])
+
+    def _step_confirmed(self, index, step, package, *, before_id=None, baseline=None):
+        observation_id = _observation_id(package)
+        if observation_id is None or observation_id == before_id:
+            return False
+        pending = self._pending(index)
+        if pending is not None and observation_id == pending["before_observation_id"]:
+            return False
+        if step.confirmation is None:
+            return (pending is None or pending["operation_id"] in self.same_turn_operations) and self._holds(
+                step.after, package,
+            )
+        identifiers = self._business_ids(step, package)
+        if pending is None:
+            return baseline is not None and identifiers is not None and len(set(identifiers) - set(baseline)) == 1
+        return self.checkpoint.correlates(index, identifiers)
+
+    def _complete(self, index, step, receipt, package):
+        if self.checkpoint is not None:
+            pending = self._pending(index)
+            if step.confirmation is not None:
+                evidence = self._business_ids(step, package)
+            else:
+                evidence = observed_condition_facts(self.script, step.after, package, parameters=self.values,
+                                                    asset_root=self.asset_root, ocr=self.ocr)
+            self.checkpoint.confirm(
+                index, observation_id=_observation_id(package), evidence=evidence,
+                receipt=receipt.model_dump(mode="json"),
+                same_turn_known=(step.confirmation is None and pending is not None
+                                 and pending["operation_id"] in self.same_turn_operations),
+            )
 
     def _visual(self, package, template):
         identity = _observation_id(package)
@@ -328,11 +423,11 @@ class _Replay:
         await self._notify(self.on_observation, package)
         return package
 
-    async def _wait_after(self, conditions, deadline, initial, *, before_id=None):
+    async def _wait_after(self, satisfied, deadline, initial):
         package = initial
         while True:
             self._check_cancel()
-            if _observation_id(package) != before_id and self._holds(conditions, package):
+            if satisfied(package):
                 return package, True
             remaining = deadline - time.monotonic()
             if remaining <= 0:
@@ -420,7 +515,7 @@ class _Replay:
             raise ValueError("target_could_not_be_bound")
         return bound, target, False
 
-    async def _run_step(self, step, attempt, *, retry_failure=None, resume_after=None):
+    async def _run_step(self, index, step, attempt, *, retry_failure=None):
         deadline = time.monotonic() + step.timeout
         before = await self._observe(deadline)
         before_id = _observation_id(before)
@@ -442,9 +537,7 @@ class _Replay:
                 if step.blocked_when and self._holds(step.blocked_when, before):
                     return receipt("blocked_condition_observed"), before
                 if self._holds(step.before, before):
-                    if resume_after is not None and not self._holds(resume_after, before):
-                        return receipt("takeover_resume_condition_changed"), before
-                    if retry_failure is not None and not self._can_retry(step, retry_failure, before):
+                    if retry_failure is not None and not self._can_retry(index, step, retry_failure, before):
                         return receipt("takeover_retry_condition_changed"), before
                     if step.action.type == "wait":
                         break
@@ -465,7 +558,8 @@ class _Replay:
 
         deadline = time.monotonic() + step.timeout
         if step.action.type == "wait":
-            after, satisfied = await self._wait_after(step.after, deadline, before)
+            after, satisfied = await self._wait_after(lambda package: self._step_confirmed(index, step, package),
+                                                      deadline, before)
             return receipt("postcondition_met" if satisfied else "postcondition_timeout",
                            succeeded=satisfied, after=after), after
 
@@ -476,8 +570,7 @@ class _Replay:
             before_id = _observation_id(before)
             if (before_id is None or not self._holds(step.before, before)
                     or (step.blocked_when and self._holds(step.blocked_when, before))
-                    or (resume_after is not None and not self._holds(resume_after, before))
-                    or (retry_failure is not None and not self._can_retry(step, retry_failure, before))):
+                    or (retry_failure is not None and not self._can_retry(index, step, retry_failure, before))):
                 return receipt("visual_precondition_changed"), before
             try:
                 action, target, _ = self._resolve_action(step, before)
@@ -490,14 +583,21 @@ class _Replay:
         durable = current_execution.get()
         if durable is not None:
             durable.basis = before_id
-        begin_dispatch()
+        baseline = self._business_ids(step, before)
+        if self.checkpoint is not None:
+            self.checkpoint.bind_attempt(index, attempt, before_observation_id=before_id,
+                                         baseline=baseline)
         try:
+            begin_dispatch()
             async with asyncio.timeout(remaining):
                 result, after = await self.transaction.act_and_observe(
                     action, before, deadline_ms=max(1, int(remaining * 1000)), target=target,
                 )
-        except (OSError, InfrastructureInterrupted, ObservationStageError):
+        except (OSError, TimeoutError, InfrastructureInterrupted, ObservationStageError, ScriptDispatchBlocked):
             return receipt("dispatch_outcome_unknown", execution="unknown"), before
+        finally:
+            if self.checkpoint is not None:
+                self.checkpoint.clear_attempt()
 
         if _observation_id(after) != before_id:
             await self._notify(self.on_observation, after)
@@ -506,9 +606,7 @@ class _Replay:
         native = result.receipt
         if native is not None:
             native = native.model_copy(update={"effect_reason": ""})
-        if (result.detail.get("execution_result") == "unknown"
-                or result.detail.get("dispatch_unknown") is True
-                or result.detail.get("node_click_status") == "outcome_unknown"):
+        if _dispatch_unknown(result.detail):
             return receipt("dispatch_outcome_unknown", execution="unknown", after=after, native=native), after
         if (result.detail.get("device_dispatch") == "not_dispatched"
                 or native is not None and native.effect_outcome == EffectOutcome.SUPPRESSED):
@@ -518,7 +616,12 @@ class _Replay:
         if not native.dispatch_succeeded or not result.success:
             return receipt("action_failed", execution="known", after=after, native=native), after
         post = after if native.observation_accepted and native.observation_id == _observation_id(after) else None
-        after, satisfied = await self._wait_after(step.after, deadline, post, before_id=before_id)
+        if post is not None:
+            self._accept_same_turn(index)
+        after, satisfied = await self._wait_after(
+            lambda package: self._step_confirmed(index, step, package, before_id=before_id, baseline=baseline),
+            deadline, post,
+        )
         return receipt("postcondition_met" if satisfied else "postcondition_timeout",
                        succeeded=satisfied, execution="known", after=after, native=native), after
 
@@ -531,60 +634,137 @@ class _Replay:
         self._check_cancel()
         return accepted
 
-    def _can_retry(self, step, failure, package):
-        return (not (step.blocked_when and self._holds(step.blocked_when, package))
-                and not self._holds(step.after, package) and self._holds(step.before, package) and (
-            failure.execution == "not_dispatched" or (
-                step.retry_when is not None and self._holds(step.retry_when, package)
-            )
-        ))
+    def _can_retry(self, index, step, failure, package):
+        return (failure.attempt < 2 and failure.execution == "not_dispatched" and self._pending(index) is None
+                and not (step.blocked_when and self._holds(step.blocked_when, package))
+                and not self._holds(step.after, package) and self._holds(step.before, package))
 
-    async def _allowed_takeover(self, step, next_step, failure, observation):
+    async def _allowed_takeover(self, index, step, next_step, failure, observation):
         allowed = {TakeoverDecision.STOP}
-        if _observation_id(observation) is None or failure.execution == "unknown":
+        if (_observation_id(observation) is None
+                or (failure.execution == "unknown" and self._pending(index) is None)):
             return frozenset(allowed)
-        post_met = self._holds(step.after, observation)
-        if self._can_retry(step, failure, observation):
+        if self._can_retry(index, step, failure, observation):
             allowed.add(TakeoverDecision.RETRY_CURRENT)
-        if (post_met and next_step is not None and self._holds(next_step.before, observation)
-                and not (next_step.blocked_when and self._holds(next_step.blocked_when, observation))):
+        if self._step_confirmed(index, step, observation, before_id=failure.before_observation_id):
             allowed.add(TakeoverDecision.CONTINUE_NEXT)
-        if await self._final_holds(observation):
-            allowed.add(TakeoverDecision.FINISH)
+            if next_step is None and await self._final_holds(observation):
+                allowed.add(TakeoverDecision.FINISH)
         return frozenset(allowed)
 
-    async def _run_takeover(self, step, next_step, failure, observation):
+    async def _verify_pending(self, index, step, next_step, failure, deadline):
+        if self._pending(index) is not None:
+            sample = await self._observe(deadline)
+            allowed = await self._allowed_takeover(index, step, next_step, failure, sample)
+            for choice in (TakeoverDecision.FINISH, TakeoverDecision.CONTINUE_NEXT):
+                if choice in allowed:
+                    return choice, sample, ""
+        return None
+
+    async def _run_takeover(self, index, step, next_step, failure, observation):
         remaining = self.takeover_seconds - self.takeover_used
         if remaining <= 0:
+            # An explicit resume still permits a fresh read-only check.
+            verified = await self._verify_pending(index, step, next_step, failure,
+                                                  time.monotonic() + step.timeout)
+            if verified is not None:
+                return verified
             return TakeoverDecision.STOP, None, "takeover_deadline_exceeded"
         self.assisted = True
         started = time.monotonic()
         deadline = started + remaining
+        attempt_can_dispatch = False
 
         async def observe():
-            return await self._observe(deadline)
+            sample = await self._observe(deadline)
+            if attempt_can_dispatch:
+                self._accept_same_turn(index)
+            return sample
 
         async def resume_status():
-            return await self._allowed_takeover(step, next_step, failure, await observe())
+            return await self._allowed_takeover(index, step, next_step, failure, await observe())
 
-        context = TakeoverContext(self.script, step, next_step, self.values, failure,
-                                  observation if _observation_id(observation) else None, observe, resume_status)
+        def resolve_limited(proof):
+            if (proof.status != "succeeded" or not proof.final_asserted or not proof.final_observation_id
+                    or len(proof.steps) != 1 or not proof.steps[0].succeeded or proof.steps[0].receipt is None):
+                raise ValueError("limited_repair_evidence_unavailable")
+            self.checkpoint.resolve_limited(
+                index, observation_id=proof.final_observation_id,
+                evidence={"script_hash": proof.script_hash, "receipt": proof.steps[0].model_dump(mode="json")},
+            )
+
+        if self.checkpoint is not None:
+            self.checkpoint.start_takeover()
+        reason = "takeover_stopped"
         try:
             async with asyncio.timeout(remaining):
-                choice = TakeoverDecision(await self.takeover(context))
-                if choice is TakeoverDecision.STOP:
-                    return choice, None, "takeover_stopped"
-                verified = await observe()
-                allowed = await self._allowed_takeover(step, next_step, failure, verified)
-                if choice not in allowed:
-                    return TakeoverDecision.STOP, verified, "takeover_resume_condition_unsatisfied"
-                return choice, verified, ""
+                verified = await self._verify_pending(index, step, next_step, failure, deadline)
+                if verified is not None:
+                    return verified
+                for phase, callback in (("limited", self.takeover), ("formal", self.formal_takeover)):
+                    if callback is None:
+                        continue
+                    if phase == "limited" and (failure.execution != "not_dispatched"
+                                                or self._pending(index) is not None or failure.attempt >= 2):
+                        continue
+                    if phase == "formal" and failure.execution != "not_dispatched" and self.checkpoint is None:
+                        continue
+                    observation = await observe()
+                    attempt_can_dispatch = self._pending(index) is None
+
+                    def bind_observation(package, *, phase=phase):
+                        if self._pending(index) is None:
+                            self.checkpoint.bind_attempt(
+                                index, failure.attempt, before_observation_id=_observation_id(package),
+                                baseline=self._business_ids(step, package), phase=phase,
+                            )
+
+                    context = TakeoverContext(
+                        self.script, step, next_step, self.values, failure, observation, observe, resume_status,
+                        deadline=deadline,
+                        resolve_limited=resolve_limited if self.checkpoint is not None and phase == "limited" else None,
+                        bind_observation=bind_observation if self.checkpoint is not None else None,
+                    )
+                    if self.checkpoint is not None:
+                        bind_observation(observation)
+                    choice = TakeoverDecision.STOP
+                    try:
+                        choice = TakeoverDecision(await callback(context))
+                    except ValueError:
+                        reason = "invalid_takeover_decision"
+                    except ScriptDispatchBlocked:
+                        reason = "script_step_requires_result_verification"
+                    finally:
+                        if attempt_can_dispatch:
+                            if phase == "formal" or choice in (TakeoverDecision.FINISH, TakeoverDecision.CONTINUE_NEXT):
+                                self._accept_same_turn(index)
+                            elif pending := self._pending(index):
+                                self.same_turn_operations.discard(pending["operation_id"])
+                        attempt_can_dispatch = False
+                        if self.checkpoint is not None:
+                            self.checkpoint.clear_attempt()
+                    if choice is TakeoverDecision.STOP:
+                        continue
+                    observation = await observe()
+                    allowed = await self._allowed_takeover(index, step, next_step, failure, observation)
+                    if choice in allowed:
+                        return choice, observation, ""
+                    reason = "takeover_resume_condition_unsatisfied"
+                # A delayed confirmation can still settle this attempt. Poll without device input.
+                while self._pending(index) is not None:
+                    verified = await self._verify_pending(index, step, next_step, failure, deadline)
+                    if verified is not None:
+                        return verified
+                    await asyncio.sleep(self.poll_seconds)
+                return TakeoverDecision.STOP, observation, reason
         except TimeoutError:
             return TakeoverDecision.STOP, None, "takeover_deadline_exceeded"
-        except ValueError:
-            return TakeoverDecision.STOP, None, "invalid_takeover_decision"
         finally:
-            self.takeover_used += time.monotonic() - started
+            if self.checkpoint is None:
+                self.takeover_used += time.monotonic() - started
+            else:
+                self.checkpoint.finish_takeover()
+                self.takeover_used = self.checkpoint.takeover_used
 
     def _result(self, status, reason, *, final=None, final_asserted=False):
         return ScriptRunResult(
@@ -596,42 +776,75 @@ class _Replay:
 
     async def run(self):
         try:
-            first = self.script.steps[0]
-            initial_deadline = time.monotonic() + first.timeout
-            initial, ready = await self._wait_after(self.script.initial, initial_deadline,
-                                                    await self._observe(initial_deadline))
-            self.initial_id = _observation_id(initial)
-            if not ready:
-                return self._result("failed", "initial_condition_unsatisfied")
-            resume_after = None
-            for index, step in enumerate(self.script.steps):
-                result, observation = await self._run_step(step, 1, resume_after=resume_after)
-                self.receipts.append(result)
-                resume_after = None
-                if result.succeeded:
-                    continue
-                self.failed_step_id = self.failed_step_id or step.id
-                if self.takeover is None or result.execution == "unknown":
-                    return self._result("failed", result.reason)
+            start = self.checkpoint.cursor if self.checkpoint is not None else 0
+            if start == 0 and self._pending(0) is None:
+                initial_deadline = time.monotonic() + self.script.steps[0].timeout
+                initial, ready = await self._wait_after(
+                    lambda package: _observation_id(package) is not None and self._holds(self.script.initial, package),
+                    initial_deadline, await self._observe(initial_deadline),
+                )
+                self.initial_id = _observation_id(initial)
+                if not ready:
+                    return self._result("failed", "initial_condition_unsatisfied")
+            elif self.receipts:
+                self.initial_id = self.receipts[0].before_observation_id
+            for index in range(start, len(self.script.steps)):
+                step = self.script.steps[index]
                 next_step = self.script.steps[index + 1] if index + 1 < len(self.script.steps) else None
-                choice, verified, reason = await self._run_takeover(step, next_step, result, observation)
-                if choice == TakeoverDecision.FINISH:
-                    return self._result("succeeded", "final_condition_met", final=verified, final_asserted=True)
-                if choice == TakeoverDecision.CONTINUE_NEXT:
-                    resume_after = step.after
-                    continue
-                if choice == TakeoverDecision.STOP:
-                    return self._result("failed", reason)
-                retry, _ = await self._run_step(step, 2, retry_failure=result)
-                self.receipts.append(retry)
-                if not retry.succeeded:
-                    return self._result("failed", retry.reason)
+                pending = self._pending(index)
+                if pending is None:
+                    result, observation = await self._run_step(index, step, 1)
+                else:
+                    raw = (pending["result"] or {}).get("receipt")
+                    result = ScriptStepReceipt(
+                        step_id=step.id, attempt=pending["attempt"], succeeded=False, execution="unknown",
+                        reason="pending_step_confirmation", before_observation_id=pending["before_observation_id"],
+                        receipt=ActionReceipt.model_validate(raw) if raw else None,
+                    )
+                    observation = None
+                while True:
+                    self.receipts.append(result)
+                    if result.succeeded:
+                        self._complete(index, step, result, observation)
+                        break
+                    self.failed_step_id = step.id
+                    pending = self._pending(index)
+                    if pending is None and (result.execution != "not_dispatched" or
+                                             (self.formal_takeover is None and
+                                              (self.takeover is None or result.attempt >= 2))):
+                        return self._result("failed", result.reason)
+                    choice, verified, reason = await self._run_takeover(index, step, next_step, result, observation)
+                    if choice == TakeoverDecision.STOP:
+                        if self._pending(index) is not None:
+                            return self._result("paused", "step_confirmation_required")
+                        return self._result("failed", reason)
+                    if choice == TakeoverDecision.RETRY_CURRENT:
+                        result, observation = await self._run_step(index, step, result.attempt + 1, retry_failure=result)
+                        continue
+                    confirmed = result.model_copy(update={
+                        "succeeded": True, "reason": "takeover_postcondition_met",
+                        "after_observation_id": _observation_id(verified),
+                    })
+                    self._complete(index, step, confirmed, verified)
+                    self.receipts.append(confirmed)
+                    if choice == TakeoverDecision.FINISH:
+                        return self._result("succeeded", "final_condition_met", final=verified, final_asserted=True)
+                    break
             final = await self._observe(time.monotonic() + self.script.steps[-1].timeout)
             if not await self._final_holds(final):
                 return self._result("failed", "final_condition_unsatisfied", final=final)
             return self._result("succeeded", "final_condition_met", final=final, final_asserted=True)
         except _ReplayCancelled:
             return self._result("cancelled", "cancel_requested")
+        except TaskBudgetExhausted:
+            if self.checkpoint is None:
+                raise
+            cursor = self.checkpoint.cursor
+            if cursor < len(self.script.steps):
+                self.failed_step_id = self.script.steps[cursor].id
+                if self._pending(cursor) is not None:
+                    return self._result("paused", "step_confirmation_required")
+            return self._result("paused", "script_replay_budget_exhausted")
 
 
 async def run_gui_script(
@@ -641,6 +854,8 @@ async def run_gui_script(
     transaction=None,
     parameters: dict[str, str] | None = None,
     takeover: Callable[[TakeoverContext], Awaitable[TakeoverDecision]] | None = None,
+    formal_takeover: Callable[[TakeoverContext], Awaitable[TakeoverDecision]] | None = None,
+    checkpoint=None,
     cancelled: Callable[[], bool] | None = None,
     takeover_seconds: float = 30.0,
     poll_seconds: float = 0.15,
@@ -660,7 +875,8 @@ async def run_gui_script(
         transaction = ActionObservationTransaction(driver, ObservationBuilder())
     replay = _Replay(
         script, values, driver, transaction, cancelled=cancelled, takeover=takeover, takeover_seconds=takeover_seconds,
-        poll_seconds=poll_seconds, on_observation=on_observation, on_action=on_action, before_dispatch=before_dispatch,
+        formal_takeover=formal_takeover, checkpoint=checkpoint, poll_seconds=poll_seconds,
+        on_observation=on_observation, on_action=on_action, before_dispatch=before_dispatch,
         final_oracle=final_oracle, asset_root=Path(asset_root) if asset_root is not None else None,
         ocr=ocr,
     )

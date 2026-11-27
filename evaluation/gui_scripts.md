@@ -1,6 +1,6 @@
 # GUI 脚本与 Skill 回归操作指南
 
-在含 GUI 脚本评测模块的开发源码树根目录运行 `python -m evaluation.gui_scripts`。`--env-file` 放在子命令前，省略时读取 `.env`。`draft`、自动选区的 `record`、开启接管的 `replay` 和 `regress` 会使用配置的模型。只传脚本和设备参数的 `replay` 由确定性执行器运行。定位、回放和版本登记的实现见 [GUI 脚本详设](../docs/gui-script-design.zh-CN.md)。
+在含 GUI 脚本评测模块的开发源码树根目录运行 `python -m evaluation.gui_scripts`。`--env-file` 放在子命令前，省略时读取 `.env`。`draft`、自动选区的 `record`、`regress` 会使用配置的模型。普通 `replay` 先按脚本执行，需要正式接管时才调用配置的模型。定位、回放和版本登记的实现见 [GUI 脚本详设](../docs/gui-script-design.zh-CN.md)。
 
 ## 准备独立模拟器
 
@@ -102,13 +102,21 @@ python -m evaluation.gui_scripts record --before before.png --after after.png --
 python -m evaluation.gui_scripts replay --script script.json --parameters parameters.json --goal 'Enter the title in a new test note.' --serial emulator-5556 --avd ClickClickGuiTest --snapshot clickclick-clean --seconds 90 --output data/gui/replay-01
 ```
 
-检查 `report.json` 中的 `first.status`、`first.receipt.final_asserted` 和每步回执。提供 `--snapshot` 时，回放前从该快照开始。换一组业务输入时使用新参数文件和独立回放输出。
+检查 `report.json` 中的 `first.status`、`first.receipt.final_asserted` 和每步回执。提供 `--snapshot` 时，首次回放从该快照开始。换一组业务输入时使用新参数文件和独立回放输出。
 
 步骤的 `before` 和 `after` 各有自己的条件等待。同一次后置等待共用一个截止时间。普通默认值为 12 秒，启动 App 默认值为 15.5 秒。`timeout_seconds` 可以覆盖默认值。可选 `blocked_when` 描述明确的阻塞条件，观察到它就停止等待。输入目标要与当前实际聚焦的可编辑控件一致。
 
+### 接管、提交核查和续跑
+
+交还时，运行器用最新观测核对当前失败步的结果，把完成证据和下一步位置一起保存。进入下一步后才检查它的前置条件。下一步也失败时，会开始一轮独立接管。普通 `replay` 可以先用已配置的有限接管，随后交给正式 Executor。当前路径失效时，由 Executor 发出 `replan`，Harness 将当前失败步、已完成步骤和设备回执一起交给 Planner。所有接管共用原任务的动作预算和接管时限，后者可用 `--takeover-seconds` 设置。独立验证模式仍关闭接管。
+
+可能已经提交的步骤进入只读核查。T1 记录派发意图，T2 记录设备回执，T3 持久化执行记录。业务完成另以步骤证据和续跑位置原子保存。对具有稳定记录区的提交步骤，可设置 `confirmation` 指向记录容器 `scope`、记录编号节点 `target` 和文本前缀 `identifier_prefix`。运行器在提交前记录该容器内已有的编号，提交后可用其中唯一的新编号确认这次提交，即使普通确认页没有出现。记录必须在可核对的 UI 树里。如果需要额外导航才能看到记录，请操作员打开对应记录后点「恢复」。纯图定位仍可用于派发。异常提交的自动读回需要可识别的树上编号。
+
+仍无法核实时，任务暂停并请求人工确认。通过挂载原回放运行目录的 Console 可以使用任务详情的「恢复」。命令行也可以使用原脚本版本、业务参数、设备和输出目录，把 `first.task_id` 传给 `replay --resume-task`。续跑直接核查同一次提交，不加载快照。已触发的回放也可经现有崩溃恢复入口继续核查。
+
 ### `--repair` 验证一次受控接管后的修订
 
-需要同时提供 `--snapshot` 和 `--assist-policy`。接管模型只能选择策略中列出的 App 内动作。执行器会重新观察，每个动作都要通过自己的前后检查。下面的 `assist.json` 允许通过另一个按钮打开同一个新建笔记界面。
+需要同时提供 `--snapshot` 和 `--assist-policy`。有限接管模型在策略列出的 App 内动作中选择，运行器重新观察并验证每个动作的前后条件。纯清障动作如关闭非提交弹窗，可以在经过审查的策略中列入 `recovery_only_actions`。下面的 `assist.json` 允许通过另一个按钮打开同一个新建笔记界面。
 
 ```json
 {

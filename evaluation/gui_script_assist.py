@@ -21,6 +21,7 @@ class AssistPolicy(BaseModel):
     actions: Annotated[tuple[ScriptStep, ...], Field(min_length=1, max_length=32, strict=False)]
     max_actions: Annotated[int, Field(gt=0)]
     max_seconds: Annotated[float, Field(gt=0, le=600, allow_inf_nan=False)]
+    recovery_only_actions: Annotated[tuple[str, ...], Field(strict=False)] = ()
 
     @model_validator(mode="after")
     def distinct_ids(self):
@@ -29,6 +30,8 @@ class AssistPolicy(BaseModel):
             raise ValueError("recovery steps require unique IDs distinct from stop")
         if any(step.action.type in {"wait", "launch"} for step in self.actions):
             raise ValueError("a recovery action must be an approved in-app interaction")
+        if not set(self.recovery_only_actions).issubset(ids):
+            raise ValueError("recovery-only IDs must name approved actions")
         return self
 
 
@@ -46,7 +49,7 @@ def _handoff(decisions):
 
 def recovery_session(policy: AssistPolicy, *, settings, driver, transaction, evidence, asset_root=None, ocr=None):
     """Choose only host-authorized, checked actions. The host decides when to stop."""
-    remaining = policy.max_actions
+    remaining = max(0, policy.max_actions - getattr(evidence, "limited_attempts", 0))
     deadline = None
 
     async def recover(ctx):
@@ -97,11 +100,23 @@ def recovery_session(policy: AssistPolicy, *, settings, driver, transaction, evi
                 evidence.action(recovery_step, before, action, result, after, origin="takeover",
                                 parent_step_id=ctx.step.id)
 
+            last_observation = None
+
+            def observe(package):
+                nonlocal last_observation
+                last_observation = package
+                evidence.observation(package)
+
+            def before_dispatch():
+                if ctx.bind_observation is not None:
+                    ctx.bind_observation(last_observation)
+
             try:
                 async with asyncio.timeout_at(deadline):
                     result = await run_gui_script(
                         recovery_script, driver=driver, transaction=transaction, parameters=ctx.parameters,
-                        on_observation=evidence.observation, on_action=record, asset_root=asset_root, ocr=ocr,
+                        on_observation=observe, on_action=record, before_dispatch=before_dispatch,
+                        asset_root=asset_root, ocr=ocr,
                     )
             except TimeoutError:
                 # An input may still have an unknown result. The outer runner only returns
@@ -111,6 +126,8 @@ def recovery_session(policy: AssistPolicy, *, settings, driver, transaction, evi
                 if any(item.execution == "unknown" for item in result.steps):
                     return TakeoverDecision.STOP
                 return _handoff(await ctx.resume_status())
+            if ctx.resolve_limited is not None and step.id in policy.recovery_only_actions:
+                ctx.resolve_limited(result)
         return _handoff(await ctx.resume_status())
 
     return recover

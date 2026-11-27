@@ -769,7 +769,13 @@ def create_app(
                           default_calls=orch.max_role_invocations)
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
-        if (dimension := orch.exhausted_budget(state)) is not None:
+        dimension = orch.exhausted_budget(state)
+        if dimension is not None and task.status == TaskStatus.PAUSED:
+            from agent.skills.script_checkpoint import pending_script_operation
+
+            if pending_script_operation(recovery_store, task_id) is not None:
+                dimension = None  # Read-only submission verification does not need dispatch budget.
+        if dimension is not None:
             if task.status == TaskStatus.PAUSED:
                 orch._budget_fail(task_id, state, dimension)
             else:
@@ -797,6 +803,12 @@ def create_app(
                 })
         traces.write(task_id, kind="system", message="operator_resume_requested",
                      payload={"event": "operator_resume_requested"})
+        if (db.get_agent_record(task_id, "gui_script_run", "binding") is not None
+                and recovery_store.operations(task_id, pending=True)):
+            result = await recovery.recover(task_id, explicit=True)
+            if result.get("status") == TaskStatus.QUEUED.value:
+                background_tasks.add_task(_schedule_run, task_id)
+            return {**result, "resumed": result.get("status") == TaskStatus.QUEUED.value}
         background_tasks.add_task(_schedule_run, task_id)
         return {"task_id": task_id, "status": "queued", "resumed": True,
                 "execution_attempt": state.revisable.execution_attempt}

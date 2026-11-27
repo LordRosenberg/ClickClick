@@ -8,7 +8,7 @@ RUNTIME_JSON = ("shared/app_aliases.json", "shared/app_alias_profiles.json")
 RUNTIME_ASSETS = ("desktop/assets/clickclick-app.png",)
 SKILL_EVALUATORS = (
     "__init__", "gui_scripts", "gui_script_assist", "gui_script_auto_repair", "gui_script_case",
-    "gui_script_host", "gui_script_ocr", "gui_script_release", "gui_visual_record",
+    "gui_script_executor", "gui_script_host", "gui_script_ocr", "gui_script_release", "gui_visual_record",
     "gui_skill_auto_plan", "gui_skill_budget", "gui_skill_case_recording",
     "gui_skill_case_registry", "gui_skill_console_worker", "gui_skill_loop",
     "gui_skill_regression", "gui_skill_replay_evidence", "skill_fixture_restoration", "skill_learning",

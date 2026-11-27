@@ -3,7 +3,7 @@
 from shared.model_router import ModelRouter
 
 
-def create_orchestrator(*args, settings, **kwargs):
+def create_orchestrator(*args, settings, orchestrator_type=None, **kwargs):
     from agent.revisable.orchestrator import PlanOrchestrator
     from agent.revisable.roles import PlanDecisionRole, PlanExecutor
 
@@ -19,4 +19,4 @@ def create_orchestrator(*args, settings, **kwargs):
             driver, artifacts, model=ModelRouter.from_settings(settings).executor, settings=settings
         ),
     )
-    return PlanOrchestrator(*args, settings=settings, **kwargs)
+    return (orchestrator_type or PlanOrchestrator)(*args, settings=settings, **kwargs)

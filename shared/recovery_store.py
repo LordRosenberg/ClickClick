@@ -340,7 +340,9 @@ class RecoveryStore:
         meta = self.metadata(task_id)
         content = state.model_dump(mode="json") if state is not None else json.loads(meta["state_json"])
         # Capture current required bodies, never every historical trace/event.
-        kinds = ("note","prompt_policy","skill_snapshot","hitl_config","human_input","user_adjustment")
+        kinds = ("note","prompt_policy","skill_snapshot","hitl_config","human_input","user_adjustment",
+                 "gui_script_run","gui_script_checkpoint","gui_script_step_completion",
+                 "gui_script_limited_confirmation","gui_script_takeover")
         placeholders = ",".join("?" for _ in kinds)
         records = [dict(row) for row in self.db._conn.execute(
             f"SELECT a.* FROM agent_records a JOIN (SELECT kind,record_key,MAX(version) version "

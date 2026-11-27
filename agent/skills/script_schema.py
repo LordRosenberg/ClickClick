@@ -144,12 +144,21 @@ ScriptAction = Annotated[
 Conditions = Annotated[tuple[ScriptCondition, ...], Field(min_length=1, max_length=24, strict=False)]
 
 
+class StepConfirmation(_ScriptModel):
+    """Read a new business ID from the same operation-scoped ledger before and after dispatch."""
+
+    scope: SelectorFields
+    target: SelectorFields
+    identifier_prefix: Label
+
+
 class ScriptStep(_ScriptModel):
     id: Identifier
     before: Conditions
     blocked_when: Conditions | None = None
     action: ScriptAction
     after: Conditions
+    confirmation: StepConfirmation | None = None
     retry_when: Conditions | None = None
     timeout_seconds: Timeout | None = None
 
@@ -206,6 +215,11 @@ class GuiScript(_ScriptModel):
         references = set()
         for step in self.steps:
             conditions.extend((*step.before, *step.after, *(step.retry_when or ()), *(step.blocked_when or ())))
+            if step.confirmation is not None:
+                if step.action.type == "wait":
+                    raise ValueError("business confirmation requires a dispatching step")
+                references.update(field.text_parameter for field in (step.confirmation.scope, step.confirmation.target)
+                                  if field.text_parameter is not None)
             if isinstance(step.action, (TapAction, LongPressAction, TypeAction)):
                 references.update(_parameter_references(step.action.target))
             if isinstance(step.action, (TapAction, VisualTapAction)) and step.action.object is not None:
@@ -264,7 +278,7 @@ def _fingerprint_projection(value):
     if isinstance(value, dict):
         return {key: _fingerprint_projection(item) for key, item in value.items()
                 if item is not None or key not in
-                {"visual", "relative_to", "occurrence", "expected_count", "fallback_roi", "object"}}
+                {"visual", "relative_to", "occurrence", "expected_count", "fallback_roi", "object", "confirmation"}}
     if isinstance(value, list):
         return [_fingerprint_projection(item) for item in value]
     return value

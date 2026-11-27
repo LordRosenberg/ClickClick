@@ -51,6 +51,23 @@ class RoleInvocationLimitExceeded(RuntimeError):
     """The task-wide model-call runaway guard was exhausted."""
 
 
+def prepare_task_checkpoint(db: Database, artifacts: ArtifactStore, task_id: str, state: AgentState) -> None:
+    """Validate saved history without changing the task's outcome."""
+    from agent.revisable.store import TaskStore
+    from shared.recovery_store import RecoveryStore
+
+    RecoveryStore(db, artifacts).finalize_tools(task_id)
+    if state.revisable.dialogue_refs:
+        store = TaskStore(db, artifacts, task_id)
+        closed_refs = [ref for ref in state.revisable.dialogue_refs
+                       if store.get("dialogue", ref)["payload"]["step"] < state.step_number]
+        store.read_dialogue(closed_refs)
+        state.revisable.dialogue_refs = closed_refs
+    state.revisable.delivered_context = {}
+    state.revisable.checkpoint_version += 1
+    state.revisable.checkpoint_resumable = True
+
+
 class Orchestrator:
     """Shared device lifecycle, persistence, cancellation and trace transport."""
 
@@ -110,21 +127,7 @@ class Orchestrator:
         return task_id in self._pause_requested
 
     def _prepare_checkpoint(self, task_id: str, state: AgentState) -> None:
-        from shared.recovery_store import RecoveryStore
-        RecoveryStore(self.db,self.artifacts).finalize_tools(task_id)
-        """Validate saved history without changing the task's outcome."""
-        from agent.revisable.store import TaskStore
-
-        if state.revisable.dialogue_refs:
-            store = TaskStore(self.db, self.artifacts, task_id)
-            # Only closed steps may supply actionable continuation history.
-            closed_refs = [ref for ref in state.revisable.dialogue_refs
-                           if store.get("dialogue", ref)["payload"]["step"] < state.step_number]
-            store.read_dialogue(closed_refs)
-            state.revisable.dialogue_refs = closed_refs
-        state.revisable.delivered_context = {}
-        state.revisable.checkpoint_version += 1
-        state.revisable.checkpoint_resumable = True
+        prepare_task_checkpoint(self.db, self.artifacts, task_id, state)
 
     def _pause(self, task_id: str, state: AgentState) -> TaskStatus:
         """Commit a clean business checkpoint; paused is published after cleanup."""
@@ -267,6 +270,13 @@ class Orchestrator:
         max_action_attempts: int | None = None,
     ) -> TaskStatus:
         from agent.pause import TaskPauseRequested
+
+        if state.recovery or state.revisable.checkpoint_version:
+            replay = self.db.get_agent_record(task_id, "gui_script_run", "binding")
+            if replay is not None:
+                from evaluation.gui_script_host import resume_replay_task
+
+                return await resume_replay_task(self, task_id, replay["payload"])
 
         budget_check = getattr(self, "exhausted_budget", None)
         if budget_check is not None and (dimension := budget_check(state)) is not None:

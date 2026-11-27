@@ -213,7 +213,7 @@ class HumanInputBroker:
                 raise InputConflict("task_not_executing")
             now = time.time()
             deadline = now + config["timeout_seconds"]
-            if task.state.revisable.limits.deadline_at is not None:
+            if task.state.revisable.limits.deadline_at is not None and not self.is_script_confirmation({"checkpoint": checkpoint}):
                 deadline = min(deadline, task.state.revisable.limits.deadline_at)
             if deadline <= now:
                 raise InputConflict("task_deadline_exhausted")
@@ -265,7 +265,8 @@ class HumanInputBroker:
     def _owned(self, task_id, interaction_id, version, owner, binding):
         item = self.current(task_id)
         task = self.db.get_task(task_id)
-        if not task or task.status != TaskStatus.WAITING_FOR_INPUT:
+        if not task or (task.status != TaskStatus.WAITING_FOR_INPUT and not (
+                task.status == TaskStatus.PAUSED and self.is_script_confirmation(item))):
             raise InputConflict("task_not_waiting")
         if (not item or item["status"] != "pending" or item["interaction_id"] != interaction_id
                 or item["owner_version"] != version or item["owner"] != owner
@@ -278,6 +279,19 @@ class HumanInputBroker:
             if not live or not live.get("subscribed") or live["expires_at"] <= time.time():
                 raise InputConflict("reply_binding_unavailable")
         return item
+
+    @staticmethod
+    def is_script_confirmation(item):
+        return bool(item and (item.get("checkpoint") or {}).get("script_replay") is True)
+
+    def finish_script_confirmation(self, task_id, step_id=None):
+        with self.db.transaction():
+            item = self.current(task_id)
+            if (self.is_script_confirmation(item) and item["status"] in {"pending", "resolved"}
+                    and (step_id is None or item["checkpoint"].get("step_id") == step_id)):
+                item.update(status="consumed" if item["status"] == "resolved" else "invalidated",
+                            checkpoint=None)
+                self._save(item)
 
     def takeover(self, task_id, *, interaction_id=None, owner_version=None):
         with self.db.transaction():
@@ -344,6 +358,8 @@ class HumanInputBroker:
             if now >= item["deadline_at"]:
                 item.update(status="resolved", outcome="timeout", answers=[], provenance="runtime")
                 self._save(item)
+                if task.status == TaskStatus.PAUSED and self.is_script_confirmation(item):
+                    return False
                 self.db.update_task(task_id, status=TaskStatus.QUEUED)
                 return True
             if item["owner"] in {"assistant", "cli"}:

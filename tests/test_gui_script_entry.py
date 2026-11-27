@@ -1,12 +1,15 @@
+from contextlib import contextmanager
 from copy import deepcopy
 import json
+from types import SimpleNamespace
 
 from pytest import mark, raises
 
 from agent.revisable.store import TaskStore
 from agent.skills.script_schema import GuiScript, script_fingerprint
 from driver.fixture import DEFAULT_TREE, FixtureDriver
-from evaluation.gui_script_assist import AssistPolicy, recovery_session
+from evaluation import gui_scripts
+from evaluation.gui_script_assist import AssistPolicy
 from evaluation.gui_script_host import evaluation_settings, replay_owned
 from evaluation.gui_script_release import register_script
 from evaluation.gui_scripts import _script
@@ -48,13 +51,16 @@ class ToggleDriver(FixtureDriver):
             self.status["text"] = "Done"
         return result
 
+    async def read_app_build(self, app):
+        return {"package": app, "version_code": "1"}
+
 
 @mark.asyncio
 @mark.parametrize("blocked, clears_while_model_runs", [(False, False), (True, False), (True, True)])
 async def test_explicit_owned_replay_commits_native_events(tmp_path, monkeypatch, blocked, clears_while_model_runs):
     driver = ToggleDriver(blocked)
-    settings = evaluation_settings(None, tmp_path)
-    policy = AssistPolicy.model_validate({"max_actions": 1, "max_seconds": 10.0, "actions": [
+    policy = AssistPolicy.model_validate({"max_actions": 1, "max_seconds": 10.0,
+                                        "recovery_only_actions": ["dismiss"], "actions": [
         {"id": "dismiss", "before": [text_is("Blocked")], "after": [text_is("Ready")],
          "action": {"type": "tap", "target": {"text": "Dismiss", "role": "Button"}}},
     ]})
@@ -69,11 +75,26 @@ async def test_explicit_owned_replay_commits_native_events(tmp_path, monkeypatch
 
     monkeypatch.setattr("evaluation.gui_script_assist.complete", choose)
 
-    def assist(owned, transaction, evidence):
-        return recovery_session(policy, settings=settings, driver=owned, transaction=transaction, evidence=evidence)
+    @contextmanager
+    def exclusive(*args, **kwargs):
+        yield SimpleNamespace(quarantined=False, bind_replay=lambda *args: None)
 
-    result = await replay_owned(app_script(12.0), goal="Open the item", settings=settings, driver=driver,
-                                serial=driver.serial, parameters={}, max_seconds=40.0, assist=assist)
+    async def with_driver(settings, serial, run, **kwargs):
+        return await run(driver)
+
+    monkeypatch.setattr(gui_scripts, "exclusive_emulator", exclusive)
+    monkeypatch.setattr(gui_scripts, "with_android_driver", with_driver)
+    source, assist, output = tmp_path / "script.json", tmp_path / "assist.json", tmp_path / "replay"
+    source.write_text(app_script(12.0).model_dump_json(), encoding="utf-8")
+    assist.write_text(policy.model_dump_json(), encoding="utf-8")
+    report = await gui_scripts._replay(SimpleNamespace(
+        script=source, output=output, goal="Open the item", serial=driver.serial, seconds=45.0,
+        env_file=None, parameters=None, assets=None, ocr_executable=None, assist_policy=assist,
+        verify=False, repair=False, snapshot=None, avd="fixture", adb="unused",
+    ))
+    settings = evaluation_settings(None, output / "first-runtime")
+    result = report["first"]
+
     assert result["status"] == "succeeded", result
     assert result["receipt"]["final_asserted"] and result["receipt"]["assisted"] is blocked
     assert len(chosen) == int(blocked)

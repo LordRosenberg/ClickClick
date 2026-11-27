@@ -108,7 +108,9 @@ def mount_human_input(app, *, db, traces, schedule_run):
 
     @router.get("/pending")
     async def pending(x_hitl_binding: str | None = Header(default=None)):
-        return {"interactions": [view for task in db.list_tasks(TaskStatus.WAITING_FOR_INPUT)
+        paused_replays = [task for task in db.list_tasks(TaskStatus.PAUSED)
+                          if broker.is_script_confirmation(broker.current(task.id))]
+        return {"interactions": [view for task in (*db.list_tasks(TaskStatus.WAITING_FOR_INPUT), *paused_replays)
                                  if (view := broker.public(task.id, owner=owner(x_hitl_binding), binding=x_hitl_binding))]}
 
     @router.get("/tasks/{task_id}")

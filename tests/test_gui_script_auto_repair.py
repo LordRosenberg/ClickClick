@@ -54,7 +54,9 @@ def node(desc, *, index=0, resource_id="play_button", window_id=None, role="Butt
 
 
 def takeover_scope(artifact):
-    return SimpleNamespace(script=artifact, step=artifact.steps[0], parameters={}, failure=ScriptStepReceipt(
+    return SimpleNamespace(script=artifact, step=artifact.steps[0], parameters={}, resolve_limited=None,
+                           bind_observation=None,
+                           failure=ScriptStepReceipt(
         step_id="open", attempt=1, succeeded=False, execution="not_dispatched", reason="before_condition_unsatisfied"))
 
 

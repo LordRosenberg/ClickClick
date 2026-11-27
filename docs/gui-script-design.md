@@ -43,16 +43,18 @@ In each frame, the identity and the control or outcome must share one visible co
 
 Replay checks the initial conditions, polls fresh observations for each step's local preconditions, dispatches through the existing action and observation transaction, then polls for the postcondition. Each step has a precondition deadline and a second deadline shared by dispatch and the postcondition check. They use the same per-step setting, 12 seconds by default or 15.5 seconds for launch. A step can override that setting. An explicit `wait` polls for a condition without sending input. A matching `blocked_when` can end the precondition wait early. After the last step the runner checks the App and final outcome on a fresh observation.
 
-Pure replay uses no model. An explicitly enabled takeover may select only in-App steps allowed by policy, each with its own checks and a bounded time and action allowance. For registered scripts, the automatic recovery mode currently derives at most one action before an undispatched failure. Supported cases are a narrowly verified semantic target with changing numeric description text or an App-owned modal with a uniquely verified dismissal control. Pure-image errors can use the explicit assist policy.
+The script runs without a model until a step fails. Limited recovery checks authorized in-App actions, verified locator changes or dismissible App-owned dialogs. If this fails, the normal Executor receives the task, stage, current step, observation, device receipts and completed-step evidence. When the route assumptions fail, Executor sends `replan` through the Harness to Planner. Subsequent takeovers use the existing task time and action budgets.
 
-The runner controls handback and rechecks it on a fresh observation before continuing.
+The runner verifies the failed step on a fresh observation and atomically saves its completion and the next cursor. It ends that takeover and checks the next step's preconditions at the normal step entry point. A failure there gets its own takeover.
 
 | Decision | Required evidence |
 | --- | --- |
-| Retry this step once | Its preconditions hold, the effect has not already occurred and there is no blocker. The attempt must have been undispatched or have an explicit, satisfied `retry_when` condition and known outcome. |
-| Continue to the next step | The blocked step's postcondition and the next step's precondition both hold, and the next step is unblocked. |
-| Finish | The final condition and any independent result check pass. |
-| Stop | A safe handback cannot be verified. Unknown dispatch outcomes stop automatic input and may require device reconciliation. |
+| Retry this step once | The attempt was demonstrably undispatched, the current preconditions hold and the blocker has cleared. |
+| Continue to the next step | The failed step's result has been verified. For steps with a declared confirmation record, a fresh transaction identifier proves the result. |
+| Finish | The last step is confirmed and the final condition and any independent result check pass. |
+| Pause for confirmation | The current submission remains uncertain. The runner preserves the cursor and requests operator confirmation. |
+
+T1 binds input intent to a script revision, step and attempt. T2 saves the device receipt, and T3 records the executed step. If T1 survives an interruption or the action may have reached the App, the Harness permits read-only verification for that step. A step may declare `confirmation` to identify an App-owned record container and an identifier field. A single new identifier in the same container can prove the submission even when the confirmation page is absent. If the operator has to open the record manually, Resume reads evidence again from the same task and device.
 
 ## Verification and version registration
 

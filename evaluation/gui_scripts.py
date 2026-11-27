@@ -157,6 +157,7 @@ async def _learn(args, *, runtime, task_id, script=None, evidence=None, remainin
 
 
 async def _replay(args):
+    resume_task_id = getattr(args, "resume_task", None)
     script_path, raw, script = _replay_artifact(args.script)
     envelope = raw.get("candidate", raw)
     provenance = envelope.get("provenance") or {}
@@ -173,8 +174,13 @@ async def _replay(args):
     ocr = LocalScriptOCR(args.ocr_executable, args.ocr_language) if args.ocr_executable else None
     script.bind_parameters(parameters)
     policy = AssistPolicy.model_validate_json(args.assist_policy.read_text(encoding="utf-8-sig")) if args.assist_policy else None
+    takeover_seconds = getattr(args, "takeover_seconds", None)
+    if takeover_seconds is not None and not 0 < takeover_seconds <= 600:
+        raise ValueError("takeover budget must be between 0 and 600 seconds")
     auto_registry = getattr(args, "auto_repair_registry", None)
     initial_registry = getattr(args, "auto_enroll_registry", None)
+    if resume_task_id and (args.verify or args.repair or auto_registry is not None):
+        raise ValueError("resume the original replay without verification or repair options")
     if args.repair and (not policy or not args.snapshot):
         raise ValueError("a two-round repair requires explicit takeover and a clean reference snapshot")
     if auto_registry is not None and (policy is not None or not args.snapshot):
@@ -184,7 +190,10 @@ async def _replay(args):
     if initial_registry is not None and (not args.verify or script.revision != 1 or not source_provenance
                                          or source_provenance.get("goal") != args.goal):
         raise ValueError("initial automatic enrollment requires --verify and an exact independently reviewed v1 draft")
-    output = _workspace(args.output)
+    output = args.output.resolve() if resume_task_id else _workspace(args.output)
+    first_runtime = output / "first-runtime"
+    if resume_task_id and not evaluation_settings(args.env_file, first_runtime).db_path.is_file():
+        raise ValueError("resume requires the original replay output directory")
     expires = time.monotonic() + args.seconds
     original_fixture = None
     auto_block = None
@@ -200,12 +209,12 @@ async def _replay(args):
             auto_block = "registered_original_fixture_incompatible"
 
     async def run(artifact, runtime, assist_policy=None, expected_build=None, *, contracted=False,
-                  original_snapshot=None):
+                  original_snapshot=None, formal_recovery=False, resume_id=None, bind=None):
         left = expires - time.monotonic()
         if left <= 0:
             return {"status": "unknown", "reason": "job_deadline_exceeded"}
         snapshot = original_snapshot or args.snapshot
-        if snapshot:
+        if snapshot and resume_id is None:
             try:
                 await asyncio.wait_for(restore_snapshot(args.adb, args.serial, snapshot), left)
             except (EvaluationInfrastructureError, TimeoutError):
@@ -231,8 +240,16 @@ async def _replay(args):
                                         serial=args.serial, parameters=parameters,
                                         max_seconds=expires - time.monotonic(),
                                         assist=assist if (assist_policy or contracted) else None,
-                                        takeover_seconds=assist_policy.max_seconds if assist_policy else 30.0,
+                                        takeover_seconds=(takeover_seconds if takeover_seconds is not None else
+                                                          assist_policy.max_seconds if assist_policy else 30.0),
                                         asset_root=asset_root, ocr=ocr,
+                                        formal_recovery=formal_recovery, resume_task_id=resume_id,
+                                        on_task_created=bind,
+                                        replay_options={
+                                            "assist_policy": assist_policy.model_dump(mode="json") if assist_policy else None,
+                                            "contracted": contracted,
+                                            "ocr": [str(args.ocr_executable), args.ocr_language] if ocr is not None else None,
+                                        },
                                         fixture={"app_build": build["version_code"], "snapshot": snapshot,
                                                  "avd": args.avd, "parameters_hash": digest(parameters)})
             return {**result, "runtime": str(runtime), "app_build": build["version_code"],
@@ -241,10 +258,15 @@ async def _replay(args):
         return await with_android_driver(settings, args.serial, on_device,
                                          full_resolution=next(visual_templates(artifact), None) is not None)
 
-    with exclusive_emulator(args.serial, args.avd, args.adb) as lease:
+    lease_options = ({"resume": {"runtime": str(first_runtime.resolve()), "task_id": resume_task_id}}
+                     if resume_task_id else {})
+    with exclusive_emulator(args.serial, args.avd, args.adb, **lease_options) as lease:
         automatic = auto_registry is not None and auto_block is None
-        first = await run(script, output / "first-runtime", policy, contracted=automatic)
-        lease.quarantined = bool(first.get("device_reconciliation_required"))
+        first = await run(script, first_runtime, policy, contracted=policy is None and not args.verify,
+                          formal_recovery=not args.verify, resume_id=resume_task_id,
+                          bind=lambda task_id: lease.bind_replay(first_runtime, task_id))
+        lease.quarantined = bool(first.get("device_reconciliation_required")
+                                 or (resume_task_id and not first.get("task_id")))
         atomic_json(output / "first.json", first)
         report = {"first": first, "update": "no_assisted_success" if (args.repair or automatic) else "not_requested"}
         if auto_registry is not None:
@@ -270,7 +292,9 @@ async def _replay(args):
             if repair["status"] == "candidate":
                 candidate = _script(repair)
         if candidate is not None:
-            second = await run(candidate, output / "second-runtime", expected_build=first["app_build"])
+            runtime = output / "second-runtime"
+            second = await run(candidate, runtime, expected_build=first["app_build"],
+                               bind=lambda task_id: lease.bind_replay(runtime, task_id))
             lease.quarantined = bool(second.get("device_reconciliation_required"))
             atomic_json(output / "second.json", second)
             report["second"] = second
@@ -291,9 +315,11 @@ async def _replay(args):
                     else:
                         report.update(update="automatically_registered", registered_path=str(path))
             if automatic and passed:
-                original = await run(candidate, output / "original-runtime",
+                runtime = output / "original-runtime"
+                original = await run(candidate, runtime,
                                      expected_build=original_fixture["app_build"],
-                                     original_snapshot=original_fixture["snapshot"])
+                                     original_snapshot=original_fixture["snapshot"],
+                                     bind=lambda task_id: lease.bind_replay(runtime, task_id))
                 lease.quarantined = bool(original.get("device_reconciliation_required"))
                 atomic_json(output / "original.json", original)
                 report["original"] = original
@@ -469,6 +495,9 @@ def main(argv=None):
     replay.add_argument("--parameters", type=Path)
     replay.add_argument("--assets", type=Path, help="visual asset directory, defaults to the script directory")
     replay.add_argument("--assist-policy", type=Path)
+    replay.add_argument("--takeover-seconds", type=float, help="shared time budget for all takeover sessions")
+    replay.add_argument("--resume-task", metavar="TASK_ID",
+                        help="continue the saved task in the same --output, without restoring a snapshot")
     replay.add_argument("--skill-source-runtime", type=Path,
                         help="optional runtime containing the original reviewed recording task")
     replay.add_argument("--auto-enroll-registry", type=Path,

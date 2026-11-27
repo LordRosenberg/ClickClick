@@ -3,16 +3,23 @@ from __future__ import annotations
 import asyncio
 from copy import deepcopy
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
+from agent.skills.script_checkpoint import ScriptCheckpoint
 from agent.skills.script_runner import TakeoverDecision, check_conditions, run_gui_script
 from agent.skills.script_schema import GuiScript, script_fingerprint
 from driver.fixture import DEFAULT_TREE, FixtureDriver
 from perception.observation import ObservationPackage
+from shared.db import Database
+from shared.recovery_context import ExecutionContext
+from shared.recovery_runtime import InfrastructureInterrupted
+from shared.recovery_store import RecoveryStore
 from shared.schemas import (
-    ActionReceipt, ActionResult, CanonicalUI, FocusedElementEvidence, InteractionStateEvidence, ObservationMode, UIElement,
+    Action, ActionReceipt, ActionResult, AgentState, CanonicalUI, FocusedElementEvidence, InteractionStateEvidence,
+    ObservationMode, UIElement,
 )
 
 APP = "com.example.demo"
@@ -78,6 +85,19 @@ class FakeTransaction:
 async def run(raw, transaction, **options):
     return await run_gui_script(GuiScript.model_validate(raw), driver=object(),
                                 transaction=transaction, poll_seconds=0.002, **options)
+
+
+@pytest.fixture
+def owned_runner():
+    db = Database(Path(":memory:"))
+    try:
+        state = AgentState(instruction="Submit the form once")
+        task_id = db.create_task(state.instruction, state, device_serial="fixture").id
+        store = RecoveryStore(db)
+        store.enable(task_id)
+        yield ExecutionContext(store, store.claim(task_id, "replay"), state)
+    finally:
+        db.close()
 
 
 async def test_initial_condition_waits_for_a_late_semantic_tree_without_input():
@@ -301,7 +321,80 @@ async def test_unknown_dispatch_does_not_call_takeover_or_repeat(detail):
     assert len(transaction.actions) == 1 and result.steps[0].execution == "unknown"
 
 
-async def test_takeover_advance_requires_current_after_and_next_before():
+@pytest.mark.parametrize(("before_ids", "after_ids", "outside_ids", "expected"), [
+    (("old",), ("old", "new"), (), "succeeded"),
+    (("old",), ("old",), ("new",), "paused"),
+    (("old",), ("old", "new", "ambiguous"), (), "paused"),
+    (None, ("old", "new"), (), "paused"),
+])
+async def test_interrupted_submit_uses_new_id_from_the_same_ledger(
+    owned_runner, before_ids, after_ids, outside_ids, expected,
+):
+    ledger = {"type": "target_present", "target": {"resource_id": "ledger"}}
+    raw = document(after={"type": "target_present", "target": {"text": "Submission complete"}})
+    raw["final"] = [ledger]
+    raw["steps"][0]["confirmation"] = {
+        "scope": {"resource_id": "ledger"},
+        "target": {"resource_id": "receipt_id"},
+        "identifier_prefix": "Submission #",
+    }
+    script = GuiScript.model_validate(raw)
+
+    def records(ids, outside=()):
+        if ids is None:
+            return ()
+        scope = element(-1, "History", [1, 1, 40, 40], resource_id="ledger", interactable=False,
+                        children=list(range(1, len(ids) + 1)))
+        rows = tuple(element(-1, f"Submission #{identifier}", [2, 2, 4, 4],
+                             resource_id="receipt_id", interactable=False) for identifier in (*ids, *outside))
+        return (scope, *rows)
+
+    checkpoint = ScriptCheckpoint(owned_runner, script, {})
+
+    class InterruptedSubmit(FakeTransaction):
+        async def act_and_observe(self, action, before, *, deadline_ms, target):
+            owned_runner.prepare_action(action)
+            self.actions.append(action)
+            # No response or confirmation page returned after the device applied the input.
+            self.elements = records(after_ids, outside_ids)
+            raise InfrastructureInterrupted("lost driver response")
+
+    transaction = InterruptedSubmit((*records(before_ids), READY_LABEL, PLAY))
+    result = await run(raw, transaction, checkpoint=checkpoint, takeover_seconds=0.5)
+    assert result.status == expected, result.model_dump()
+    assert len(transaction.actions) == 1
+    store, task_id = owned_runner.store, owned_runner.owner.task_id
+    assert len(store.operations(task_id)) == 1
+    if expected == "succeeded":
+        completed = store.db.get_agent_record(task_id, "gui_script_step_completion", "start")["payload"]
+        assert completed["confirmation_id"] == "new"
+        assert completed["next_index"] == checkpoint.cursor == 1
+    else:
+        assert result.failed_step_id == "start"
+        assert checkpoint.cursor == 0 and checkpoint.pending(0) is not None
+
+
+async def test_task_action_budget_pauses_at_current_step_without_dispatch(owned_runner):
+    raw = document()
+    raw["steps"].insert(0, {"id": "ready", "before": [READY], "action": {"type": "wait"}, "after": [READY]})
+    owned_runner.state.revisable.limits.device_actions = 1
+    owned_runner.state.revisable.execution_count = 1
+    checkpoint = ScriptCheckpoint(owned_runner, GuiScript.model_validate(raw), {})
+
+    class BudgetedTransaction(FakeTransaction):
+        async def act_and_observe(self, action, before, *, deadline_ms, target):
+            owned_runner.prepare_action(action)
+            return await super().act_and_observe(action, before, deadline_ms=deadline_ms, target=target)
+
+    transaction = BudgetedTransaction()
+    result = await run(raw, transaction, checkpoint=checkpoint)
+    assert (result.status, result.reason, result.failed_step_id) == ("paused", "script_replay_budget_exhausted", "start")
+    assert checkpoint.cursor == 1 and checkpoint.pending(1) is None
+    assert [receipt["step_id"] for receipt in checkpoint.receipts] == ["ready"]
+    assert transaction.actions == [] and owned_runner.script_attempt is None
+
+
+async def test_takeover_advance_requires_current_after():
     raw = document(after={"type": "target_present", "target": {"text": "Middle"}})
     second = document(before={"type": "target_present", "target": {"text": "Middle"}})["steps"][0]
     second.update(id="next", action={"type": "tap", "target": {"text": "Proceed"}})
@@ -319,6 +412,117 @@ async def test_takeover_advance_requires_current_after_and_next_before():
     result = await run(raw, transaction, takeover=take_over)
     assert result.status == "succeeded" and result.assisted and result.final_asserted
     assert result.failed_step_id == "start" and len(transaction.actions) == 1
+
+
+@pytest.mark.parametrize("second_confirms", [True, False])
+async def test_each_takeover_hands_back_only_its_failed_step(owned_runner, second_confirms):
+    second_ready = {"type": "target_present", "target": {"text": "Second ready"}}
+    second_after = {"type": "target_present", "target": {"text": "Second result"}}
+    third_ready = {"type": "target_present", "target": {"text": "Third ready"}}
+    second_marker = element(2, "Second ready", [0, 0, 1, 1])
+    second_result = element(3, "Second result", [0, 0, 1, 1])
+    third_marker = element(4, "Third ready", [0, 0, 1, 1])
+    proceed = element(8, "Proceed", [40, 40, 50, 50])
+    raw = document(after=second_ready)
+    second = document(before=second_ready, after=second_after)["steps"][0]
+    second.update(id="second", action={"type": "tap", "target": {"text": "Old control"}})
+    third = document(before=third_ready)["steps"][0]
+    third.update(id="third", action={"type": "tap", "target": {"text": "Proceed"}})
+    raw["steps"].extend((second, third))
+    incidents = []
+    checkpoint = ScriptCheckpoint(owned_runner, GuiScript.model_validate(raw), {})
+
+    def perform(device):
+        if len(device.actions) == 1:
+            device.elements = (second_marker,)
+        elif len(device.actions) == 2:
+            device.elements = (second_result,)
+        else:
+            device.elements = (DONE_LABEL,)
+
+    class OwnedTransaction(FakeTransaction):
+        async def act_and_observe(self, action, before, *, deadline_ms, target):
+            operation_id = owned_runner.prepare_action(action)
+            result, after = await super().act_and_observe(action, before, deadline_ms=deadline_ms, target=target)
+            owned_runner.store.receipt(operation_id, result.model_dump(mode="json"))
+            return result, after
+
+    transaction = OwnedTransaction(perform=perform)
+
+    async def takeover(ctx):
+        incidents.append(ctx.step.id)
+        if ctx.step.id == "second":
+            await transaction.act_and_observe(Action(type="tap_xy", x=15, y=15), ctx.observation,
+                                              deadline_ms=20, target=None)
+            assert TakeoverDecision.CONTINUE_NEXT in await ctx.resume_status()
+            if not second_confirms:
+                # Earlier advice cannot authorize handback after current evidence changes.
+                transaction.elements = (third_marker, proceed)
+            return TakeoverDecision.CONTINUE_NEXT
+        assert ctx.step.id == "third" and ctx.failure.reason == "before_condition_unsatisfied"
+        assert checkpoint.cursor == 2
+        assert [receipt["step_id"] for receipt in checkpoint.receipts] == ["start", "second"]
+        transaction.elements = (third_marker, proceed)
+        assert TakeoverDecision.RETRY_CURRENT in await ctx.resume_status()
+        return TakeoverDecision.RETRY_CURRENT
+
+    outcome = await run(raw, transaction, takeover=takeover, checkpoint=checkpoint, takeover_seconds=0.5)
+    assert [(action.x, action.y) for action in transaction.actions].count((15, 15)) == 1
+    records = owned_runner.store.db.list_agent_records(owned_runner.owner.task_id, "gui_script_step_completion")
+    if second_confirms:
+        assert incidents == ["second", "third"]
+        assert outcome.status == "succeeded"
+        assert [(step.step_id, step.reason) for step in outcome.steps if step.succeeded] == [
+            ("start", "postcondition_met"), ("second", "takeover_postcondition_met"),
+            ("third", "postcondition_met"),
+        ]
+        assert [(row["payload"]["step_id"], row["payload"]["next_index"]) for row in records] == [
+            ("start", 1), ("second", 2), ("third", 3),
+        ]
+    else:
+        assert incidents == ["second"]
+        assert outcome.status == "paused" and outcome.failed_step_id == "second"
+        assert outcome.reason == "step_confirmation_required"
+        assert not any(step.succeeded for step in outcome.steps if step.step_id == "second")
+        assert checkpoint.cursor == 1 and checkpoint.pending(1) is not None
+        assert [row["payload"]["step_id"] for row in records] == ["start"]
+        assert len(transaction.actions) == 2
+
+
+async def test_limited_stop_routes_to_formal_recovery_under_same_deadline():
+    transaction = FakeTransaction((READY_LABEL,))
+    deadlines = []
+
+    async def local(ctx):
+        deadlines.append(ctx.deadline)
+        return TakeoverDecision.STOP
+
+    async def formal(ctx):
+        deadlines.append(ctx.deadline)
+        transaction.elements = (DONE_LABEL,)
+        assert TakeoverDecision.FINISH in await ctx.resume_status()
+        return TakeoverDecision.FINISH
+
+    result = await run(document(), transaction, takeover=local, formal_takeover=formal)
+    assert len(deadlines) == 2 and deadlines[0] == deadlines[1]
+    assert result.status == "succeeded" and result.steps[-1].reason == "takeover_postcondition_met"
+
+
+async def test_formal_receipt_with_unknown_dispatch_cannot_confirm_generic_after(owned_runner):
+    raw = document()
+    checkpoint = ScriptCheckpoint(owned_runner, GuiScript.model_validate(raw), {})
+    transaction = FakeTransaction((READY_LABEL,))
+
+    async def formal(ctx):
+        operation_id = owned_runner.prepare_action(Action(type="tap_xy", x=15, y=15))
+        owned_runner.store.receipt(operation_id, {"success": True, "detail": {"dispatch_unknown": True}})
+        transaction.elements = (DONE_LABEL,)
+        assert await ctx.resume_status() == {TakeoverDecision.STOP}
+        return TakeoverDecision.STOP
+
+    outcome = await run(raw, transaction, formal_takeover=formal, checkpoint=checkpoint, takeover_seconds=0.15)
+    assert outcome.status == "paused" and outcome.reason == "step_confirmation_required"
+    assert checkpoint.cursor == 0 and checkpoint.pending(0) is not None
 
 
 async def test_takeover_finish_has_to_pass_fresh_final_oracle():
@@ -340,26 +544,27 @@ async def test_takeover_finish_has_to_pass_fresh_final_oracle():
 async def test_retry_requires_no_effect_and_can_only_redispatch_current_step_once():
     txn = FakeTransaction(perform=lambda _: None)
     raw = document()
+    raw["steps"][0]["retry_when"] = [READY]
 
     async def request_retry(ctx):
-        return TakeoverDecision.RETRY_CURRENT
+        pytest.fail("a possibly dispatched action was offered to writable takeover")
 
     result = await run(raw, txn, takeover=request_retry)
-    assert result.reason == "takeover_resume_condition_unsatisfied" and len(txn.actions) == 1
+    assert result.reason == "postcondition_timeout" and len(txn.actions) == 1
 
-    txn = FakeTransaction(perform=lambda _: None)
-    raw["steps"][0]["retry_when"] = [READY]
+    txn = FakeTransaction((READY_LABEL,), perform=lambda _: None)
     seen = []
 
     async def verify_retry(ctx):
         seen.append(ctx.step.id)
+        txn.elements = (READY_LABEL, PLAY)
         assert TakeoverDecision.RETRY_CURRENT in await ctx.resume_status()
         return TakeoverDecision.RETRY_CURRENT
 
     result = await run(raw, txn, takeover=verify_retry)
     assert result.status == "failed" and result.assisted
     assert [receipt.attempt for receipt in result.steps] == [1, 2]
-    assert seen == ["start"] and len(txn.actions) == 2
+    assert seen == ["start"] and len(txn.actions) == 1
 
 
 async def test_two_distinct_takeover_incidents_share_the_same_time_limit():

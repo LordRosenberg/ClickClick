@@ -33,6 +33,7 @@ class ExecutionContext:
     sensitive: bool = False
     fact_versions: dict = field(default_factory=dict)
     compound_plan: list = field(default_factory=list)
+    script_attempt: dict | None = None
 
     def admit_facts(self):
         identities={item["previous_operation_id"] for item in self.state.recovery.get("operations",[])}
@@ -66,6 +67,11 @@ class ExecutionContext:
             parameters["text"] = "[REDACTED]"
         messages_ref = self.store.artifacts.save_json("recovery_dialogue",self.messages) if self.store.artifacts else None
         with self.store.db.transaction():
+            self.store.check(self.owner)
+            if (self.script_attempt is not None
+                    or self.store.db.get_agent_record(self.owner.task_id, "gui_script_checkpoint", "current")):
+                from agent.skills.script_checkpoint import check_script_dispatch
+                check_script_dispatch(self.store, self.owner.task_id, self.script_attempt)
             if self.local_write is not None:
                 self.local_write()
             self.store.prepare(
@@ -74,7 +80,8 @@ class ExecutionContext:
                 call_id=self.call_id, basis=self.basis, units=0 if action.type == "sleep" else 1,
                 parent_id=self.call_id or self.invocation_id, ordinal=len(self.operation_ids),
                 intent={"messages_ref": messages_ref, "role": self.role, "round_seq": self.round_seq,
-                        "compound_plan":self.compound_plan},
+                        "compound_plan":self.compound_plan,
+                        **({"script_attempt": self.script_attempt} if self.script_attempt is not None else {})},
             )
         self.local_write = None
         self.operation_ids.append(operation_id)
